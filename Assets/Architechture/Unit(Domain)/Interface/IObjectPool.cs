@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IObjectPool
 {
-    void SetUp();
-    APooledObject GetObject(IBulletFactory factory);
+    void PoolSetUp(IBulletFactory factory);
+    APooledObject GetFromPool(IBulletFactory factory);
     void ReturnToPool(APooledObject pooledObject);
 }

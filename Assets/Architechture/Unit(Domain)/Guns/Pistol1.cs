@@ -3,33 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Pistol1 : MonoBehaviour, IGun, IBulletType
+public class Pistol1 : MonoBehaviour, IGun_10mm, IBulletType
 {  
 
     [Tooltip("Projectile force")]
     [SerializeField] float muzzleVelocity = 700f;
     [Tooltip("End point of gun where shots appear")]
     [SerializeField] private Transform muzzlePosition;
-
-    [Tooltip("Reference to Object Pool")]
-    [SerializeField] ObjectPool objectPool;
-    [SerializeField] BulletFactories bulletFactories;
-
-    IBulletType.BulletType currentBulletState;
+    IObjectPool objectPool;
+    IBulletFactories bulletFactories;
     IBulletFactory factory;
-
-    public void Start()
+    IBulletType.BulletType currentBulletState;
+    
+    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool objectPool)
     {
-        SetUp();
-    }
+        this.bulletFactories = bulletFactories;
+        this.objectPool = objectPool;
 
-    public void SetUp()
-    {
         currentBulletState = IBulletType.BulletType.Bullet_10mm;
         factory = bulletFactories.BulletFactory(currentBulletState);
-        
+
         //ダメ
-        objectPool.SetUp(factory);
+        objectPool.PoolSetUp(factory);
     }
 
     public void OnUpdate()
@@ -40,7 +35,7 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType
     void IGun.Shot()
     {
         factory = bulletFactories.BulletFactory(currentBulletState);
-        GameObject bulletObject = objectPool.GetObject(factory).gameObject;
+        GameObject bulletObject = objectPool.GetFromPool(factory).gameObject;
 
         if (bulletObject == null)return;
 

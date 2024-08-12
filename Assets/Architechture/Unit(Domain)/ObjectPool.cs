@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+public class ObjectPool : MonoBehaviour, IObjectPool
 {
     [SerializeField] private uint initPoolSize;
 
@@ -14,7 +14,7 @@ public class ObjectPool : MonoBehaviour
     //追加したものを、最後に追加した順に取り出せる、それ以外はListと同じ
     private Stack<APooledObject> stack;
 
-    public void SetUp(IBulletFactory factory)
+    void IObjectPool.PoolSetUp(IBulletFactory factory)
     {
         if (factory == null)
         {
@@ -36,7 +36,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public APooledObject GetObject(IBulletFactory factory)
+    APooledObject IObjectPool.GetFromPool(IBulletFactory factory)
     {
         //Prefabが無ければreturn
         if (factory == null)
@@ -60,7 +60,7 @@ public class ObjectPool : MonoBehaviour
         return nextInstance;
     }
 
-    void ReturnToPool(APooledObject pooledObject)
+    public void ReturnToPool(APooledObject pooledObject)
     {
         stack.Push(pooledObject);
         pooledObject.gameObject.SetActive(false);

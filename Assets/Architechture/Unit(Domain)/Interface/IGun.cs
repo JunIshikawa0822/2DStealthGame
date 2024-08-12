@@ -7,7 +7,5 @@ public interface IGun
     void Reload();
     void Shot();
     void Jam();
-
-    void SetUp();
-    void OnUpdate();
+    
 }
