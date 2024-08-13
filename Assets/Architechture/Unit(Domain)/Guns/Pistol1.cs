@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Pistol1 : MonoBehaviour, IGun_10mm, IBulletType
-{  
-
+public class Pistol1 : MonoBehaviour, IGun, IBulletType
+{
     [Tooltip("Projectile force")]
     [SerializeField] float muzzleVelocity = 700f;
     [Tooltip("End point of gun where shots appear")]
@@ -32,11 +31,12 @@ public class Pistol1 : MonoBehaviour, IGun_10mm, IBulletType
 
     }
 
-    void IGun.Shot()
+    public void Shot()
     {
         factory = bulletFactories.BulletFactory(currentBulletState);
-        GameObject bulletObject = objectPool.GetFromPool(factory).gameObject;
+        if(factory == null)return;
 
+        GameObject bulletObject = objectPool.GetFromPool(factory).gameObject;
         if (bulletObject == null)return;
 
         bulletObject.SetActive(true);
@@ -48,12 +48,12 @@ public class Pistol1 : MonoBehaviour, IGun_10mm, IBulletType
         bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * muzzleVelocity, ForceMode.Acceleration);
     }
 
-    void IGun.Reload()
+    public void Reload()
     {
 
     }
 
-    void IGun.Jam()
+    public void Jam()
     {
 
     }

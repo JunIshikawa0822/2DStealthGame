@@ -14,7 +14,7 @@ public class ObjectPool : MonoBehaviour, IObjectPool
     //追加したものを、最後に追加した順に取り出せる、それ以外はListと同じ
     private Stack<APooledObject> stack;
 
-    void IObjectPool.PoolSetUp(IBulletFactory factory)
+    public void PoolSetUp(IBulletFactory factory)
     {
         if (factory == null)
         {
@@ -36,7 +36,7 @@ public class ObjectPool : MonoBehaviour, IObjectPool
         }
     }
 
-    APooledObject IObjectPool.GetFromPool(IBulletFactory factory)
+    public APooledObject GetFromPool(IBulletFactory factory)
     {
         //Prefabが無ければreturn
         if (factory == null)

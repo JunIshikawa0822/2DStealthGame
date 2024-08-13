@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Factories_Bullet_10mm : MonoBehaviour, IBulletType, IBulletFactories
+public class Bullet_10mm_Factories : MonoBehaviour, IBulletType, IBulletFactories
 {
     //[SerializeField]public ABulletFactory[] factories;
-    [SerializeField] Bullet_10mm bullet_10Mm;
+    [SerializeField] Bullet_10mm bullet_10mm;
 
     Dictionary<IBulletType.BulletType, IBulletFactory> factoriesDic;
 
@@ -19,7 +19,7 @@ public class Factories_Bullet_10mm : MonoBehaviour, IBulletType, IBulletFactorie
     {
         factoriesDic = new Dictionary<IBulletType.BulletType, IBulletFactory>
         {
-            {IBulletType.BulletType.Bullet_10mm, new CreateConcreteFactory_Bullet_10mm(bullet_10Mm)}
+            {IBulletType.BulletType.Bullet_10mm, new Bullet_10mm_CreateConcreteFactory(bullet_10mm)}
         };
     }
 

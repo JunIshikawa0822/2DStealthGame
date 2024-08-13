@@ -1,9 +1,9 @@
 using UnityEngine;
-public class CreateConcreteFactory_Bullet_10mm : IBulletFactory
+public class Bullet_10mm_CreateConcreteFactory : IBulletFactory
 {
     Bullet_10mm bullet;
 
-    public CreateConcreteFactory_Bullet_10mm(Bullet_10mm bullet)
+    public Bullet_10mm_CreateConcreteFactory(Bullet_10mm bullet)
     {
         this.bullet = bullet;
     }
