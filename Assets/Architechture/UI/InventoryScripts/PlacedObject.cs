@@ -1,17 +1,34 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-public class PlacedObject : ItemDragAndDrop
+
+public class PlacedObject : ItemDragAndDrop<PlacedObject>
 {
+    [System.NonSerialized]
     public Dir direction;
+
+    [System.NonSerialized]
     public int width;
+
+    [System.NonSerialized]
     public int height;
 
+    [System.NonSerialized]
     public RectTransform rectTransform;
 
-    void OnSetUp()
+    [System.NonSerialized]
+    public PlacedObject placedObject;
+
+    public TetrisInventory belongingInventory;
+
+    public Vector2Int belongingCellNum;
+
+    public void OnSetUp()
     {
         rectTransform = GetComponent<RectTransform>();
-    } 
+        placedObject = GetComponent<PlacedObject>();
+        this.direction = Dir.Down;
+        Tobject = placedObject;
+    }
 
     public enum Dir {
         Down,
