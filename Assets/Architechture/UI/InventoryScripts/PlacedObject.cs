@@ -1,3 +1,4 @@
+using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -18,9 +19,14 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
     [System.NonSerialized]
     public PlacedObject placedObject;
 
+    [System.NonSerialized]
     public TetrisInventory belongingInventory;
 
+    [System.NonSerialized]
     public Vector2Int belongingCellNum;
+
+    // [SerializeField]
+    // private RectTransform itemImage;
 
     public void OnSetUp()
     {
@@ -30,12 +36,20 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
         Tobject = placedObject;
     }
 
-    public enum Dir {
+    public void ImageSizeSet(float width, float height)
+    {
+        rectTransform.sizeDelta = new Vector2(width, height);
+        //Debug.Log(rectTransform.sizeDelta);
+    }
+
+    public enum Dir 
+    {
         Down,
         Left,
         Up,
         Right,
     }
+
     public Dir GetNextDir(Dir dir) {
         switch (dir) {
             default:

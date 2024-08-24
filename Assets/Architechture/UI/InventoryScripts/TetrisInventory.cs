@@ -9,47 +9,52 @@ public class TetrisInventory : MonoBehaviour
     public Grid<CellObject> grid;
 
     [SerializeField]
-    private Transform container;
+    private RectTransform container;
 
     [SerializeField]
-    private Transform backGroundContainer;
+    private GridLayoutGroup background;
 
-    [SerializeField]
-    private Image backGroundTileImage;
-
-    [SerializeField] 
     public RectTransform inventoryRectTransform;
-    //[SerializeField] GameObject gameObject;
 
-    public RectTransform test;
+    public RectTransform test1;
+    public RectTransform test2;
+    public RectTransform test3;
 
-    public GameObject testObject;
+    //public GameObject testObject;
 
     [SerializeField]
     private float cellSize = 50;
     [SerializeField] 
     private int gridWidth = 10;
-    [SerializeField] 
+    [SerializeField]
     private int gridHeight = 10;
-
-    //public event Action<TetrisInventory> onPointerEnterEvent;
 
     void Awake()
     {
+        inventoryRectTransform = this.GetComponent<RectTransform>();
         //Debug.Log(inventoryRectTransform.position);
 
-        //Debug.Log("origin" + inventoryRectTransform.position);
+        //inventoryRectTransform.position = new Vector3(0, 0, 0);
+        //test1.position = inventoryRectTransform.position;
+        //Debug.Log(test1.position);
+        // test2.position = inventoryRectTransform.anchoredPosition;
+        // Debug.Log(test2.position);
+        // test3.position = inventoryRectTransform.localPosition;
+        // Debug.Log(test3.position);
+
         grid = new Grid<CellObject>
         (
             gridWidth,
             gridHeight,
             cellSize,
             inventoryRectTransform.position,
+            //TetrisInventoryの基準点からどれだけ離れた場所に生成するか
+            //new Vector2(0, 0),
             //「情報を受け取ってCellObjectを生成する処理」を引き渡す
-            (Grid<CellObject> grid, int cellPosition_x, int cellPosition_y) => new CellObject(grid, cellPosition_x, cellPosition_y, grid.GetWorldPosition(cellPosition_x, cellPosition_y))
+            (Grid<CellObject> grid, int cellPosition_x, int cellPosition_y) => new CellObject(cellPosition_x, cellPosition_y)
         );
 
-        //ShowDebug(inventoryRectTransform.anchoredPosition);
+        BackGroundSetUp();
     }
 
     void Start()
@@ -58,61 +63,26 @@ public class TetrisInventory : MonoBehaviour
         //testObject.transform.position = GetWorldPositionFromRectPosition(test.position, test);
     }
 
-    // public void ShowDebug(Vector3 pos)
-    // {
-    //     RectTransformUtility.ScreenPointToLocalPointInRectangle(inventoryRectTransform, pos, null, out Vector2 result);
-    //     Debug.Log(result);
-    //     testObject.transform.position = result;
-    // }
-
-    Vector3 GetWorldPositionFromRectPosition(Vector2 pos, RectTransform rect)
-    {
-        //UI座標からスクリーン座標に変換
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, pos);
-        //ワールド座標
-        Vector3 result = Vector3.zero;
-        //スクリーン座標→ワールド座標に変換
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(rect, screenPos, null, out result);
-        return result;
-    }
-
     void Update()
     {
         //grid.ShowDebug(inventoryRectTransform);
     }
 
-    void CreateBackGround()
+    void BackGroundSetUp()
     {
-        GridLayoutGroup gridLayoutGroup = backGroundContainer.GetComponent<GridLayoutGroup>();
-        gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
-        // Vector2 size = new Vector2(cellSize, cellSize);
-        foreach(CellObject cellObject in grid.gridArray)
-        {
-            Instantiate(backGroundTileImage, cellObject.GetCellObjectPosition, Quaternion.identity, backGroundContainer);
-            //instance.rectTransform.sizeDelta = celsize;
-        }
+        background.cellSize = new Vector2(cellSize, cellSize);
     }
 
-    public Vector2Int GetGridPosition(Vector2 rectTransformPosition)
-    {
-        int x = Mathf.FloorToInt((rectTransformPosition.x - inventoryRectTransform.position.x) / cellSize);
-        int y = Mathf.FloorToInt((rectTransformPosition.y - inventoryRectTransform.position.y) / cellSize);
-
-        return new Vector2Int(x, y);
-    }
-
-    public bool TryPlaceItem(PlacedObject placedObject, Vector2Int placedObjectOrigin) 
-    {
-        // Test Can Build
-        //Debug.Log("placeObjectOrigin : " + placedObjectOrigin);
-        
-        List<Vector2Int> gridPositionList = GetGridPositionList(placedObject.width, placedObject.height, placedObjectOrigin, placedObject.direction);
+    public bool TryPlaceItem(PlacedObject placedObject, Vector2Int originCellNum)
+    {   
+        //オブジェクトが占有するマス目を計算
+        List<Vector2Int> gridPositionList = GetCellNumList(originCellNum, placedObject.width, placedObject.height, placedObject.direction);
         //Debug.Log(string.Join(",", gridPositionList));
         bool canPlace = true;
 
         foreach (Vector2Int gridPosition in gridPositionList) 
         {
-            bool isValidPosition = grid.IsValidGridPosition(gridPosition);
+            bool isValidPosition = grid.IsValidCellNum(gridPosition);
 
             if (!isValidPosition)
             {
@@ -121,9 +91,8 @@ public class TetrisInventory : MonoBehaviour
                 break;
             }
 
-            bool isOccupied = grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild();
-
-            if (isOccupied == false) 
+            //Cellがすでに埋まっている場合
+            if(grid.GetGridObject(gridPosition.x, gridPosition.y).SetGetPlacedObject != null)
             {
                 canPlace = false;
                 break;
@@ -132,8 +101,6 @@ public class TetrisInventory : MonoBehaviour
 
         if (canPlace) 
         {
-            //OnObjectPlaced?.Invoke(this, placedObject);
-
             // Object Placed!
             return true;
         } 
@@ -144,23 +111,26 @@ public class TetrisInventory : MonoBehaviour
         }
     }
 
-    public List<Vector2Int> GetGridPositionList(int width, int height, Vector2Int offset, PlacedObject.Dir dir) {
+    public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, int objectWidth, int objectHeight, PlacedObject.Dir dir) 
+    {
         List<Vector2Int> gridPositionList = new List<Vector2Int>();
-        switch (dir) {
+
+        switch (dir) 
+        {
             default:
             case PlacedObject.Dir.Down:
             case PlacedObject.Dir.Up:
-                for (int x = 0; x < width; x++) {
-                    for (int y = 0; y < height; y++) {
-                        gridPositionList.Add(/*offset + */new Vector2Int(x, y));
+                for (int x = 0; x < objectWidth; x++) {
+                    for (int y = 0; y < objectHeight; y++) {
+                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
                     }
                 }
                 break;
             case PlacedObject.Dir.Left:
             case PlacedObject.Dir.Right:
-                for (int x = 0; x < height; x++) {
-                    for (int y = 0; y < width; y++) {
-                        gridPositionList.Add(/*offset + */new Vector2Int(x, y));
+                for (int x = 0; x < objectHeight; x++) {
+                    for (int y = 0; y < objectWidth; y++) {
+                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
                     }
                 }
                 break;
@@ -174,32 +144,63 @@ public class TetrisInventory : MonoBehaviour
         {
             PlacedObject instance = Instantiate(placedObject, container);
             instance.OnSetUp();
-
-            // Vector2Int placeOrigin = new Vector2Int(5, 5);
-
-            // if(TryPlaceItem(instance, placeOrigin))
-            // {
-            //     Vector2Int rotationOffset = placedObject.GetRotationOffset(instance.direction);
-            //     Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placeOrigin.x, placeOrigin.y); /*+ new Vector3(rotationOffset.x, rotationOffset.y) * grid.gridCellSize;*/
-            //     //所属Inventoryを更新
-            //     instance.SetGetBelongingInventory = this;
-            //     //Inventory内の位置を更新
-            //     instance.SetGetInventoryOrigin = placeOrigin;    
-            //     //座標を設定
-            //     instance.rectTransform.anchoredPosition = placedObjectWorldPosition;
-
-            //     List<Vector2Int> gridPositionListInToInventory = GetGridPositionList(instance.width, instance.height, placeOrigin, instance.direction);
-            //     foreach (Vector2Int gridPosition in gridPositionListInToInventory) 
-            //     {
-            //         grid.GetGridObject(gridPosition.x, gridPosition.y).SetGetPlacedObject = instance;
-            //     }
-            // }
-            // else
-            // {
-            //     Destroy(instance);
-            // }
-
-            //Debug.Log(grid.GetGridObject(placeOrigin.x, placeOrigin.y).SetGetPlacedObject);
         }
+    }
+
+    public void InsertItemToInventory(Vector2Int originCellNum, PlacedObject placedObject)
+    {
+        List<Vector2Int> cellNumList = GetCellNumList(originCellNum, placedObject.width, placedObject.height, placedObject.direction);
+        foreach (Vector2Int cellNum in cellNumList)
+        {
+            //Debug.Log(cellNum);
+            grid.GetGridObject(cellNum.x, cellNum.y).SetGetPlacedObject = placedObject;
+        }
+
+        //placedObject.placedObjectTypeSO = placedObjectTypeSO;
+        placedObject.belongingCellNum = originCellNum;
+        Debug.Log(placedObject.belongingCellNum);
+        placedObject.belongingInventory = this;
+        placedObject.rectTransform.SetParent(container);
+
+        Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y); /*+ new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();*/
+        //Debug.Log(placedObjectPosition);
+        // placedObjectTransform.rotation = Quaternion.Euler(0, placedObjectTypeSO.GetRotationAngle(dir), 0);
+        placedObject.rectTransform.anchoredPosition = placedObjectAnchoredPosition;
+        //test2.anchoredPosition = placedObjectPosition;
+
+        //アイテムの比率をInventoryごとに変えられる
+        placedObject.ImageSizeSet(cellSize * placedObject.width, cellSize * placedObject.height);
+
+        CheckCellObject();
+    }
+
+    public void RemoveItemFromInventory(Vector2Int originCellNum, PlacedObject placedObject)
+    {
+        List<Vector2Int> removeCellNumList = GetCellNumList(originCellNum, placedObject.width, placedObject.height, placedObject.direction);
+        foreach (Vector2Int cellNum in removeCellNumList)
+        {
+            grid.GetGridObject(cellNum.x, cellNum.y).SetGetPlacedObject = null;
+        }
+
+        placedObject.rectTransform.parent = null;
+    }
+
+    public void CheckCellObject()
+    {
+        List<Vector2Int> testlist = new List<Vector2Int>();
+
+        Debug.Log("チェック開始");
+        for(int i = 0; i < gridWidth; i++)
+        {
+            for(int j = 0; j < gridHeight; j++)
+            {
+                if(grid.GetGridObject(i, j).SetGetPlacedObject == null) continue;
+                testlist.Add(new Vector2Int(i, j));
+                //Debug.Log("(" + i + "," + j + ") : " + grid.GetGridObject(i, j).SetGetPlacedObject);     
+            }
+        }
+
+        Debug.Log(string.Join("," , testlist));
+        Debug.Log("チェック終了");
     }
 }

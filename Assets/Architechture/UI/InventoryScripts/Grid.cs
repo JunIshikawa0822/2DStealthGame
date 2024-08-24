@@ -27,22 +27,12 @@ public class Grid<T>
                 gridArray[x, y] = createCellObject(this, x, y);
             }
         }
+
+        //Debug.Log(gridOriginPosition);
     }
 
-    
-
-    public Vector3 GetWorldPositionFromRectPosition(Vector2 pos, RectTransform rect)
-    {
-        //UI座標からスクリーン座標に変換
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, pos);
-        //ワールド座標
-        Vector3 result = Vector3.zero;
-        //スクリーン座標→ワールド座標に変換
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(rect, screenPos, null, out result);
-        return result;
-    }
-
-    public bool IsValidGridPosition(Vector2Int gridPosition) {
+    //正しい座標、ではなく、正しい範囲にいるかどうか
+    public bool IsValidCellNum(Vector2Int gridPosition) {
         int x = gridPosition.x;
         int y = gridPosition.y;
 
@@ -67,8 +57,20 @@ public class Grid<T>
         }
     }
 
-    public Vector3 GetWorldPosition(int x, int y)
+    public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 anchoredPosition)
     {
-        return new Vector3(gridOriginPosition.x, gridOriginPosition.y, 0) + new Vector3(x, y) * gridCellSize;
+        //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
+        //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
+
+        int x = Mathf.FloorToInt((anchoredPosition.x) / gridCellSize);
+        int y = Mathf.FloorToInt((anchoredPosition.y) / gridCellSize);
+
+        //Debug.Log(x + "," + y);
+        return new Vector2Int(x, y);
     }
+
+    public Vector2 GetCellOriginAnchoredPosition(int cellNum_x, int cellNum_y)
+    {
+        return /*gridOriginPosition + */ new Vector2(cellNum_x, cellNum_y) * gridCellSize;
+    }  
 }
