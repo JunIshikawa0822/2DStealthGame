@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[CreateAssetMenu(fileName = "UI_Item", menuName = "ScriptableObject/UI", order = 0)]
+[CreateAssetMenu(fileName = "Scriptable_UI_ItemData", menuName = "ScriptableObject/UI_Item", order = 0)]
 public class Scriptable_UI_Item : ScriptableObject
 {
     public string nameString;
@@ -51,30 +51,34 @@ public class Scriptable_UI_Item : ScriptableObject
         }
     }
 
-    // public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, PlacedObject.Dir dir) 
-    // {
-    //     List<Vector2Int> gridPositionList = new List<Vector2Int>();
+    public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, Dir dir) 
+    {
+        List<Vector2Int> gridPositionList = new List<Vector2Int>();
 
-    //     switch (dir) 
-    //     {
-    //         default:
-    //         case PlacedObject.Dir.Down:
-    //         case PlacedObject.Dir.Up:
-    //             for (int x = 0; x < width; x++) {
-    //                 for (int y = 0; y < height; y++) {
-    //                     gridPositionList.Add(originCellNum + new Vector2Int(x, y));
-    //                 }
-    //             }
-    //             break;
-    //         case PlacedObject.Dir.Left:
-    //         case PlacedObject.Dir.Right:
-    //             for (int x = 0; x < height; x++) {
-    //                 for (int y = 0; y < width; y++) {
-    //                     gridPositionList.Add(originCellNum + new Vector2Int(x, y));
-    //                 }
-    //             }
-    //             break;
-    //     }
-    //     return gridPositionList;
-    // }
+        switch (dir) 
+        {
+            default:
+            case Dir.Down:
+            case Dir.Up:
+                for (int x = 0; x < width; x++) 
+                {
+                    for (int y = 0; y < height; y++) 
+                    {
+                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
+                    }
+                }
+                break;
+            case Dir.Left:
+            case Dir.Right:
+                for (int x = 0; x < height; x++) 
+                {
+                    for (int y = 0; y < width; y++) 
+                    {
+                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
+                    }
+                }
+                break;
+        }
+        return gridPositionList;
+    }
 }

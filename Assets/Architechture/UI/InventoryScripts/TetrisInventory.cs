@@ -68,7 +68,7 @@ public class TetrisInventory : MonoBehaviour
     public bool TryPlaceItem(PlacedObject placedObject, Vector2Int originCellNum)
     {   
         //オブジェクトが占有するマス目を計算
-        List<Vector2Int> gridPositionList = GetCellNumList(originCellNum, placedObject.GetItemData().width, placedObject.GetItemData().height, placedObject.direction);
+        List<Vector2Int> gridPositionList = placedObject.GetItemData().GetCellNumList(originCellNum, placedObject.direction);
         //Debug.Log(string.Join(",", gridPositionList));
         bool canPlace = true;
 
@@ -103,36 +103,36 @@ public class TetrisInventory : MonoBehaviour
         }
     }
 
-    public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, int objectWidth, int objectHeight, Scriptable_UI_Item.Dir dir) 
-    {
-        List<Vector2Int> gridPositionList = new List<Vector2Int>();
+    // public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, int objectWidth, int objectHeight, Scriptable_UI_Item.Dir dir) 
+    // {
+    //     List<Vector2Int> gridPositionList = new List<Vector2Int>();
 
-        switch (dir) 
-        {
-            default:
-            case Scriptable_UI_Item.Dir.Down:
-            case Scriptable_UI_Item.Dir.Up:
-                for (int x = 0; x < objectWidth; x++) {
-                    for (int y = 0; y < objectHeight; y++) {
-                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
-                    }
-                }
-                break;
-            case Scriptable_UI_Item.Dir.Left:
-            case Scriptable_UI_Item.Dir.Right:
-                for (int x = 0; x < objectHeight; x++) {
-                    for (int y = 0; y < objectWidth; y++) {
-                        gridPositionList.Add(originCellNum + new Vector2Int(x, y));
-                    }
-                }
-                break;
-        }
-        return gridPositionList;
-    }
+    //     switch (dir)
+    //     {
+    //         default:
+    //         case Scriptable_UI_Item.Dir.Down:
+    //         case Scriptable_UI_Item.Dir.Up:
+    //             for (int x = 0; x < objectWidth; x++) {
+    //                 for (int y = 0; y < objectHeight; y++) {
+    //                     gridPositionList.Add(originCellNum + new Vector2Int(x, y));
+    //                 }
+    //             }
+    //             break;
+    //         case Scriptable_UI_Item.Dir.Left:
+    //         case Scriptable_UI_Item.Dir.Right:
+    //             for (int x = 0; x < objectHeight; x++) {
+    //                 for (int y = 0; y < objectWidth; y++) {
+    //                     gridPositionList.Add(originCellNum + new Vector2Int(x, y));
+    //                 }
+    //             }
+    //             break;
+    //     }
+    //     return gridPositionList;
+    // }
     
     public void InsertItemToInventory(Vector2Int originCellNum, PlacedObject placedObject, Scriptable_UI_Item.Dir direction)
     {
-        List<Vector2Int> cellNumList = GetCellNumList(originCellNum, placedObject.GetItemData().width, placedObject.GetItemData().height, direction);
+        List<Vector2Int> cellNumList = placedObject.GetItemData().GetCellNumList(originCellNum, direction);
         foreach (Vector2Int cellNum in cellNumList)
         {
             grid.GetGridObject(cellNum.x, cellNum.y).SetGetPlacedObject = placedObject;
@@ -140,10 +140,11 @@ public class TetrisInventory : MonoBehaviour
 
         //placedObject.placedObjectTypeSO = placedObjectTypeSO;
         placedObject.belongingCellNum = originCellNum;
-        Debug.Log(placedObject.belongingCellNum);
         placedObject.belongingInventory = this;
         placedObject.rectTransform.SetParent(container);
+        placedObject.direction = direction;
 
+        //位置設定
         Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y); /*+ new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();*/
         // placedObjectTransform.rotation = Quaternion.Euler(0, placedObjectTypeSO.GetRotationAngle(dir), 0);
         placedObject.rectTransform.anchoredPosition = placedObjectAnchoredPosition;
@@ -156,13 +157,12 @@ public class TetrisInventory : MonoBehaviour
 
     public void RemoveItemFromInventory(Vector2Int originCellNum, PlacedObject placedObject, Scriptable_UI_Item.Dir direction)
     {
-        List<Vector2Int> removeCellNumList = GetCellNumList(originCellNum, placedObject.GetItemData().width, placedObject.GetItemData().height, direction);
+        List<Vector2Int> removeCellNumList = placedObject.GetItemData().GetCellNumList(originCellNum, direction);
         foreach (Vector2Int cellNum in removeCellNumList)
         {
             grid.GetGridObject(cellNum.x, cellNum.y).SetGetPlacedObject = null;
         }
-
-        placedObject.rectTransform.parent = null;
+        //placedObject.rectTransform.parent = null;
     }
 
     public void CheckCellObject()
