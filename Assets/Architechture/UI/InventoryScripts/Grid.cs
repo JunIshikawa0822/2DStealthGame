@@ -6,16 +6,16 @@ public class Grid<T>
     public int gridWidth;
     public int gridHeight;   
     public float gridCellSize;
-    public Vector2 gridOriginPosition;
+    //public Vector2 gridOriginPosition;
     public T[,] gridArray;
 
     //Func<Grid<T>, int, int, T> createCellObjectは、Grid<T>, int, intをもらってTを返す処理自体が入る
-    public Grid(int width, int height, float cellSize, Vector2 originPosition, Func<Grid<T>, int, int, T> createCellObject) 
+    public Grid(int width, int height, float cellSize, /*Vector2 originPosition,*/ Func<Grid<T>, int, int, T> createCellObject) 
     {
         gridWidth = width;
         gridHeight = height;
         gridCellSize = cellSize;
-        this.gridOriginPosition = originPosition;
+        //this.gridOriginPosition = originPosition;
         gridArray = new T[width, height];
 
         //0次元の配列の長さ（gridWidth)
@@ -27,8 +27,6 @@ public class Grid<T>
                 gridArray[x, y] = createCellObject(this, x, y);
             }
         }
-
-        //Debug.Log(gridOriginPosition);
     }
 
     //正しい座標、ではなく、正しい範囲にいるかどうか

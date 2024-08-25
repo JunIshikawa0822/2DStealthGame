@@ -5,51 +5,38 @@ using UnityEngine.UI;
 
 public class TetrisInventorySystem : MonoBehaviour
 {
-    //PlacedObject holdingItem;
+    [SerializeField]
+    private Canvas canvas;
     [SerializeField]
     private List<TetrisInventory> tetrisInventoriesList = new List<TetrisInventory>();
     private TetrisInventory toInventory;
     private TetrisInventory fromInventory;
-
-    [SerializeField]
-    TetrisInventory testInventory;
-
     [SerializeField]
     private PlacedObject testDragObject1;
 
     [SerializeField]
     private PlacedObject testDragObject2;
-
-    // [SerializeField]
-    // private RectTransform check;
-
     private Vector2 dragPositionOffset;
     private Vector2Int dragCellNumOffset;
-    //float dragPositionOffset_x;
-    //float dragPositionOffset_y;
+    private Scriptable_UI_Item.Dir itemDireciton;
 
-    //[SerializeField] List<PlacedObject> testItemsList = new List<PlacedObject>();
+    [SerializeField]
+    private List<Scriptable_UI_Item> item_Data_List;
 
     public void Start()
     {
-        testDragObject1.OnSetUp();
+        testDragObject1.OnSetUp(item_Data_List[0]);
         testDragObject1.onBeginDragEvent += StartDragging;
         testDragObject1.onDragEvent += OnDragging;
         testDragObject1.onEndDragEvent += EndDragging;
-        testDragObject1.width = 5;
-        testDragObject1.height = 2;
-
-        testInventory.InsertItemToInventory(new Vector2Int(0,0), testDragObject1);
+        tetrisInventoriesList[0].InsertItemToInventory(new Vector2Int(0,0), testDragObject1, testDragObject1.direction);
         
 
-        testDragObject2.OnSetUp();
+        testDragObject2.OnSetUp(item_Data_List[0]);
         testDragObject2.onBeginDragEvent += StartDragging;
         testDragObject2.onDragEvent += OnDragging;
         testDragObject2.onEndDragEvent += EndDragging;
-        testDragObject2.width = 5;
-        testDragObject2.height = 2;
-
-        testInventory.InsertItemToInventory(new Vector2Int(4,5), testDragObject2);
+        tetrisInventoriesList[1].InsertItemToInventory(new Vector2Int(4,5), testDragObject2, testDragObject2.direction);
     }
 
     public void Update()
@@ -63,7 +50,7 @@ public class TetrisInventorySystem : MonoBehaviour
         Cursor.visible = true;
         Debug.Log("掴んだ");
         fromInventory = placedObject.belongingInventory;
-
+        itemDireciton = placedObject.direction;
         //補正用位置取得
         dragPositionOffset = placedObject.rectTransform.position - mousePos;
 
@@ -73,9 +60,8 @@ public class TetrisInventorySystem : MonoBehaviour
         //マウスのGrid座標から現在いるGrid座標を引くことで、マス目補正を取得
         dragCellNumOffset = mouseNum - placedObject.belongingCellNum;
 
-        //補正用位置取得
-        //dragPositionOffset_x = placedObject.rectTransform.position.x - Input.mousePosition.x;
-        //dragPositionOffset_y = placedObject.rectTransform.position.y - Input.mousePosition.y;
+        //親子関係をcanvasに変更（すべてのオブジェクトよりも前にいくことでBackground問題を解決する）
+        placedObject.rectTransform.SetParent(canvas.transform);
     }
 
     #region danger
@@ -91,9 +77,6 @@ public class TetrisInventorySystem : MonoBehaviour
         Cursor.visible = true;
         //位置補正
         placedObject.rectTransform.position = Input.mousePosition + new Vector3(dragPositionOffset.x, dragPositionOffset.y, 0);
-        
-        //RectTransformUtility.ScreenPointToLocalPointInRectangle(fromInventory.inventoryRectTransform, placedObject.rectTransform.position, null, out Vector2 convertPosition);
-        //placedObject.rectTransform.position = convertPosition;
     }
 
     void EndDragging(PlacedObject placedObject)
@@ -104,7 +87,7 @@ public class TetrisInventorySystem : MonoBehaviour
         Vector2Int mouseNum = new Vector2Int(0,0);
         Vector2Int originCellNum = placedObject.belongingCellNum;
 
-        fromInventory.RemoveItemFromInventory(placedObject.belongingCellNum, placedObject);
+        fromInventory.RemoveItemFromInventory(placedObject.belongingCellNum, placedObject, placedObject.direction);
 
         foreach (TetrisInventory inventory in tetrisInventoriesList) 
         {
@@ -127,28 +110,20 @@ public class TetrisInventorySystem : MonoBehaviour
                 Debug.Log("toInventory : true, TryPlace : true");
                 //移動中に回転することを考えていない
                 //以前所属していた各セルからオブジェクトを削除
-                
-                toInventory.InsertItemToInventory(originCellNum, placedObject);
+                toInventory.InsertItemToInventory(originCellNum, placedObject, this.itemDireciton);
             }
             else
             {
                 Debug.Log("toInventory : true, TryPlace : false");
                 originCellNum = placedObject.belongingCellNum;
-                //Vector2 placedObjectPosition = fromInventory.grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y); /*+ new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();*/
-                // placedObjectTransform.rotation = Quaternion.Euler(0, placedObjectTypeSO.GetRotationAngle(dir), 0);
-                //placedObject.rectTransform.anchoredPosition = placedObjectPosition;
-
-                fromInventory.InsertItemToInventory(originCellNum, placedObject);
+                fromInventory.InsertItemToInventory(originCellNum, placedObject, placedObject.direction);
             }
         }
         else
         {
             Debug.Log("toInventory : false");
             originCellNum = placedObject.belongingCellNum;
-            //Vector2 placedObjectPosition = fromInventory.grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y); /*+ new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();*/
-            // placedObjectTransform.rotation = Quaternion.Euler(0, placedObjectTypeSO.GetRotationAngle(dir), 0);
-            //placedObject.rectTransform.anchoredPosition = placedObjectPosition;
-            fromInventory.InsertItemToInventory(originCellNum, placedObject);
+            fromInventory.InsertItemToInventory(originCellNum, placedObject, placedObject.direction);
         }
     }
 }
