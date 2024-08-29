@@ -2163,6 +2163,7 @@ MonoBehaviour:
   container: {fileID: 1237473355}
   background: {fileID: 1723879599}
   inventoryRectTransform: {fileID: 1723879599}
+  test1: {fileID: 487819608}
   cellSize: 50
   gridWidth: 10
   gridHeight: 10
@@ -4729,6 +4730,7 @@ MonoBehaviour:
   container: {fileID: 212774525}
   background: {fileID: 95601956}
   inventoryRectTransform: {fileID: 95601956}
+  test1: {fileID: 91361677}
   cellSize: 50
   gridWidth: 10
   gridHeight: 10
@@ -10344,7 +10346,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -13731,6 +13733,8 @@ MonoBehaviour:
   - {fileID: 574204234}
   item_Data_List:
   - {fileID: 11400000, guid: 4ff1554b85e6b4ec48dcde257d840e76, type: 2}
+  test1: {fileID: 487819608}
+  test2: {fileID: 91361677}
 --- !u!1 &1710692940
 GameObject:
   m_ObjectHideFlags: 0
@@ -16530,7 +16534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678fcaa7ed8bf4bc8879682d4f379a8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: 0
+  backGround: {fileID: 0}
+  stackNumText: {fileID: 0}
 --- !u!1 &2146897356
 GameObject:
   m_ObjectHideFlags: 0
