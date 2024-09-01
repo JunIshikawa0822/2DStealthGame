@@ -7,6 +7,9 @@ public class CellObject
 
     private PlacedObject placedObject;
 
+    private bool canStackOnCell;
+
+    //現在Stackされている数
     private int stackNum;
 
     //private bool isStackableOnCell;
@@ -16,12 +19,9 @@ public class CellObject
         //this.grid = grid;
         position_x = x;
         position_y = y;
+        stackNum = 0;
+        SetStackability();
         //cellObjectPosition = worldPosition;
-    }
-
-    public void SetPlacedObject(PlacedObject placedObject)
-    {
-        this.placedObject = placedObject;
     }
 
     public PlacedObject GetPlacedObject()
@@ -44,30 +44,56 @@ public class CellObject
         }
         else if(this.placedObject.GetItemData() == placedObject.GetItemData())
         {
-            if(placedObject.GetItemData().stackableNum > this.stackNum)
+            if(this.stackNum < placedObject.GetItemData().stackableNum)
             {
                 canInsert = true;
-            }
+            }  
         }   
-
         return canInsert;
     }
 
-    public void InsertToCellObject(PlacedObject placedObject, int insertNum)
+    public void SetStackability()
     {
         if(this.placedObject == null)
         {
-            this.placedObject = placedObject;
-            stackNum = 1;
+            canStackOnCell = true;
+            return;
         }
-        else
-        {
-           if(this.placedObject.GetItemData() != placedObject.GetItemData()) return;
 
-           if(placedObject.GetItemData().stackableNum > this.stackNum) 
-           {
-                stackNum = stackNum + 1;
-           }
+        int canStackNum = this.placedObject.GetItemData().stackableNum;
+
+        if(canStackNum > 0)
+        {
+            if(this.stackNum < canStackNum)
+            {
+                canStackOnCell = true;
+                return;
+            }
         }
+
+        canStackOnCell = false;
+    }
+
+    public bool GetStackability()
+    {
+        return canStackOnCell;
+    }
+
+    public void InsertToCellObject(PlacedObject placedObject)
+    {
+        this.placedObject = placedObject;
+    }
+
+    public void SetStackNum()
+    {
+        if(this.placedObject == null)
+        {
+            stackNum = 0;
+            return;
+        }
+
+        if(this.canStackOnCell == false) return;
+
+        stackNum = stackNum + 1;
     }
 }

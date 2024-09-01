@@ -25,7 +25,7 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
 
     private int stackNum;
 
-    public void OnSetUp(Scriptable_UI_Item itemData, int stackNum)
+    public void OnSetUp(Scriptable_UI_Item itemData)
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
@@ -33,13 +33,29 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
 
         this.itemData = itemData;
         this.itemDirection = itemData.direction;
-        this.stackNum = stackNum;
+       
         Tobject = this;
+        BackGroundInit();
+    }
 
+    public void StackNumInit(int stackNum)
+    {
+        this.stackNum = stackNum;
         TextSet();
     }
 
-    public void BelongingsInit(TetrisInventory belongingInventory, Vector2Int belongingCellNum, Scriptable_UI_Item.ItemDir direction, RectTransform parent)
+    private void BackGroundInit()
+    {
+        int occupyCellNum = itemData.width * itemData.height;
+        RectTransform backGroundTransform = backGround.GetComponent<RectTransform>();
+        
+        for(int i = 0; i < occupyCellNum; i++)
+        {
+            Instantiate(itemData.backGroundPrefab, backGroundTransform);
+        }
+    }
+
+    public void SetBelonging(TetrisInventory belongingInventory, Vector2Int belongingCellNum, Scriptable_UI_Item.ItemDir direction, RectTransform parent)
     {
         this.belongingInventory = belongingInventory;
         this.belongingCellNum = belongingCellNum;
@@ -98,5 +114,10 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
     public Vector2Int GetBelongingCellNum()
     {
         return this.belongingCellNum;
+    }
+
+    public void OnDestroy()
+    {
+        Destroy(this.gameObject);
     }
 }
