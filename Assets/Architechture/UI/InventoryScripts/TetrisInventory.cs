@@ -61,6 +61,22 @@ public class TetrisInventory : MonoBehaviour
         background.GetComponent<GridLayoutGroup>().cellSize = new Vector2(cellSize, cellSize);
     }
 
+    void BackGroundDebug(CellObject cell)
+    {
+        int num = 0;
+        num = cell.position_y * 10 + cell.position_x;
+
+        if(cell.GetPlacedObject() != null)
+        {
+            background.GetChild(num).GetComponent<Image>().enabled = false;
+            //Debug.Log(cell.position_x + "," + cell.position_y);
+        }
+        else
+        {
+            background.GetChild(num).GetComponent<Image>().enabled = true;
+        }
+    }
+
     public bool CanPlaceItem(PlacedObject placedObject, Vector2Int originCellNum, Scriptable_UI_Item.ItemDir direction)
     {   
         //オブジェクトが占有するマス目を計算
@@ -123,7 +139,8 @@ public class TetrisInventory : MonoBehaviour
         if(placedObject == null)return;
 
         List<Vector2Int> cellNumList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-        
+        // Debug.Log(string.Join(",", cellNumList));
+
         PlacedObject cashedPlacedObject = null;
         int stackNumInCell = 0;
 
@@ -159,7 +176,11 @@ public class TetrisInventory : MonoBehaviour
 
         placedObject.SetBelonging(this, originCellNum, direction, container);
         Vector2Int rotationAnchorCellNumOffset = placedObject.GetItemData().GetRotationOffset(direction);
+        // Debug.Log(rotationAnchorCellNumOffset);
+
         Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y) + new Vector2(rotationAnchorCellNumOffset.x, rotationAnchorCellNumOffset.y) * cellSize;
+        test1.anchoredPosition = placedObjectAnchoredPosition;
+
         placedObject.GetRectTransform().anchoredPosition = placedObjectAnchoredPosition;
         placedObject.GetRectTransform().rotation = Quaternion.Euler(0, 0, placedObject.GetItemData().GetRotationAngle(direction));
         placedObject.ImageSizeSet(cellSize);
@@ -169,17 +190,27 @@ public class TetrisInventory : MonoBehaviour
             placedObject.StackNumInit(stackNumInCell);
             cashedPlacedObject.OnDestroy();
         }
+
+        foreach(CellObject cellNum in grid.gridArray)
+        {
+            BackGroundDebug(cellNum);
+        }
     }
 
     public void RemoveItemFromInventory(Vector2Int originCellNum, PlacedObject placedObject, Scriptable_UI_Item.ItemDir direction)
     {
         List<Vector2Int> removeCellNumList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-
+        // Debug.Log("remove : " + string.Join(",", removeCellNumList));
         foreach (Vector2Int cellNum in removeCellNumList)
         {
             CellObject cellObject = grid.GetGridObject(cellNum.x, cellNum.y);
             cellObject.InsertToCellObject(null);
             cellObject.SetStackNum();
+        }
+
+        foreach(CellObject cellNum in grid.gridArray)
+        {
+            BackGroundDebug(cellNum);
         }
     }
 

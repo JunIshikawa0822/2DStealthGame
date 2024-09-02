@@ -2,8 +2,8 @@ public class CellObject
 {
     //private Vector3 cellObjectPosition;
     //private Grid<CellObject> grid;
-    private int position_x;
-    private int position_y;
+    public int position_x;
+    public int position_y;
 
     private PlacedObject placedObject;
 

@@ -55,7 +55,7 @@ public class Scriptable_UI_Item : ScriptableObject
             case ItemDir.Down:  return new Vector2Int(0, 0);
             case ItemDir.Left:  return new Vector2Int(height, 0);
             case ItemDir.Up:    return new Vector2Int(width, height);
-            case ItemDir.Right: return new Vector2Int(0, height);
+            case ItemDir.Right: return new Vector2Int(0, width);
         }
     }
 
@@ -73,30 +73,53 @@ public class Scriptable_UI_Item : ScriptableObject
 
     public Vector2Int GetCellNumRotateOffset(ItemDir originDirection, ItemDir itemDirection, Vector2Int offset)
     {
-        Debug.Log("originDir : " + originDirection + " , itemDir : " + itemDirection);
+        //Debug.Log("originDir : " + originDirection + " , itemDir : " + itemDirection);
         int rest_x = (width - 1) - offset.x;
         int rest_y = (height - 1) - offset.y;
+
+        switch(originDirection)
+        {
+            default:
+            case ItemDir.Left:  
+            case ItemDir.Right: 
+                rest_x = (height - 1) - offset.x;
+                rest_y = (width - 1) - offset.y;
+                break;
+
+            case ItemDir.Down: 
+            case ItemDir.Up:
+                rest_x = (width - 1) - offset.x;
+                rest_y = (height - 1) - offset.y;
+                break;
+        }
+    
+        //Debug.Log("rest_x : width("+ width + ") - 1) - offset.x(" + offset.x + ")");
+        //Debug.Log("rest_y : height("+ height + ") - 1) - offset.y(" + offset.y + ")");
 
         Vector2Int rotateOffset = new Vector2Int(offset.x, offset.y);
 
         if(itemDirection == originDirection)
         {
             rotateOffset = new Vector2Int(offset.x, offset.y);
+            // Debug.Log("same");
         }
         else if(itemDirection == GetNextDir(originDirection))
         {
             rotateOffset = new Vector2Int(rest_y, offset.x);
+            // Debug.Log("next");
         }
         else if(itemDirection == GetNextDir(GetNextDir(originDirection)))
         {
             rotateOffset = new Vector2Int(rest_x, rest_y);
+            // Debug.Log("next next");
         }
         else
         {
             rotateOffset = new Vector2Int(offset.y, rest_x);
+            // Debug.Log("previous");
         }
 
-        Debug.Log("offset : " + rotateOffset);
+        // Debug.Log("でてくるoffset : " + rotateOffset);
         return rotateOffset;
     }
 

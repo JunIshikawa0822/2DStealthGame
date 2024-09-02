@@ -19,4 +19,4 @@ MonoBehaviour:
   width: 5
   height: 2
   direction: 0
-  stackableNum: 1
+  stackableNum: 5
