@@ -6,13 +6,17 @@ public class Scriptable_UI_Item : ScriptableObject
 {
     public string nameString;
     public Transform prefab;
-    public Transform visual;
+    public Transform backGroundPrefab;
     public int width;
     public int height;
 
-    public Dir direction;
+    //public ItemDirection.Dir direction;
 
-    public enum Dir 
+    public ItemDir direction;
+
+    public int stackableNum;
+
+    public enum ItemDir
     {
         Down,
         Left,
@@ -20,46 +24,114 @@ public class Scriptable_UI_Item : ScriptableObject
         Right,
     }
 
-    public Dir GetNextDir(Dir dir) {
+    public ItemDir GetNextDir(ItemDir dir) 
+    {
         switch (dir) {
             default:
-            case Dir.Down:      return Dir.Left;
-            case Dir.Left:      return Dir.Up;
-            case Dir.Up:        return Dir.Right;
-            case Dir.Right:     return Dir.Down;
+            case ItemDir.Down:      return ItemDir.Left;
+            case ItemDir.Left:      return ItemDir.Up;
+            case ItemDir.Up:        return ItemDir.Right;
+            case ItemDir.Right:     return ItemDir.Down;
         }
     }
 
-    public int GetRotationAngle(Dir dir) {
-        switch (dir) {
-            default:
-            case Dir.Down:  return 0;
-            case Dir.Left:  return 90;
-            case Dir.Up:    return 180;
-            case Dir.Right: return 270;
-        }
-    }
-
-    public Vector2Int GetRotationOffset(Dir dir) {
-        switch (dir) 
+    public int GetRotationAngle(ItemDir itemDirection)
+    {
+        switch (itemDirection) 
         {
             default:
-            case Dir.Down:  return new Vector2Int(0, 0);
-            case Dir.Left:  return new Vector2Int(0, width);
-            case Dir.Up:    return new Vector2Int(width, height);
-            case Dir.Right: return new Vector2Int(height, 0);
+            case ItemDir.Down :  return 0;
+            case ItemDir.Left:  return 90;
+            case ItemDir.Up:    return 180;
+            case ItemDir.Right: return 270;
         }
     }
 
-    public List<Vector2Int> GetCellNumList(Vector2Int originCellNum, Dir dir) 
+    public Vector2Int GetRotationOffset(ItemDir itemDirection) 
+    {
+        switch (itemDirection)
+        {
+            default:
+            case ItemDir.Down:  return new Vector2Int(0, 0);
+            case ItemDir.Left:  return new Vector2Int(height, 0);
+            case ItemDir.Up:    return new Vector2Int(width, height);
+            case ItemDir.Right: return new Vector2Int(0, width);
+        }
+    }
+
+    // public Vector2Int GetDragCellNumRotateOffset(ItemDir itemDirection, Vector2Int offset)
+    // {
+    //     switch (itemDirection)
+    //     {
+    //         default:
+    //         case ItemDir.Down:  return new Vector2Int(offset.x, offset.y);
+    //         case ItemDir.Left:  return new Vector2Int(0, offset.x);
+    //         case ItemDir.Up:    return new Vector2Int(offset.x, 0);
+    //         case ItemDir.Right: return new Vector2Int(offset.y, offset.x);
+    //     }
+    // }
+
+    public Vector2Int GetCellNumRotateOffset(ItemDir originDirection, ItemDir itemDirection, Vector2Int offset)
+    {
+        //Debug.Log("originDir : " + originDirection + " , itemDir : " + itemDirection);
+        int rest_x = (width - 1) - offset.x;
+        int rest_y = (height - 1) - offset.y;
+
+        switch(originDirection)
+        {
+            default:
+            case ItemDir.Left:  
+            case ItemDir.Right: 
+                rest_x = (height - 1) - offset.x;
+                rest_y = (width - 1) - offset.y;
+                break;
+
+            case ItemDir.Down: 
+            case ItemDir.Up:
+                rest_x = (width - 1) - offset.x;
+                rest_y = (height - 1) - offset.y;
+                break;
+        }
+    
+        //Debug.Log("rest_x : width("+ width + ") - 1) - offset.x(" + offset.x + ")");
+        //Debug.Log("rest_y : height("+ height + ") - 1) - offset.y(" + offset.y + ")");
+
+        Vector2Int rotateOffset = new Vector2Int(offset.x, offset.y);
+
+        if(itemDirection == originDirection)
+        {
+            rotateOffset = new Vector2Int(offset.x, offset.y);
+            // Debug.Log("same");
+        }
+        else if(itemDirection == GetNextDir(originDirection))
+        {
+            rotateOffset = new Vector2Int(rest_y, offset.x);
+            // Debug.Log("next");
+        }
+        else if(itemDirection == GetNextDir(GetNextDir(originDirection)))
+        {
+            rotateOffset = new Vector2Int(rest_x, rest_y);
+            // Debug.Log("next next");
+        }
+        else
+        {
+            rotateOffset = new Vector2Int(offset.y, rest_x);
+            // Debug.Log("previous");
+        }
+
+        // Debug.Log("でてくるoffset : " + rotateOffset);
+        return rotateOffset;
+    }
+
+    public List<Vector2Int> GetCellNumList(ItemDir itemDirection, Vector2Int originCellNum) 
     {
         List<Vector2Int> gridPositionList = new List<Vector2Int>();
 
-        switch (dir) 
+        switch (itemDirection) 
         {
             default:
-            case Dir.Down:
-            case Dir.Up:
+            case ItemDir.Down:
+            case ItemDir.Up:
                 for (int x = 0; x < width; x++) 
                 {
                     for (int y = 0; y < height; y++) 
@@ -68,8 +140,8 @@ public class Scriptable_UI_Item : ScriptableObject
                     }
                 }
                 break;
-            case Dir.Left:
-            case Dir.Right:
+            case ItemDir.Left:
+            case ItemDir.Right:
                 for (int x = 0; x < height; x++) 
                 {
                     for (int y = 0; y < width; y++) 

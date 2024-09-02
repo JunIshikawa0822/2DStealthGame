@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: UI_Item_Shotgun
   m_EditorClassIdentifier: 
   nameString: Shotgun
-  prefab: {fileID: 7772408744959002421, guid: ba3151daa48cd4a5bae6d24077c7f84b, type: 3}
-  visual: {fileID: 7772408744959002421, guid: ba3151daa48cd4a5bae6d24077c7f84b, type: 3}
+  prefab: {fileID: 244507198138247253, guid: ba3151daa48cd4a5bae6d24077c7f84b, type: 3}
+  backGroundPrefab: {fileID: 1042995708913668501, guid: 72ae6c120cf1c41f0baf593a5b30669b,
+    type: 3}
   width: 5
   height: 2
   direction: 0
+  stackableNum: 5
