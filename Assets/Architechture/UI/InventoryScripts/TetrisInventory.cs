@@ -7,15 +7,12 @@ using UnityEngine.UI;
 public class TetrisInventory : MonoBehaviour
 {
     public Grid<CellObject> grid;
-
     [SerializeField]
     private RectTransform container;
-
     [SerializeField]
     private RectTransform background;
-
     public RectTransform inventoryRectTransform;
-
+    [HideInInspector]
     public RectTransform test1;
 
     [SerializeField]
@@ -34,10 +31,6 @@ public class TetrisInventory : MonoBehaviour
             gridWidth,
             gridHeight,
             cellSize,
-            //inventoryRectTransform.position,
-            //TetrisInventoryの基準点からどれだけ離れた場所に生成するか
-            //new Vector2(0, 0),
-            //「情報を受け取ってCellObjectを生成する処理」を引き渡す
             (Grid<CellObject> grid, int cellPosition_x, int cellPosition_y) => new CellObject(cellPosition_x, cellPosition_y)
         );
 
@@ -46,13 +39,12 @@ public class TetrisInventory : MonoBehaviour
 
     void Start()
     {
-        
-        //testObject.transform.position = GetWorldPositionFromRectPosition(test.position, test);
+    
     }
 
     void Update()
     {
-        //grid.ShowDebug(inventoryRectTransform);
+    
     }
 
     void BackGroundSetUp()
@@ -69,7 +61,6 @@ public class TetrisInventory : MonoBehaviour
         if(cell.GetPlacedObject() != null)
         {
             background.GetChild(num).GetComponent<Image>().enabled = false;
-            //Debug.Log(cell.position_x + "," + cell.position_y);
         }
         else
         {
@@ -81,20 +72,20 @@ public class TetrisInventory : MonoBehaviour
     {   
         //オブジェクトが占有するマス目を計算
         List<Vector2Int> gridPositionList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-        // Debug.Log(string.Join(",", gridPositionList));
 
         bool canPlace = true;
         int instanceID = 0;
 
-        foreach (Vector2Int gridPosition in gridPositionList)
+        for(int i = 0; i < gridPositionList.Count; i++)
         {
-            bool isValidPosition = grid.IsValidCellNum(gridPosition);
+            Vector2Int gridPosition = gridPositionList[i];
             CellObject cellObject = grid.GetGridObject(gridPosition.x, gridPosition.y);
 
 #region AreaCheck
+            bool isValidPosition = grid.IsValidCellNum(gridPosition);
             if (!isValidPosition)
             {
-                // Not valid
+                Debug.Log("枠外だよ");
                 canPlace = false;
                 break;
             }
@@ -102,19 +93,27 @@ public class TetrisInventory : MonoBehaviour
 #region IdentityCheck
             //すべてのCellが同一のinstanceIDで埋まっているか確認
             int cellobjectID = cellObject.GetPlacedObject() == null ? 0 : cellObject.GetPlacedObject().GetInstanceID();
-
-            if(instanceID != cellobjectID)
+            if(i != 0)
             {
-                canPlace = false;
-                break;
+                if(instanceID != cellobjectID)
+                {
+                    Debug.Log("同一ではないよ");
+                    canPlace = false;
+                    break;
+                }
+                instanceID = cellobjectID;
             }
-            instanceID = cellobjectID;
+            else
+            {
+                instanceID = cellobjectID;
+            }         
 #endregion
 #region TypeAndStackableCheck
             //すべてのCellが挿入したいPlacedObjectと同じタイプかつ空きがあるか確認
             bool canInsert = cellObject.CanInsertToCellObject(placedObject);
             if(!canInsert)
             {
+                Debug.Log("空きがない/別タイプ");
                 canPlace = false;
                 break;
             }
@@ -133,7 +132,7 @@ public class TetrisInventory : MonoBehaviour
         }
     }
     
-    public void InsertItemToInventory(Vector2Int originCellNum, PlacedObject placedObject, Scriptable_UI_Item.ItemDir direction, out int remainNum)
+    public void InsertItemToInventory(Vector2Int originCellNum, PlacedObject placedObject, int insertObjectNum, Scriptable_UI_Item.ItemDir direction, out int remainNum)
     {
         remainNum = 0;
         if(placedObject == null)return;
@@ -153,7 +152,7 @@ public class TetrisInventory : MonoBehaviour
             //新しいのを入れる
             cellObject.InsertToCellObject(placedObject);
             //入れたい数
-            int stackNum = placedObject.GetStackNum();
+            int stackNum = insertObjectNum/*placedObject.GetStackNum()*/;
 
             for(int i = 1; i <= stackNum; i++)
             {
@@ -185,6 +184,7 @@ public class TetrisInventory : MonoBehaviour
         placedObject.GetRectTransform().rotation = Quaternion.Euler(0, 0, placedObject.GetItemData().GetRotationAngle(direction));
         placedObject.ImageSizeSet(cellSize);
 
+        //重ねている
         if(cashedPlacedObject != null)
         {
             placedObject.StackNumInit(stackNumInCell);

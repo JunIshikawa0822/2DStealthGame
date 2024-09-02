@@ -10,7 +10,7 @@ public class Grid<T>
     public T[,] gridArray;
 
     //Func<Grid<T>, int, int, T> createCellObjectは、Grid<T>, int, intをもらってTを返す処理自体が入る
-    public Grid(int width, int height, float cellSize, /*Vector2 originPosition,*/ Func<Grid<T>, int, int, T> createCellObject) 
+    public Grid(int width, int height, float cellSize, Func<Grid<T>, int, int, T> createCellObject) 
     {
         gridWidth = width;
         gridHeight = height;
