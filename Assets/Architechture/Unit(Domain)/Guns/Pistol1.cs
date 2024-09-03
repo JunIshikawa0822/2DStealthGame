@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Pistol1 : MonoBehaviour, IGun, IBulletType
+public class Pistol1 : MonoBehaviour, IGun, IBulletType_10mm
 {
     [Tooltip("Projectile force")]
     [SerializeField] float muzzleVelocity = 700f;
@@ -12,17 +12,18 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType
     IObjectPool objectPool;
     IBulletFactories bulletFactories;
     IBulletFactory factory;
-    IBulletType.BulletType currentBulletState;
+    IBulletType_10mm.BulletType_10mm currentBulletState;
     
     public void OnSetUp(IBulletFactories bulletFactories, IObjectPool objectPool)
     {
         this.bulletFactories = bulletFactories;
         this.objectPool = objectPool;
 
-        currentBulletState = IBulletType.BulletType.Bullet_10mm;
-        factory = bulletFactories.BulletFactory(currentBulletState);
+        currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
+        
 
         //ダメ
+        factory = bulletFactories.BulletFactory((int)currentBulletState);
         objectPool.PoolSetUp(factory);
     }
 
@@ -33,7 +34,7 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType
 
     public void Shot()
     {
-        factory = bulletFactories.BulletFactory(currentBulletState);
+        factory = bulletFactories.BulletFactory((int)currentBulletState);
         if(factory == null)return;
 
         GameObject bulletObject = objectPool.GetFromPool(factory).gameObject;
