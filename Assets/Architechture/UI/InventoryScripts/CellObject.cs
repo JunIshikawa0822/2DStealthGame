@@ -96,4 +96,12 @@ public class CellObject
 
         stackNum = stackNum + 1;
     }
+
+    public void SetPlacedObjectStackNum()
+    {
+        if(this.placedObject != null)
+        {
+            placedObject.StackNumInit(stackNum);
+        }
+    }
 }

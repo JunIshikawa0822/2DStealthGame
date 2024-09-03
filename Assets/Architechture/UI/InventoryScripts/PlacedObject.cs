@@ -69,7 +69,7 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
         backGroundGrid.cellSize = new Vector2(cellSize, cellSize);
     }
 
-    public void TextSet()
+    private void TextSet()
     {
         stackNumText.text = stackNum.ToString();
     }

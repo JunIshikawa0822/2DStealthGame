@@ -141,7 +141,9 @@ public class TetrisInventory : MonoBehaviour
         // Debug.Log(string.Join(",", cellNumList));
 
         PlacedObject cashedPlacedObject = null;
-        int stackNumInCell = 0;
+        //int stackNumInCell = 0;
+
+        Debug.Log("いれたい数 : " + insertObjectNum);
 
         foreach (Vector2Int cellNum in cellNumList)
         {
@@ -151,26 +153,30 @@ public class TetrisInventory : MonoBehaviour
             cashedPlacedObject = cellObject.GetPlacedObject();
             //新しいのを入れる
             cellObject.InsertToCellObject(placedObject);
-            //入れたい数
-            int stackNum = insertObjectNum/*placedObject.GetStackNum()*/;
 
-            for(int i = 1; i <= stackNum; i++)
+            Debug.Log("cellNum : " + cellNum);
+
+            for(int i = insertObjectNum; i >= 1; i--)
+            // for(int i = 1; i <= insertObjectNum; i++)
             {
                 bool stackable = cellObject.GetStackability();
-                //insertNum = i;
-                
                 if(stackable)
                 {
+                    Debug.Log("残り" + i + "個");
                     cellObject.SetStackNum();
                     cellObject.SetStackability();
                 }
                 else
                 {
-                    remainNum = stackNum - i;
+                    //remainNum = insertObjectNum - i;
+                    remainNum = i;
+                    Debug.Log(i + "個は入らない remainNum : " + remainNum);
                     break;
                 }
-            } 
-            stackNumInCell = cellObject.GetStackNum();
+            }
+
+            cellObject.SetPlacedObjectStackNum();
+            //stackNumInCell = cellObject.GetStackNum();
         }
 
         placedObject.SetBelonging(this, originCellNum, direction, container);
@@ -187,7 +193,8 @@ public class TetrisInventory : MonoBehaviour
         //重ねている
         if(cashedPlacedObject != null)
         {
-            placedObject.StackNumInit(stackNumInCell);
+            Debug.Log("バグの原因か？");
+            //placedObject.StackNumInit(stackNumInCell);
             cashedPlacedObject.OnDestroy();
         }
 
