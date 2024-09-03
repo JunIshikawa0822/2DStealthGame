@@ -20,9 +20,10 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType_10mm
         this.objectPool = objectPool;
 
         currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
-        factory = bulletFactories.BulletFactory((int)currentBulletState);
+        
 
         //ダメ
+        factory = bulletFactories.BulletFactory((int)currentBulletState);
         objectPool.PoolSetUp(factory);
     }
 
