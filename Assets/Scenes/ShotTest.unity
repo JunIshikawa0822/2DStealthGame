@@ -14203,7 +14203,7 @@ GameObject:
   - component: {fileID: 1078459392}
   - component: {fileID: 1078459393}
   m_Layer: 0
-  m_Name: BulletFactories
+  m_Name: Bullet_10mm_Factories
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14236,8 +14236,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c1684ad62f0d4748bbd5074417febcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet_10mm: {fileID: 2826235708557521172, guid: 402669dd6fe3547e8a61908df8294968,
+  bullet_10mm_Normal: {fileID: 2826235708557521172, guid: 402669dd6fe3547e8a61908df8294968,
     type: 3}
+  bullet_10mm_HdLpHc: {fileID: 0}
+  bullet_10mm_LdHpHc: {fileID: 0}
+  bullet_10mm_LdLpLc: {fileID: 0}
 --- !u!1001 &1132727796
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14525,7 +14528,7 @@ MonoBehaviour:
   gameStat:
     onClick: 0
     Pistol1: {fileID: 1132727798}
-    fac: {fileID: 1078459393}
+    bullet_10mm_Factories: {fileID: 1078459393}
     obj: {fileID: 2107302112}
 --- !u!43 &1572338265
 Mesh:
