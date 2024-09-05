@@ -11,5 +11,7 @@ public class GameStatus
     public Pistol1 Pistol1;
 
     public Bullet_10mm_Factories bullet_10mm_Factories;
+
+    public Bullet_Factories bullet_Factories;
     public ObjectPool obj;
 }

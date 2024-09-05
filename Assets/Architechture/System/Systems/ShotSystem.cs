@@ -9,6 +9,7 @@ public class ShotSystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         gun1 = gameStat.Pistol1;
+        //gun1.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.obj);
         gun1.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.obj);
     }
 

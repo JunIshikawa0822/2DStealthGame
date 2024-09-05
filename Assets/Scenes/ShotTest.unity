@@ -13949,6 +13949,53 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1 &672698040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 672698041}
+  - component: {fileID: 672698042}
+  m_Layer: 0
+  m_Name: Bullet_Factries
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &672698041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672698040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &672698042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672698040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1aea3c4a37a416bbcb317ec920af90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
+    type: 3}
+  bullet_5_56mm: {fileID: 0}
 --- !u!1 &752146094
 GameObject:
   m_ObjectHideFlags: 0
@@ -14255,7 +14302,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.775753
+      value: 1.93
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.y
@@ -14263,7 +14310,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.3125548
+      value: 2.31
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalRotation.w
@@ -14534,6 +14581,7 @@ MonoBehaviour:
     onClick: 0
     Pistol1: {fileID: 1132727798}
     bullet_10mm_Factories: {fileID: 1078459393}
+    bullet_Factories: {fileID: 672698042}
     obj: {fileID: 2107302112}
 --- !u!43 &1572338265
 Mesh:
@@ -14858,6 +14906,7 @@ SceneRoots:
   - {fileID: 165118309}
   - {fileID: 752146096}
   - {fileID: 1078459392}
+  - {fileID: 672698041}
   - {fileID: 2107302111}
   - {fileID: 1569686752}
   - {fileID: 1018114146}
