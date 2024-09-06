@@ -29,4 +29,14 @@ public abstract class AEntity : MonoBehaviour, IEntity
     }
 
     public abstract void OnEntityDead();
+
+    public Transform GetEntityTransform()
+    {
+        return this._entityTransform;
+    }
+
+    public Rigidbody GetEntityRigidbody()
+    {
+        return this._entityRigidbody;
+    }
 }

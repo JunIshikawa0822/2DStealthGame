@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class APlayer : AEntity
 {
-    public abstract void OnMove(Vector2 inputDirection);
+    public abstract void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition);
 
     public abstract void OnAttack();
 

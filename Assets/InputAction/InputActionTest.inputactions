@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CursorPosition",
+                    "type": "Value",
+                    "id": "367d19c0-1a8d-482b-97e1-e83e48926948",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -93,12 +102,23 @@
                 },
                 {
                     "name": "",
-                    "id": "f3f552ee-ed41-418b-94f8-57e057e10600",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
+                    "id": "6b25270a-e3dc-4fd5-af83-34cec5246f54",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": "",
                     "action": "PlayerAttackTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "60cfc18f-0335-42e3-9437-a1389974e173",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CursorPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

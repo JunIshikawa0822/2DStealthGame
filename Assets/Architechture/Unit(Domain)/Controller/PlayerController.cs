@@ -11,6 +11,9 @@ public class PlayerController : APlayer
     private IGun _equipGun2;
     private int _selectIndex;
 
+    private Quaternion targetRotation;
+    private float rotationSpeed = 500;
+
     public override void OnSetUp(int playerHp)
     {
         base.OnSetUp(playerHp);
@@ -30,10 +33,14 @@ public class PlayerController : APlayer
         }
     }
 
-    public override void OnMove(Vector2 inputDirection)
+    public override void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition)
     {
-        Debug.Log(inputDirection);
+        //移動
         _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce, ForceMode.Force);
+
+        //回転
+        targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
+        _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, rotationSpeed * Time.deltaTime);
     }
 
     public override void OnAttack()

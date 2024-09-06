@@ -44,6 +44,15 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CursorPosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""367d19c0-1a8d-482b-97e1-e83e48926948"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -115,12 +124,23 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""f3f552ee-ed41-418b-94f8-57e057e10600"",
-                    ""path"": ""<Gamepad>/buttonSouth"",
-                    ""interactions"": """",
+                    ""id"": ""6b25270a-e3dc-4fd5-af83-34cec5246f54"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Press(behavior=2)"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PlayerAttackTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""60cfc18f-0335-42e3-9437-a1389974e173"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CursorPosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -133,6 +153,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         m_PlayerActionTest = asset.FindActionMap("PlayerActionTest", throwIfNotFound: true);
         m_PlayerActionTest_PlayerMoveTest = m_PlayerActionTest.FindAction("PlayerMoveTest", throwIfNotFound: true);
         m_PlayerActionTest_PlayerAttackTest = m_PlayerActionTest.FindAction("PlayerAttackTest", throwIfNotFound: true);
+        m_PlayerActionTest_CursorPosition = m_PlayerActionTest.FindAction("CursorPosition", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -196,12 +217,14 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     private List<IPlayerActionTestActions> m_PlayerActionTestActionsCallbackInterfaces = new List<IPlayerActionTestActions>();
     private readonly InputAction m_PlayerActionTest_PlayerMoveTest;
     private readonly InputAction m_PlayerActionTest_PlayerAttackTest;
+    private readonly InputAction m_PlayerActionTest_CursorPosition;
     public struct PlayerActionTestActions
     {
         private @InputAction_Test m_Wrapper;
         public PlayerActionTestActions(@InputAction_Test wrapper) { m_Wrapper = wrapper; }
         public InputAction @PlayerMoveTest => m_Wrapper.m_PlayerActionTest_PlayerMoveTest;
         public InputAction @PlayerAttackTest => m_Wrapper.m_PlayerActionTest_PlayerAttackTest;
+        public InputAction @CursorPosition => m_Wrapper.m_PlayerActionTest_CursorPosition;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionTest; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -217,6 +240,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @PlayerAttackTest.started += instance.OnPlayerAttackTest;
             @PlayerAttackTest.performed += instance.OnPlayerAttackTest;
             @PlayerAttackTest.canceled += instance.OnPlayerAttackTest;
+            @CursorPosition.started += instance.OnCursorPosition;
+            @CursorPosition.performed += instance.OnCursorPosition;
+            @CursorPosition.canceled += instance.OnCursorPosition;
         }
 
         private void UnregisterCallbacks(IPlayerActionTestActions instance)
@@ -227,6 +253,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @PlayerAttackTest.started -= instance.OnPlayerAttackTest;
             @PlayerAttackTest.performed -= instance.OnPlayerAttackTest;
             @PlayerAttackTest.canceled -= instance.OnPlayerAttackTest;
+            @CursorPosition.started -= instance.OnCursorPosition;
+            @CursorPosition.performed -= instance.OnCursorPosition;
+            @CursorPosition.canceled -= instance.OnCursorPosition;
         }
 
         public void RemoveCallbacks(IPlayerActionTestActions instance)
@@ -248,5 +277,6 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     {
         void OnPlayerMoveTest(InputAction.CallbackContext context);
         void OnPlayerAttackTest(InputAction.CallbackContext context);
+        void OnCursorPosition(InputAction.CallbackContext context);
     }
 }
