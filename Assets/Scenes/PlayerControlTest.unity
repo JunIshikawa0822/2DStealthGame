@@ -5947,13 +5947,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 165118306}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.74, y: 1.21, z: 2.63}
+  m_LocalRotation: {x: 0.47312292, y: -0.52550423, z: 0.52550423, w: 0.47312292}
+  m_LocalPosition: {x: 0, y: 15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1018114146}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &165118310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14141,6 +14141,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1018114146}
   - component: {fileID: 1018114147}
+  - component: {fileID: 1018114148}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -14163,6 +14164,7 @@ Transform:
   m_Children:
   - {fileID: 38237712}
   - {fileID: 1132727797}
+  - {fileID: 165118309}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 96.005, z: 0}
 --- !u!54 &1018114147
@@ -14192,6 +14194,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1018114148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1018114145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69774a4b6a76d4c7b8f54e2ac229f9f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _moveForce: 5
+  _jumpForce: 5
 --- !u!1 &1078459391
 GameObject:
   m_ObjectHideFlags: 0
@@ -14530,11 +14546,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835c68c39a2a14ef39c26dab54827fa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameStat:
-    onClick: 0
+  _gameStat:
+    moveDirection: {x: 0, y: 0}
+    onAttack: 0
     Pistol1: {fileID: 1132727798}
     bullet_10mm_Factories: {fileID: 1078459393}
-    obj: {fileID: 2107302112}
+    objectPool: {fileID: 2107302112}
+    player: {fileID: 1018114148}
 --- !u!43 &1572338265
 Mesh:
   m_ObjectHideFlags: 0
@@ -14855,7 +14873,6 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 165118309}
   - {fileID: 752146096}
   - {fileID: 1078459392}
   - {fileID: 2107302111}

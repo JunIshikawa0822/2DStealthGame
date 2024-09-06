@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : Entity, IPlayer
+public class PlayerController : AEntity, IPlayer
 {
     [SerializeField] private float _moveForce = 5;
     [SerializeField] private float _jumpForce = 5;
 
     private IGun _equipGun1;
     private IGun _equipGun2;
-
-    private int _selectIndex ;
-
-    private Rigidbody _rigidbody;
+    private int _selectIndex;
 
     public override void OnSetUp()
     {
@@ -35,8 +32,7 @@ public class PlayerController : Entity, IPlayer
 
     public void OnMove(Vector2 inputDirection)
     {
-            // 移動方向の力を与える
-        _rigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce);
+        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce);
     }
 
     public void OnAttack()

@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameStatus
 {
-    public Vector2 moveDirection;
+    public Vector2 moveDirection = Vector2.zero;
     public bool onAttack = false;
 
     public Pistol1 Pistol1;

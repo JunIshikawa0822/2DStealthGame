@@ -1,4 +1,4 @@
-
+using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
 {
     private IPlayer _player;
@@ -7,7 +7,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
         _player = gameStat.player;
 
         IGun gun = gameStat.Pistol1;
-        
+
         gun.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.objectPool);
         _player.SetEquipment(gun, 0);
     }
