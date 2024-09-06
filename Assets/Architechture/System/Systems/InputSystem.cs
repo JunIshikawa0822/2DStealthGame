@@ -37,6 +37,7 @@ public class InputSystem : ASystem, IOnPreUpdate
     {
         // Moveアクションの入力取得
        gameStat.moveDirection = context.ReadValue<Vector2>();
+       //Debug.Log(gameStat.moveDirection);
     }
 
     private void OnJump(InputAction.CallbackContext context)

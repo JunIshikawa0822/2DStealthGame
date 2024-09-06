@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : AEntity, IPlayer
+public class PlayerController : APlayer
 {
     [SerializeField] private float _moveForce = 5;
     [SerializeField] private float _jumpForce = 5;
@@ -11,14 +11,14 @@ public class PlayerController : AEntity, IPlayer
     private IGun _equipGun2;
     private int _selectIndex;
 
-    public override void OnSetUp()
+    public override void OnSetUp(int playerHp)
     {
-        base.OnSetUp();
+        base.OnSetUp(playerHp);
 
         _selectIndex = 0;
     }
 
-    public void SetEquipment(IGun item, int index)
+    public override void SetEquipment(IGun item, int index)
     {
         switch(index)
         {
@@ -30,12 +30,13 @@ public class PlayerController : AEntity, IPlayer
         }
     }
 
-    public void OnMove(Vector2 inputDirection)
+    public override void OnMove(Vector2 inputDirection)
     {
-        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce);
+        Debug.Log(inputDirection);
+        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce, ForceMode.Force);
     }
 
-    public void OnAttack()
+    public override void OnAttack()
     {
         switch(_selectIndex)
         {
@@ -45,5 +46,10 @@ public class PlayerController : AEntity, IPlayer
             case 1: _equipGun2.Shot();
                     break;
         }
+    }
+
+    public override void OnEntityDead()
+    {
+        Debug.Log("テストだよん");
     }
 }

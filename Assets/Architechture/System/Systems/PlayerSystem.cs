@@ -1,15 +1,22 @@
 using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
 {
-    private IPlayer _player;
+    private APlayer _player;
+
+    private IEntity entity;
     public override void OnSetUp()
     {
         _player = gameStat.player;
+        entity = _player;
+
+        _player.OnSetUp(100);
 
         IGun gun = gameStat.Pistol1;
 
         gun.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.objectPool);
         _player.SetEquipment(gun, 0);
+
+        entity.OnEntityDead();
     }
 
     public void OnUpdate()
@@ -20,7 +27,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
         }
     }
 
-    public  void OnFixedUpdate()
+    public void OnFixedUpdate()
     {
         _player.OnMove(gameStat.moveDirection);
     }
