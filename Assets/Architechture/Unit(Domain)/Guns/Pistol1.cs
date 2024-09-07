@@ -5,36 +5,25 @@ using UnityEngine.Rendering;
 
 public class Pistol1 : MonoBehaviour, IGun_10mm
 {
-    [Tooltip("Projectile force")]
-    [SerializeField] float muzzleVelocity = 700f;
-    [Tooltip("End point of gun where shots appear")]
-    [SerializeField] private Transform muzzlePosition;
-    IObjectPool objectPool;
- 
-    //------------------------------------------------------------//
 
-    IBulletFactories bulletFactories;
-    IBulletFactory factory;
-    [SerializeField]
-    IBulletType_10mm.BulletType_10mm currentBulletState;
-
-    //------------------------------------------------------------//
-
-     IBulletCaliberFactories bulletCaliberFactories;
-
-     //[SerializeField]
-     IBulletCaliberType.BulletCaliberType currentBulletCaliberState;
+    [SerializeField] 
+    private float _muzzleVelocity = 700f;
+    [SerializeField] 
+    private Transform _muzzlePosition;
+    private IObjectPool _objectPool;
+    private IBulletFactories _bulletFactories;
+    private IBulletFactory _factory;
+    private IBulletType_10mm.BulletType_10mm _currentBulletState;
     
     public void OnSetUp(IBulletFactories bulletFactories, IObjectPool objectPool)
     {
-        this.bulletFactories = bulletFactories;
-        this.objectPool = objectPool;
-
-        currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
- 
+        this._bulletFactories = bulletFactories;
+        this._objectPool = objectPool;
+        _currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
+        
         //ダメ
-        factory = bulletFactories.BulletFactory((int)currentBulletState);
-        objectPool.PoolSetUp(factory);
+        _factory = bulletFactories.BulletFactory((int)_currentBulletState);
+        objectPool.PoolSetUp(_factory);
     }
 
     // public void OnSetUp(IBulletCaliberFactories bulletCaliberFactories, IObjectPool objectPool)
@@ -56,20 +45,16 @@ public class Pistol1 : MonoBehaviour, IGun_10mm
 
     public void Shot()
     {
-        factory = bulletFactories.BulletFactory((int)currentBulletState);
-        //factory = bulletCaliberFactories.BulletFactory(currentBulletCaliberState);
-        if(factory == null)return;
+        _factory = _bulletFactories.BulletFactory((int)_currentBulletState);
+        if(_factory == null)return;
 
-        GameObject bulletObject = objectPool.GetFromPool(factory).gameObject;
+        GameObject bulletObject = _objectPool.GetFromPool(_factory).gameObject;
         if (bulletObject == null)return;
 
         bulletObject.SetActive(true);
 
-        // align to gun barrel/muzzle position
-        bulletObject.transform.SetPositionAndRotation(muzzlePosition.position, muzzlePosition.rotation);
-
-        // move projectile forward
-        bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * muzzleVelocity, ForceMode.Acceleration);
+        bulletObject.transform.SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
+        bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
     }
 
     public void Reload()
