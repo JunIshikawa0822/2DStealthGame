@@ -8,8 +8,10 @@ public class ShotSystem : ASystem, IOnUpdate
 
     public override void OnSetUp()
     {
+
         //_gun1 = gameStat.Pistol1;
         //_gun1.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.objectPool);
+
     }
 
     public void OnUpdate()

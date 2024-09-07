@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Pistol1 : MonoBehaviour, IGun, IBulletType_10mm
+public class Pistol1 : MonoBehaviour, IGun_10mm
 {
+
     [SerializeField] 
     private float _muzzleVelocity = 700f;
     [SerializeField] 
@@ -18,14 +19,24 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType_10mm
     {
         this._bulletFactories = bulletFactories;
         this._objectPool = objectPool;
-
         _currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
         
-
         //ダメ
         _factory = bulletFactories.BulletFactory((int)_currentBulletState);
         objectPool.PoolSetUp(_factory);
     }
+
+    // public void OnSetUp(IBulletCaliberFactories bulletCaliberFactories, IObjectPool objectPool)
+    // {
+    //     this.bulletCaliberFactories = bulletCaliberFactories;
+    //     this.objectPool = objectPool;
+
+    //     currentBulletCaliberState = IBulletCaliberType.BulletCaliberType.Bullet_10mm;
+ 
+    //     //ダメ
+    //     factory = bulletCaliberFactories.BulletFactory(currentBulletCaliberState);
+    //     objectPool.PoolSetUp(factory);
+    // }
 
     public void OnUpdate()
     {
