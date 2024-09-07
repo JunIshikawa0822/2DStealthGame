@@ -21,8 +21,6 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerMoveTest.canceled += OnMoveInput;
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
-        //_gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackFalse;
-        //_gameInputs.PlayerActionTest.PlayerAttackTest.canceled += OnAttackFalse;
 
         _gameInputs.Enable();
     }
@@ -53,19 +51,7 @@ public class InputSystem : ASystem, IOnPreUpdate
     private void OnAttackInput(InputAction.CallbackContext context)
     {
         Debug.Log("click");
-        gameStat.onAttackEvent?.Invoke();
-    }
-
-    private void OnAttackTrue(InputAction.CallbackContext context)
-    {
-        Debug.Log("click");
-        gameStat.onAttack = true;
-    }
-
-    private void OnAttackFalse(InputAction.CallbackContext context)
-    {
-        Debug.Log("clickoff");
-        gameStat.onAttack = false;
+        gameStat.onPlayerAttackEvent?.Invoke();
     }
 
     private Vector3 ConvertScreenToWorldPoint(Vector2 screenPos)

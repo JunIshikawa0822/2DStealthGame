@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameStatus
 {
-    public Action onAttackEvent;
+    public Action onPlayerAttackEvent;
     public Vector2 moveDirection = Vector2.zero;
     public Vector2 cursorScreenPosition = Vector2.zero;
     public Vector3 cursorWorldPosition = Vector3.zero;

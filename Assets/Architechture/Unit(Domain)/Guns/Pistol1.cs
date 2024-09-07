@@ -42,10 +42,7 @@ public class Pistol1 : MonoBehaviour, IGun, IBulletType_10mm
 
         bulletObject.SetActive(true);
 
-        // align to gun barrel/muzzle position
         bulletObject.transform.SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
-
-        // move projectile forward
         bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
     }
 

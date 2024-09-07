@@ -17,17 +17,11 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
 
         entity.OnEntityDead();
 
-        gameStat.onAttackEvent += _player.OnAttack;
+        gameStat.onPlayerAttackEvent += _player.OnAttack;
     }
 
     public void OnUpdate()
     {
-        // if(gameStat.onAttack)
-        // {
-        //     Debug.Log("Attack");
-        //     _player.OnAttack();
-        // }
-
         gameStat.gameObject.transform.position = gameStat.cursorWorldPosition;
     }
 
