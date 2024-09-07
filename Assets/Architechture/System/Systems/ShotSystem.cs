@@ -1,22 +1,22 @@
 
 public class ShotSystem : ASystem, IOnUpdate
 {
-    IGun gun1;
-    IGun gun2;
+    IGun _gun1;
+    IGun _gun2;
 
     public IGun[] gunsInPlayerItem = new IGun[2];
 
     public override void OnSetUp()
     {
-        gun1 = gameStat.Pistol1;
-        gun1.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.obj);
+        //_gun1 = gameStat.Pistol1;
+        //_gun1.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.objectPool);
     }
 
     public void OnUpdate()
     {
-        if(gameStat.onClick)
-        {
-            gun1.Shot();
-        }
+        // if(gameStat.onAttack)
+        // {
+        //     _gun1.Shot();
+        // }
     }
 }

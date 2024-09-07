@@ -212,8 +212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28ccd603bc9f64f6f88df99cc0d7dec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  muzzleVelocity: 700
-  muzzlePosition: {fileID: 4091772490116562331}
+  _muzzleVelocity: 700
+  _muzzlePosition: {fileID: 4091772490116562331}
 --- !u!1 &1748277932983872
 GameObject:
   m_ObjectHideFlags: 0
