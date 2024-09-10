@@ -6,7 +6,7 @@ public class PlayerController : APlayer
 {
     [SerializeField] private float _moveForce = 5;
     [SerializeField] private float _jumpForce = 5;
-
+    
     private IGun _equipGun1;
     private IGun _equipGun2;
     private int _selectIndex;
@@ -17,7 +17,6 @@ public class PlayerController : APlayer
     public override void OnSetUp(int playerHp)
     {
         base.OnSetUp(playerHp);
-
         _selectIndex = 0;
     }
 

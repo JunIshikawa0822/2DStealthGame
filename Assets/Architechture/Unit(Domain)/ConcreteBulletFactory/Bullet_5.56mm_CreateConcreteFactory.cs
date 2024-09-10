@@ -1,5 +1,5 @@
 using UnityEngine;
-public class Bullet_5_56mm_CreateConcreteFactory : IBulletFactory
+public class Bullet_5_56mm_CreateConcreteFactory : IFactory<Bullet_5_56mm>
 {
     Bullet_5_56mm bullet;
 
@@ -8,9 +8,11 @@ public class Bullet_5_56mm_CreateConcreteFactory : IBulletFactory
         this.bullet = bullet;
     }
 
-    public ABullet BulletObjectInstantiate()
+    public Bullet_5_56mm ObjectInstantiate()
     {
-        ABullet bulletInstance = GameObject.Instantiate(bullet);
+        Bullet_5_56mm bulletInstance = GameObject.Instantiate(bullet);
+        bullet.OnSetUp();
+        
         return bulletInstance;
     }
 }

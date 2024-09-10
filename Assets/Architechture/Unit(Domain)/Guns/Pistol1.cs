@@ -5,38 +5,26 @@ using UnityEngine.Rendering;
 
 public class Pistol1 : MonoBehaviour, IGun_10mm
 {
-
-    [SerializeField] 
+    [SerializeField]
     private float _muzzleVelocity = 700f;
     [SerializeField] 
     private Transform _muzzlePosition;
-    private IObjectPool _objectPool;
+
+    //もっと一般化していい奴ら↓
+    private IObjectPool<ABullet> _objectPool;
     private IBulletFactories _bulletFactories;
-    private IBulletFactory _factory;
-    private IBulletType_10mm.BulletType_10mm _currentBulletState;
+    private IFactory<ABullet> _factory;
+    private IBType_10mm.Caliber _bulletcaliber;
     
-    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool objectPool)
+    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool)
     {
         this._bulletFactories = bulletFactories;
         this._objectPool = objectPool;
-        _currentBulletState = IBulletType_10mm.BulletType_10mm.Bullet_10mm_Normal;
-        
+
+        _bulletcaliber = IBType_10mm.Caliber.Bullet_10mm;
         //ダメ
-        _factory = bulletFactories.BulletFactory((int)_currentBulletState);
-        objectPool.PoolSetUp(_factory);
+        _factory = bulletFactories.BulletFactory(_bulletcaliber);
     }
-
-    // public void OnSetUp(IBulletCaliberFactories bulletCaliberFactories, IObjectPool objectPool)
-    // {
-    //     this.bulletCaliberFactories = bulletCaliberFactories;
-    //     this.objectPool = objectPool;
-
-    //     currentBulletCaliberState = IBulletCaliberType.BulletCaliberType.Bullet_10mm;
- 
-    //     //ダメ
-    //     factory = bulletCaliberFactories.BulletFactory(currentBulletCaliberState);
-    //     objectPool.PoolSetUp(factory);
-    // }
 
     public void OnUpdate()
     {
@@ -45,13 +33,11 @@ public class Pistol1 : MonoBehaviour, IGun_10mm
 
     public void Shot()
     {
-        _factory = _bulletFactories.BulletFactory((int)_currentBulletState);
+        _factory = _bulletFactories.BulletFactory(_bulletcaliber);
         if(_factory == null)return;
 
         GameObject bulletObject = _objectPool.GetFromPool(_factory).gameObject;
         if (bulletObject == null)return;
-
-        bulletObject.SetActive(true);
 
         bulletObject.transform.SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
         bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);

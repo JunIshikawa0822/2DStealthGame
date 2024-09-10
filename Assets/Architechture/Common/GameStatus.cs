@@ -11,13 +11,10 @@ public class GameStatus
     public Vector2 cursorScreenPosition = Vector2.zero;
     public Vector3 cursorWorldPosition = Vector3.zero;
     public bool onAttack = false;
-
-    public GameObject gameObject;
-
+    public GameObject cursorObject;
     public Pistol1 Pistol1;
-    public Bullet_10mm_Factories bullet_10mm_Factories;
-
-    public ObjectPool objectPool;
+    public Bullet_Factories bullet_Factories;
+    public IObjectPool<ABullet> objectPool_10mm;
     public PlayerController player;
 
 }

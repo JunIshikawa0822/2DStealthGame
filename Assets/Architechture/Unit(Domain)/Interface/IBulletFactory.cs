@@ -1,4 +1,5 @@
-public interface IBulletFactory
+public interface IBulletFactory<out TBullet> where TBullet : ABullet
 {
-    public ABullet BulletObjectInstantiate();
+    TBullet BulletInstantiate();
 }
+

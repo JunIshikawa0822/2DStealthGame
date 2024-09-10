@@ -1,13 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet_Factories : MonoBehaviour, IBulletCaliberFactories, IBulletCaliberType
+public class Bullet_Factories : MonoBehaviour, IBulletFactories, IBType_10mm, IBType_5_56mm, IBType_7_72mm
 {
     [SerializeField] Bullet_10mm bullet_10mm;
     [SerializeField] Bullet_5_56mm bullet_5_56mm;
-    
-    Dictionary<IBulletCaliberType.BulletCaliberType, IBulletFactory> factoriesDic;
+    Dictionary<Enum, IFactory<ABullet>> factoriesDic;
 
     void Awake()
     {
@@ -16,15 +16,15 @@ public class Bullet_Factories : MonoBehaviour, IBulletCaliberFactories, IBulletC
 
     public void SetUp()
     {
-        factoriesDic = new Dictionary<IBulletCaliberType.BulletCaliberType, IBulletFactory>
+        factoriesDic = new Dictionary<Enum, IFactory<ABullet>>
         {
-            {IBulletCaliberType.BulletCaliberType.Bullet_10mm, new Bullet_10mm_CreateConcreteFactory(bullet_10mm)},
-            {IBulletCaliberType.BulletCaliberType.Bullet_5_56mm, new Bullet_5_56mm_CreateConcreteFactory(bullet_5_56mm)},
+            {IBType_10mm.Caliber.Bullet_10mm, new Bullet_10mm_CreateConcreteFactory(bullet_10mm)},
+            {IBType_5_56mm.Caliber.Bullet_5_56mm, new Bullet_5_56mm_CreateConcreteFactory(bullet_5_56mm)},
         };
     }
 
-    public IBulletFactory BulletFactory(IBulletCaliberType.BulletCaliberType bulletType)
+    public IFactory<ABullet> BulletFactory(Enum type)
     {
-        return factoriesDic[bulletType];
+        return factoriesDic[type];
     }
 }
