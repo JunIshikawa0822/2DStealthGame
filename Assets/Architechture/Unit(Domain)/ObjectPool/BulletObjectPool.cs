@@ -26,6 +26,7 @@ public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
         {
             poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
             parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
+            parentDic[factoryType].transform.SetParent(this.transform);
         }
 
         Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];
@@ -56,6 +57,7 @@ public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
         {
             poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
             parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
+            parentDic[factoryType].transform.SetParent(this.transform);
         }
 
         Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];

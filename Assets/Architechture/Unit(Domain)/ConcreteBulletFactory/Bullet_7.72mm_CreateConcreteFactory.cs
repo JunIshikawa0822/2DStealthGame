@@ -19,6 +19,6 @@ public class Bullet_7_72mm_CreateConcreteFactory : IFactory<Bullet_7_72mm>
 
     public Type GetFactoryType()
     {
-        return typeof(Bullet_10mm);
+        return typeof(Bullet_7_72mm);
     }
 }

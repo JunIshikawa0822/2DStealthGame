@@ -14431,9 +14431,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a1aea3c4a37a416bbcb317ec920af90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet_10mm: {fileID: 0}
-  bullet_5_56mm: {fileID: 0}
-  bullet_7_72mm: {fileID: 0}
+  bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
+    type: 3}
+  bullet_5_56mm: {fileID: -3427884724406069225, guid: 0930f83bf02ca4802bf978008cc90a3e,
+    type: 3}
+  bullet_7_72mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
+    type: 3}
 --- !u!1 &1081180365
 GameObject:
   m_ObjectHideFlags: 3
@@ -14590,6 +14593,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1132727796}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1132727798 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115,
+    type: 3}
+  m_PrefabInstance: {fileID: 1132727796}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28ccd603bc9f64f6f88df99cc0d7dec6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1141584801
 GameObject:
   m_ObjectHideFlags: 0
@@ -14877,6 +14892,9 @@ MonoBehaviour:
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     onAttack: 0
     cursorObject: {fileID: 985123735}
+    Pistol1: {fileID: 1132727798}
+    bullet_Factories: {fileID: 1078459393}
+    bulletObjectPool: {fileID: 2107302112}
     player: {fileID: 38237714}
 --- !u!43 &1572338265
 Mesh:
