@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System;
 
-public class Pistol1 : MonoBehaviour, IGun_10mm
+public class HandGun : MonoBehaviour, IGun_10mm
 {
     [SerializeField]
     private float _muzzleVelocity = 700f;
@@ -13,17 +14,14 @@ public class Pistol1 : MonoBehaviour, IGun_10mm
     //もっと一般化していい奴ら↓
     private IObjectPool<ABullet> _objectPool;
     private IBulletFactories _bulletFactories;
-    private IFactory<ABullet> _factory;
-    private IBType_10mm.Caliber _bulletcaliber;
-    
+    private IFactory<ABullet> _bulletcaliberFactory;
+
     public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool)
     {
         this._bulletFactories = bulletFactories;
         this._objectPool = objectPool;
-
-        _bulletcaliber = IBType_10mm.Caliber.Bullet_10mm;
-        //ダメ
-        _factory = bulletFactories.BulletFactory(_bulletcaliber);
+        
+        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
     }
 
     public void OnUpdate()
@@ -31,12 +29,19 @@ public class Pistol1 : MonoBehaviour, IGun_10mm
 
     }
 
+    public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
+    {
+        // ここで、T 型が IBType_10mm を継承していることが保証されています
+        Type factoryType = typeof(T);
+        return _bulletFactories.BulletFactory(factoryType);
+    }
+
     public void Shot()
     {
-        _factory = _bulletFactories.BulletFactory(_bulletcaliber);
-        if(_factory == null)return;
+        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
+        if(_bulletcaliberFactory == null)return;
 
-        GameObject bulletObject = _objectPool.GetFromPool(_factory).gameObject;
+        GameObject bulletObject = _objectPool.GetFromPool(_bulletcaliberFactory).gameObject;
         if (bulletObject == null)return;
 
         bulletObject.transform.SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);

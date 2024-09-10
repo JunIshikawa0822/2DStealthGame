@@ -3,5 +3,5 @@ using System;
 public interface IBulletFactories
 {
     public void SetUp();
-    public IFactory<ABullet> BulletFactory(Enum enumType);
+    public IFactory<ABullet> BulletFactory(Type type);
 }

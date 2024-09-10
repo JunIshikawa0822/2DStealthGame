@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 public interface IFactory<out T>
 {
     public T ObjectInstantiate();
+
+    public Type GetFactoryType();
 }
 

@@ -12,9 +12,9 @@ public class GameStatus
     public Vector3 cursorWorldPosition = Vector3.zero;
     public bool onAttack = false;
     public GameObject cursorObject;
-    public Pistol1 Pistol1;
-    public Bullet_Factories bullet_Factories;
-    public IObjectPool<ABullet> objectPool_10mm;
-    public PlayerController player;
+    public IGun Pistol1;
+    public IBulletFactories bullet_Factories;
+    public IObjectPool<ABullet> bulletObjectPool;
+    public APlayer player;
 
 }

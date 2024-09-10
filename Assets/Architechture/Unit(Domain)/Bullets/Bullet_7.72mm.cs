@@ -1,5 +1,6 @@
 using System;
-public class Bullet_10mm_HdLpHc : ABullet
+
+public class Bullet_7_72mm : ABullet
 {
     public override void OnFixedUpdate()
     {
@@ -13,6 +14,6 @@ public class Bullet_10mm_HdLpHc : ABullet
 
     public override Type GetBulletType()
     {
-        return typeof(Bullet_10mm_HdLpHc);
+        return typeof(Bullet_7_72mm);
     }
 }

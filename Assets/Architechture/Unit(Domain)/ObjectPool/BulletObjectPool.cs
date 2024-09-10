@@ -6,115 +6,94 @@ using UnityEngine.Pool;
 public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
 {
     private uint initPoolSize;
+    private Dictionary<Type, Stack<APooledObject<ABullet>>> poolsDic = new Dictionary<Type, Stack<APooledObject<ABullet>>>();
+    private Dictionary<Type, GameObject> parentDic = new Dictionary<Type, GameObject>();
 
-    //追加したものを、最後に追加した順に取り出せる、それ以外はListと同じ
-    Dictionary<Type, Stack<ABullet>> poolsDictionary = new Dictionary<Type,  Stack<ABullet>>();
-
-    private Stack<ABullet> stack;
     public void PoolSetUp(IFactory<ABullet> factory, uint initPoolSize)
     {
         this.initPoolSize = initPoolSize;
         //Stackの初期化
-        stack = new Stack<ABullet>();
-        //activeList = new List<APooledObject>();
 
         if (factory == null)
         {
             return;
         }
 
+        Type factoryType = factory.GetFactoryType();
+
+        // もし該当の弾のプールが存在しない場合、新しく作成
+        if (!poolsDic.ContainsKey(factoryType))
+        {
+            poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
+            parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
+        }
+
+        Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];
+        GameObject poolParent = parentDic[factoryType];
+
         //とりあえずPoolSize分instanceを生成して、見えなくしておく
         for (int i = 0; i < initPoolSize; i++)
         {
-            ABullet instance = ObjectInstantiate(factory);
+            APooledObject<ABullet> instance = ObjectInstantiate(factory);
 
-            instance.gameObject.transform.parent = this.transform;
+            instance.gameObject.transform.parent = poolParent.transform;
             instance.gameObject.SetActive(false);
-            stack.Push(instance);
+            bulletPool.Push(instance);
         }
     }
 
-    public ABullet GetFromPool(IFactory<ABullet> factory)
+    public APooledObject<ABullet> GetFromPool(IFactory<ABullet> factory)
     {
-        //Prefabが無ければreturn
-        if (factory == null)
+        if(factory == null)
         {
             return null;
         }
 
-        if (stack.Count < 1)
-        {
-            APooledObject newInstance = ObjectInstantiate(factory);
+        Type factoryType = factory.GetFactoryType();
 
-            newInstance.gameObject.transform.parent = this.transform;
-            newInstance.pooledObjectAction += ReturnToPool;
-            return newInstance;
-        }
-
-        //Stackから取り出して表示
-        ABullet nextInstance = stack.Pop();
-        nextInstance.gameObject.SetActive(true);
-        return nextInstance;
-    }
-
-    public ABullet ObjectInstantiate(IFactory<ABullet> factory)
-    {
-        ABullet instance = factory.ObjectInstantiate();
-        instance.pooledObjectAction += ReturnToPool;
-        return instance;
-    }
-
-    public void ReturnToPool(APooledObject pooledObject)
-    {
-        stack.Push(pooledObject);
-        pooledObject.gameObject.SetActive(false);
-    }
-
-//------------------------------------------------------------------------
-
-    Dictionary<IFactory<ABullet> , Stack<ABullet>> poolsDic = new Dictionary<IFactory<ABullet>,  Stack<ABullet>>();
-
-    public ABullet GetBulletFromPool(IFactory<ABullet> factory)
-    {
-        if (factory == null)
-        {
-            return null;
-        }
         // もし該当の弾のプールが存在しない場合、新しく作成
-        if (!poolsDic.ContainsKey(factory))
+        if (!poolsDic.ContainsKey(factoryType))
         {
-            poolsDic[factory] = new Stack<ABullet>();
+            poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
+            parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
         }
 
-        Stack<ABullet> bulletPool = poolsDic[factory];
+        Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];
+        GameObject poolParent = parentDic[factoryType];
 
         // プールに弾があればそれを使用、なければ新規作成
         if (bulletPool.Count < 1)
         {
-            ABullet newInstance = ObjectInstantiate(factory);
-
-            newInstance.gameObject.transform.parent = this.transform;
-            newInstance.GetComponent<APooledObject>().pooledObjectAction += ReturnToPool;
+            APooledObject<ABullet> newInstance = ObjectInstantiate(factory);
+            newInstance.gameObject.transform.parent = poolParent.transform;
             return newInstance;
         }
 
-        ABullet nextInstance = bulletPool.Pop();
+        APooledObject<ABullet> nextInstance = bulletPool.Pop();
         nextInstance.gameObject.SetActive(true);
         return nextInstance;
     }
 
-    // 弾をプールに戻す
-    public void ReturnBullet<T>(GameObject bullet) where T : Bullet
+    public APooledObject<ABullet> ObjectInstantiate(IFactory<ABullet> factory)
     {
-        Type bulletType = typeof(T);
+        APooledObject<ABullet> instance = factory.ObjectInstantiate();
+        instance.pooledObjectAction += ReturnToPool;
+        return instance;
+    }
+    
+    // 弾をプールに戻す
+    public void ReturnToPool(ABullet bullet)
+    {
+        Type bulletType = bullet.GetBulletType();
 
-        if (!poolDictionary.ContainsKey(bulletType))
+        if (!poolsDic.ContainsKey(bulletType))
         {
-            poolDictionary[bulletType] = new Queue<GameObject>();
+            poolsDic[bulletType] = new Stack<APooledObject<ABullet>>();
         }
 
-        // 弾を非アクティブにしてプールに戻す
-        bullet.SetActive(false);
-        poolDictionary[bulletType].Enqueue(bullet);
+        Stack<APooledObject<ABullet>> bulletPool = poolsDic[bulletType];
+
+        bulletPool.Push(bullet);
+        bullet.gameObject.SetActive(false);
     }
 }

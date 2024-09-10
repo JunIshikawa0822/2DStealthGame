@@ -14398,7 +14398,7 @@ GameObject:
   - component: {fileID: 1078459392}
   - component: {fileID: 1078459393}
   m_Layer: 0
-  m_Name: Bullet_10mm_Factories
+  m_Name: Bullet_Factories
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14428,14 +14428,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1078459391}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c1684ad62f0d4748bbd5074417febcb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a1aea3c4a37a416bbcb317ec920af90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet_10mm_Normal: {fileID: 2826235708557521172, guid: 402669dd6fe3547e8a61908df8294968,
-    type: 3}
-  bullet_10mm_HdLpHc: {fileID: 0}
-  bullet_10mm_LdHpHc: {fileID: 0}
-  bullet_10mm_LdLpLc: {fileID: 0}
+  bullet_10mm: {fileID: 0}
+  bullet_5_56mm: {fileID: 0}
+  bullet_7_72mm: {fileID: 0}
 --- !u!1 &1081180365
 GameObject:
   m_ObjectHideFlags: 3
@@ -14592,18 +14590,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1132727796}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1132727798 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115,
-    type: 3}
-  m_PrefabInstance: {fileID: 1132727796}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28ccd603bc9f64f6f88df99cc0d7dec6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1141584801
 GameObject:
   m_ObjectHideFlags: 0
@@ -14890,9 +14876,7 @@ MonoBehaviour:
     cursorScreenPosition: {x: 0, y: 0}
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     onAttack: 0
-    gameObject: {fileID: 985123735}
-    Pistol1: {fileID: 1132727798}
-    bullet_Factories: {fileID: 0}
+    cursorObject: {fileID: 985123735}
     player: {fileID: 38237714}
 --- !u!43 &1572338265
 Mesh:
@@ -15281,7 +15265,7 @@ GameObject:
   - component: {fileID: 2107302111}
   - component: {fileID: 2107302112}
   m_Layer: 0
-  m_Name: Bullet_10mm_ObjectPool
+  m_Name: Bullet_ObjectPool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15311,7 +15295,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2107302110}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7326aaec2f3f74a62b48e39e28063558, type: 3}
+  m_Script: {fileID: 11500000, guid: 1410ad3f07bdf48c4b2a34fbbe18c873, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2136571484

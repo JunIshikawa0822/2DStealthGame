@@ -6,33 +6,45 @@ using UnityEngine;
 public class GunSystem : ASystem, IOnFixedUpdate
 {
     private List<ABullet> bulletsList;
-    private Dictionary<Enum, IObjectPool<ABullet>> bulletObjectPoolDic;
-
-    private IObjectPool<ABullet> objectPool_10mm;
-
+    private IObjectPool<ABullet> bulletObjectPool;
     private IBulletFactories bulletFactories;
+    private List<Type> bulletCaliberTypesList;
+    private APlayer _player;
 
     public override void OnSetUp()
     {
-        this.objectPool_10mm = gameStat.objectPool_10mm;
+        this.bulletObjectPool = gameStat.bulletObjectPool;
         this.bulletFactories = gameStat.bullet_Factories;
+
+        this._player = gameStat.player;
 
         bulletsList = new List<ABullet>();
 
-        bulletObjectPoolDic = new Dictionary<Enum, IObjectPool<ABullet>>()
+        bulletCaliberTypesList = new List<Type>()
         {
-            
+            typeof(IBType_10mm),
+            typeof(IBType_5_56mm),
+            typeof(IBType_7_72mm)
         };
 
         //口径ごとのObjectPoolをそれぞれSetup
-        foreach (KeyValuePair<Enum, IObjectPool<ABullet>> pool in bulletObjectPoolDic)
+        foreach(Type IbulletType in bulletCaliberTypesList)
         {
-            pool.Value.PoolSetUp(bulletFactories.BulletFactory(pool.Key), 20);
+            bulletObjectPool.PoolSetUp(bulletFactories.BulletFactory(IbulletType), 20);
         }
+
+        _player.SetEquipment(GunObjectInstantiate(), 0);
     }
 
     public void OnFixedUpdate()
     {
         foreach(ABullet bullet in bulletsList)bullet.OnFixedUpdate();
+    }
+
+    public IGun GunObjectInstantiate()
+    {
+        IGun handgun = gameStat.Pistol1;
+        handgun.OnSetUp(bulletFactories, bulletObjectPool);
+        return handgun;
     }
 }

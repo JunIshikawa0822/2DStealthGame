@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 public class Bullet_5_56mm_CreateConcreteFactory : IFactory<Bullet_5_56mm>
 {
     Bullet_5_56mm bullet;
@@ -14,5 +15,10 @@ public class Bullet_5_56mm_CreateConcreteFactory : IFactory<Bullet_5_56mm>
         bullet.OnSetUp();
         
         return bulletInstance;
+    }
+
+    public Type GetFactoryType()
+    {
+        return typeof(Bullet_5_56mm);
     }
 }
