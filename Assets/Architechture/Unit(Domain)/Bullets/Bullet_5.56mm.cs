@@ -1,15 +1,24 @@
 using System;
+using UnityEngine;
 
 public class Bullet_5_56mm : ABullet
 {
-    public override void OnFixedUpdate()
+    [SerializeField]
+    float _LifeDistance;
+    public void Awake()
     {
-        
+        OnSetUp(_LifeDistance);
     }
-
-    protected override void OnBulletCollision()
+    public void Start()
     {
-        
+
+    }
+    public void FixedUpdate()
+    {
+        if(IsBulletCollide())
+        {
+            Debug.Log("衝突");
+        }
     }
 
     public override Type GetBulletType()

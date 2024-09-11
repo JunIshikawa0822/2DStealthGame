@@ -12,7 +12,7 @@ public class Bullet_7_72mm_CreateConcreteFactory : IFactory<Bullet_7_72mm>
     public Bullet_7_72mm ObjectInstantiate()
     {
         Bullet_7_72mm bulletInstance = GameObject.Instantiate(bullet);
-        bulletInstance.OnSetUp();
+        //bulletInstance.OnSetUp();
         
         return bulletInstance;
     }

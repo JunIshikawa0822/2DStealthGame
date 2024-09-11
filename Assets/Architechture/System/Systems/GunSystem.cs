@@ -18,8 +18,6 @@ public class GunSystem : ASystem, IOnFixedUpdate
 
         this._player = gameStat.player;
 
-        bulletsList = new List<ABullet>();
-
         bulletCaliberTypesList = new List<Type>()
         {
             typeof(IBType_10mm),
@@ -38,7 +36,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
 
     public void OnFixedUpdate()
     {
-        foreach(ABullet bullet in bulletsList)bullet.OnFixedUpdate();
+        
     }
 
     public IGun GunObjectInstantiate()

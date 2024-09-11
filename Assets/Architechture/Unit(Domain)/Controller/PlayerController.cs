@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerController : APlayer
 {
     [SerializeField] private float _moveForce = 5;
-    [SerializeField] private float _jumpForce = 5;
-    
+    //[SerializeField] private float _jumpForce = 5;
+
     private IGun _equipGun1;
     private IGun _equipGun2;
     private int _selectIndex;

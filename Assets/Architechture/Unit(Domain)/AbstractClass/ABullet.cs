@@ -1,28 +1,65 @@
 using UnityEngine;
 using System;
 
-public abstract class  ABullet : APooledObject<ABullet>, IOnFixedUpdate
+public abstract class  ABullet : APooledObject<ABullet>
 {
-    protected int _bulletDamage;
     protected Rigidbody _bulletRigidbody;
     protected Transform _bulletTransform;
-    // protected APooledObject<ABullet> _pooledObject;
+    
+    private Vector3 _bulletPrePos;
+    private RaycastHit _bulletHit;
+    private float _bulletLifeDistance;
+    private float _bulletLifeMaxDistance;
 
-    public Rigidbody GetObjectRigidbody(){return _bulletRigidbody;}
-    public Transform GetObjectTransform(){return _bulletTransform;}
+    public Rigidbody GetBulletRigidbody(){return _bulletRigidbody;}
+    public Transform GetBulletTransform(){return _bulletTransform;}
+    public RaycastHit GetBulletRaycastHit(){return _bulletHit;}
 
-    //public APooledObject<ABullet> GetPooledObject(){return _pooledObject;}
-
-    public void OnSetUp()
+    public void OnSetUp(float bulletLifeMaxDistance)
     {
-        //this._bulletDamage = bulletDamage;
         _bulletRigidbody = GetComponent<Rigidbody>();
         _bulletTransform = GetComponent<Transform>();
-        //_pooledObject = GetComponent<APooledObject<ABullet>>();
+
+        _bulletPrePos = _bulletRigidbody.position;
+        _bulletLifeMaxDistance = bulletLifeMaxDistance;
+        _bulletLifeDistance = 0;
     }
 
-    public abstract void OnFixedUpdate();
-    protected abstract void OnBulletCollision();
+    protected bool IsBeyondLifeDistance()
+    {
+        Vector3 bulletNowPos = _bulletRigidbody.position;
+        float bulletMoveDistance = (bulletNowPos - _bulletPrePos).magnitude;
+        _bulletLifeDistance += bulletMoveDistance;
+
+        bool isBeyondLifeDistance = false;
+
+        if(_bulletLifeDistance > _bulletLifeMaxDistance)
+        {
+            isBeyondLifeDistance = true;
+        }
+
+        return isBeyondLifeDistance;
+    }
+    protected bool IsBulletCollide()
+    {
+        //今フレームでの位置
+        Vector3 bulletNowPos = _bulletRigidbody.position; 
+        Vector3 bulletMoveVec = bulletNowPos - _bulletPrePos;
+        bool isBulletCollide = false;
+
+        //前フレームの位置から今の位置の向きにRayを飛ばす
+        Ray ray = new Ray(_bulletPrePos, bulletMoveVec.normalized); 
+
+        if (Physics.Raycast(ray, out RaycastHit hit, bulletMoveVec.magnitude))
+        {
+            isBulletCollide = true;
+            _bulletHit = hit;
+        }
+
+        //今のフレームの位置を次のフレームにおける前のフレームの位置として保存
+        _bulletPrePos = bulletNowPos; 
+        return isBulletCollide;
+    }
 
     public abstract Type GetBulletType();
 }
