@@ -1,11 +1,14 @@
 using UnityEngine;
 using System;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading;
+using System.Threading;
+
 
 public abstract class  ABullet : APooledObject<ABullet>
 {
     protected Rigidbody _bulletRigidbody;
     protected Transform _bulletTransform;
-    
     private Vector3 _bulletPrePos;
     private RaycastHit _bulletHit;
     private float _bulletLifeDistance;
@@ -35,11 +38,13 @@ public abstract class  ABullet : APooledObject<ABullet>
 
         if(_bulletLifeDistance > _bulletLifeMaxDistance)
         {
+            _bulletLifeDistance = 0;
             isBeyondLifeDistance = true;
         }
 
         return isBeyondLifeDistance;
     }
+    
     protected bool IsBulletCollide()
     {
         //今フレームでの位置
@@ -48,7 +53,7 @@ public abstract class  ABullet : APooledObject<ABullet>
         bool isBulletCollide = false;
 
         //前フレームの位置から今の位置の向きにRayを飛ばす
-        Ray ray = new Ray(_bulletPrePos, bulletMoveVec.normalized); 
+        Ray ray = new Ray(_bulletPrePos, bulletNowPos); 
 
         if (Physics.Raycast(ray, out RaycastHit hit, bulletMoveVec.magnitude))
         {
@@ -60,6 +65,22 @@ public abstract class  ABullet : APooledObject<ABullet>
         _bulletPrePos = bulletNowPos; 
         return isBulletCollide;
     }
+
+    protected async UniTask Timer(float seconds, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await UniTask.Delay((int)seconds * 1000, cancellationToken: cancellationToken);
+            Debug.Log($"{seconds}秒が経過しました");
+        }
+        catch (OperationCanceledException)
+        {
+            // タスクがキャンセルされた場合の処理
+            Debug.Log("タイマーがキャンセルされました");
+        }
+    }
+
+    protected abstract void BulletLifeTime();
 
     public abstract Type GetBulletType();
 }
