@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
 
 public class HandGun : MonoBehaviour, IGun_10mm
@@ -10,7 +7,6 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private float _muzzleVelocity = 700f;
     [SerializeField] 
     private Transform _muzzlePosition;
-
     //もっと一般化していい奴ら↓
     private IObjectPool<ABullet> _objectPool;
     private IBulletFactories _bulletFactories;

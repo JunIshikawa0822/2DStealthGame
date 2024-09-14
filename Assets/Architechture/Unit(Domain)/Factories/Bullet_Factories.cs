@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Bullet_Factories : IBulletFactories
 {
-    Dictionary<Type, IFactory<ABullet>> _factoriesDic;
+    private Dictionary<Type, IFactory<ABullet>> _factoriesDic;
 
     public Bullet_Factories(Dictionary<Type, IFactory<ABullet>> factories)
     {
@@ -15,10 +13,9 @@ public class Bullet_Factories : IBulletFactories
     public IFactory<ABullet> BulletFactory(Type type)
     {
         Type dicType = type;
-        
+
         if(!_factoriesDic.ContainsKey(dicType))
         {
-            Debug.Log("含まれてないよ！！");
 
             foreach(Type t in _factoriesDic.Keys)
             {

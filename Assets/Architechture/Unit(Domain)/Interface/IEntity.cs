@@ -1,4 +1,3 @@
-
 public interface IEntity
 {
     public void OnSetUp(int hp);
