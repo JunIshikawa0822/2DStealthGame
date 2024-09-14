@@ -1,5 +1,7 @@
+using System;
+
 public interface IBulletFactories
 {
     public void SetUp();
-    public IBulletFactory BulletFactory(int indexNum);
+    public IFactory<ABullet> BulletFactory(Type type);
 }

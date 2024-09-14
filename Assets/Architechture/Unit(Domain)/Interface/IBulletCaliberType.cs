@@ -1,9 +1,4 @@
-public interface IBulletCaliberType : IBulletEffectType
+public interface IBulletCaliberType
 {
-    public enum BulletCaliberType
-    {
-        Bullet_10mm,
-        Bullet_7_72mm,
-        Bullet_5_56mm
-    }
+
 }
