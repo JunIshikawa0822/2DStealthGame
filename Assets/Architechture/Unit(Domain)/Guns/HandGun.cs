@@ -40,12 +40,20 @@ public class HandGun : MonoBehaviour, IGun_10mm
     {
         _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
         if(_bulletcaliberFactory == null)return;
+        
+        ABullet bullet = _objectPool.GetFromPool(_bulletcaliberFactory) as ABullet;
 
-        GameObject bulletObject = _objectPool.GetFromPool(_bulletcaliberFactory).gameObject;
-        if (bulletObject == null)return;
+        if(bullet == null)
+        {
+            Debug.Log("キャスト無理ぃ");
+            return;
+        }
 
-        bulletObject.transform.SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
-        bulletObject.GetComponent<Rigidbody>().AddForce(bulletObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
+        if (bullet.gameObject == null)return;
+
+        bullet.Init(_muzzlePosition.position);
+        bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
+        bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
     }
 
     public void Reload()

@@ -13,7 +13,7 @@ public class Bullet_7_72mm : ABullet
         OnSetUp(_LifeDistance);
 
         bulletLifeCTS = new CancellationTokenSource();
-        BulletLifeTime();
+        //BulletLifeTime();
     }
     public void Start()
     {
@@ -27,12 +27,12 @@ public class Bullet_7_72mm : ABullet
         }
     }
 
-    protected override async void BulletLifeTime()
-    {
-        await Timer(1, bulletLifeCTS.Token);
+    // protected override async void BulletLifeTime()
+    // {
+    //     await Timer(1, bulletLifeCTS.Token);
 
-        Release(this);
-    }
+    //     Release(this);
+    // }
 
     public override Type GetBulletType()
     {
