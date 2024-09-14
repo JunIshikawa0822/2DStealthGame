@@ -4,10 +4,8 @@ public class InputSystem : ASystem, IOnPreUpdate
 {
     private InputAction_Test _gameInputs;
     private LayerMask _mouseHitLayer;
-
     private Vector2 _cursorScreenPosition;
     private Vector3 _cursorWorldPosition;
-
     private RaycastHit _rayCastHit;
     
     public override void OnSetUp()

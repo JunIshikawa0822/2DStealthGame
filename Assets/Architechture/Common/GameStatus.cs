@@ -13,8 +13,14 @@ public class GameStatus
     public bool onAttack = false;
     public GameObject cursorObject;
     public HandGun Pistol1;
-    public Bullet_Factories bullet_Factories;
-    public BulletObjectPool bulletObjectPool;
+    //public Bullet_Factories bullet_Factories;
+    //public BulletObjectPool bulletObjectPool;
     public APlayer player;
+
+    public Transform bulletObjectPoolTrans;
+
+    public Bullet_10mm bullet_10mm;
+    public Bullet_5_56mm bullet_5_56mm;
+    public Bullet_7_72mm bullet_7_72mm;
 
 }

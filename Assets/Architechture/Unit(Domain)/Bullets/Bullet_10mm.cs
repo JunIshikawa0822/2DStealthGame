@@ -11,10 +11,6 @@ public class Bullet_10mm : ABullet
     {
         OnSetUp(_LifeDistance);
     }
-    void Start()
-    {
-
-    }
 
     //弾の当たり判定はFixedUpdate内で計算。
     void FixedUpdate()
@@ -22,11 +18,14 @@ public class Bullet_10mm : ABullet
         //Debug.Log($"Distance{_bulletLifeDistance}");
         if(IsBeyondLifeDistance())
         {
+            Debug.Log("距離によって破壊");
             //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
             Release(this);
         }
         else if(IsBulletCollide())
         {
+            Debug.Log("衝突によって破壊");
+            Debug.Log(GetBulletRaycastHit().collider.gameObject.name);
             //Debug.Log($"衝突で破壊された時のPrePos : {_bulletPrePos}");
             Release(this);
         }

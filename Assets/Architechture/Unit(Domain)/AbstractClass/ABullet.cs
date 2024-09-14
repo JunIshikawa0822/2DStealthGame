@@ -51,7 +51,6 @@ public abstract class ABullet : APooledObject<ABullet>
 
         return isBeyondLifeDistance;
     }
-
     protected bool IsBulletCollide()
     {
         //今フレームでの位置
@@ -59,16 +58,15 @@ public abstract class ABullet : APooledObject<ABullet>
         Vector3 bulletMoveVec = bulletNowPos - _bulletPrePos;
         bool isBulletCollide = false;
 
-        //Debug.Log($"PrePos : {_bulletPrePos} , NowPos : {bulletNowPos}");
         if (Physics.Raycast(bulletNowPos, bulletMoveVec, out RaycastHit hit, bulletMoveVec.magnitude))
         {
             isBulletCollide = true;
             _bulletHit = hit;
         }
+        
         //今のフレームの位置を次のフレームにおける前のフレームの位置として保存
         _bulletPrePos = bulletNowPos;
         return isBulletCollide;
     }
-
     public abstract Type GetBulletType();
 }

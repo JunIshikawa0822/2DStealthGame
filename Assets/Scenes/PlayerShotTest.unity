@@ -14299,7 +14299,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &985123736
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -14395,14 +14395,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1078459392}
-  - component: {fileID: 1078459393}
   m_Layer: 0
   m_Name: Bullet_Factories
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1078459392
 Transform:
   m_ObjectHideFlags: 0
@@ -14418,24 +14417,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1078459393
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1078459391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a1aea3c4a37a416bbcb317ec920af90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
-    type: 3}
-  bullet_5_56mm: {fileID: -3427884724406069225, guid: 0930f83bf02ca4802bf978008cc90a3e,
-    type: 3}
-  bullet_7_72mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
-    type: 3}
 --- !u!1 &1081180365
 GameObject:
   m_ObjectHideFlags: 3
@@ -14892,9 +14873,14 @@ MonoBehaviour:
     onAttack: 0
     cursorObject: {fileID: 985123735}
     Pistol1: {fileID: 1132727798}
-    bullet_Factories: {fileID: 1078459393}
-    bulletObjectPool: {fileID: 2107302112}
     player: {fileID: 38237714}
+    bulletObjectPoolTrans: {fileID: 2107302111}
+    bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
+      type: 3}
+    bullet_5_56mm: {fileID: -3427884724406069225, guid: 0930f83bf02ca4802bf978008cc90a3e,
+      type: 3}
+    bullet_7_72mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
+      type: 3}
 --- !u!43 &1572338265
 Mesh:
   m_ObjectHideFlags: 0
@@ -15280,7 +15266,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2107302111}
-  - component: {fileID: 2107302112}
   m_Layer: 0
   m_Name: Bullet_ObjectPool
   m_TagString: Untagged
@@ -15303,18 +15288,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2107302112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2107302110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1410ad3f07bdf48c4b2a34fbbe18c873, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2136571484
 GameObject:
   m_ObjectHideFlags: 3
