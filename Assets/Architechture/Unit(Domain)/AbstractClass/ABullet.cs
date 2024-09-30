@@ -1,9 +1,9 @@
 using UnityEngine;
 using System;
 
-
 public abstract class ABullet : APooledObject<ABullet>
 {
+    public Func<Collider> onBulletCollisionEvent;
     private Rigidbody _bulletRigidbody;
     private Transform _bulletTransform;
     private Vector3 _bulletPrePos;
@@ -63,10 +63,16 @@ public abstract class ABullet : APooledObject<ABullet>
             isBulletCollide = true;
             _bulletHit = hit;
         }
-        
+
         //今のフレームの位置を次のフレームにおける前のフレームの位置として保存
         _bulletPrePos = bulletNowPos;
         return isBulletCollide;
     }
+
+    protected void BulletDealDamage()
+    {
+        
+    }
+
     public abstract Type GetBulletType();
 }

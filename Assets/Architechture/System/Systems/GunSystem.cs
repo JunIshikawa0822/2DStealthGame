@@ -21,7 +21,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
         {
             {typeof(IBType_10mm), new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm)},
             {typeof(IBType_5_56mm), new Bullet_5_56mm_CreateConcreteFactory(gameStat.bullet_5_56mm)},
-            {typeof(IBType_7_72mm), new Bullet_7_72mm_CreateConcreteFactory(gameStat.bullet_7_72mm)}
+            {typeof(IBType_7_72mm), new Bullet_7_62mm_CreateConcreteFactory(gameStat.bullet_7_62mm)}
         };
 
         this._bulletFactories = new Bullet_Factories(factoriesDic);

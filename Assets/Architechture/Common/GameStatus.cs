@@ -21,6 +21,6 @@ public class GameStatus
 
     public Bullet_10mm bullet_10mm;
     public Bullet_5_56mm bullet_5_56mm;
-    public Bullet_7_72mm bullet_7_72mm;
+    public Bullet_7_62mm bullet_7_62mm;
 
 }

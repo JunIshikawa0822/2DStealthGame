@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Threading;
 
-public class Bullet_7_72mm : ABullet
+public class Bullet_7_62mm : ABullet
 {
     [SerializeField]
     float _LifeDistance;
@@ -36,6 +36,6 @@ public class Bullet_7_72mm : ABullet
 
     public override Type GetBulletType()
     {
-        return typeof(Bullet_7_72mm);
+        return typeof(Bullet_7_62mm);
     }
 }
