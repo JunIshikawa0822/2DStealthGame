@@ -8,6 +8,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
         _player.OnSetUp(100);
 
         gameStat.onPlayerAttackEvent += _player.OnAttack;
+        gameStat.onPlayerReloadEvent += _player.OnReload;
     }
 
     public void OnUpdate()

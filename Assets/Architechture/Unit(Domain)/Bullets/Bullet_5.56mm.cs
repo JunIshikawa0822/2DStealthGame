@@ -26,12 +26,6 @@ public class Bullet_5_56mm : ABullet
             Debug.Log("衝突");
         }
     }
-    // protected override async void BulletLifeTime()
-    // {
-    //     await Timer(1, bulletLifeCTS.Token);
-
-    //     Release(this);
-    // }
 
     public override Type GetBulletType()
     {

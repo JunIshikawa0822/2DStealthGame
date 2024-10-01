@@ -7,6 +7,7 @@ using UnityEngine;
 public class GameStatus
 {
     public Action onPlayerAttackEvent;
+    public Action onPlayerReloadEvent;
     public Vector2 moveDirection = Vector2.zero;
     public Vector2 cursorScreenPosition = Vector2.zero;
     public Vector3 cursorWorldPosition = Vector3.zero;

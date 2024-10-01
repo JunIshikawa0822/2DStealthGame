@@ -8,5 +8,7 @@ public abstract class APlayer : AEntity
 
     public abstract void OnAttack();
 
+    public abstract void OnReload();
+
     public abstract void SetEquipment(IGun item, int gunIndex);
 }

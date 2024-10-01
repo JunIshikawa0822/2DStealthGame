@@ -7,9 +7,8 @@ public class PlayerController : APlayer
     [SerializeField] private float _moveForce = 5;
     //[SerializeField] private float _jumpForce = 5;
 
-    private IGun _equipGun1;
-    private IGun _equipGun2;
-    private int _selectIndex;
+    private IGun[] _playerGunsArray = new IGun[2];
+    private int _selectGunIndex;
 
     private Quaternion targetRotation;
     private float rotationSpeed = 500;
@@ -17,7 +16,7 @@ public class PlayerController : APlayer
     public override void OnSetUp(int playerHp)
     {
         base.OnSetUp(playerHp);
-        _selectIndex = 0;
+        _selectGunIndex = 0;
     }
 
     public override void SetEquipment(IGun item, int index)
@@ -25,9 +24,9 @@ public class PlayerController : APlayer
         switch(index)
         {
             default:
-            case 0: _equipGun1 = item;
+            case 0: _playerGunsArray[0] = item;
                     break;
-            case 1: _equipGun2 = item;
+            case 1: _playerGunsArray[1] = item;
                     break;
         }
     }
@@ -44,14 +43,18 @@ public class PlayerController : APlayer
 
     public override void OnAttack()
     {
-        switch(_selectIndex)
-        {
-            default:
-            case 0: _equipGun1.Shot();
-                    break;
-            case 1: _equipGun2.Shot();
-                    break;
-        }
+        _playerGunsArray[_selectGunIndex].Shot();
+    }
+
+    public override void OnReload()
+    {
+        Entity_Magazine newMagazine = new Entity_Magazine(10, 10);
+        _playerGunsArray[_selectGunIndex].Reload(newMagazine);
+    }
+
+    public override void OnDamage(float damage)
+    {
+        
     }
 
     public override void OnEntityDead()

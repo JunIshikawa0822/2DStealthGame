@@ -3,13 +3,19 @@ using System;
 
 public abstract class ABullet : APooledObject<ABullet>
 {
-    public Func<Collider> onBulletCollisionEvent;
+    //public Action<Collider, float> onBulletCollisionEvent;
     private Rigidbody _bulletRigidbody;
     private Transform _bulletTransform;
     private Vector3 _bulletPrePos;
     private RaycastHit _bulletHit;
     protected float _bulletLifeDistance;
     private float _bulletLifeMaxDistance;
+
+    //----------------------------------------------------------
+
+    //private IEffect _bulletEffect;
+
+    //----------------------------------------------------------
 
     public Rigidbody GetBulletRigidbody(){return _bulletRigidbody;}
     public Transform GetBulletTransform(){return _bulletTransform;}
@@ -25,13 +31,12 @@ public abstract class ABullet : APooledObject<ABullet>
 
     public void Init(Vector3 position)
     {
-        Debug.Log("Init");
+        //Debug.Log("Init");
         _bulletPrePos = position;
         _bulletRigidbody.position = position;
 
         _bulletRigidbody.velocity = Vector3.zero;
         _bulletRigidbody.angularVelocity = Vector3.zero;
-
         _bulletLifeDistance = 0;
     }
 
@@ -69,9 +74,12 @@ public abstract class ABullet : APooledObject<ABullet>
         return isBulletCollide;
     }
 
-    protected void BulletDealDamage()
+    protected void OnBulletCollide(Collider collider, float damage)
     {
-        
+        AEntity entity = collider.GetComponent<AEntity>();
+
+        if(entity == null)return;
+        entity.OnDamage(damage);
     }
 
     public abstract Type GetBulletType();

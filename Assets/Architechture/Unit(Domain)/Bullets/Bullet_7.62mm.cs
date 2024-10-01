@@ -27,13 +27,6 @@ public class Bullet_7_62mm : ABullet
         }
     }
 
-    // protected override async void BulletLifeTime()
-    // {
-    //     await Timer(1, bulletLifeCTS.Token);
-
-    //     Release(this);
-    // }
-
     public override Type GetBulletType()
     {
         return typeof(Bullet_7_62mm);
