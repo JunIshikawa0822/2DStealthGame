@@ -2,18 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.Pool;
-public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
+public class BulletObjectPool : IObjectPool<ABullet>
 {
-    private uint initPoolSize;
-    private Dictionary<Type, Stack<APooledObject<ABullet>>> poolsDic = new Dictionary<Type, Stack<APooledObject<ABullet>>>();
-    private Dictionary<Type, GameObject> parentDic = new Dictionary<Type, GameObject>();
+    //private uint _initPoolSize;
+    private Dictionary<Type, Stack<APooledObject<ABullet>>> _poolsDic;
+    private Dictionary<Type, GameObject> _parentDic;
+    private Transform _poolTransform;
+
+    public BulletObjectPool(Transform poolTransform)
+    {
+        this._poolTransform = poolTransform;
+        this._poolsDic = new Dictionary<Type, Stack<APooledObject<ABullet>>>();
+        this._parentDic = new Dictionary<Type, GameObject>();
+    }
 
     public void PoolSetUp(IFactory<ABullet> factory, uint initPoolSize)
     {
-        this.initPoolSize = initPoolSize;
         //Stackの初期化
-
         if (factory == null)
         {
             return;
@@ -22,22 +27,22 @@ public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
         Type factoryType = factory.GetFactoryType();
 
         // もし該当の弾のプールが存在しない場合、新しく作成
-        if (!poolsDic.ContainsKey(factoryType))
+        if (!_poolsDic.ContainsKey(factoryType))
         {
-            poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
-            parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
-            parentDic[factoryType].transform.SetParent(this.transform);
+            _poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
+            _parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
+            _parentDic[factoryType].transform.SetParent(_poolTransform);
         }
 
-        Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];
-        GameObject poolParent = parentDic[factoryType];
+        Stack<APooledObject<ABullet>> bulletPool = _poolsDic[factoryType];
+        GameObject poolParent = _parentDic[factoryType];
 
         //とりあえずPoolSize分instanceを生成して、見えなくしておく
         for (int i = 0; i < initPoolSize; i++)
         {
             APooledObject<ABullet> instance = ObjectInstantiate(factory);
 
-            instance.gameObject.transform.parent = poolParent.transform;
+            instance.gameObject.transform.SetParent(poolParent.transform);
             instance.gameObject.SetActive(false);
             bulletPool.Push(instance);
         }
@@ -53,21 +58,21 @@ public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
         Type factoryType = factory.GetFactoryType();
 
         // もし該当の弾のプールが存在しない場合、新しく作成
-        if (!poolsDic.ContainsKey(factoryType))
+        if (!_poolsDic.ContainsKey(factoryType))
         {
-            poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
-            parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
-            parentDic[factoryType].transform.SetParent(this.transform);
+            _poolsDic[factoryType] = new Stack<APooledObject<ABullet>>();
+            _parentDic[factoryType] = new GameObject(factoryType.ToString() + "_pool_parent");
+            _parentDic[factoryType].transform.SetParent(_poolTransform);
         }
 
-        Stack<APooledObject<ABullet>> bulletPool = poolsDic[factoryType];
-        GameObject poolParent = parentDic[factoryType];
+        Stack<APooledObject<ABullet>> bulletPool = _poolsDic[factoryType];
+        GameObject poolParent = _parentDic[factoryType];
 
         // プールに弾があればそれを使用、なければ新規作成
         if (bulletPool.Count < 1)
         {
             APooledObject<ABullet> newInstance = ObjectInstantiate(factory);
-            newInstance.gameObject.transform.parent = poolParent.transform;
+            newInstance.gameObject.transform.SetParent(poolParent.transform);
             return newInstance;
         }
 
@@ -88,12 +93,12 @@ public class BulletObjectPool : MonoBehaviour, IObjectPool<ABullet>
     {
         Type bulletType = bullet.GetBulletType();
 
-        if (!poolsDic.ContainsKey(bulletType))
+        if (!_poolsDic.ContainsKey(bulletType))
         {
-            poolsDic[bulletType] = new Stack<APooledObject<ABullet>>();
+            _poolsDic[bulletType] = new Stack<APooledObject<ABullet>>();
         }
 
-        Stack<APooledObject<ABullet>> bulletPool = poolsDic[bulletType];
+        Stack<APooledObject<ABullet>> bulletPool = _poolsDic[bulletType];
 
         bulletPool.Push(bullet);
         bullet.gameObject.SetActive(false);

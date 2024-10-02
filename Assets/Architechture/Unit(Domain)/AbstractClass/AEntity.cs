@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class AEntity : MonoBehaviour, IEntity
+public abstract class AEntity : MonoBehaviour
 {
     protected int entityHP;
     protected List<IItem> _items;
@@ -29,6 +29,7 @@ public abstract class AEntity : MonoBehaviour, IEntity
     }
 
     public abstract void OnEntityDead();
+    public abstract void OnDamage(float damage);
 
     public Transform GetEntityTransform()
     {

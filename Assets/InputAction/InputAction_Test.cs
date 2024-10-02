@@ -53,6 +53,15 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PlayerReloadTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""ac1b7f32-249b-48ae-8dec-68b00bf37893"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -143,6 +152,17 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""action"": ""CursorPosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ecfceaa4-ee59-430c-8938-c567b3115324"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlayerReloadTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -154,6 +174,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         m_PlayerActionTest_PlayerMoveTest = m_PlayerActionTest.FindAction("PlayerMoveTest", throwIfNotFound: true);
         m_PlayerActionTest_PlayerAttackTest = m_PlayerActionTest.FindAction("PlayerAttackTest", throwIfNotFound: true);
         m_PlayerActionTest_CursorPosition = m_PlayerActionTest.FindAction("CursorPosition", throwIfNotFound: true);
+        m_PlayerActionTest_PlayerReloadTest = m_PlayerActionTest.FindAction("PlayerReloadTest", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -218,6 +239,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActionTest_PlayerMoveTest;
     private readonly InputAction m_PlayerActionTest_PlayerAttackTest;
     private readonly InputAction m_PlayerActionTest_CursorPosition;
+    private readonly InputAction m_PlayerActionTest_PlayerReloadTest;
     public struct PlayerActionTestActions
     {
         private @InputAction_Test m_Wrapper;
@@ -225,6 +247,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         public InputAction @PlayerMoveTest => m_Wrapper.m_PlayerActionTest_PlayerMoveTest;
         public InputAction @PlayerAttackTest => m_Wrapper.m_PlayerActionTest_PlayerAttackTest;
         public InputAction @CursorPosition => m_Wrapper.m_PlayerActionTest_CursorPosition;
+        public InputAction @PlayerReloadTest => m_Wrapper.m_PlayerActionTest_PlayerReloadTest;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionTest; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -243,6 +266,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @CursorPosition.started += instance.OnCursorPosition;
             @CursorPosition.performed += instance.OnCursorPosition;
             @CursorPosition.canceled += instance.OnCursorPosition;
+            @PlayerReloadTest.started += instance.OnPlayerReloadTest;
+            @PlayerReloadTest.performed += instance.OnPlayerReloadTest;
+            @PlayerReloadTest.canceled += instance.OnPlayerReloadTest;
         }
 
         private void UnregisterCallbacks(IPlayerActionTestActions instance)
@@ -256,6 +282,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @CursorPosition.started -= instance.OnCursorPosition;
             @CursorPosition.performed -= instance.OnCursorPosition;
             @CursorPosition.canceled -= instance.OnCursorPosition;
+            @PlayerReloadTest.started -= instance.OnPlayerReloadTest;
+            @PlayerReloadTest.performed -= instance.OnPlayerReloadTest;
+            @PlayerReloadTest.canceled -= instance.OnPlayerReloadTest;
         }
 
         public void RemoveCallbacks(IPlayerActionTestActions instance)
@@ -278,5 +307,6 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         void OnPlayerMoveTest(InputAction.CallbackContext context);
         void OnPlayerAttackTest(InputAction.CallbackContext context);
         void OnCursorPosition(InputAction.CallbackContext context);
+        void OnPlayerReloadTest(InputAction.CallbackContext context);
     }
 }

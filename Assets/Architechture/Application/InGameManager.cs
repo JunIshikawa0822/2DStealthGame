@@ -18,7 +18,8 @@ public class InGameManager : MonoBehaviour
             //new ShotSystem(),
             new InputSystem(),
             new PlayerSystem(),
-            new GunSystem()
+            new GunSystem(),
+            new UISystem()
         };
 
         _allUpdateSystemsList = new List<IOnUpdate>();

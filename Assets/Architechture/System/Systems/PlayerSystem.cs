@@ -1,4 +1,3 @@
-using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
 {
     private APlayer _player;
@@ -7,21 +6,28 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate
         _player = gameStat.player;
         _player.OnSetUp(100);
 
-        //IGun gun = gameStat.Pistol1;
-
-        //gun.OnSetUp(gameStat.bullet_10mm_Factories, gameStat.objectPool_10mm);
-        //_player.SetEquipment(gun, 0);
-
-        gameStat.onPlayerAttackEvent += _player.OnAttack;
+        gameStat.onPlayerAttackEvent += OnAttack;
+        gameStat.onPlayerReloadEvent += OnReload;
     }
 
     public void OnUpdate()
     {
-        gameStat.cursorObject.transform.position = gameStat.cursorWorldPosition;
+        
     }
 
     public void OnFixedUpdate()
     {
         _player.OnMove(gameStat.moveDirection, gameStat.cursorWorldPosition);
+    }
+
+    public void OnAttack()
+    {
+        _player.OnAttack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+    }
+
+    public void OnReload()
+    {
+        Entity_Magazine magazine = new Entity_Magazine(10, 10);
+        _player.OnReload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
     }
 }

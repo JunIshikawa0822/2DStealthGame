@@ -4,10 +4,8 @@ public class InputSystem : ASystem, IOnPreUpdate
 {
     private InputAction_Test _gameInputs;
     private LayerMask _mouseHitLayer;
-
     private Vector2 _cursorScreenPosition;
     private Vector3 _cursorWorldPosition;
-
     private RaycastHit _rayCastHit;
     
     public override void OnSetUp()
@@ -21,6 +19,7 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerMoveTest.canceled += OnMoveInput;
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
+        _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
 
         _gameInputs.Enable();
     }
@@ -50,8 +49,14 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnAttackInput(InputAction.CallbackContext context)
     {
-        Debug.Log("click");
+        //Debug.Log("click");
         gameStat.onPlayerAttackEvent?.Invoke();
+    }
+
+    private void OnReloadInput(InputAction.CallbackContext context)
+    {
+        //Debug.Log("Reload");
+        gameStat.onPlayerReloadEvent?.Invoke();
     }
 
     private Vector3 ConvertScreenToWorldPoint(Vector2 screenPos)
