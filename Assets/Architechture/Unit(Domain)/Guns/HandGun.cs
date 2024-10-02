@@ -16,8 +16,10 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private IBulletFactories _bulletFactories;
     private IFactory<ABullet> _bulletcaliberFactory;
     //----------------------------------------
-    private bool isCooldownActive;
-    private CancellationTokenSource cancellationTokenSource;
+    private bool _isShotIntervalActive;
+    private bool _isJamming;
+    private CancellationTokenSource shotIntervalTokenSource;
+
     //----------------------------------------
 
     //銃に必要な処理
@@ -30,7 +32,8 @@ public class HandGun : MonoBehaviour, IGun_10mm
         _bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        isCooldownActive = false;
+        _isShotIntervalActive = false;
+        _isJamming = false;
         
         _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
     }
@@ -50,9 +53,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
         }
 
         //射撃と射撃の間隔を制御
-        if(isCooldownActive)return;
-        cancellationTokenSource = new CancellationTokenSource();
-        ShotInterval(cancellationTokenSource.Token, 0.5f).Forget();
+        if(_isShotIntervalActive)return;
+        shotIntervalTokenSource = new CancellationTokenSource();
+        Interval(_isShotIntervalActive,shotIntervalTokenSource.Token, 0.5f, "射撃クールダウン").Forget();
 
         //BulletのFactoryをチェック
         _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
@@ -85,38 +88,43 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
     public void Jam()
     {
-
+        _isJamming = true;
     }
 
-    public async UniTask ShotInterval(CancellationToken token, float time)
+    public async UniTask Interval(bool flag, CancellationToken token, float time, string ActionName)
     {
-        isCooldownActive = true;
+        flag = true;
 
         try
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
-            Debug.Log("クールダウン開始");
+            Debug.Log($"{ActionName} 開始");
             await UniTask.Delay((int)(time * 1000), cancellationToken: token);
-            Debug.Log("クールダウン終了");
+            Debug.Log($"{ActionName} 終了");
         }
         catch
         {
-            Debug.Log("クールダウンがキャンセルされました");
+            Debug.Log($"{ActionName} がキャンセルされました");
         }
         finally
         {
-            isCooldownActive = false; // クールタイム終了（またはキャンセル)
+            flag = false; // クールタイム終了（またはキャンセル)
         }
     }
 
-    private void CancelInterval()
+    // public void CancelInterval(CancellationTokenSource tokenSource)
+    // {
+    //     if (tokenSource != null && !tokenSource.IsCancellationRequested)
+    //     {
+    //         tokenSource.Cancel();
+    //         tokenSource.Dispose();
+    //         tokenSource = null;
+    //     }
+    // }
+
+    public Entity_Magazine GetMagazine()
     {
-        if (cancellationTokenSource != null && !cancellationTokenSource.IsCancellationRequested)
-        {
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = null;
-        }
+        return _magazine;
     }
 
     public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm

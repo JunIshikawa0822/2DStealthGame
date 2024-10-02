@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 
@@ -14,7 +13,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
 
     public override void OnSetUp()
     {
-        this._player = gameStat.player; 
+        this._player = gameStat.player;
         this._bulletObjectPool = new BulletObjectPool(gameStat.bulletObjectPoolTrans);
 
         _factoriesDic = new Dictionary<Type, IFactory<ABullet>>
@@ -31,7 +30,8 @@ public class GunSystem : ASystem, IOnFixedUpdate
         _bulletObjectPool.PoolSetUp(_bulletFactories.BulletFactory(typeof(IBType_5_56mm)), 20);
         _bulletObjectPool.PoolSetUp(_bulletFactories.BulletFactory(typeof(IBType_7_72mm)), 20);
         
-        _player.SetEquipment(GunObjectInstantiate(), 0);
+        gameStat.playerGunsArray[0] = GunObjectInstantiate();
+        //_player.SetEquipment(GunObjectInstantiate(), 0);
     }
 
     public void OnFixedUpdate()
@@ -43,6 +43,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
     {
         IGun handgun = gameStat.Pistol1;
         handgun.OnSetUp(_bulletFactories, _bulletObjectPool);
+        handgun.Reload(new Entity_Magazine(10, 10));
         return handgun;
     }
 }

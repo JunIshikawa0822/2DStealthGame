@@ -49,13 +49,13 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnAttackInput(InputAction.CallbackContext context)
     {
-        Debug.Log("click");
+        //Debug.Log("click");
         gameStat.onPlayerAttackEvent?.Invoke();
     }
 
     private void OnReloadInput(InputAction.CallbackContext context)
     {
-        Debug.Log("Reload");
+        //Debug.Log("Reload");
         gameStat.onPlayerReloadEvent?.Invoke();
     }
 

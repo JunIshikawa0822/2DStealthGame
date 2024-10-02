@@ -1,34 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
+using System;
 
 public class PlayerController : APlayer
 {
     [SerializeField] private float _moveForce = 5;
-    //[SerializeField] private float _jumpForce = 5;
-
-    private IGun[] _playerGunsArray = new IGun[2];
-    private int _selectGunIndex;
-
     private Quaternion targetRotation;
     private float rotationSpeed = 500;
+
+    private bool isActionInterval = false;
+    private CancellationTokenSource actionCancellationTokenSource;
 
     public override void OnSetUp(int playerHp)
     {
         base.OnSetUp(playerHp);
-        _selectGunIndex = 0;
-    }
-
-    public override void SetEquipment(IGun item, int index)
-    {
-        switch(index)
-        {
-            default:
-            case 0: _playerGunsArray[0] = item;
-                    break;
-            case 1: _playerGunsArray[1] = item;
-                    break;
-        }
     }
 
     public override void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition)
@@ -41,15 +29,18 @@ public class PlayerController : APlayer
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, rotationSpeed * Time.deltaTime);
     }
 
-    public override void OnAttack()
+    public override void OnAttack(IGun gun)
     {
-        _playerGunsArray[_selectGunIndex].Shot();
+        gun.Shot();
     }
 
-    public override void OnReload()
+    public override void OnReload(IGun gun, Entity_Magazine magazine)
     {
-        Entity_Magazine newMagazine = new Entity_Magazine(10, 10);
-        _playerGunsArray[_selectGunIndex].Reload(newMagazine);
+        if(isActionInterval)return;
+        //CancelAction(actionCancellationTokenSource);
+
+        actionCancellationTokenSource = new CancellationTokenSource();
+        ActionInterval(() => gun.Reload(magazine), isActionInterval, actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
     public override void OnDamage(float damage)
@@ -60,5 +51,40 @@ public class PlayerController : APlayer
     public override void OnEntityDead()
     {
         Debug.Log("テストだよん");
+    }
+
+    public async UniTask ActionInterval(Action waitAction, bool flag, CancellationToken token, float time, string ActionName)
+    {
+        isActionInterval = true;
+
+        try
+        {
+            // 指定されたクールタイム期間を待つ (キャンセル可能)
+            Debug.Log($"{ActionName} 開始");
+            await UniTask.Delay((int)(time * 1000), cancellationToken: token);
+            waitAction?.Invoke();
+            Debug.Log($"{ActionName} 終了");
+        }
+        catch
+        {
+            Debug.Log($"{ActionName} がキャンセルされました");
+        }
+        finally
+        {
+            isActionInterval = false; // クールタイム終了（またはキャンセル)
+        }
+    }
+
+    public void CancelAction(CancellationTokenSource tokenSource)
+    {
+        Debug.Log("キャンセルしようとしている");
+        if (tokenSource != null && !tokenSource.IsCancellationRequested)
+        {
+            Debug.Log("きゃんせる");
+            tokenSource.Cancel();
+            tokenSource.Dispose();
+            tokenSource = null;
+            isActionInterval = false;
+        }
     }
 }
