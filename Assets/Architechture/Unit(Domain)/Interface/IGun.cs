@@ -6,6 +6,9 @@ public interface IGun : IItem
     void Reload(Entity_Magazine magazine);
     void Shot();
     void Jam();
+
+    void MuzzleFlash();
     Entity_Magazine GetMagazine();
+    
     //UniTask ShotInterval();
 }

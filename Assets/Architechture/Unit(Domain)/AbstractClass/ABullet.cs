@@ -13,8 +13,6 @@ public abstract class ABullet : APooledObject<ABullet>
 
     //----------------------------------------------------------
 
-    //private IEffect _bulletEffect;
-
     //----------------------------------------------------------
 
     public Rigidbody GetBulletRigidbody(){return _bulletRigidbody;}

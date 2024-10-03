@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System;
 
 public class HandGun : MonoBehaviour, IGun_10mm
 {
@@ -10,6 +11,8 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private float _muzzleVelocity = 700f;
     [SerializeField] 
     private Transform _muzzlePosition;
+
+    private LineRenderer _muzzleFlashRenderer;
 
     //もっと一般化していい奴ら↓
     private IObjectPool<ABullet> _objectPool;
@@ -31,6 +34,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
     {
         _bulletFactories = bulletFactories;
         _objectPool = objectPool;
+
+        _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
@@ -79,6 +85,10 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
         //弾を消費する
         _magazine.ConsumeBullet();
+
+        if(_muzzleFlashRenderer == null) return;
+        shotIntervalTokenSource = new CancellationTokenSource();
+        ActionInterval(() => MuzzleFlash(), shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
     }
 
     public void Reload(Entity_Magazine magazine)
@@ -89,6 +99,11 @@ public class HandGun : MonoBehaviour, IGun_10mm
     public void Jam()
     {
         _isJamming = true;
+    }
+
+    public void MuzzleFlash()
+    {
+        _muzzleFlashRenderer.enabled = !_muzzleFlashRenderer.enabled;
     }
 
     public async UniTask Interval(bool flag, CancellationToken token, float time, string ActionName)
@@ -109,6 +124,26 @@ public class HandGun : MonoBehaviour, IGun_10mm
         finally
         {
             flag = false; // クールタイム終了（またはキャンセル)
+        }
+    }
+
+    public async UniTask ActionInterval(Action action, CancellationToken token, float time, string ActionName)
+    {
+        try
+        {
+            // 指定されたクールタイム期間を待つ (キャンセル可能)
+            Debug.Log($"{ActionName} 開始");
+            action.Invoke();
+            await UniTask.Delay((int)(time * 1000), cancellationToken: token);
+            Debug.Log($"{ActionName} 終了");
+        }
+        catch
+        {
+            Debug.Log($"{ActionName} がキャンセルされました");
+        }
+        finally
+        {
+            action.Invoke();
         }
     }
 
