@@ -7,7 +7,7 @@ public interface IGun : IItem
     void Shot();
     void Jam();
 
-    void MuzzleFlash();
+    //void MuzzleFlash();
     Entity_Magazine GetMagazine();
     
     //UniTask ShotInterval();

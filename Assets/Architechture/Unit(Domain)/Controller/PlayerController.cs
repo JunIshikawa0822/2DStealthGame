@@ -14,9 +14,22 @@ public class PlayerController : APlayer
     private bool isActionInterval = false;
     private CancellationTokenSource actionCancellationTokenSource;
 
-    public override void OnSetUp(int playerHp)
+
+    //視界の情報
+    //------------------------------------------
+    private PlayerFieldOfView _playerFieldOfView;
+    private float _viewAngle;
+    private float _viewRadius;
+
+    public override void OnSetUp(Entity_HealthPoint playerHP, PlayerFieldOfView playerFieldOfView, float viewRadius, float viewAngle)
     {
-        base.OnSetUp(playerHp);
+        EntitySetUp(playerHP);
+
+        _playerFieldOfView = playerFieldOfView;
+        _viewRadius = viewRadius;
+        _viewAngle = viewAngle;
+
+        //FindAndDrawEnemies(0.2f).Forget();
     }
 
     public override void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition)
@@ -45,12 +58,32 @@ public class PlayerController : APlayer
 
     public override void OnDamage(float damage)
     {
-        
+        _entityHP.EntityDamage(damage);
+
+        if(_entityHP.CurrentHp <= 0)
+        {
+            OnEntityDead();
+        }
+    }
+
+    public async UniTask FindAndDrawEnemies(float delayTime)
+    {
+        while(true)
+        {
+            _playerFieldOfView.FindAndDrawTargets(_viewAngle, _viewRadius, this.transform);
+
+            await UniTask.Delay((int)delayTime * 1000);
+        }
+    }
+
+    public override void DrawView()
+    {
+        //_playerFieldOfView.DrawFieldOfView(_viewAngle, _viewRadius, this.transform);
     }
 
     public override void OnEntityDead()
     {
-        Debug.Log("テストだよん");
+        Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
     }
 
     public async UniTask ActionInterval(Action waitAction, bool flag, CancellationToken token, float time, string ActionName)
@@ -85,6 +118,26 @@ public class PlayerController : APlayer
             tokenSource.Dispose();
             tokenSource = null;
             isActionInterval = false;
+        }
+    }
+
+    public override void OnEntityMeshDisable()
+    {
+        _entityRenderer.enabled = false;
+
+        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
+        {
+            mesh.enabled = false;
+        }
+    }
+
+    public override void OnEntityMeshAble()
+    {
+        _entityRenderer.enabled = true;
+
+        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
+        {
+            mesh.enabled = true;
         }
     }
 }

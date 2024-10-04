@@ -11,6 +11,8 @@ public class InGameManager : MonoBehaviour
     List<IOnUpdate> _allUpdateSystemsList;
     List<IOnPreUpdate> _allPreUpdateSystemsList;
     List<IOnFixedUpdate> _allFixedUpdateSystemsList;
+
+    List<IOnLateUpdate> _allLateUpdateSystemList;
     void Awake()
     {
         _allSystemsList = new List<ASystem>
@@ -25,6 +27,7 @@ public class InGameManager : MonoBehaviour
         _allUpdateSystemsList = new List<IOnUpdate>();
         _allPreUpdateSystemsList = new List<IOnPreUpdate>();
         _allFixedUpdateSystemsList = new List<IOnFixedUpdate>();
+        _allLateUpdateSystemList = new List<IOnLateUpdate>();
 
         foreach (ASystem system in _allSystemsList)
         {
@@ -33,6 +36,7 @@ public class InGameManager : MonoBehaviour
             if (system is IOnUpdate) _allUpdateSystemsList.Add(system as IOnUpdate);
             if (system is IOnPreUpdate) _allPreUpdateSystemsList.Add(system as IOnPreUpdate);
             if (system is IOnFixedUpdate) _allFixedUpdateSystemsList.Add(system as IOnFixedUpdate);
+            if(system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
         }
     }
     // Start is called before the first frame update
@@ -55,6 +59,6 @@ public class InGameManager : MonoBehaviour
 
     void LateUpdate()
     {
-        
+        foreach(IOnLateUpdate system in _allLateUpdateSystemList) system.OnLateUpdate();
     }
 }

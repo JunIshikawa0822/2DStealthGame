@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using Microsoft.Unity.VisualStudio.Editor;
 
 [System.Serializable]
 public class GameStatus
@@ -15,6 +17,7 @@ public class GameStatus
     public Vector3 cursorWorldPosition = Vector3.zero;
     //public bool onAttack = false;
     public GameObject cursorObject;
+    public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
     public HandGun Pistol1;
@@ -34,4 +37,19 @@ public class GameStatus
 
     [Header("TextUI")]
     public TextMeshProUGUI AmmoText;
+
+    [Header("PlayerFieldOfView")]
+    public float radius;
+
+    [Range(0, 360)]
+    public float angle;
+    public MeshFilter meshFilter;
+    public LayerMask targetLayer;
+    public LayerMask obstacleLayer;
+    public float meshResolution;
+    public int edgeResolveIterations;
+    public float edgeDstThreshold;
+
+    [Header("UI")]
+    public LineRenderer shotLineRenderer;
 }

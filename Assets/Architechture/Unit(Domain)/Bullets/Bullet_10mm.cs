@@ -21,18 +21,22 @@ public class Bullet_10mm : ABullet
         //Debug.Log($"Distance{_bulletLifeDistance}");
         if(IsBeyondLifeDistance())
         {
-            //Debug.Log("距離によって破壊");
+            Debug.Log("距離によって破壊");
             //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
             Release(this);
         }
         else if(IsBulletCollide())
         {
             //Debug.Log("衝突によって破壊");
-            //Debug.Log(GetBulletRaycastHit().collider.gameObject.name);
 
-            OnBulletCollide(GetBulletRaycastHit().collider, _bulletDamage);
-            
+            Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかった");
+
+            AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
+
             Release(this);
+
+            if(entity == null)return;
+            entity.OnDamage(_bulletDamage);
         }
     }
 

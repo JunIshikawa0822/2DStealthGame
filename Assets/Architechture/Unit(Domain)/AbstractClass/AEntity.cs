@@ -3,18 +3,24 @@ using UnityEngine;
 
 public abstract class AEntity : MonoBehaviour
 {
-    protected int entityHP;
+    protected Entity_HealthPoint _entityHP;
     protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
     protected Transform _entityTransform;
 
-    public virtual void OnSetUp(int entityHP)
+    protected MeshRenderer _entityRenderer;
+    protected MeshRenderer[] _entityChildrenMeshsArray;
+
+    public void EntitySetUp(Entity_HealthPoint entityHP)
     {
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();
 
-        this.entityHP = entityHP;
+        _entityRenderer = GetComponent<MeshRenderer>();
+        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>();
+
+        _entityHP = entityHP;
     }
 
     public virtual void OnUpdate()
@@ -24,20 +30,18 @@ public abstract class AEntity : MonoBehaviour
 
     public bool IsEntityDead()
     {
-        if(entityHP < 1) return true;
+        if(_entityHP.CurrentHp <= 0) return true;
         else return false;
     }
 
     public abstract void OnEntityDead();
     public abstract void OnDamage(float damage);
 
-    public Transform GetEntityTransform()
-    {
-        return this._entityTransform;
-    }
+    public Transform GetEntityTransform(){return this._entityTransform;}
 
-    public Rigidbody GetEntityRigidbody()
-    {
-        return this._entityRigidbody;
-    }
+    public Rigidbody GetEntityRigidbody(){return this._entityRigidbody;}
+
+    public abstract void OnEntityMeshDisable();
+
+    public abstract void OnEntityMeshAble();
 }

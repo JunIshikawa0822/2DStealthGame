@@ -180,4 +180,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c49f153e4a2040c7bc319e756f0c9e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _LifeDistance: 30
+  _lifeDistance: 30
+  _bulletDamage: 10

@@ -22,6 +22,8 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
 
         _gameInputs.Enable();
+
+        Cursor.visible = false;
     }
 
     public void OnPreUpdate()

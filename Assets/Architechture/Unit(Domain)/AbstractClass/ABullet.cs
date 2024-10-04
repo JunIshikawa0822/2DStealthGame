@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class ABullet : APooledObject<ABullet>
+public abstract class ABullet : APooledObject<ABullet>, IBullet
 {
     //public Action<Collider, float> onBulletCollisionEvent;
     private Rigidbody _bulletRigidbody;
@@ -38,7 +38,7 @@ public abstract class ABullet : APooledObject<ABullet>
         _bulletLifeDistance = 0;
     }
 
-    protected bool IsBeyondLifeDistance()
+    public bool IsBeyondLifeDistance()
     {
         Vector3 bulletNowPos = _bulletRigidbody.position;
         float bulletMoveDistance = (bulletNowPos - _bulletPrePos).magnitude;
@@ -54,7 +54,7 @@ public abstract class ABullet : APooledObject<ABullet>
 
         return isBeyondLifeDistance;
     }
-    protected bool IsBulletCollide()
+    public bool IsBulletCollide()
     {
         //今フレームでの位置
         Vector3 bulletNowPos = _bulletRigidbody.position;
@@ -70,14 +70,6 @@ public abstract class ABullet : APooledObject<ABullet>
         //今のフレームの位置を次のフレームにおける前のフレームの位置として保存
         _bulletPrePos = bulletNowPos;
         return isBulletCollide;
-    }
-
-    protected void OnBulletCollide(Collider collider, float damage)
-    {
-        AEntity entity = collider.GetComponent<AEntity>();
-
-        if(entity == null)return;
-        entity.OnDamage(damage);
     }
 
     public abstract Type GetBulletType();

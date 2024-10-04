@@ -38,6 +38,8 @@ public class HandGun : MonoBehaviour, IGun_10mm
         _muzzleFlashRenderer = GetComponent<LineRenderer>();
         _muzzleFlashRenderer.enabled = false;
 
+        //_shotOrbitRenderer.enabled = false;
+
         _isShotIntervalActive = false;
         _isJamming = false;
         
@@ -88,7 +90,12 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
         if(_muzzleFlashRenderer == null) return;
         shotIntervalTokenSource = new CancellationTokenSource();
-        ActionInterval(() => MuzzleFlash(), shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
+
+        _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
+        _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
+        ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
+        
+        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
     public void Reload(Entity_Magazine magazine)
@@ -101,9 +108,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
         _isJamming = true;
     }
 
-    public void MuzzleFlash()
+    public void LineRendererFlash(LineRenderer lineRenderer)
     {
-        _muzzleFlashRenderer.enabled = !_muzzleFlashRenderer.enabled;
+        lineRenderer.enabled = !lineRenderer.enabled;
     }
 
     public async UniTask Interval(bool flag, CancellationToken token, float time, string ActionName)
@@ -113,9 +120,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
         try
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
-            Debug.Log($"{ActionName} 開始");
+            //Debug.Log($"{ActionName} 開始");
             await UniTask.Delay((int)(time * 1000), cancellationToken: token);
-            Debug.Log($"{ActionName} 終了");
+            //Debug.Log($"{ActionName} 終了");
         }
         catch
         {
@@ -132,10 +139,10 @@ public class HandGun : MonoBehaviour, IGun_10mm
         try
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
-            Debug.Log($"{ActionName} 開始");
+            //Debug.Log($"{ActionName} 開始");
             action.Invoke();
             await UniTask.Delay((int)(time * 1000), cancellationToken: token);
-            Debug.Log($"{ActionName} 終了");
+            //Debug.Log($"{ActionName} 終了");
         }
         catch
         {
