@@ -1,6 +1,3 @@
-
-using System.Numerics;
-
 public class UISystem : ASystem, IOnUpdate
 {
     public override void OnSetUp()

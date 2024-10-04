@@ -18003,7 +18003,7 @@ MonoBehaviour:
     cursorScreenPosition: {x: 0, y: 0}
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     cursorObject: {fileID: 985123735}
-    cursorImage: {fileID: 393601897}
+    cursorImage: {fileID: 0}
     Pistol1: {fileID: 408173148}
     selectingGunsArrayIndex: 0
     player: {fileID: 38237714}
@@ -18015,7 +18015,7 @@ MonoBehaviour:
     bullet_7_62mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
       type: 3}
     AmmoText: {fileID: 1018401282}
-    radius: 50
+    radius: 40
     angle: 50
     meshFilter: {fileID: 774469255}
     targetLayer:
