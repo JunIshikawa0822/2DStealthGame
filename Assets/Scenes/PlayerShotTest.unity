@@ -18003,7 +18003,7 @@ MonoBehaviour:
     cursorScreenPosition: {x: 0, y: 0}
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     cursorObject: {fileID: 985123735}
-    cursorImage: {fileID: 0}
+    cursorImage: {fileID: 393601897}
     Pistol1: {fileID: 408173148}
     selectingGunsArrayIndex: 0
     player: {fileID: 38237714}
