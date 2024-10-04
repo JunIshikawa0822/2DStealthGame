@@ -7,6 +7,13 @@ public class EnemyController : AEnemy
     [SerializeField]
     float _maxHP, _currentHP;
 
+    [SerializeField]
+    private LayerMask opponentLayer;
+
+    private bool isFighting;
+
+    Collider[] opponentsArray;
+
     void Start()
     {
         OnSetUp(new Entity_HealthPoint(_maxHP, _currentHP));
@@ -27,13 +34,33 @@ public class EnemyController : AEnemy
 
     public override void OnMove()
     {
-        
+        //ランダムな移動
     }
 
     public override void OnAttack()
     {
-        
+        //交戦中のみ
+
+        //相手の位置を確認
+        //相手に向かって射撃
     }
+
+    public override void OnHide()
+    {
+       //攻撃された状態のとき一定間隔で
+       //HPが一定以下になったら
+       //周りに仲間がいない時
+
+       //隠れる行動
+    }
+
+    // public override void SearchAround(Transform transform, float radius)
+    // {
+    //     //交戦中
+
+    //     //敵を探す動き
+    //     opponentsArray = Physics.OverlapSphere(transform.position, radius, opponentLayer);
+    // }
 
     public override void OnDamage(float damage)
     {
@@ -47,7 +74,7 @@ public class EnemyController : AEnemy
 
     public override void OnReload()
     {
-        
+        //リロード
     }
 
     public override void OnEntityDead()

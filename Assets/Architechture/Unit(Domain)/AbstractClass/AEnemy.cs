@@ -8,4 +8,6 @@ public abstract class AEnemy : AEntity
     public abstract void OnMove();
     public abstract void OnAttack();
     public abstract void OnReload();
+    public abstract void OnHide();
+    //public abstract void SearchAround();
 }

@@ -12,7 +12,7 @@ public abstract class ABullet : APooledObject<ABullet>, IBullet
     private float _bulletLifeMaxDistance;
 
     //----------------------------------------------------------
-
+    
     //----------------------------------------------------------
 
     public Rigidbody GetBulletRigidbody(){return _bulletRigidbody;}

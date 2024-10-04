@@ -6,18 +6,22 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     {
         _player = gameStat.player;
 
-        PlayerFieldOfView playerFieldOfView = new PlayerFieldOfView
+        DrawFieldOfView playerFieldOfView = new DrawFieldOfView
         (
             gameStat.meshFilter, 
             new Mesh(), 
             gameStat.targetLayer, 
             gameStat.obstacleLayer, 
             gameStat.meshResolution, 
-            gameStat.edgeResolveIterations, 
+            gameStat.edgeResolveIterations,
             gameStat.edgeDstThreshold
         );
 
-        _player.OnSetUp(new Entity_HealthPoint(100, 100), playerFieldOfView, gameStat.radius, gameStat.angle);
+        FindOpponent findOpponent = new FindOpponent(gameStat.targetLayer, gameStat.obstacleLayer);
+        DrawOpponent drawOpponent = new DrawOpponent();
+        Entity_HealthPoint playerHP = new Entity_HealthPoint(100, 100);
+
+        _player.OnSetUp(playerHP, playerFieldOfView, findOpponent, drawOpponent, gameStat.radius, gameStat.angle);
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;

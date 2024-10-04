@@ -17,19 +17,24 @@ public class PlayerController : APlayer
 
     //視界の情報
     //------------------------------------------
-    private PlayerFieldOfView _playerFieldOfView;
+    private DrawFieldOfView _drawFieldOfView;
+    private FindOpponent _find;
+    private DrawOpponent _draw;
     private float _viewAngle;
     private float _viewRadius;
 
-    public override void OnSetUp(Entity_HealthPoint playerHP, PlayerFieldOfView playerFieldOfView, float viewRadius, float viewAngle)
+    public override void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
         EntitySetUp(playerHP);
 
-        _playerFieldOfView = playerFieldOfView;
+        _drawFieldOfView = drawFieldOfView;
+        _find = find;
+        _draw = draw;
+        
         _viewRadius = viewRadius;
         _viewAngle = viewAngle;
 
-        //FindAndDrawEnemies(0.2f).Forget();
+        FindAndDrawEnemies(0.2f).Forget();
     }
 
     public override void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition)
@@ -70,7 +75,8 @@ public class PlayerController : APlayer
     {
         while(true)
         {
-            _playerFieldOfView.FindAndDrawTargets(_viewAngle, _viewRadius, this.transform);
+            List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
+            _draw.DrawTargets(foundOpponents);
 
             await UniTask.Delay((int)delayTime * 1000);
         }
@@ -78,7 +84,7 @@ public class PlayerController : APlayer
 
     public override void DrawView()
     {
-        //_playerFieldOfView.DrawFieldOfView(_viewAngle, _viewRadius, this.transform);
+        _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
     }
 
     public override void OnEntityDead()

@@ -41,9 +41,10 @@ public class GunSystem : ASystem, IOnFixedUpdate
 
     public IGun GunObjectInstantiate()
     {
-        IGun handgun = gameStat.Pistol1;
-        handgun.OnSetUp(_bulletFactories, _bulletObjectPool);
-        handgun.Reload(new Entity_Magazine(10, 10));
-        return handgun;
+        IGun gun = gameStat.Pistol1;
+        gun.OnSetUp(_bulletFactories, _bulletObjectPool);
+        gun.Reload(new Entity_Magazine(10, 10));
+        
+        return gun;
     }
 }

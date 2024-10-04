@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using System;
 
-public class PlayerFieldOfView
+public class DrawFieldOfView
 {
     private LayerMask _targetMask;
     private LayerMask _obstacleMask;
 
     //見えているターゲットを保存するリスト
-    private List<Transform> _newVisibleTargets = new List<Transform>();
-    private List<Transform> _oldVisibleTargets = new List<Transform>();
+    //private List<Transform> _newVisibleTargets = new List<Transform>();
+    //private List<Transform> _oldVisibleTargets = new List<Transform>();
 
     //解像度
     private float _meshResolution;
@@ -22,7 +22,7 @@ public class PlayerFieldOfView
     private MeshFilter _viewMeshFilter;
     private Mesh _viewMesh;
 
-    public PlayerFieldOfView(
+    public DrawFieldOfView(
         MeshFilter meshFilter, Mesh mesh, 
         LayerMask targetLayer, LayerMask obstacleLayer, 
         float meshResolution, int edgeResolveIterations, float edgeDstThreshold)
@@ -75,18 +75,18 @@ public class PlayerFieldOfView
     //     }
     // }
 
-    public void FindAndDrawTargets(float viewAngle, float viewRadius, Transform transform)
-    {
-        _newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius, transform);
+    // public void FindAndDrawTargets(float viewAngle, float viewRadius, Transform transform)
+    // {
+    //     _newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius, transform);
 
-        //newVisibleTargetを描画
-        DisplayVisibleTargets();
+    //     //newVisibleTargetを描画
+    //     DisplayVisibleTargets();
 
-        //新旧を比較し、描画するリストを更新
-        UnDisplayInvisibleTargets();
+    //     //新旧を比較し、描画するリストを更新
+    //     UnDisplayInvisibleTargets();
 
-        _oldVisibleTargets = _newVisibleTargets;
-    }
+    //     _oldVisibleTargets = _newVisibleTargets;
+    // }
 
     // void LateUpdate()
     // {
@@ -94,87 +94,85 @@ public class PlayerFieldOfView
     //     //DrawFieldOfView(roundViewAngle1, roundViewRadius1, viewRoundMesh);
     // }
 
-    private void DisplayVisibleTargets()
-    {
-        foreach(Transform target in _newVisibleTargets)
-        {
-            AEntity entity = target.GetComponent<AEntity>();
+    // private void DisplayVisibleTargets()
+    // {
+    //     foreach(Transform target in _newVisibleTargets)
+    //     {
+    //         AEntity entity = target.GetComponent<AEntity>();
 
-            entity.OnEntityMeshAble();
-        }
-    }
+    //         entity.OnEntityMeshAble();
+    //     }
+    // }
 
-    private void UnDisplayInvisibleTargets()
-    {
-        foreach (Transform oldTarget in _oldVisibleTargets)
-        {
-            bool isInclude = false;
+    // private void UnDisplayInvisibleTargets()
+    // {
+    //     foreach (Transform oldTarget in _oldVisibleTargets)
+    //     {
+    //         bool isInclude = false;
 
-            foreach (Transform newTarget in _newVisibleTargets)
-            {
-                //newにoldが含まれていればok
-                if (oldTarget == newTarget)
-                {
-                    isInclude = true;
-                    break;
-                }
-            }
+    //         foreach (Transform newTarget in _newVisibleTargets)
+    //         {
+    //             //newにoldが含まれていればok
+    //             if (oldTarget == newTarget)
+    //             {
+    //                 isInclude = true;
+    //                 break;
+    //             }
+    //         }
 
-            //含まれていないならオフ
-            if (isInclude == false)
-            {
-                AEnemy enemy = oldTarget.GetComponent<AEnemy>();
+    //         //含まれていないならオフ
+    //         if (isInclude == false)
+    //         {
+    //             AEnemy enemy = oldTarget.GetComponent<AEnemy>();
 
-                enemy.OnEntityMeshDisable();
-            }
-        }
-    }
+    //             enemy.OnEntityMeshDisable();
+    //         }
+    //     }
+    // }
 
-    private List<Transform> FindVisibleTargets(float viewAngle, float viewRadius, Transform transform)
-    {
-        List<Transform> newVisibleTargets = new List<Transform>();
+    // private List<Transform> FindVisibleTargets(float viewAngle, float viewRadius, Transform transform)
+    // {
+    //     List<Transform> newVisibleTargets = new List<Transform>();
 
-        //第一引数が中心座標、第二引数が球の半径、引数で指定した球が触れた敵を全て配列で返す
-        //でかいほう
-        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, _targetMask);
+    //     //第一引数が中心座標、第二引数が球の半径、引数で指定した球が触れた敵を全て配列で返す
+    //     //でかいほう
+    //     Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, _targetMask);
 
-        //でかいほう
-        Calc(targetsInViewRadius, viewAngle);
+    //     //でかいほう
+    //     Calc(targetsInViewRadius, viewAngle);
 
-        return newVisibleTargets;
+    //     return newVisibleTargets;
         
-        void Calc(Collider[] targetsInRadiusArray, float angle)
-        {
-            for (int i = 0; i < targetsInRadiusArray.Length; i++)
-            {
-                //敵のtransform
-                Transform target = targetsInRadiusArray[i].transform;
-                //MeshRenderer enemyMeshRenderer = target.GetComponent<MeshRenderer>();
+    //     void Calc(Collider[] targetsInRadiusArray, float angle)
+    //     {
+    //         for (int i = 0; i < targetsInRadiusArray.Length; i++)
+    //         {
+    //             //敵のtransform
+    //             Transform target = targetsInRadiusArray[i].transform;
+    //             //MeshRenderer enemyMeshRenderer = target.GetComponent<MeshRenderer>();
 
-                //敵の方向のベクトル（正規化）
-                Vector3 dirToTarget = (target.position - transform.position).normalized;
+    //             //敵の方向のベクトル（正規化）
+    //             Vector3 dirToTarget = (target.position - transform.position).normalized;
 
-                //敵の方向がviewAngle内だったら
-                if (Vector3.Angle(transform.forward, dirToTarget) < angle / 2)
-                {
-                    //敵のdistance
-                    float dstToTarget = Vector3.Distance(transform.position, target.position);
+    //             //敵の方向がviewAngle内だったら
+    //             if (Vector3.Angle(transform.forward, dirToTarget) < angle / 2)
+    //             {
+    //                 //敵のdistance
+    //                 float dstToTarget = Vector3.Distance(transform.position, target.position);
 
-                    //敵までのrayを飛ばして間に障害物がなければ
-                    if (!Physics.Raycast(transform.position, dirToTarget, dstToTarget, _obstacleMask))
-                    {
-                        //targetはvisible
-                        //enemyMeshRenderer.enabled = true;
-                        newVisibleTargets.Add(target);
-                    }
-                }
-            }
-        }
-    }
+    //                 //敵までのrayを飛ばして間に障害物がなければ
+    //                 if (!Physics.Raycast(transform.position, dirToTarget, dstToTarget, _obstacleMask))
+    //                 {
+    //                     //targetはvisible
+    //                     //enemyMeshRenderer.enabled = true;
+    //                     newVisibleTargets.Add(target);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-#region 引数のmeshきになる,いらないかも
-    public void DrawFieldOfView(float viewAngle, float viewRadius, Transform transform)
- #endregion
+    public void DrawFOV(float viewAngle, float viewRadius, Transform transform)
     {
         //stepCount = 角度に解像度を掛けたもの
         int stepCount = Mathf.RoundToInt(viewAngle * _meshResolution);
@@ -184,8 +182,7 @@ public class PlayerFieldOfView
 
         List<Vector3> viewPoints = new List<Vector3>();
         ViewCastInfo oldViewCast = new ViewCastInfo();
-        //Debug.Log("OldViewCast = hit : " + oldViewCast.hit + ", point : " + oldViewCast.point + ", dst : " + oldViewCast.dst + ", angle : " + oldViewCast.angle);
-        //Debug.Log(oldViewCast.dst);
+
         //度数の分だけ行われる
         for (int i = 0; i <= stepCount; i++)
         {
@@ -193,7 +190,6 @@ public class PlayerFieldOfView
 
             //角度に対してRayを飛ばし、障害物を考慮した各頂点の値を格納する
             ViewCastInfo newViewCast = ViewCast(angle, viewRadius, transform);
-            //Debug.Log("NewViewCast = hit : " + newViewCast.hit + ", point : " + newViewCast.point + ", dst : " + newViewCast.dst + ", angle : " + newViewCast.angle);
 
             if (i > 0)
             {
@@ -229,6 +225,7 @@ public class PlayerFieldOfView
         int[] triangles = new int[(vertexCount - 2) * 3];
 
         vertices[0] = Vector3.zero;
+
         for (int i = 0; i < vertexCount - 1; i++)
         {
             vertices[i + 1] = transform.InverseTransformPoint(viewPoints[i]);
