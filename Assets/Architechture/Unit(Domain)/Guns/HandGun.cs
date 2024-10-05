@@ -11,10 +11,8 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private float _muzzleVelocity = 700f;
     [SerializeField] 
     private Transform _muzzlePosition;
-
     private LineRenderer _muzzleFlashRenderer;
 
-    //もっと一般化していい奴ら↓
     private IObjectPool<ABullet> _objectPool;
     private IBulletFactories _bulletFactories;
     private IFactory<ABullet> _bulletcaliberFactory;
@@ -37,8 +35,6 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
         _muzzleFlashRenderer = GetComponent<LineRenderer>();
         _muzzleFlashRenderer.enabled = false;
-
-        //_shotOrbitRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
