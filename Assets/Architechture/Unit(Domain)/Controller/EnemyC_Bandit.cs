@@ -5,21 +5,26 @@ using UnityEngine;
 public class EnemyController : AEnemy
 {
     [SerializeField]
-    float _maxHP, _currentHP;
+    float _maxHP, _initHP;
 
     [SerializeField]
     private LayerMask opponentLayer;
 
+    [SerializeField]
+    private LayerMask obstacleLayer;
+
     private bool isFighting;
 
-    Collider[] opponentsArray;
-
+    //いずれはEnemyも生成した側で初期化することだけ留意
     void Start()
     {
-        OnSetUp(new Entity_HealthPoint(_maxHP, _currentHP));
+        Entity_HealthPoint enemyHP = new Entity_HealthPoint(_maxHP, _initHP);
+        FindOpponent findOpponent = new FindOpponent(opponentLayer, obstacleLayer);
+
+        OnSetUp(enemyHP, findOpponent);
     }
 
-    public override void OnSetUp(Entity_HealthPoint enemyHP)
+    public override void OnSetUp(Entity_HealthPoint enemyHP, FindOpponent find)
     {
         EntitySetUp(enemyHP);
 
@@ -64,7 +69,7 @@ public class EnemyController : AEnemy
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        _entityHP = new Entity_HealthPoint(_maxHP, _entityHP.CurrentHp - damage);
 
         if(_entityHP.CurrentHp <= 0)
         {

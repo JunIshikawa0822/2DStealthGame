@@ -29,6 +29,9 @@ public class GameStatus
     [Header("PlayerInfo")]
     public APlayer player;
 
+    [Header("EnemiesInfo")]
+    public AEnemy[] enemies;
+
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
     public Bullet_10mm bullet_10mm;

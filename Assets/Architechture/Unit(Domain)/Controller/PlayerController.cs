@@ -7,13 +7,15 @@ using System;
 
 public class PlayerController : APlayer
 {
+    [SerializeField]
+    float _maxHP;
+
     [SerializeField] private float _moveForce = 5;
     private Quaternion targetRotation;
     private float rotationSpeed = 500;
 
     private bool isActionInterval = false;
     private CancellationTokenSource actionCancellationTokenSource;
-
 
     //視界の情報
     //------------------------------------------
@@ -26,6 +28,8 @@ public class PlayerController : APlayer
     public override void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
         EntitySetUp(playerHP);
+
+        _maxHP = playerHP.MaxHp;
 
         _drawFieldOfView = drawFieldOfView;
         _find = find;
@@ -63,7 +67,7 @@ public class PlayerController : APlayer
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        _entityHP = new Entity_HealthPoint(_maxHP, _entityHP.CurrentHp - damage);
 
         if(_entityHP.CurrentHp <= 0)
         {
