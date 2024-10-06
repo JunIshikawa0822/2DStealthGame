@@ -79,6 +79,8 @@ public class PlayerController : APlayer
     {
         while(true)
         {
+            if(this == null || _find == null || _draw == null)return;
+            
             List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
             _draw.DrawTargets(foundOpponents);
 

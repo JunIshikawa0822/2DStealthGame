@@ -45,6 +45,8 @@ public class FieldOfView : MonoBehaviour
     {
         while(true)
         {
+            if(this == null)return;
+            
             newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius);
 
             //newVisibleTargetを描画

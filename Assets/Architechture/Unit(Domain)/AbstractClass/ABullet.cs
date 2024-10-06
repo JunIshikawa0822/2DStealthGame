@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class ABullet : APooledObject<ABullet>, IBullet
+public abstract class ABullet : APooledObject<ABullet>
 {
     //public Action<Collider, float> onBulletCollisionEvent;
     private Rigidbody _bulletRigidbody;

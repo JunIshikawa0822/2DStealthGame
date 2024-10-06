@@ -2,33 +2,64 @@ using System;
 using UnityEngine;
 using System.Threading;
 
-public class Bullet_5_56mm : ABullet
+public class Bullet_5_56mm : ABullet, IPooledObject<Bullet_5_56mm>
 {
     [SerializeField]
-    float _LifeDistance;
-    private CancellationTokenSource bulletLifeCTS;
+    float _lifeDistance;
 
-    public void Awake()
+    [SerializeField]
+    float _bulletDamage;
+
+    private Action<Bullet_5_56mm> poolEvent;
+
+    void Awake()
     {
-        OnSetUp(_LifeDistance);
-
-        bulletLifeCTS = new CancellationTokenSource();
-        //BulletLifeTime();
+        OnSetUp(_lifeDistance);
     }
-    public void Start()
-    {
 
-    }
-    public void FixedUpdate()
+    //弾の当たり判定はFixedUpdate内で計算。
+    void FixedUpdate()
     {
-        if(IsBulletCollide())
+        //Debug.Log($"Distance{_bulletLifeDistance}");
+        if(IsBeyondLifeDistance())
         {
-            Debug.Log("衝突");
+            Debug.Log("距離によって破壊");
+            //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
+            Release(this);
+        }
+        else if(IsBulletCollide())
+        {
+            //Debug.Log("衝突によって破壊");
+
+            Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかった");
+
+            AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
+
+            Release(this);
+
+            if(entity == null)return;
+            entity.OnDamage(_bulletDamage);
         }
     }
 
+    #region ABulletとしての実装
     public override Type GetBulletType()
     {
         return typeof(Bullet_5_56mm);
     }
+    #endregion
+
+    #region PooledObjectとしての実装
+    public void Release()
+    {
+        if(poolEvent == null)return;
+        poolEvent?.Invoke(this);
+    }
+
+    public void SetPoolEvent(Action<Bullet_5_56mm> action)
+    {
+        poolEvent += action;
+    }
+
+    #endregion
 }
