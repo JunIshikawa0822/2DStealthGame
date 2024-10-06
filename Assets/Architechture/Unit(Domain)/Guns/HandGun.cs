@@ -14,7 +14,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private LineRenderer _muzzleFlashRenderer;
 
     private IObjectPool<ABullet> _objectPool;
-    private IBulletFactories _bulletFactories;
+    private IFactories<ABullet> _bulletFactories;
     private IFactory<ABullet> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -28,7 +28,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private Entity_Magazine _magazine;
     //----------------------------------------
 
-    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool)
+    public void OnSetUp(IFactories<ABullet> bulletFactories, IObjectPool<ABullet> objectPool)
     {
         _bulletFactories = bulletFactories;
         _objectPool = objectPool;

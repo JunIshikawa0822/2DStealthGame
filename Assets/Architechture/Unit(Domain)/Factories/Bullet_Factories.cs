@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class Bullet_Factories : IBulletFactories
+public class Bullet_Factories : IFactories<ABullet>
 {
     private Dictionary<Type, IFactory<ABullet>> _factoriesDic;
 

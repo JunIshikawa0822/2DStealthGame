@@ -5,7 +5,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
 {
     //private List<ABullet> bulletsList;
     private IObjectPool<ABullet> _bulletObjectPool;
-    private IBulletFactories _bulletFactories;
+    private IFactories<ABullet> _bulletFactories;
 
     private Dictionary<Type, IFactory<ABullet>> _factoriesDic;
     //private List<Type> _bulletCaliberTypesList;
