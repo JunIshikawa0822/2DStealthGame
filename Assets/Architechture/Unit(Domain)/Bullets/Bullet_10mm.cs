@@ -2,13 +2,15 @@ using System;
 using UnityEngine;
 using System.Threading;
 using Unity.VisualScripting;
-public class Bullet_10mm : ABullet
+public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
 {
     [SerializeField]
     float _lifeDistance;
 
     [SerializeField]
     float _bulletDamage;
+
+    private Action<Bullet_10mm> poolAction;
 
     void Awake()
     {
@@ -38,6 +40,16 @@ public class Bullet_10mm : ABullet
             if(entity == null)return;
             entity.OnDamage(_bulletDamage);
         }
+    }
+
+    public void Release()
+    {
+
+    }
+
+    public void SetPoolAction(Action<Bullet_10mm> action)
+    {
+        
     }
 
     public override Type GetBulletType()

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class BulletObjectPool : IObjectPool<ABullet>
+public class BulletObjectPool
 {
     //private uint _initPoolSize;
     private Dictionary<Type, Stack<APooledObject<ABullet>>> _poolsDic;

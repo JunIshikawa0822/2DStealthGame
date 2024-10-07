@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class HandGun : MonoBehaviour, IGun_10mm
+public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
 {
     //発射の内部的な処理に必要
     //----------------------------------------
@@ -13,9 +13,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private Transform _muzzlePosition;
     private LineRenderer _muzzleFlashRenderer;
 
-    private IObjectPool<ABullet> _objectPool;
-    private IBulletFactories _bulletFactories;
-    private IFactory<ABullet> _bulletcaliberFactory;
+    private IObjectPool<Bullet_10mm> _objectPool;
+    //private IBulletFactories _bulletFactories;
+    private IFactory<Bullet_10mm> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
@@ -28,9 +28,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
     private Entity_Magazine _magazine;
     //----------------------------------------
 
-    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool)
+    public void OnSetUp(IFactory<Bullet_10mm> factory, IObjectPool<Bullet_10mm> objectPool)
     {
-        _bulletFactories = bulletFactories;
+        //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
         _muzzleFlashRenderer = GetComponent<LineRenderer>();
@@ -39,7 +39,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
         _isShotIntervalActive = false;
         _isJamming = false;
         
-        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
+        _bulletcaliberFactory = factory;
     }
 
     public void OnUpdate()
@@ -62,11 +62,10 @@ public class HandGun : MonoBehaviour, IGun_10mm
         Interval(_isShotIntervalActive,shotIntervalTokenSource.Token, 0.5f, "射撃クールダウン").Forget();
 
         //BulletのFactoryをチェック
-        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
         if(_bulletcaliberFactory == null)return;
         
         //Poolからもってくる
-        ABullet bullet = _objectPool.GetFromPool(_bulletcaliberFactory) as ABullet;
+        Bullet_10mm bullet = _objectPool.GetFromPool(_bulletcaliberFactory);
 
         if(bullet == null)
         {
@@ -165,9 +164,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
         return _magazine;
     }
 
-    public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
-    {
-        // ここで、T 型が IBType_10mm を継承していることが保証されています
-        return _bulletFactories.BulletFactory(typeof(T));
-    }
+    // public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
+    // {
+    //     // ここで、T 型が IBType_10mm を継承していることが保証されています
+    //     return _bulletFactories.BulletFactory(typeof(T));
+    // }
 }

@@ -1,6 +1,6 @@
-public interface IObjectPool<T> where T : APooledObject<T>
+public interface IObjectPool<T> where T : IPooledObject<T>
 {
     void PoolSetUp(IFactory<T> factory, uint index);
-    APooledObject<T> GetFromPool(IFactory<T> factory);
+    T GetFromPool(IFactory<T> factory);
     void ReturnToPool(T pooledObject);
 }
