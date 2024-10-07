@@ -35,11 +35,11 @@ public class Entity_HealthPoint
     public float MaxHp{get{return _entityMaxHp;}} 
     public float CurrentHp{get{return _entityCurrentHp;}} 
 
-    // public void EntityDamage(float damage)
-    // {
-    //     if(_entityCurrentHp > 0)
-    //     {
-    //         _entityCurrentHp -= damage;
-    //     }
-    // }
+    public void EntityDamage(float damage)
+    {
+        if(_entityCurrentHp > 0)
+        {
+            _entityCurrentHp -= damage;
+        }
+    }
 }

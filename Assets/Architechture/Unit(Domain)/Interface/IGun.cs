@@ -1,6 +1,5 @@
-public interface IGun : IItem
+public interface IGun : IGun<Bullet_10mm>
 {
-    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool);
     public void OnUpdate();
 
     void Reload(Entity_Magazine magazine);
@@ -9,6 +8,5 @@ public interface IGun : IItem
 
     //void MuzzleFlash();
     Entity_Magazine GetMagazine();
-    
-    //UniTask ShotInterval();
+
 }

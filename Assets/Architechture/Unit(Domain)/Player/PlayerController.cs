@@ -7,9 +7,6 @@ using System;
 
 public class PlayerController : APlayer
 {
-    [SerializeField]
-    float _maxHP;
-
     [SerializeField] private float _moveForce = 5;
     private Quaternion targetRotation;
     private float rotationSpeed = 500;
@@ -28,8 +25,6 @@ public class PlayerController : APlayer
     public override void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
         EntitySetUp(playerHP);
-
-        _maxHP = playerHP.MaxHp;
 
         _drawFieldOfView = drawFieldOfView;
         _find = find;
@@ -67,7 +62,7 @@ public class PlayerController : APlayer
 
     public override void OnDamage(float damage)
     {
-        _entityHP = new Entity_HealthPoint(_maxHP, _entityHP.CurrentHp - damage);
+        _entityHP.EntityDamage(damage);
 
         if(_entityHP.CurrentHp <= 0)
         {
@@ -79,6 +74,8 @@ public class PlayerController : APlayer
     {
         while(true)
         {
+            if(this == null)return;
+            
             List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
             _draw.DrawTargets(foundOpponents);
 
@@ -128,26 +125,6 @@ public class PlayerController : APlayer
             tokenSource.Dispose();
             tokenSource = null;
             isActionInterval = false;
-        }
-    }
-
-    public override void OnEntityMeshDisable()
-    {
-        _entityRenderer.enabled = false;
-
-        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
-        {
-            mesh.enabled = false;
-        }
-    }
-
-    public override void OnEntityMeshAble()
-    {
-        _entityRenderer.enabled = true;
-
-        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
-        {
-            mesh.enabled = true;
         }
     }
 }

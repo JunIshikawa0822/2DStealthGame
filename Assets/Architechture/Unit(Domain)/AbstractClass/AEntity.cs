@@ -41,7 +41,23 @@ public abstract class AEntity : MonoBehaviour
 
     public Rigidbody GetEntityRigidbody(){return this._entityRigidbody;}
 
-    public abstract void OnEntityMeshDisable();
+    public void OnEntityMeshDisable()
+    {
+        _entityRenderer.enabled = false;
 
-    public abstract void OnEntityMeshAble();
+        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
+        {
+            mesh.enabled = false;
+        }
+    }
+
+    public void OnEntityMeshAble()
+    {
+        _entityRenderer.enabled = true;
+
+        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
+        {
+            mesh.enabled = true;
+        }
+    }
 }
