@@ -130,24 +130,4 @@ public class PlayerController : APlayer
             isActionInterval = false;
         }
     }
-
-    public override void OnEntityMeshDisable()
-    {
-        _entityRenderer.enabled = false;
-
-        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
-        {
-            mesh.enabled = false;
-        }
-    }
-
-    public override void OnEntityMeshAble()
-    {
-        _entityRenderer.enabled = true;
-
-        foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
-        {
-            mesh.enabled = true;
-        }
-    }
 }

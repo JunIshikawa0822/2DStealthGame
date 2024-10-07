@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class ABullet : APooledObject<ABullet>, IBullet
+public abstract class ABullet : MonoBehaviour, IBullet
 {
     //public Action<Collider, float> onBulletCollisionEvent;
     private Rigidbody _bulletRigidbody;
@@ -19,7 +19,7 @@ public abstract class ABullet : APooledObject<ABullet>, IBullet
     public Transform GetBulletTransform(){return _bulletTransform;}
     public RaycastHit GetBulletRaycastHit(){return _bulletHit;}
 
-    public void OnSetUp(float bulletLifeMaxDistance)
+    public virtual void OnSetUp(float bulletLifeMaxDistance)
     {
         _bulletRigidbody = GetComponent<Rigidbody>();
         _bulletTransform = GetComponent<Transform>();
@@ -27,7 +27,7 @@ public abstract class ABullet : APooledObject<ABullet>, IBullet
         _bulletLifeMaxDistance = bulletLifeMaxDistance;
     }
 
-    public void Init(Vector3 position)
+    public virtual void Init(Vector3 position)
     {
         //Debug.Log("Init");
         _bulletPrePos = position;

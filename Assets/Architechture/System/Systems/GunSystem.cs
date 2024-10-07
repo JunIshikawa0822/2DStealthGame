@@ -15,17 +15,8 @@ public class GunSystem : ASystem, IOnFixedUpdate
     public override void OnSetUp()
     {
         this._player = gameStat.player;
-        _bullet_10mm_ObjectPool = new ObjectPoolTest<Bullet_10mm>(gameStat.bulletObjectPoolTrans);
 
-        // _factoriesDic = new Dictionary<Type, IFactory<ABullet>>
-        // {
-        //     {typeof(IBType_10mm), new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm)},
-        //     {typeof(IBType_5_56mm), new Bullet_5_56mm_CreateConcreteFactory(gameStat.bullet_5_56mm)},
-        //     {typeof(IBType_7_72mm), new Bullet_7_62mm_CreateConcreteFactory(gameStat.bullet_7_62mm)}
-        // };
-
-        //this._bulletFactories = new Bullet_Factories(_factoriesDic);
-
+        _bullet_10mm_ObjectPool = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans);
         _bullet_10mm_factory = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
 
         //口径ごとのObjectPoolをそれぞれSetup

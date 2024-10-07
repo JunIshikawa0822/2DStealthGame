@@ -51,9 +51,9 @@ public class DrawOpponent
             //含まれていないならオフ
             if (isInclude == false)
             {
-                AEnemy enemy = oldTarget.GetComponent<AEnemy>();
+                AEntity entity = oldTarget.GetComponent<AEntity>();
 
-                enemy.OnEntityMeshDisable();
+                entity.OnEntityMeshDisable();
             }
         }
     }

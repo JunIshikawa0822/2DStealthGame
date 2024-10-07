@@ -30,7 +30,7 @@ public class GameStatus
     public APlayer player;
 
     [Header("EnemiesInfo")]
-    public AEnemy[] enemies;
+    public IEnemy[] enemies;
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;

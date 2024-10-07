@@ -25,7 +25,7 @@ public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
         {
             Debug.Log("距離によって破壊");
             //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
-            Release(this);
+            Release();
         }
         else if(IsBulletCollide())
         {
@@ -35,7 +35,7 @@ public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
 
             AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
 
-            Release(this);
+            Release();
 
             if(entity == null)return;
             entity.OnDamage(_bulletDamage);
@@ -44,12 +44,13 @@ public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
 
     public void Release()
     {
-
+        if(poolAction == null)return;
+        poolAction?.Invoke(this);
     }
 
     public void SetPoolAction(Action<Bullet_10mm> action)
     {
-        
+        poolAction += action;
     }
 
     public override Type GetBulletType()

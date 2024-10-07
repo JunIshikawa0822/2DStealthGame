@@ -2,15 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class ObjectPoolTest<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
+public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
 {
-    //private uint _initPoolSize;
     private Stack<IPooledObject<T>> _pool;
     private GameObject _parent;
-
     private Transform _transform;
 
-    public ObjectPoolTest(Transform poolTransform)
+    public ObjectPool(Transform poolTransform)
     {
         _pool = new Stack<IPooledObject<T>>();
         _parent = new GameObject($"{typeof(T).ToString()}");
