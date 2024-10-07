@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy_Bandit_Controller : AEntity, IEnemy
+public class Enemy_Bandit_Controller : AEnemy, IEnemy
 {
     [SerializeField]
     float _maxHP, _initHP;
@@ -18,14 +18,14 @@ public class Enemy_Bandit_Controller : AEntity, IEnemy
     //いずれはEnemyも生成した側で初期化することだけ留意
     void Start()
     {
-        Entity_HealthPoint enemyHP = new Entity_HealthPoint(_maxHP, _initHP);
-        FindOpponent findOpponent = new FindOpponent(opponentLayer, obstacleLayer);
-
-        OnSetUp(enemyHP, findOpponent);
+        OnSetUp();
     }
 
-    public void OnSetUp(Entity_HealthPoint enemyHP, FindOpponent find)
+    public void OnSetUp()
     {
+        Entity_HealthPoint enemyHP = new Entity_HealthPoint(_maxHP, _initHP);
+        _enemyFindView = new FindOpponent(opponentLayer, obstacleLayer);
+        
         EntitySetUp(enemyHP);
 
         OnEntityMeshDisable();
