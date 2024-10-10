@@ -23,6 +23,7 @@ public class PlayerController : AEntity, IPlayer
     private DrawFieldOfView _drawFieldOfView;
     private FindOpponent _find;
     private DrawOpponent _draw;
+
     private float _viewAngle;
     private float _viewRadius;
 
@@ -68,7 +69,7 @@ public class PlayerController : AEntity, IPlayer
         //CancelAction(actionCancellationTokenSource);
 
        // _actionCancellationTokenSource = new CancellationTokenSource();
-        ActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
+        EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
     public override void OnDamage(float damage)

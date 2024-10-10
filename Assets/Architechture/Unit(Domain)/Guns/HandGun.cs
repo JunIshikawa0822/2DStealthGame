@@ -11,6 +11,8 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
     private float _muzzleVelocity = 700f;
     [SerializeField] 
     private Transform _muzzlePosition;
+    [SerializeField]
+    private float _shotInterval = 0.5f;
     private LineRenderer _muzzleFlashRenderer;
 
     private IObjectPool<Bullet_10mm> _objectPool;
@@ -59,7 +61,7 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
         //射撃と射撃の間隔を制御
         if(_isShotIntervalActive)return;
         shotIntervalTokenSource = new CancellationTokenSource();
-        Interval(_isShotIntervalActive,shotIntervalTokenSource.Token, 0.5f, "射撃クールダウン").Forget();
+        ShotInterval(shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
 
         //BulletのFactoryをチェック
         if(_bulletcaliberFactory == null)return;
@@ -108,10 +110,9 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
         lineRenderer.enabled = !lineRenderer.enabled;
     }
 
-    public async UniTask Interval(bool flag, CancellationToken token, float time, string ActionName)
+    public async UniTask ShotInterval(CancellationToken token, float time, string ActionName)
     {
-        flag = true;
-
+        _isShotIntervalActive = true;
         try
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
@@ -125,7 +126,7 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
         }
         finally
         {
-            flag = false; // クールタイム終了（またはキャンセル)
+            _isShotIntervalActive = false; // クールタイム終了（またはキャンセル)
         }
     }
 

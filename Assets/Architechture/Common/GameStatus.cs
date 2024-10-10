@@ -30,7 +30,7 @@ public class GameStatus
     public PlayerController player;
 
     [Header("EnemiesInfo")]
-    public AEnemy[] enemies;
+    public Enemy_Bandit_Controller bandit;
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
@@ -55,4 +55,13 @@ public class GameStatus
 
     [Header("UI")]
     public LineRenderer shotLineRenderer;
+
+#region  即席
+    [HideInInspector]
+    public ObjectPool<Bullet_10mm> bullet_10mm_ObjectPool;
+    [HideInInspector]
+    public IFactory<Bullet_10mm> bullet_10mm_factory;
+
+    public Transform enemyParent;
+#endregion
 }

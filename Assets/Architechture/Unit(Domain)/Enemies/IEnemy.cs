@@ -1,7 +1,9 @@
 
+using UnityEngine;
+
 public interface IEnemy
 {
-    public void OnSetUp(Entity_HealthPoint enemyHP, IGun gun);
+    public void OnSetUp(Entity_HealthPoint enemyHP, Transform gun);
     public void Move();
     public void Rotate();
     public void Attack();

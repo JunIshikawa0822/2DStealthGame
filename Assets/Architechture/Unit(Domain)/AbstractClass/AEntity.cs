@@ -49,6 +49,8 @@ public abstract class AEntity : MonoBehaviour
 
     public void EntityMeshDisable()
     {
+        Debug.Log(_entityRenderer);
+        
         _entityRenderer.enabled = false;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
@@ -59,6 +61,8 @@ public abstract class AEntity : MonoBehaviour
 
     public void EntityMeshAble()
     {
+        Debug.Log(_entityRenderer);
+
         _entityRenderer.enabled = true;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
@@ -67,7 +71,7 @@ public abstract class AEntity : MonoBehaviour
         }
     }
 
-    public async UniTask ActionInterval(Action waitAction, CancellationToken token, float time, string ActionName)
+    public async UniTask EntityActionInterval(Action waitAction, CancellationToken token, float time, string ActionName)
     {
         _isEntityActionInterval = true;
 
