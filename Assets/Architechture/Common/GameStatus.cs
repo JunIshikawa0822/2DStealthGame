@@ -27,10 +27,10 @@ public class GameStatus
     public int selectingGunsArrayIndex = 0;
 
     [Header("PlayerInfo")]
-    public APlayer player;
+    public PlayerController player;
 
     [Header("EnemiesInfo")]
-    public IEnemy[] enemies;
+    public AEnemy[] enemies;
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;

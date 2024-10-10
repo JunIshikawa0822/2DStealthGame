@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
+using Cysharp.Threading.Tasks;
+using System.Threading;
+using System;
 
 public abstract class AEntity : MonoBehaviour
 {
-    protected Entity_HealthPoint _entityHP;
+    //protected Entity_HealthPoint _entityHP;
     protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
@@ -12,15 +16,17 @@ public abstract class AEntity : MonoBehaviour
     protected MeshRenderer _entityRenderer;
     protected MeshRenderer[] _entityChildrenMeshsArray;
 
-    public void EntitySetUp(Entity_HealthPoint entityHP)
+    protected bool _isEntityActionInterval;
+    protected CancellationTokenSource _actionCancellationTokenSource;
+
+    public void EntitySetUp()
     {
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();
 
         _entityRenderer = GetComponent<MeshRenderer>();
-        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>();
-
-        _entityHP = entityHP;
+        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>();  
+        _actionCancellationTokenSource = new CancellationTokenSource();
     }
 
     public virtual void OnUpdate()
@@ -28,12 +34,12 @@ public abstract class AEntity : MonoBehaviour
 
     }
 
-    public bool IsEntityDead()
-    {
-        if(_entityHP.CurrentHp <= 0) return true;
-        else return false;
-    }
-
+    // public bool IsEntityDead()
+    // {
+    //     if(_entityHP.CurrentHp <= 0) return true;
+    //     else return false;
+    // }
+    public abstract bool IsEntityDead();
     public abstract void OnEntityDead();
     public abstract void OnDamage(float damage);
 
@@ -41,7 +47,7 @@ public abstract class AEntity : MonoBehaviour
 
     public Rigidbody GetEntityRigidbody(){return this._entityRigidbody;}
 
-    public void OnEntityMeshDisable()
+    public void EntityMeshDisable()
     {
         _entityRenderer.enabled = false;
 
@@ -51,13 +57,35 @@ public abstract class AEntity : MonoBehaviour
         }
     }
 
-    public void OnEntityMeshAble()
+    public void EntityMeshAble()
     {
         _entityRenderer.enabled = true;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
         {
             mesh.enabled = true;
+        }
+    }
+
+    public async UniTask ActionInterval(Action waitAction, CancellationToken token, float time, string ActionName)
+    {
+        _isEntityActionInterval = true;
+
+        try
+        {
+            // 指定されたクールタイム期間を待つ (キャンセル可能)
+            Debug.Log($"{ActionName} 開始");
+            await UniTask.Delay((int)(time * 1000), cancellationToken: token);
+            waitAction?.Invoke();
+            Debug.Log($"{ActionName} 終了");
+        }
+        catch
+        {
+            Debug.Log($"{ActionName} がキャンセルされました");
+        }
+        finally
+        {
+            _isEntityActionInterval = false; // クールタイム終了（またはキャンセル)
         }
     }
 }

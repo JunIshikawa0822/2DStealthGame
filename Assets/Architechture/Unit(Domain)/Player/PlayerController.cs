@@ -5,14 +5,18 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class PlayerController : APlayer
+public class PlayerController : AEntity, IPlayer
 {
-    [SerializeField] private float _moveForce = 5;
-    private Quaternion targetRotation;
-    private float rotationSpeed = 500;
+    [SerializeField]
+    private float _player_RotateSpeed = 500;
 
-    private bool isActionInterval = false;
-    private CancellationTokenSource actionCancellationTokenSource;
+    private Entity_HealthPoint _playerHP;
+
+    [SerializeField] private float _playerMoveForce = 50;
+    private Quaternion _targetRotation;
+
+    //private bool _isActionInterval = false;
+    //private CancellationTokenSource _actionCancellationTokenSource;
 
     //視界の情報
     //------------------------------------------
@@ -22,10 +26,13 @@ public class PlayerController : APlayer
     private float _viewAngle;
     private float _viewRadius;
 
-    public override void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
+    public void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
-        EntitySetUp(playerHP);
+        #region 直で代入でよくね
+        EntitySetUp();
+        #endregion
 
+        _playerHP = playerHP;
         _drawFieldOfView = drawFieldOfView;
         _find = find;
         _draw = draw;
@@ -36,35 +43,39 @@ public class PlayerController : APlayer
         FindAndDrawEnemies(0.2f).Forget();
     }
 
-    public override void OnMove(Vector2 inputDirection, Vector3 mouseWorldPosition)
+    public void Move(Vector2 inputDirection)
     {
+        //Debug.Log("移動");
         //移動
-        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _moveForce, ForceMode.Force);
-
-        //回転
-        targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
-        _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, rotationSpeed * Time.deltaTime);
+        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
     }
 
-    public override void OnAttack(IGun gun)
+    public void Rotate(Vector3 mouseWorldPosition)
+    {
+        //回転
+        _targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
+        _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, _targetRotation.eulerAngles.y, _player_RotateSpeed * Time.deltaTime);
+    }
+
+    public void Attack(IGun gun)
     {
         gun.Shot();
     }
 
-    public override void OnReload(IGun gun, Entity_Magazine magazine)
+    public void Reload(IGun gun, Entity_Magazine magazine)
     {
-        if(isActionInterval)return;
+        if(_isEntityActionInterval)return;
         //CancelAction(actionCancellationTokenSource);
 
-        actionCancellationTokenSource = new CancellationTokenSource();
-        ActionInterval(() => gun.Reload(magazine), isActionInterval, actionCancellationTokenSource.Token, 2f, "リロード").Forget();
+       // _actionCancellationTokenSource = new CancellationTokenSource();
+        ActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        _playerHP.EntityDamage(damage);
 
-        if(_entityHP.CurrentHp <= 0)
+        if(_playerHP.CurrentHp <= 0)
         {
             OnEntityDead();
         }
@@ -75,7 +86,7 @@ public class PlayerController : APlayer
         while(true)
         {
             if(this == null)return;
-            
+
             List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
             _draw.DrawTargets(foundOpponents);
 
@@ -83,36 +94,24 @@ public class PlayerController : APlayer
         }
     }
 
-    public override void DrawView()
+    public void DrawView()
     {
         _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
+    }
+
+    public override bool IsEntityDead()
+    {
+        if(_playerHP.CurrentHp <= 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public override void OnEntityDead()
     {
         Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
-    }
-
-    public async UniTask ActionInterval(Action waitAction, bool flag, CancellationToken token, float time, string ActionName)
-    {
-        isActionInterval = true;
-
-        try
-        {
-            // 指定されたクールタイム期間を待つ (キャンセル可能)
-            Debug.Log($"{ActionName} 開始");
-            await UniTask.Delay((int)(time * 1000), cancellationToken: token);
-            waitAction?.Invoke();
-            Debug.Log($"{ActionName} 終了");
-        }
-        catch
-        {
-            Debug.Log($"{ActionName} がキャンセルされました");
-        }
-        finally
-        {
-            isActionInterval = false; // クールタイム終了（またはキャンセル)
-        }
     }
 
     public void CancelAction(CancellationTokenSource tokenSource)
@@ -124,7 +123,7 @@ public class PlayerController : APlayer
             tokenSource.Cancel();
             tokenSource.Dispose();
             tokenSource = null;
-            isActionInterval = false;
+            _isEntityActionInterval = false;
         }
     }
 }

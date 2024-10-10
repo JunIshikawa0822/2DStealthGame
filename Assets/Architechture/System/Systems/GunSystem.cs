@@ -7,10 +7,12 @@ public class GunSystem : ASystem, IOnFixedUpdate
     private IObjectPool<Bullet_10mm> _bullet_10mm_ObjectPool;
     private IFactory<Bullet_10mm> _bullet_10mm_factory;
     //private IBulletFactories _bulletFactories;
+    IGun gun1;
+    IGun<Bullet_10mm> gun2;
 
     //private Dictionary<Type, IFactory<ABullet>> _factoriesDic;
     //private List<Type> _bulletCaliberTypesList;
-    private APlayer _player;
+    private IPlayer _player;
 
     public override void OnSetUp()
     {
@@ -31,11 +33,13 @@ public class GunSystem : ASystem, IOnFixedUpdate
         
     }
 
-    public IGun GunObjectInstantiate()
+    public IGun<Bullet_10mm> GunObjectInstantiate()
     {
-        IGun gun = gameStat.Pistol1;
-        gun.OnSetUp(_bullet_10mm_factory, _bullet_10mm_ObjectPool);
+        IGun<Bullet_10mm> gun = gameStat.Pistol1;
         gun.Reload(new Entity_Magazine(10, 10));
+
+        gun.OnSetUp(_bullet_10mm_factory, _bullet_10mm_ObjectPool);
+        
         return gun;
     }
 }

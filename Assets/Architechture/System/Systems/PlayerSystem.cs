@@ -1,7 +1,7 @@
 using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
-    private APlayer _player;
+    private IPlayer _player;
     public override void OnSetUp()
     {
         _player = gameStat.player;
@@ -29,7 +29,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnUpdate()
     {
-        
+        _player.Rotate(gameStat.cursorWorldPosition);
     }
 
     public void OnLateUpdate()
@@ -44,17 +44,18 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         float z = (gameStat.moveDirection.x) * Mathf.Sin(-45 * Mathf.Deg2Rad) + (gameStat.moveDirection.y) * Mathf.Cos(-45 * Mathf.Deg2Rad);
         Vector2 vector = new Vector3(x, z);
 
-        _player.OnMove(vector, gameStat.cursorWorldPosition);
+        if(vector == Vector2.zero)return;
+        _player.Move(vector);
     }
 
     public void OnAttack()
     {
-        _player.OnAttack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
     public void OnReload()
     {
         Entity_Magazine magazine = new Entity_Magazine(10, 10);
-        _player.OnReload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
+        _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
     }
 }

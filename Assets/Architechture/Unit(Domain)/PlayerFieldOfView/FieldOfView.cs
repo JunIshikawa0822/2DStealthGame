@@ -72,7 +72,7 @@ public class FieldOfView : MonoBehaviour
         {
             AEntity entity = target.GetComponent<AEntity>();
 
-            entity.OnEntityMeshAble();
+            entity.EntityMeshAble();
         }
     }
 
@@ -97,7 +97,7 @@ public class FieldOfView : MonoBehaviour
             {
                 AEntity entity = oldTarget.GetComponent<AEntity>();
 
-                entity.OnEntityMeshDisable();
+                entity.EntityMeshDisable();
             }
         }
     }

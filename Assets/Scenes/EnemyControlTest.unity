@@ -6537,14 +6537,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!54 &355968625
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7467,14 +7470,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!1 &469606681
 GameObject:
   m_ObjectHideFlags: 0
@@ -14939,14 +14945,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!54 &666166182
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15094,14 +15103,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!54 &674823311
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -17682,14 +17694,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!54 &1652049841
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18084,14 +18099,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 50
-  _initHP: 50
+  _enemy_Bandit_MaxHP: 100
+  _enemy_Bandit_InitHP: 100
+  _enemy_Bandit_RotateSpeed: 500
   opponentLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 768
+  _enemyViewAngle: 45
+  _enemyViewRadius: 25
 --- !u!54 &1928619148
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18603,6 +18621,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseWorldSpace
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5016923181861598370, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _playerMoveForce
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
