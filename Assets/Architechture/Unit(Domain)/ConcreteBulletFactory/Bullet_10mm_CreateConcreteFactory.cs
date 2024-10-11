@@ -9,7 +9,7 @@ public class Bullet_10mm_CreateConcreteFactory : IFactory<Bullet_10mm>
         this.bullet = bullet;
     }
 
-    public Bullet_10mm ObjectInstantiate()
+    public Bullet_10mm ObjectInstantiate(IData data)
     {
         Bullet_10mm bulletInstance = GameObject.Instantiate(bullet);
         //bulletInstance.OnSetUp();

@@ -64,7 +64,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
 
     public T ObjectInstantiate(IFactory<T> factory)
     {
-        IPooledObject<T> instance = factory.ObjectInstantiate();
+        IPooledObject<T> instance = factory.ObjectInstantiate(null);
         instance.SetPoolAction(ReturnToPool);
         return instance as T;
     }
