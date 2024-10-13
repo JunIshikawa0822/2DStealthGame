@@ -19,9 +19,10 @@ public class InGameManager : MonoBehaviour
         {
             //new ShotSystem(),
             new InputSystem(),
-            new PlayerSystem(),
             new GunSystem(),
-            new UISystem()
+            new PlayerSystem(),
+            new UISystem(),
+            new EnemySystem()
         };
 
         _allUpdateSystemsList = new List<IOnUpdate>();
@@ -36,7 +37,7 @@ public class InGameManager : MonoBehaviour
             if (system is IOnUpdate) _allUpdateSystemsList.Add(system as IOnUpdate);
             if (system is IOnPreUpdate) _allPreUpdateSystemsList.Add(system as IOnPreUpdate);
             if (system is IOnFixedUpdate) _allFixedUpdateSystemsList.Add(system as IOnFixedUpdate);
-            if(system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
+            if (system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
         }
     }
     // Start is called before the first frame update

@@ -28,7 +28,7 @@ public class DrawOpponent
         {
             AEntity entity = target.GetComponent<AEntity>();
 
-            entity.OnEntityMeshAble();
+            entity.EntityMeshAble();
         }
     }
 
@@ -53,7 +53,7 @@ public class DrawOpponent
             {
                 AEntity entity = oldTarget.GetComponent<AEntity>();
 
-                entity.OnEntityMeshDisable();
+                entity.EntityMeshDisable();
             }
         }
     }
