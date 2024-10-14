@@ -1,7 +1,5 @@
 public class CellObject
-{
-    //private Vector3 cellObjectPosition;
-    //private Grid<CellObject> grid;
+{   
     public int position_x;
     public int position_y;
 

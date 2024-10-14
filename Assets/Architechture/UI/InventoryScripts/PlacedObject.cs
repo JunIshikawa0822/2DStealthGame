@@ -5,88 +5,80 @@ using TMPro;
 
 public class PlacedObject : ItemDragAndDrop<PlacedObject>
 {
-    private Scriptable_UI_Item itemData;
-    private Scriptable_UI_Item.ItemDir itemDirection;
-
-    private RectTransform rectTransform;
-
-    private TetrisInventory belongingInventory;
-    private Vector2Int belongingCellNum;
+    private Scriptable_UI_Item _itemData;
+    private Scriptable_UI_Item.ItemDir _itemDirection;
+    private RectTransform _rectTransform;
+    private TetrisInventory _belongingInventory;
+    private Vector2Int _belongingCellNum;
     private GridLayoutGroup backGroundGrid;
     //透過率調整用
     private CanvasGroup canvasGroup;
-
     [SerializeField]
     private GameObject backGround;
-
     [SerializeField]
-    private TextMeshProUGUI stackNumText;
-
-    private int stackNum;
+    private TextMeshProUGUI _stackingNumText;
+    private int _stackingNum;
 
     public void OnSetUp(Scriptable_UI_Item itemData)
     {
-        rectTransform = GetComponent<RectTransform>();
+        _rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         backGroundGrid = backGround.GetComponent<GridLayoutGroup>();
 
-        this.itemData = itemData;
-        this.itemDirection = itemData.direction;
+        _itemData = itemData;
+        _itemDirection = Scriptable_UI_Item.ItemDir.Down;
        
-        Tobject = this;
         BackGroundInit();
     }
 
     public void StackNumInit(int stackNum)
     {
-        this.stackNum = stackNum;
+        _stackingNum = stackNum;
         TextSet();
+    }
+
+    public void SetRotation(Quaternion quaternion)
+    {
+        _rectTransform.rotation = quaternion;
     }
 
     private void BackGroundInit()
     {
-        int occupyCellNum = itemData.width * itemData.height;
+        int occupyCellNum = _itemData.width * _itemData.height;
         RectTransform backGroundTransform = backGround.GetComponent<RectTransform>();
         
         for(int i = 0; i < occupyCellNum; i++)
         {
-            Instantiate(itemData.backGroundPrefab, backGroundTransform);
+            Instantiate(_itemData.backGroundPrefab, backGroundTransform);
         }
     }
 
     public void SetBelonging(TetrisInventory belongingInventory, Vector2Int belongingCellNum, Scriptable_UI_Item.ItemDir direction, RectTransform parent)
     {
-        this.belongingInventory = belongingInventory;
-        this.belongingCellNum = belongingCellNum;
-        this.itemDirection = direction;
-        this.rectTransform.SetParent(parent);
+        _belongingInventory = belongingInventory;
+        _belongingCellNum = belongingCellNum;
+        _itemDirection = direction;
+        _rectTransform.SetParent(parent);
     }
 
     public void ImageSizeSet(float cellSize)
     {
-        rectTransform.sizeDelta = new Vector2(itemData.width, itemData.height) * cellSize;
+        _rectTransform.sizeDelta = new Vector2(_itemData.width, _itemData.height) * cellSize;
         backGroundGrid.cellSize = new Vector2(cellSize, cellSize);
     }
 
     public void TextSet()
     {
-        stackNumText.text = stackNum.ToString();
+        _stackingNumText.text = _stackingNum.ToString();
     }
 
-    public Scriptable_UI_Item GetItemData()
-    {
-        return itemData;
-    }
+    public Scriptable_UI_Item GetItemData(){return _itemData;}
+    public Scriptable_UI_Item.ItemDir GetDirection(){return _itemDirection;}
+    public RectTransform GetRectTransform(){return _rectTransform;}
+    public TetrisInventory GetBelongingInventory(){return _belongingInventory;}
+    public Vector2Int GetBelongingCellNum(){return _belongingCellNum;}
 
-    public Scriptable_UI_Item.ItemDir GetDirection()
-    {
-        return this.itemDirection;
-    }
-
-    public int GetStackNum()
-    {
-        return this.stackNum;
-    }
+    public int GetStackNum(){return _stackingNum;}
 
     public void OnDragStart()
     {
@@ -98,21 +90,6 @@ public class PlacedObject : ItemDragAndDrop<PlacedObject>
     {
         backGround.SetActive(false);
         canvasGroup.alpha = 1f;
-    }
-
-    public RectTransform GetRectTransform()
-    {
-        return this.rectTransform;
-    }
-
-    public TetrisInventory GetBelongingInventory()
-    {
-        return this.belongingInventory;
-    }
-
-    public Vector2Int GetBelongingCellNum()
-    {
-        return this.belongingCellNum;
     }
 
     public void OnDestroy()

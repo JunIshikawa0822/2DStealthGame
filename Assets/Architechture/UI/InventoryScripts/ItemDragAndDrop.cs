@@ -10,33 +10,29 @@ public abstract class ItemDragAndDrop<T> : MonoBehaviour, IPointerDownHandler, I
     public event Action<T> onEndDragEvent;
     public event Action<T> onDragEvent;
 
-    protected T Tobject;
+    private T Tobject;
 
     public void OnPointerDown(PointerEventData pointerEventData)
     {
         if(onPointerDownEvent == null)return;
-        //Debug.Log("OnPointerDown");
         onPointerDownEvent.Invoke(Tobject);
     }
 
     public void OnBeginDrag(PointerEventData pointerEventData)
     {
         if(onBeginDragEvent == null)return;
-        //Debug.Log("OnBeginDrag");
         onBeginDragEvent.Invoke(Tobject);
     }
 
     public void OnEndDrag(PointerEventData pointerEventData)
     {
         if(onEndDragEvent == null)return;
-        //Debug.Log("OnEndDrag");
         onEndDragEvent.Invoke(Tobject);
     }
 
     public void OnDrag(PointerEventData pointerEventData)
     {
         if(onDragEvent == null)return;
-        //Debug.Log("OnDrag");
         onDragEvent.Invoke(Tobject);
     }
 }
