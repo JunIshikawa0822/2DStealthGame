@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
+public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
 {
     //発射の内部的な処理に必要
     //----------------------------------------
