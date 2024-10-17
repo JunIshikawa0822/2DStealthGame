@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlacedObject : ItemDragAndDrop<PlacedObject>
+public class PlacedObject : AItemDragAndDrop<PlacedObject>
 {
     private Scriptable_UI_Item _itemData;
     private Scriptable_UI_Item.ItemDir _itemDirection;

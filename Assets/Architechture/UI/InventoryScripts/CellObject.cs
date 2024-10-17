@@ -3,12 +3,13 @@ public class CellObject
     public int position_x;
     public int position_y;
 
-    private PlacedObject placedObject;
+    //セルに入っているオブジェクトを示す
+    private Item_GUI _item;
 
-    private bool canStackOnCell;
+    private bool _canStackOnCell;
 
     //現在Stackされている数
-    private int stackNum;
+    //private int _stackNum;
 
     //private bool isStackableOnCell;
 
@@ -17,81 +18,83 @@ public class CellObject
         //this.grid = grid;
         position_x = x;
         position_y = y;
-        stackNum = 0;
-        SetStackability();
+        //_stackNum = 0;
+        //SetStackability();
         //cellObjectPosition = worldPosition;
     }
 
-    public PlacedObject GetPlacedObject()
+    public Item_GUI GetItemInCell()
     {
-        return placedObject;
+        return _item;
     }
 
-    public int GetStackNum()
-    {
-        return stackNum;
-    }
+    // public int GetStackNum()
+    // {
+    //     return _stackNum;
+    // }
 
-    public bool CanInsertToCellObject(PlacedObject placedObject)
+    public bool CanInsertToCellObject(Item_GUI item)
     {
         bool canInsert = false;
 
-        if(this.placedObject == null)
+        if(_item == null)
         {
             canInsert = true;
         }
-        else if(this.placedObject.GetItemData() == placedObject.GetItemData())
-        {
-            if(this.stackNum < placedObject.GetItemData().stackableNum)
-            {
-                canInsert = true;
-            }  
-        }   
+        // else if(_item.GetItemData() == item.GetItemData())
+        // {
+        //     if(_stackNum < item.GetItemData().stackableNum)
+        //     {
+        //         canInsert = true;
+        //     }  
+        // }   
         return canInsert;
     }
 
-    public void SetStackability()
+    // public void SetStackability()
+    // {
+    //     if(this.placedObject == null)
+    //     {
+    //         canStackOnCell = true;
+    //         return;
+    //     }
+
+    //     int canStackNum = this.placedObject.GetItemData().stackableNum;
+
+    //     if(canStackNum > 0)
+    //     {
+    //         if(this.stackNum < canStackNum)
+    //         {
+    //             canStackOnCell = true;
+    //             return;
+    //         }
+    //     }
+
+    //     canStackOnCell = false;
+    // }
+
+    // public bool GetStackability()
+    // {
+    //     return canStackOnCell;
+    // }
+
+    public void InsertToCellObject(Item_GUI item)
     {
-        if(this.placedObject == null)
-        {
-            canStackOnCell = true;
-            return;
-        }
-
-        int canStackNum = this.placedObject.GetItemData().stackableNum;
-
-        if(canStackNum > 0)
-        {
-            if(this.stackNum < canStackNum)
-            {
-                canStackOnCell = true;
-                return;
-            }
-        }
-
-        canStackOnCell = false;
+        _item = item;
     }
 
-    public bool GetStackability()
-    {
-        return canStackOnCell;
-    }
+    // public void SetStackNum()
+    // {
+    //     if(_item == null)
+    //     {
+    //         _stackNum = 0;
+    //         return;
+    //     }
 
-    public void InsertToCellObject(PlacedObject placedObject)
-    {
-        this.placedObject = placedObject;
-    }
+    //     if(_canStackOnCell == false) return;
 
-    public void SetStackNum()
-    {
-        if(this.placedObject == null)
-        {
-            stackNum = 0;
-            return;
-        }
-
-        if(this.canStackOnCell == false) return;
-
-        stackNum = stackNum + 1;
-    }
+    //     #region ん？
+    //     _stackNum = _stackNum + 1;
+    //     #endregion
+    // }
 }

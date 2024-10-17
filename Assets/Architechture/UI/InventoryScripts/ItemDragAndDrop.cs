@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
     
-public abstract class ItemDragAndDrop<T> : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
+public abstract class AItemDragAndDrop<T> : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
     public event Action<T> onPointerDownEvent;
     public event Action<T> onBeginDragEvent;
     public event Action<T> onEndDragEvent;
     public event Action<T> onDragEvent;
 
-    private T Tobject;
+    protected T Tobject;
 
     public void OnPointerDown(PointerEventData pointerEventData)
     {
