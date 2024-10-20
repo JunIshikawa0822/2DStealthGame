@@ -3,9 +3,9 @@ using System;
 
 public class Grid<T>
 {
-    public int gridWidth;
-    public int gridHeight;   
-    public float gridCellSize;
+    private int gridWidth;
+    private int gridHeight;   
+    private float gridCellSize;
     //public Vector2 gridOriginPosition;
     public T[,] gridArray;
 
@@ -30,9 +30,10 @@ public class Grid<T>
     }
 
     //正しい座標、ではなく、正しい範囲にいるかどうか
-    public bool IsValidCellNum(Vector2Int gridPosition) {
-        int x = gridPosition.x;
-        int y = gridPosition.y;
+    public bool IsValidCellNum(Vector2Int cellNum) 
+    {
+        int x = cellNum.x;
+        int y = cellNum.y;
 
         if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) 
         {
@@ -55,13 +56,26 @@ public class Grid<T>
         }
     }
 
-    public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 anchoredPosition)
+    public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 point)
     {
         //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
         //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
 
-        int x = Mathf.FloorToInt((anchoredPosition.x) / gridCellSize);
-        int y = Mathf.FloorToInt((anchoredPosition.y) / gridCellSize);
+        int x = Mathf.FloorToInt((point.x) / gridCellSize);
+        int y = Mathf.FloorToInt((point.y) / gridCellSize);
+
+        //Debug.Log(x + "," + y);
+        return new Vector2Int(x, y);
+    }
+
+    public Vector2Int GetCellNum(GameObject gameObject, Vector2 point)
+    {
+        //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
+        //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
+
+        Debug.Log("計算");
+        int x = Mathf.FloorToInt((point.x) / gridCellSize);
+        int y = -Mathf.FloorToInt((point.y + gridCellSize) / gridCellSize);
 
         //Debug.Log(x + "," + y);
         return new Vector2Int(x, y);

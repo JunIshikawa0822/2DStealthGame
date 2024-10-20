@@ -22,6 +22,8 @@ public class TetrisInventory : MonoBehaviour
     [SerializeField]
     private int gridHeight = 10;
 
+    public RectTransform GetContainer(){return container;}
+
     void Awake()
     {
         inventoryRectTransform = this.GetComponent<RectTransform>();

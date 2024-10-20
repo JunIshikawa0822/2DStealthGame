@@ -54,23 +54,23 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 
     public void OnSetUp()
     {
-        Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[0].InsertItemToInventory(instance1, new Vector2Int(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
+        // Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[0].InsertItemToInventory(instance1, new Vector2Int(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
-        Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[1].InsertItemToInventory(instance2, new Vector2Int(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
+        // Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[1].InsertItemToInventory(instance2, new Vector2Int(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
-        Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[0].InsertItemToInventory(instance3, new Vector2Int(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
+        // Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[0].InsertItemToInventory(instance3, new Vector2Int(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
-        Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[0].InsertItemToInventory(instance4, new Vector2Int(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
+        // Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[0].InsertItemToInventory(instance4, new Vector2Int(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
-        Item_GUI instance5 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[0].InsertItemToInventory(instance5, new Vector2Int(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
+        // Item_GUI instance5 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[0].InsertItemToInventory(instance5, new Vector2Int(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
-        Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 5);
-        _tetrisInventoriesList[0].InsertItemToInventory(instance6, new Vector2Int(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
+        // Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 5);
+        // _tetrisInventoriesList[0].InsertItemToInventory(instance6, new Vector2Int(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
     public void Update()
@@ -80,7 +80,11 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 
     public void OnUpdate()
     {
-         if(_draggingObject != null)
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_tetrisInventoriesList[0].GetContainer(), Input.mousePosition, null, out Vector2 convertPosition);
+        Debug.Log($"セル座標{_tetrisInventoriesList[0].grid.GetCellNum(null, convertPosition)}");
+        Debug.Log($"mouse座標{convertPosition}");
+
+        if(_draggingObject != null)
         {
             if(Input.GetKeyDown(KeyCode.R))
             {   
@@ -197,9 +201,9 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         item.transform.SetParent(_canvas.transform);
     }
 
-    private Vector2Int ScreenPosToCellNum(Vector2 position, TetrisInventory inventory)
+    private Vector2Int ScreenPosToCellNum(Vector2 containerPos, TetrisInventory inventory)
     {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(inventory.inventoryRectTransform, position, null, out Vector2 convertPosition);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(inventory.inventoryRectTransform, containerPos, null, out Vector2 convertPosition);
         return inventory.grid.GetCellNum(convertPosition);
     }
 
@@ -223,7 +227,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         Vector2Int cellNumOffset = item.GetCellNumRotateOffset(item.GetDirection(), _itemDireciton, _mouseCellNumToOriginCellNumOffset);
         // Debug.Log("回転に合わせた補正 : " + itemDireciton + " , " + cellNumOffset);
 
-        Vector2Int mouseNum;
+        Vector2Int mouseNum = new Vector2Int(0,0);
         Vector2Int originCellNum = item.GetBelongingCellNum();
 
         //所属Inventoryを探す
@@ -238,6 +242,8 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
                 break;
             }
         }
+
+        Debug.Log($"mouseNum{mouseNum}");
 
         // Debug.Log("入るCell : " + originCellNum);
         int remainNum = 0;

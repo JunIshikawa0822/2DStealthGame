@@ -185,7 +185,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     {
         List<Vector2Int> gridPositionList = new List<Vector2Int>();
 
-        switch (itemDirection) 
+        switch (itemDirection)
         {
             default:
             case ItemDir.Down:
@@ -210,6 +210,34 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         return gridPositionList;
     }
 
+    public Vector2Int[] GetOccupyCells(ItemDir itemDirection, Vector2Int originCellNum)
+    {
+        Vector2Int[] gridPositionsArray = new Vector2Int[_width * _height];
+        switch (itemDirection)
+        {
+            default:
+            case ItemDir.Down:
+                for (int x = 0; x < _width; x++) 
+                {
+                    for (int y = 0; y < _height; y++) 
+                    {
+                        gridPositionsArray[x + y] = originCellNum + new Vector2Int(x, y);
+                    }
+                }
+                break;
+            case ItemDir.Left:
+                for (int x = 0; x < _height; x++)
+                {
+                    for (int y = 0; y < _width; y++)
+                    {
+                        gridPositionsArray[x + y] = originCellNum + new Vector2Int(x, y);
+                    }
+                }
+                break;
+        }
+        return gridPositionsArray;
+    }
+
     public void OnPointerDown(PointerEventData pointerEventData)
     {
         if(onPointerDownEvent == null)return;
@@ -220,7 +248,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     {
         if(onBeginDragEvent == null)return;
         _backGroundObject.SetActive(true);
-        _canvasGroup.alpha = 1f;
+        _canvasGroup.alpha = 0.8f;
         onBeginDragEvent.Invoke(this);
     }
 
