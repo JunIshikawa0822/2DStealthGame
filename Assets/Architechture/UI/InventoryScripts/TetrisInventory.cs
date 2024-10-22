@@ -58,7 +58,7 @@ public class TetrisInventory : MonoBehaviour
     void BackGroundDebug(CellObject cell)
     {
         int num = 0;
-        num = cell.position_y * 10 + cell.position_x;
+        num = (9 - cell.position_y) * 10 + cell.position_x;
 
         if(cell.GetItemInCell() != null)
         {

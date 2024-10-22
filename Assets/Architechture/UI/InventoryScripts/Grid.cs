@@ -56,19 +56,19 @@ public class Grid<T>
         }
     }
 
-    public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 point)
-    {
-        //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
-        //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
+    // public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 point)
+    // {
+    //     //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
+    //     //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
 
-        int x = Mathf.FloorToInt((point.x) / gridCellSize);
-        int y = Mathf.FloorToInt((point.y) / gridCellSize);
+    //     int x = Mathf.FloorToInt((point.x) / gridCellSize);
+    //     int y = Mathf.FloorToInt((point.y) / gridCellSize);
 
-        //Debug.Log(x + "," + y);
-        return new Vector2Int(x, y);
-    }
+    //     //Debug.Log(x + "," + y);
+    //     return new Vector2Int(x, y);
+    // }
 
-    public Vector2Int GetCellNum(GameObject gameObject, Vector2 point)
+    public Vector2Int GetCellNum(Vector2 point)
     {
         //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
         //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
@@ -83,6 +83,6 @@ public class Grid<T>
 
     public Vector2 GetCellOriginAnchoredPosition(int cellNum_x, int cellNum_y)
     {
-        return /*gridOriginPosition + */ new Vector2(cellNum_x, cellNum_y) * gridCellSize;
+        return /*gridOriginPosition + */ new Vector2(cellNum_x, -cellNum_y) * gridCellSize;
     }  
 }

@@ -54,8 +54,8 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 
     public void OnSetUp()
     {
-        // Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
-        // _tetrisInventoriesList[0].InsertItemToInventory(instance1, new Vector2Int(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
+        Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
+        _tetrisInventoriesList[0].InsertItemToInventory(instance1, new Vector2Int(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         // Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 5);
         // _tetrisInventoriesList[1].InsertItemToInventory(instance2, new Vector2Int(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
@@ -81,7 +81,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
     public void OnUpdate()
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(_tetrisInventoriesList[0].GetContainer(), Input.mousePosition, null, out Vector2 convertPosition);
-        Debug.Log($"セル座標{_tetrisInventoriesList[0].grid.GetCellNum(null, convertPosition)}");
+        Debug.Log($"セル座標{_tetrisInventoriesList[0].grid.GetCellNum(convertPosition)}");
         Debug.Log($"mouse座標{convertPosition}");
 
         if(_draggingObject != null)
