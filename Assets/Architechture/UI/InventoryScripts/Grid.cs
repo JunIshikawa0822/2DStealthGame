@@ -45,7 +45,8 @@ public class Grid<T>
         }
     }
 
-    public T GetGridObject(int x, int y) {
+    public T GetGridObject(int x, int y) 
+    {
         if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) 
         {
             return gridArray[x, y];
@@ -56,24 +57,12 @@ public class Grid<T>
         }
     }
 
-    // public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 point)
-    // {
-    //     //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
-    //     //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
-
-    //     int x = Mathf.FloorToInt((point.x) / gridCellSize);
-    //     int y = Mathf.FloorToInt((point.y) / gridCellSize);
-
-    //     //Debug.Log(x + "," + y);
-    //     return new Vector2Int(x, y);
-    // }
-
     public Vector2Int GetCellNum(Vector2 point)
     {
         //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
         //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
 
-        Debug.Log("計算");
+        //Debug.Log("計算");
         int x = Mathf.FloorToInt((point.x) / gridCellSize);
         int y = -Mathf.FloorToInt((point.y + gridCellSize) / gridCellSize);
 

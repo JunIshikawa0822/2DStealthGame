@@ -70,6 +70,46 @@ public class TetrisInventory : MonoBehaviour
         }
     }
 
+    public bool CanPlaceItem(List<Vector2Int> cellNumsList)
+    {
+        bool canPlace = true;
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            Vector2Int gridPosition = cellNumsList[i];
+            CellObject cellObject = grid.GetGridObject(gridPosition.x, gridPosition.y);
+
+#region AreaCheck
+            bool isValidPosition = grid.IsValidCellNum(gridPosition);
+            if (!isValidPosition)
+            {
+                Debug.Log("枠外だよ");
+                canPlace = false;
+                break;
+            }
+#endregion
+
+#region すでにそのCellにオブジェクトが入っているか確認
+            if(cellObject.GetItemInCell() != null)
+            {
+                canPlace = false;
+                break;
+            }
+#endregion
+        }
+
+        if(canPlace)
+        {
+            Debug.Log("置けるよ！");
+            return true;
+        }
+        else
+        {
+            Debug.Log("置けないよ！");
+            return false;
+        }
+    }
+
     public bool CanPlaceItem(Item_GUI item, Vector2Int originCellNum, Item_GUI.ItemDir direction)
     {   
         //オブジェクトが占有するマス目を計算
@@ -146,14 +186,17 @@ public class TetrisInventory : MonoBehaviour
     {
         //remainNum = 0;
         if(item == null)return;
-
-        List<Vector2Int> cellNumList = item.GetCellNumList(direction, originCellNum);
-        // Debug.Log(string.Join(",", cellNumList));
+        List<Vector2Int> cellNumsList = item.GetCellNumList(direction, originCellNum);
+        Debug.Log(string.Join(", ", cellNumsList));
+        // Vector2Int[] cells = item.GetOccupyCells(direction, originCellNum);
+        // Debug.Log(string.Join(", ", cells));
+        
+        if(!CanPlaceItem(cellNumsList))return;
 
         Item_GUI cashedItem = null;
         //int stackNumInCell = 0;
 
-        foreach (Vector2Int cellNum in cellNumList)
+        foreach (Vector2Int cellNum in cellNumsList)
         {
             CellObject cellObject =  grid.GetGridObject(cellNum.x, cellNum.y);
 
@@ -187,13 +230,15 @@ public class TetrisInventory : MonoBehaviour
         }
 
         item.SetBelonging(this, originCellNum, direction, container);
-        Vector2Int rotationAnchorCellNumOffset = item.GetRotationOffset(direction);
-        // Debug.Log(rotationAnchorCellNumOffset);
+        // Vector2Int rotationAnchorCellNumOffset = item.GetRotationOffset(direction);
+        // // Debug.Log(rotationAnchorCellNumOffset);
 
-        Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y) + new Vector2(rotationAnchorCellNumOffset.x, rotationAnchorCellNumOffset.y) * cellSize;
-        test1.anchoredPosition = placedObjectAnchoredPosition;
+        // Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y) + new Vector2(rotationAnchorCellNumOffset.x, rotationAnchorCellNumOffset.y) * cellSize;
+        // test1.anchoredPosition = placedObjectAnchoredPosition;
 
-        item.SetAnchorPosition(placedObjectAnchoredPosition);
+        item.SetAnchor(direction);
+        //item.SetAnchorPosition(placedObjectAnchoredPosition);
+        item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y));
         item.SetRotation(Quaternion.Euler(0, 0, item.GetRotationAngle(direction)));
         //item.ImageSizeSet(cellSize);
 
@@ -213,6 +258,7 @@ public class TetrisInventory : MonoBehaviour
     public void RemoveItemFromInventory(Vector2Int originCellNum, Item_GUI item, Item_GUI.ItemDir direction)
     {
         List<Vector2Int> removeCellNumList = item.GetCellNumList(direction, originCellNum);
+        
         // Debug.Log("remove : " + string.Join(",", removeCellNumList));
         foreach (Vector2Int cellNum in removeCellNumList)
         {
