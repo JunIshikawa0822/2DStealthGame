@@ -3,14 +3,14 @@ public class CellObject
     public int position_x;
     public int position_y;
 
-    //セルに入っているオブジェクトを示す
+    //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
+    //セルに入っているオブジェクトのOriginCellNumを示す
+    //現在Stackされている数
+    private uint _stackNum;
+    private CellNumber _originCellNum;
 
     private bool _canStackOnCell;
-
-    //現在Stackされている数
-    //private int _stackNum;
-
     //private bool isStackableOnCell;
 
     public CellObject(/*Grid<CellObject> grid,*/ int x, int y) 
@@ -18,28 +18,22 @@ public class CellObject
         //this.grid = grid;
         position_x = x;
         position_y = y;
+
         //_stackNum = 0;
         //SetStackability();
         //cellObjectPosition = worldPosition;
     }
 
-    public Item_GUI GetItemInCell()
+    public Item_GUI GetItemInCell(){return _item;}
+    public CellNumber GetOriginCellNum(){return _originCellNum;}
+
+    public bool CanStack(Scriptable_ItemData item)
     {
-        return _item;
-    }
+        bool canStack = false;
 
-    // public int GetStackNum()
-    // {
-    //     return _stackNum;
-    // }
-
-    public bool CanInsertToCellObject(Item_GUI item)
-    {
-        bool canInsert = false;
-
-        if(_item == null)
+        if(this._item.GetItemData() == item && _stackNum < item.stackableNum)
         {
-            canInsert = true;
+            canStack = true;
         }
         // else if(_item.GetItemData() == item.GetItemData())
         // {
@@ -48,7 +42,7 @@ public class CellObject
         //         canInsert = true;
         //     }  
         // }   
-        return canInsert;
+        return canStack;
     }
 
     // public void SetStackability()
@@ -78,9 +72,14 @@ public class CellObject
     //     return canStackOnCell;
     // }
 
-    public void InsertToCellObject(Item_GUI item)
+    public void InsertItem(Item_GUI item)
     {
         _item = item;
+    }
+
+    public void InsertOriginCellNumber(CellNumber cellNum)
+    {
+        _originCellNum = cellNum;
     }
 
     // public void SetStackNum()

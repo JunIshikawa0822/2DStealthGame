@@ -8,8 +8,8 @@ public class Scriptable_ItemData : ScriptableObject
 {
     public string nameString;
     public Sprite itemImage;
-    public int widthInGUI;
-    public int heightInGuI;
-    public int stackableNum;
+    public uint widthInGUI;
+    public uint heightInGUI;
+    public uint stackableNum;
     //public ItemDir direction;
 }
