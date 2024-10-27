@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class CellObject
 {   
     public int position_x;
@@ -26,22 +28,21 @@ public class CellObject
 
     public Item_GUI GetItemInCell(){return _item;}
     public CellNumber GetOriginCellNum(){return _originCellNum;}
+    public uint GetStackNum()
+    {
+        Debug.Log($"このセルに入っている個数 : {_stackNum}");
+        return _stackNum;
+    }
 
     public bool CanStack(Scriptable_ItemData item)
     {
         bool canStack = false;
 
-        if(this._item.GetItemData() == item && _stackNum < item.stackableNum)
+        if(this._item.GetItemData() == item && this._stackNum < item.stackableNum)
         {
             canStack = true;
         }
-        // else if(_item.GetItemData() == item.GetItemData())
-        // {
-        //     if(_stackNum < item.GetItemData().stackableNum)
-        //     {
-        //         canInsert = true;
-        //     }  
-        // }   
+
         return canStack;
     }
 
@@ -75,6 +76,8 @@ public class CellObject
     public void InsertItem(Item_GUI item)
     {
         _item = item;
+        _stackNum++;
+        Debug.Log($"StackNum : {_stackNum}");
     }
 
     public void InsertOriginCellNumber(CellNumber cellNum)

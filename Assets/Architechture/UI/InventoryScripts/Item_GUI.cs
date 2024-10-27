@@ -11,7 +11,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private RectTransform _rectTransform;
     private TetrisInventory _belongingInventory;
     private CellNumber _belongingCellNum;
-    private uint _stackingNum;
+    private uint _stackingNum{get; set;}
     private Scriptable_ItemData _itemData;
     [SerializeField]
     private GameObject _backGroundObject;
@@ -40,12 +40,16 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _rectTransform = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
 
+        _itemData = itemData;
+        Debug.Log(_itemData.widthInGUI);
+        Debug.Log(_itemData.heightInGUI);
+
         _itemDirection = ItemDir.Down;
         _itemImage.sprite = itemData.itemImage;
         BackGroundInit();
     }
 
-    public void StackInit(uint stackNum)
+    public void SetStack(uint stackNum)
     {
         _stackingNum = stackNum;
         _stackingNumText.text = _stackingNum.ToString();
@@ -100,7 +104,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _backGroundObject.GetComponent<GridLayoutGroup>().cellSize = new Vector2(cellSize, cellSize);
     }
 
-    public void SetBelonging(TetrisInventory belongingInventory, CellNumber belongingCellNum, ItemDir direction, RectTransform parent)
+    public void SetBelongings(TetrisInventory belongingInventory, CellNumber belongingCellNum, ItemDir direction, RectTransform parent)
     {
         _belongingInventory = belongingInventory;
         _belongingCellNum = belongingCellNum;
