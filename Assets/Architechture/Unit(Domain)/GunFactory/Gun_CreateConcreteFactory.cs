@@ -10,7 +10,7 @@ public class HandGun_CreateConcreteFactory : IFactory<HandGun>
         _handGun = handGun;
     }
 
-    public HandGun ObjectInstantiate(IData handGunData)
+    public HandGun ObjectInstantiate(IObjectData handGunData)
     {
         HandGun handGunInstance = GameObject.Instantiate(_handGun);
 

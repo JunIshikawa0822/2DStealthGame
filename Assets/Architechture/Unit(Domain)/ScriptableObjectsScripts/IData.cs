@@ -1,4 +1,4 @@
-public interface IData
+public interface IObjectData
 {
     
 }

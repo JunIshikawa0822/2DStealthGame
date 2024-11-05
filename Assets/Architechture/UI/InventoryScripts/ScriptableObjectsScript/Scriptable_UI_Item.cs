@@ -9,29 +9,27 @@ public class Scriptable_UI_Item : ScriptableObject
     public Transform backGroundPrefab;
     public int width;
     public int height;
-
-    //public ItemDirection.Dir direction;
-
-    public ItemDir direction;
-
     public int stackableNum;
-
+    //public ItemDir direction;
+    
     public enum ItemDir
     {
         Down,
         Left,
-        Up,
-        Right,
+        // Up,
+        // Right,
     }
 
     public ItemDir GetNextDir(ItemDir dir) 
     {
         switch (dir) {
             default:
-            case ItemDir.Down:      return ItemDir.Left;
-            case ItemDir.Left:      return ItemDir.Up;
-            case ItemDir.Up:        return ItemDir.Right;
-            case ItemDir.Right:     return ItemDir.Down;
+            case ItemDir.Down:  return ItemDir.Left;
+            case ItemDir.Left:  return ItemDir.Down;
+
+            //case ItemDir.Left:      return ItemDir.Up;
+            // case ItemDir.Up:        return ItemDir.Right;
+            // case ItemDir.Right:     return ItemDir.Down;
         }
     }
 
@@ -42,8 +40,8 @@ public class Scriptable_UI_Item : ScriptableObject
             default:
             case ItemDir.Down :  return 0;
             case ItemDir.Left:  return 90;
-            case ItemDir.Up:    return 180;
-            case ItemDir.Right: return 270;
+            // case ItemDir.Up:    return 180;
+            // case ItemDir.Right: return 270;
         }
     }
 
@@ -54,8 +52,8 @@ public class Scriptable_UI_Item : ScriptableObject
             default:
             case ItemDir.Down:  return new Vector2Int(0, 0);
             case ItemDir.Left:  return new Vector2Int(height, 0);
-            case ItemDir.Up:    return new Vector2Int(width, height);
-            case ItemDir.Right: return new Vector2Int(0, width);
+            // case ItemDir.Up:    return new Vector2Int(width, height);
+            // case ItemDir.Right: return new Vector2Int(0, width);
         }
     }
 
@@ -81,13 +79,13 @@ public class Scriptable_UI_Item : ScriptableObject
         {
             default:
             case ItemDir.Left:  
-            case ItemDir.Right: 
+            //case ItemDir.Right: 
                 rest_x = (height - 1) - offset.x;
                 rest_y = (width - 1) - offset.y;
                 break;
 
             case ItemDir.Down: 
-            case ItemDir.Up:
+            //case ItemDir.Up:
                 rest_x = (width - 1) - offset.x;
                 rest_y = (height - 1) - offset.y;
                 break;
@@ -131,7 +129,7 @@ public class Scriptable_UI_Item : ScriptableObject
         {
             default:
             case ItemDir.Down:
-            case ItemDir.Up:
+            //case ItemDir.Up:
                 for (int x = 0; x < width; x++) 
                 {
                     for (int y = 0; y < height; y++) 
@@ -141,7 +139,7 @@ public class Scriptable_UI_Item : ScriptableObject
                 }
                 break;
             case ItemDir.Left:
-            case ItemDir.Right:
+            //case ItemDir.Right:
                 for (int x = 0; x < height; x++) 
                 {
                     for (int y = 0; y < width; y++) 

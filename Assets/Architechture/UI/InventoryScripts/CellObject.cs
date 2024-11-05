@@ -1,17 +1,18 @@
+using UnityEngine;
+
 public class CellObject
-{
-    //private Vector3 cellObjectPosition;
-    //private Grid<CellObject> grid;
+{   
     public int position_x;
     public int position_y;
 
-    private PlacedObject placedObject;
-
-    private bool canStackOnCell;
-
+    //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
+    private Item_GUI _item;
+    //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
-    private int stackNum;
+    private uint _stackNum;
+    private CellNumber _originCellNum;
 
+    private bool _canStackOnCell;
     //private bool isStackableOnCell;
 
     public CellObject(/*Grid<CellObject> grid,*/ int x, int y) 
@@ -19,81 +20,83 @@ public class CellObject
         //this.grid = grid;
         position_x = x;
         position_y = y;
-        stackNum = 0;
-        SetStackability();
+
+        //_stackNum = 0;
+        //SetStackability();
         //cellObjectPosition = worldPosition;
     }
 
-    public PlacedObject GetPlacedObject()
+    public Item_GUI GetItemInCell(){return _item;}
+    public CellNumber GetOriginCellNum(){return _originCellNum;}
+    public uint GetStackNum()
     {
-        return placedObject;
+        Debug.Log($"このセルに入っている個数 : {_stackNum}");
+        return _stackNum;
     }
 
-    public int GetStackNum()
+    public bool CanStack(Scriptable_ItemData item)
     {
-        return stackNum;
-    }
+        bool canStack = false;
 
-    public bool CanInsertToCellObject(PlacedObject placedObject)
-    {
-        bool canInsert = false;
-
-        if(this.placedObject == null)
+        if(this._item.GetItemData() == item && this._stackNum < item.stackableNum)
         {
-            canInsert = true;
-        }
-        else if(this.placedObject.GetItemData() == placedObject.GetItemData())
-        {
-            if(this.stackNum < placedObject.GetItemData().stackableNum)
-            {
-                canInsert = true;
-            }  
-        }   
-        return canInsert;
-    }
-
-    public void SetStackability()
-    {
-        if(this.placedObject == null)
-        {
-            canStackOnCell = true;
-            return;
+            canStack = true;
         }
 
-        int canStackNum = this.placedObject.GetItemData().stackableNum;
-
-        if(canStackNum > 0)
-        {
-            if(this.stackNum < canStackNum)
-            {
-                canStackOnCell = true;
-                return;
-            }
-        }
-
-        canStackOnCell = false;
+        return canStack;
     }
 
-    public bool GetStackability()
+    // public void SetStackability()
+    // {
+    //     if(this.placedObject == null)
+    //     {
+    //         canStackOnCell = true;
+    //         return;
+    //     }
+
+    //     int canStackNum = this.placedObject.GetItemData().stackableNum;
+
+    //     if(canStackNum > 0)
+    //     {
+    //         if(this.stackNum < canStackNum)
+    //         {
+    //             canStackOnCell = true;
+    //             return;
+    //         }
+    //     }
+
+    //     canStackOnCell = false;
+    // }
+
+    // public bool GetStackability()
+    // {
+    //     return canStackOnCell;
+    // }
+
+    public void InsertItem(Item_GUI item)
     {
-        return canStackOnCell;
+        _item = item;
+        _stackNum++;
+        Debug.Log($"StackNum : {_stackNum}");
     }
 
-    public void InsertToCellObject(PlacedObject placedObject)
+    public void InsertOriginCellNumber(CellNumber cellNum)
     {
-        this.placedObject = placedObject;
+        _originCellNum = cellNum;
     }
 
-    public void SetStackNum()
-    {
-        if(this.placedObject == null)
-        {
-            stackNum = 0;
-            return;
-        }
+    // public void SetStackNum()
+    // {
+    //     if(_item == null)
+    //     {
+    //         _stackNum = 0;
+    //         return;
+    //     }
 
-        if(this.canStackOnCell == false) return;
+    //     if(_canStackOnCell == false) return;
 
-        stackNum = stackNum + 1;
-    }
+    //     #region ん？
+    //     _stackNum = _stackNum + 1;
+    //     #endregion
+    // }
 }

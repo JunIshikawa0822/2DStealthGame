@@ -1,11 +1,11 @@
 using UnityEngine;
 using System;
 
-public class Grid<T>
+public class Grid<T> where T : class
 {
-    public int gridWidth;
-    public int gridHeight;   
-    public float gridCellSize;
+    private int gridWidth;
+    private int gridHeight;   
+    private float gridCellSize;
     //public Vector2 gridOriginPosition;
     public T[,] gridArray;
 
@@ -30,9 +30,10 @@ public class Grid<T>
     }
 
     //正しい座標、ではなく、正しい範囲にいるかどうか
-    public bool IsValidCellNum(Vector2Int gridPosition) {
-        int x = gridPosition.x;
-        int y = gridPosition.y;
+    public bool IsValidCellNum(CellNumber cellNum) 
+    {
+        int x = cellNum.x;
+        int y = cellNum.y;
 
         if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) 
         {
@@ -44,31 +45,55 @@ public class Grid<T>
         }
     }
 
-    public T GetGridObject(int x, int y) {
-        if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) 
+    // public T GetCellObject(int x, int y) 
+    // {
+    //     if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) 
+    //     {
+    //         return gridArray[x, y];
+    //     } 
+    //     else 
+    //     {
+    //         return default(T);
+    //     }
+    // }
+
+    public T GetCellObject(CellNumber cellNum)
+    {
+        if(cellNum == null)
         {
-            return gridArray[x, y];
+            Debug.Log("cellNumがnullのため情報が取れないよ");
+            return default(T);
+        }
+
+        if (cellNum.x >= 0 && cellNum.y >= 0 && cellNum.x < gridWidth && cellNum.y < gridHeight) 
+        {
+            return gridArray[cellNum.x, cellNum.y];
         } 
         else 
         {
+            Debug.Log($"{cellNum.ToString()}は枠外");
             return default(T);
         }
     }
 
-    public Vector2Int GetCellNum(/*Vector2 position*/ Vector2 anchoredPosition)
+#region UnityEngineを使いたくない
+    public CellNumber GetCellNum(Vector2 point)
     {
         //int x = Mathf.FloorToInt((gridOriginPosition.x - position.x) / gridCellSize);
         //int y = Mathf.FloorToInt((gridOriginPosition.y - position.y) / gridCellSize);
 
-        int x = Mathf.FloorToInt((anchoredPosition.x) / gridCellSize);
-        int y = Mathf.FloorToInt((anchoredPosition.y) / gridCellSize);
+        //Debug.Log("計算");
+        int x = Mathf.FloorToInt((point.x) / gridCellSize);
+        int y = -Mathf.FloorToInt((point.y + gridCellSize) / gridCellSize);
 
         //Debug.Log(x + "," + y);
-        return new Vector2Int(x, y);
+        return new CellNumber(x, y);
     }
 
     public Vector2 GetCellOriginAnchoredPosition(int cellNum_x, int cellNum_y)
     {
-        return /*gridOriginPosition + */ new Vector2(cellNum_x, cellNum_y) * gridCellSize;
-    }  
+        return /*gridOriginPosition + */ new Vector2(cellNum_x, -cellNum_y) * gridCellSize;
+    } 
+#endregion
+
 }
