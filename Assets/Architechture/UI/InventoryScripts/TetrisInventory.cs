@@ -78,6 +78,8 @@ public class TetrisInventory : MonoBehaviour
     public bool CanPlaceItem(Item_GUI item, List<CellNumber> cellNumsList)
     {
         bool canPlace = true;
+        CellObject cellObject;
+        CellNumber cellsOriginCellNum = new CellNumber(0, 0);
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
@@ -98,21 +100,21 @@ public class TetrisInventory : MonoBehaviour
 #region そのセルのoriginCellにオブジェクトが入っているかどうか確認
             
             //そもそも枠外であればcellObjectをとってこれないので、枠外かどうか確認してからcellObjectを取得
-            CellObject cellObject = grid.GetCellObject(cellNum);
+            cellObject = grid.GetCellObject(cellNum);
             //cellObjectのoriginのcellを探す
             CellNumber originCellNum = cellObject.GetOriginCellNum();
 
             Debug.Log(originCellNum);
             //originCellNumがnullでないとき
-            if(originCellNum != null)
+            if(i == 0)
             {
-                //originCellがStack可能かどうか
-                if(!grid.GetCellObject(originCellNum).CanStack(item.GetItemData()))
-                {
-                    Debug.Log("もう入れられない");
-                    canPlace = false;
-                    break;
-                }
+                // //originCellがStack可能かどうか
+                // if(!grid.GetCellObject(originCellNum).CanStack(item.GetItemData()))
+                // {
+                //     Debug.Log("もう入れられない");
+                //     canPlace = false;
+                //     break;
+                // }
             }
 #endregion
 

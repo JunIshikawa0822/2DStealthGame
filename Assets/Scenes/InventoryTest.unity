@@ -13805,6 +13805,8 @@ MonoBehaviour:
     type: 3}
   _item_Data_List:
   - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
+  - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
+  - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
   test1: {fileID: 487819608}
   test2: {fileID: 91361677}
 --- !u!1 &1710692940
