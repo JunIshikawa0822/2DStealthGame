@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 public class CellObject
 {   
@@ -7,82 +8,75 @@ public class CellObject
 
     //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
+    Scriptable_ItemData _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
     private uint _stackNum;
-    private CellNumber _originCellNum;
+    public CellNumber Origin{get; set;}
+    private bool _isStackableOnCell;
 
-    private bool _canStackOnCell;
-    //private bool isStackableOnCell;
-
-    public CellObject(/*Grid<CellObject> grid,*/ int x, int y) 
+    public CellObject(int x, int y) 
     {
         //this.grid = grid;
         position_x = x;
         position_y = y;
 
-        //_stackNum = 0;
-        //SetStackability();
-        //cellObjectPosition = worldPosition;
+        _isStackableOnCell = true;
+        _stackNum = 0;
     }
 
     public Item_GUI GetItemInCell(){return _item;}
-    public CellNumber GetOriginCellNum(){return _originCellNum;}
-    public uint GetStackNum()
+    //public CellNumber GetOriginCellNum(){return originCellNum;}
+    public bool GetStackabilty()
     {
-        Debug.Log($"このセルに入っている個数 : {_stackNum}");
-        return _stackNum;
+        return _isStackableOnCell;
     }
 
-    public bool CanStack(Scriptable_ItemData item)
+    //cellがnull
+    //cellにAが入る　Aを入れられる
+    //cellにAが入る　Bを入れられる
+    //cellにAが入る　もう入らない
+
+    public bool CheckItem(Item_GUI item)
     {
-        bool canStack = false;
-
-        if(this._item.GetItemData() == item && this._stackNum < item.stackableNum)
-        {
-            canStack = true;
-        }
-
-        return canStack;
+        return _item == item;
     }
-
-    // public void SetStackability()
-    // {
-    //     if(this.placedObject == null)
-    //     {
-    //         canStackOnCell = true;
-    //         return;
-    //     }
-
-    //     int canStackNum = this.placedObject.GetItemData().stackableNum;
-
-    //     if(canStackNum > 0)
-    //     {
-    //         if(this.stackNum < canStackNum)
-    //         {
-    //             canStackOnCell = true;
-    //             return;
-    //         }
-    //     }
-
-    //     canStackOnCell = false;
-    // }
-
-    // public bool GetStackability()
-    // {
-    //     return canStackOnCell;
-    // }
 
     public void InsertItem(Item_GUI item)
     {
-        _item = item;
+        if(_isStackableOnCell == false)return;
+
+        //すでに入っているものと異なる(null、上書きの場合が該当)
+        if(_item != item)
+        {
+            _item = item;
+            _itemData = item.GetItemData();
+        }
+
+        //インクリメント
         _stackNum++;
+        item.StackingNum--;
+
+        //stackされている数を上回ったらstackできなくする
+        if(_stackNum >= _itemData.stackableNum)
+        {
+            _isStackableOnCell = false;
+        }
+
         Debug.Log($"StackNum : {_stackNum}");
+    }
+
+    public void ResetCell()
+    {
+        _item = null;
+        _itemData = null;
+        _isStackableOnCell = true;
+        _stackNum = 0;
     }
 
     public void InsertOriginCellNumber(CellNumber cellNum)
     {
-        _originCellNum = cellNum;
+        Origin = cellNum;
     }
 
     // public void SetStackNum()

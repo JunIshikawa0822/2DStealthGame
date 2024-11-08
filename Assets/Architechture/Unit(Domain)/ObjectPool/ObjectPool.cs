@@ -25,7 +25,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
             return;
         }
 
-        Stack<IPooledObject<T>> bulletPool = _pool;
+        Stack<IPooledObject<T>> objectPool = _pool;
         GameObject poolParent = _parent;
 
         //とりあえずPoolSize分instanceを生成して、見えなくしておく
@@ -35,7 +35,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
 
             instance.gameObject.transform.SetParent(poolParent.transform);
             instance.gameObject.SetActive(false);
-            bulletPool.Push(instance);
+            objectPool.Push(instance);
         }
     }
 
@@ -46,18 +46,18 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
             return null;
         }
 
-        Stack<IPooledObject<T>> bulletPool = _pool;
+        Stack<IPooledObject<T>> objectPool = _pool;
         GameObject poolParent = _parent;
 
-        // プールに弾があればそれを使用、なければ新規作成
-        if (bulletPool.Count < 1)
+        // プールに在庫があればそれを使用、なければ新規作成
+        if (objectPool.Count < 1)
         {
             T newInstance = ObjectInstantiate(factory);
             newInstance.gameObject.transform.SetParent(poolParent.transform);
             return newInstance;
         }
 
-        T nextInstance = bulletPool.Pop() as T;
+        T nextInstance = objectPool.Pop() as T;
         nextInstance.gameObject.SetActive(true);
         return nextInstance;
     }
@@ -70,11 +70,11 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
     }
     
     // 弾をプールに戻す
-    public void ReturnToPool(T bullet)
+    public void ReturnToPool(T pooledObject)
     {
-        Stack<IPooledObject<T>> bulletPool = _pool;
+        Stack<IPooledObject<T>> objectPool = _pool;
 
-        bulletPool.Push(bullet);
-        bullet.gameObject.SetActive(false);
+        objectPool.Push(pooledObject);
+        pooledObject.gameObject.SetActive(false);
     }
 }

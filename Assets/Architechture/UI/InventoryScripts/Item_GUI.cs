@@ -11,7 +11,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private RectTransform _rectTransform;
     private TetrisInventory _belongingInventory;
     private CellNumber _belongingCellNum;
-    private uint _stackingNum{get; set;}
+    public uint StackingNum{get; set;}
     private Scriptable_ItemData _itemData;
     [SerializeField]
     private GameObject _backGroundObject;
@@ -49,11 +49,13 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         BackGroundInit();
     }
 
+#region stackNumここでセットする？
     public void SetStack(uint stackNum)
     {
-        _stackingNum = stackNum;
-        _stackingNumText.text = _stackingNum.ToString();
+        StackingNum = stackNum;
+        _stackingNumText.text = StackingNum.ToString();
     }
+#endregion
 
     public void SetRotation(Quaternion quaternion)
     {
@@ -118,7 +120,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public TetrisInventory GetBelongingInventory(){return _belongingInventory;}
     public CellNumber GetBelongingCellNum(){return _belongingCellNum;}
     public Scriptable_ItemData GetItemData(){return _itemData;}
-    public uint GetStackNum(){return _stackingNum;}
+    //public uint GetStackNum(){return _stackingNum;}
 
     public ItemDir GetNextDir(ItemDir dir) 
     {
