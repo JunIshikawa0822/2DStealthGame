@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
+public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
 {
     //発射の内部的な処理に必要
     //----------------------------------------
@@ -17,7 +17,7 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
 
     private IObjectPool<Bullet_10mm> _objectPool;
     //private IBulletFactories _bulletFactories;
-    private IFactory<Bullet_10mm> _bulletcaliberFactory;
+    //private IFactory<Bullet_10mm> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
@@ -30,7 +30,7 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
     private Entity_Magazine _magazine;
     //----------------------------------------
 
-    public void OnSetUp(IFactory<Bullet_10mm> factory, IObjectPool<Bullet_10mm> objectPool)
+    public void OnSetUp(IObjectPool<Bullet_10mm> objectPool)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
@@ -41,7 +41,7 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
         _isShotIntervalActive = false;
         _isJamming = false;
         
-        _bulletcaliberFactory = factory;
+        //_bulletcaliberFactory = factory;
     }
 
     public void OnUpdate()
@@ -64,10 +64,10 @@ public class HandGun : MonoBehaviour, IGun, IGun<Bullet_10mm>
         ShotInterval(shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
 
         //BulletのFactoryをチェック
-        if(_bulletcaliberFactory == null)return;
+        if(_objectPool == null)return;
         
         //Poolからもってくる
-        Bullet_10mm bullet = _objectPool.GetFromPool(_bulletcaliberFactory);
+        Bullet_10mm bullet = _objectPool.GetFromPool();
 
         if(bullet == null)
         {

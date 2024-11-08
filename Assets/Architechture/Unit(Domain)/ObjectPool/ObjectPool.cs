@@ -8,19 +8,22 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
     private GameObject _parent;
     private Transform _transform;
 
-    public ObjectPool(Transform poolTransform)
+    private IFactory<T> _factory;
+
+    public ObjectPool(Transform poolTransform, IFactory<T> factory)
     {
         _pool = new Stack<IPooledObject<T>>();
         _parent = new GameObject($"{typeof(T).ToString()}");
         _transform = poolTransform;
+        _factory = factory;
 
         _parent.transform.SetParent(_transform);
     }
 
-    public void PoolSetUp(IFactory<T> factory, uint initPoolSize)
+    public void PoolSetUp(uint initPoolSize)
     {
         //Stackの初期化
-        if (factory == null)
+        if (_factory == null)
         {
             return;
         }
@@ -31,7 +34,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
         //とりあえずPoolSize分instanceを生成して、見えなくしておく
         for (int i = 0; i < initPoolSize; i++)
         {
-            T instance = ObjectInstantiate(factory);
+            T instance = ObjectInstantiate(_factory);
 
             instance.gameObject.transform.SetParent(poolParent.transform);
             instance.gameObject.SetActive(false);
@@ -39,9 +42,9 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
         }
     }
 
-    public T GetFromPool(IFactory<T> factory)
+    public T GetFromPool()
     {
-        if(factory == null)
+        if(_factory == null)
         {
             return null;
         }
@@ -52,7 +55,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
         // プールに弾があればそれを使用、なければ新規作成
         if (bulletPool.Count < 1)
         {
-            T newInstance = ObjectInstantiate(factory);
+            T newInstance = ObjectInstantiate(_factory);
             newInstance.gameObject.transform.SetParent(poolParent.transform);
             return newInstance;
         }
