@@ -22,13 +22,16 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
     //マウスから左下への補正位置
     private CellNumber _mouseCellNumToOriginCellNumOffset;
     //private Vector2Int mouseCellNumToMaxCellNumOffset;
-    private Item_GUI.ItemDir _itemDirection;
     private Item_GUI _draggingObject;
     private Vector3 _objectPos;
     //private float _originDirectionAngle;
     private float _nextDirectionAngle;
-
     private float _rotateAngle;
+
+    private CellNumber _oldOriginCellNum;
+    private CellNumber _newOriginCellNum;
+    private Item_GUI.ItemDir _oldDirection;
+    private Item_GUI.ItemDir _newDirection;
 
     //テスト用データたち
     [SerializeField]
@@ -83,9 +86,9 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         {
             if(Input.GetKeyDown(KeyCode.R))
             {   
-                _itemDirection = _draggingObject.GetNextDir(_itemDirection);//OK
+                _newDirection = _draggingObject.GetNextDir(_newDirection);//OK
                 //Debug.Log(_itemDireciton);
-                _nextDirectionAngle = _draggingObject.GetRotationAngle(_itemDirection);//OK
+                _nextDirectionAngle = _draggingObject.GetRotationAngle(_newDirection);//OK
                 //Debug.Log(_nextDirectionAngle);
                 _rotateAngle = _nextDirectionAngle - _draggingObject.GetRotationAngle(_draggingObject.GetDirection());//OK
                 //Debug.Log(_rotateAngle);
@@ -143,10 +146,12 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         //ドラッグしているオブジェクトをキャッシュ
         _draggingObject = item;
         //itemの方向を取得
-        _itemDirection = item.GetDirection();
-
+        _oldDirection = _newDirection = item.GetDirection();
         //所属inventoryをキャッシュ
         _fromInventory = item.GetBelongingInventory();
+
+        //もし、全てはStackできなかった場合に溢れた分は、もう一度格納し直す必要があるため、キャッシュしとこう
+        _oldOriginCellNum = item.GetBelongingCellNum();
 
         //rotationの補正をリセット
         _rotateAngle = 0;
@@ -168,7 +173,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         //Debug.Log(mouseCellNum);
 
         //マウスのGrid座標から現在いるGrid座標を引くことで、マス目補正を取得
-        _mouseCellNumToOriginCellNumOffset = mouseCellNum - item.GetBelongingCellNum();
+        _mouseCellNumToOriginCellNumOffset = mouseCellNum - _oldOriginCellNum;
         Debug.Log($"offset{_mouseCellNumToOriginCellNumOffset}");
         //親子関係をcanvasに変更（すべてのオブジェクトよりも前にいくことでBackground問題を解決する）
         item.transform.SetParent(_canvas.transform);
@@ -194,67 +199,58 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         _fromInventory.RemoveItemFromInventory(item.GetBelongingCellNum(), item, item.GetDirection());
 
         //originCellNum取得のための補正確認
-        CellNumber cellNumOffset = item.GetRotatedCellNumOffset(item.GetDirection(), _itemDirection, _mouseCellNumToOriginCellNumOffset);
+        CellNumber cellNumOffset = item.GetRotatedCellNumOffset(item.GetDirection(), _newDirection, _mouseCellNumToOriginCellNumOffset);
         Debug.Log("回転に合わせた補正 : " + cellNumOffset);
 
         CellNumber mouseNum = new CellNumber(0,0);
-        CellNumber originCellNum = item.GetBelongingCellNum();
 
         //所属Inventoryを探す
         foreach (TetrisInventory inventory in _tetrisInventoriesList)
         {
             mouseNum = ScreenPosToCellNum(mousePos, inventory);
-            originCellNum = mouseNum - cellNumOffset;
+            _newOriginCellNum = mouseNum - cellNumOffset;
 
             // Debug.Log($"inventoryName: {inventory}, mouse: {mouseNum}");
 
-            if (inventory.grid.IsValidCellNum(originCellNum))
+            if (inventory.grid.IsValidCellNum(_newOriginCellNum))
             {
                 _toInventory = inventory;
                 break;
             }
         }
         //Debug.Log($"mouseNum{mouseNum}");
-        Debug.Log($"origin{originCellNum}");
+        Debug.Log($"origin{_newOriginCellNum}");
 
-        // Debug.Log("入るCell : " + originCellNum);
-        int remainNum = 0;
+        List<CellNumber> occupyCellNumList = item.GetCellNumList(_newDirection, _newOriginCellNum);
 
-        List<CellNumber> occupyCellNumList = item.GetCellNumList(_itemDirection, originCellNum);
-
-        if (_toInventory != null)
+        if (_toInventory != null || item == null)
         {
             if(_toInventory.CanPlaceItem(item, occupyCellNumList))
             {
                 Debug.Log("おけてはいる");
-                _toInventory.InsertItemToInventory(item, originCellNum, /*item.GetStackNum(), */_itemDirection/*, out remainNum*/);
+                uint remain = _toInventory.InsertItemToInventory(item, _newOriginCellNum, _newDirection);
                 //test1.transform.position = item.GetRectTransform().anchoredPosition;
-                //Debug.Log("置けた");
-                _draggingObject = null;
+                Debug.Log("置けた");
+                if(remain > 0)
+                {
+                    //増やしてfromInventoryに再度格納
+                    Item_GUI newInstance = InstantiateObject(item.GetItemData(), remain);
+                    _fromInventory.InsertItemToInventory(newInstance, _oldOriginCellNum, _oldDirection);
+                }
             }
             else
             {
-                originCellNum = item.GetBelongingCellNum();
-                _fromInventory.InsertItemToInventory(item, item.GetBelongingCellNum(), /*item.GetStackNum(), */item.GetDirection()/*, out remainNum*/);
-                _draggingObject = null;
-                //Debug.Log("置けなかった");
+                _fromInventory.InsertItemToInventory(item, _oldOriginCellNum, _oldDirection);
+                
+                Debug.Log("置けなかった");
             }
         }
         else
         {
-            Debug.Log("toInventoryがなかった");
-            originCellNum = item.GetBelongingCellNum();
-            _fromInventory.InsertItemToInventory(item, originCellNum, /*item.GetStackNum(), */item.GetDirection()/*, out remainNum*/);
-            _draggingObject = null;
+            Debug.Log("toInventory、itemがなかった");
+            _fromInventory.InsertItemToInventory(item, _oldOriginCellNum, _oldDirection);
         }
 
-        //Debug.Log(remainNum);
-
-        // if(remainNum > 0)
-        // {
-        //     Item_GUI newInstance = InstantiateObject(, remainNum);
-        //     _fromInventory.InsertItemToInventory(originCellNum, newInstance, newInstance.GetStackNum(), newInstance.GetDirection(), out remainNum);
-        //     Debug.Log("置き直した");
-        // }
+        _draggingObject = null;
     }
 }

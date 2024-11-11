@@ -42,28 +42,34 @@ public class CellObject
         return _item == item;
     }
 
-    public void InsertItem(Item_GUI item)
+    public uint InsertItem(Item_GUI item, uint insertNumber)
     {
-        if(_isStackableOnCell == false)return;
-
+        if(_isStackableOnCell == false)
+        {
+            return insertNumber;
+        }
         //すでに入っているものと異なる(null、上書きの場合が該当)
+        //すでに入っているものが同じものの場合は、入れる必要がない
         if(_item != item)
         {
             _item = item;
             _itemData = item.GetItemData();
         }
 
-        //インクリメント
-        _stackNum++;
-        item.StackingNum--;
-
-        //stackされている数を上回ったらstackできなくする
-        if(_stackNum >= _itemData.stackableNum)
+        uint remain = insertNumber;
+        for(; remain > 0; remain--)
         {
-            _isStackableOnCell = false;
+            //stackされている数を上回ったらstackできなくする
+            if(_stackNum >= _itemData.stackableNum)
+            {
+                _isStackableOnCell = false;
+                break;
+            }
+            _stackNum++;
         }
-
         Debug.Log($"StackNum : {_stackNum}");
+
+        return remain;
     }
 
     public void ResetCell()

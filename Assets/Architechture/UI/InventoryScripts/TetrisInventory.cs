@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -114,6 +115,8 @@ public class TetrisInventory : MonoBehaviour
                     canPlace = false;
                     break;
                 }
+
+                cashedOriginCellNum = originCellNum;
             }
         }
 #endregion
@@ -138,19 +141,11 @@ public class TetrisInventory : MonoBehaviour
     }
 
 #region 変更がかなり必要 フローチャートを書こう
-    public void InsertItemToInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction/*, out int remainNum*/)
+    public uint InsertItemToInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
-        //remainNum = 0;
-        if(item == null)return;
         List<CellNumber> cellNumsList = item.GetCellNumList(direction, originCellNum);
-        Scriptable_ItemData itemData = item.GetItemData();
-        //Debug.Log(string.Join(", ", cellNumsList));
-        //Debug.Log(cellNumsList.Count);
-        // Vector2Int[] cells = item.GetOccupyCells(direction, originCellNum);
-        // Debug.Log(string.Join(", ", cells));
-        
-        if(!CanPlaceItem(item, cellNumsList))return;
 
+        uint remain = 0;
         for(int i = 0; i < cellNumsList.Count; i++)
         {
             CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
@@ -158,37 +153,14 @@ public class TetrisInventory : MonoBehaviour
             //originCellにStackしていく
             if(cellNumsList[i] == originCellNum)
             {
-                while(cellObject.GetStackabilty())
-                {
-                    cellObject.InsertItem(item);
-                }
+                remain = cellObject.InsertItem(item, item.StackingNum);
             }
             //cellのOriginNumberをセット
             cellObject.InsertOriginCellNumber(originCellNum);
         }
 
-        // //もうすべて移し終えた場合
-        // if(item.GetStackNum() < 1)
-        // {
-        //     //grid.GetCellObject(originCellNum).GetItemInCell().SetStack();
-        //     Destroy(this.gameObject);
-        // }
-        // else
-        // {
-        //     //この
-        //     item.SetBelongings(this, originCellNum, direction, container);
-        //     item.SetAnchor(direction);
-        //     item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y));
-        //     item.SetRotation(Quaternion.Euler(0, 0, item.GetRotationAngle(direction)));
-        //     item.SetStack(grid.GetCellObject(originCellNum).GetStackNum());
-
-        //     foreach(CellObject cellNum in grid.gridArray)
-        //     {
-        //         BackGroundDebug(cellNum);
-        //     }
-        // }
-
-        
+        item.SetBelongings(this, originCellNum, direction, inventoryRectTransform);
+        return remain;
     }
 
 #endregion
@@ -201,8 +173,7 @@ public class TetrisInventory : MonoBehaviour
         {
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
 
-            if(removeCellNumList[i] == originCellNum)cellObject.InsertItem(null);
-            cellObject.InsertOriginCellNumber(null);
+            cellObject.ResetCell();
         }
 
         foreach(CellObject cellNum in grid.gridArray)
