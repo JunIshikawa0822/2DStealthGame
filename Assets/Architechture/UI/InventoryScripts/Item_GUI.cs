@@ -41,8 +41,8 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _canvasGroup = GetComponent<CanvasGroup>();
 
         _itemData = itemData;
-        Debug.Log(_itemData.widthInGUI);
-        Debug.Log(_itemData.heightInGUI);
+        // Debug.Log(_itemData.widthInGUI);
+        // Debug.Log(_itemData.heightInGUI);
 
         _itemDirection = ItemDir.Down;
         _itemImage.sprite = itemData.itemImage;
@@ -50,7 +50,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     }
 
 #region stackNumここでセットする？
-    public void SetStack(uint stackNum)
+    public void SetStackNum(uint stackNum)
     {
         StackingNum = stackNum;
         _stackingNumText.text = StackingNum.ToString();
@@ -112,6 +112,11 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _belongingCellNum = belongingCellNum;
         _itemDirection = direction;
         _rectTransform.SetParent(parent);
+    }
+
+    public void OnDestroy()
+    {
+        Destroy(this.gameObject);
     }
 
     //public Scriptable_UI_Item GetItemData(){return _itemData;}

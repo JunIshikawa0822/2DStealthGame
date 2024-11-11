@@ -47,7 +47,27 @@ public class TetrisInventory : MonoBehaviour
 
     void Update()
     {
-    
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            for(int x = 0; x < 10; x++)
+            {
+                for(int y = 0; y < 10; y++)
+                {
+                    BackGroundDebug(grid.GetCellObject(new CellNumber(x, y)));
+                }
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            for(int x = 0; x < 10; x++)
+            {
+                for(int y = 0; y < 10; y++)
+                {
+                    BackGroundReset(grid.GetCellObject(new CellNumber(x, y)));
+                }
+            }
+        }
     }
 
     void BackGroundSetUp()
@@ -56,11 +76,30 @@ public class TetrisInventory : MonoBehaviour
         background.GetComponent<GridLayoutGroup>().cellSize = new Vector2(_cellSize, _cellSize);
     }
 
+    void BackGroundReset(CellObject cell)
+    {
+        int num = 0;
+        num = (9 - cell.position_y) * 10 + cell.position_x;
+        Image image = background.GetChild(num).GetComponent<Image>();
+
+        // string cellNum = cell.Origin == null ? "null" : cell.Origin.ToString();
+        // string item = cell.GetItemInCell() == null ? "null" : "item";
+        // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
+        // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
+
+        image.enabled = true;
+    }
+
     void BackGroundDebug(CellObject cell)
     {
         int num = 0;
         num = (9 - cell.position_y) * 10 + cell.position_x;
         Image image = background.GetChild(num).GetComponent<Image>();
+
+        // string cellNum = cell.Origin == null ? "null" : cell.Origin.ToString();
+        // string item = cell.GetItemInCell() == null ? "null" : "item";
+        // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
+        // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
 
         if(cell.GetItemInCell() != null)
         {
@@ -68,10 +107,12 @@ public class TetrisInventory : MonoBehaviour
         }
         else if(cell.Origin != null)
         {
+            Debug.Log("2");
             image.enabled = false;
         }
         else
         {
+            Debug.Log("3");
             image.enabled = true;
         }
     }
@@ -95,6 +136,8 @@ public class TetrisInventory : MonoBehaviour
                 canPlace = false;
                 break;
             }
+
+            Debug.Log("枠外ではない");
 #endregion      
             //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
 
@@ -113,6 +156,7 @@ public class TetrisInventory : MonoBehaviour
                 if(cashedOriginCellNum != originCellNum)
                 {
                     canPlace = false;
+                    Debug.Log("はみ出てるよ");
                     break;
                 }
 
@@ -120,14 +164,27 @@ public class TetrisInventory : MonoBehaviour
             }
         }
 #endregion
+        Debug.Log("はみ出てないよ");
+        Debug.Log(cashedOriginCellNum);
+#region Stackすることを想定、そのCellにStackできるかどうか
 
-#region Stackすることを想定、同じItemを入れているかどうか
-        if(grid.GetCellObject(cashedOriginCellNum).CheckItem(item) == false)
+        CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
+        if(cashedOriginCellNum != null)
         {
-            canPlace = false;
-        }
-#endregion
+            if(!originCell.CheckEquality(item))
+            {
+                canPlace = false;
+                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
+            }
 
+            if(originCell.GetStackabilty() == false)
+            {
+                Debug.Log("挿入先が、満杯だよ!");
+                canPlace = false;
+            }
+        }
+        
+#endregion
         if(canPlace)
         {
             Debug.Log("置けるよ！");
@@ -144,22 +201,39 @@ public class TetrisInventory : MonoBehaviour
     public uint InsertItemToInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
         List<CellNumber> cellNumsList = item.GetCellNumList(direction, originCellNum);
+        Debug.Log("以下にデータを入れる");
+        Debug.Log(string.Join(", ", cellNumsList));
 
         uint remain = 0;
         for(int i = 0; i < cellNumsList.Count; i++)
         {
+            //Debug.Log(v);
             CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
-
             //originCellにStackしていく
             if(cellNumsList[i] == originCellNum)
             {
                 remain = cellObject.InsertItem(item, item.StackingNum);
+                cellObject.SetStack();
             }
             //cellのOriginNumberをセット
-            cellObject.InsertOriginCellNumber(originCellNum);
+            cellObject.Origin = originCellNum;
+
+            //Debug.Log($"{cellNumsList[i]}のoriginは{cellObject.Origin}です");
+            //Debug.Log($"{cellNumsList[i]}には{cellObject.GetItemInCell()}が入っています");
         }
 
+        
+
         item.SetBelongings(this, originCellNum, direction, inventoryRectTransform);
+        item.SetAnchor(direction);
+        item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y));
+        item.SetRotation(Quaternion.Euler(0, 0, item.GetRotationAngle(direction)));
+
+        // foreach(CellObject cellNum in grid.gridArray)
+        // {
+        //     BackGroundDebug(cellNum);
+        // }
+
         return remain;
     }
 
@@ -168,17 +242,14 @@ public class TetrisInventory : MonoBehaviour
     public void RemoveItemFromInventory(CellNumber originCellNum, Item_GUI item, Item_GUI.ItemDir direction)
     {
         List<CellNumber> removeCellNumList = item.GetCellNumList(direction, originCellNum);
+        Debug.Log("以下からデータRemove");
+        Debug.Log(string.Join(", ", removeCellNumList));
         
         for(int i = 0; i < removeCellNumList.Count; i++)
         {
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
 
             cellObject.ResetCell();
-        }
-
-        foreach(CellObject cellNum in grid.gridArray)
-        {
-            BackGroundDebug(cellNum);
         }
     }
 }

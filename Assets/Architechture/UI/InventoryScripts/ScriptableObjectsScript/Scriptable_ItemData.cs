@@ -12,4 +12,5 @@ public class Scriptable_ItemData : ScriptableObject
     public uint heightInGUI;
     public uint stackableNum;
     //public ItemDir direction;
+    public int itemID;
 }

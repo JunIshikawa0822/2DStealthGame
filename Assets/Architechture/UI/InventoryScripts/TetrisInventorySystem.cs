@@ -51,23 +51,23 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 
     public void OnSetUp()
     {
-        Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
         _tetrisInventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         //test1.anchoredPosition = _tetrisInventoriesList[0].grid.GetCellOriginAnchoredPosition(0, 0);
         Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 1);
         _tetrisInventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
-        Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 3);
         _tetrisInventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
-        Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 2);
         _tetrisInventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
         Item_GUI instance5 = InstantiateObject(_item_Data_List[0], 1);
         _tetrisInventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
-        Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 4);
         _tetrisInventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
@@ -129,10 +129,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 
         Item_GUI item = GameObject.Instantiate(item_GUI_Prefab, _canvas.transform);
         item.OnSetUp(itemData);
-
-        #region あとで
-        item.SetStack(stackNum);
-        #endregion
+        item.StackingNum = stackNum;
 
         item.onBeginDragEvent += StartDragging;
         item.onDragEvent += OnDragging;
@@ -196,7 +193,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         Cursor.visible = true;
 
         //fromInventoryからデータを削除
-        _fromInventory.RemoveItemFromInventory(item.GetBelongingCellNum(), item, item.GetDirection());
+        _fromInventory.RemoveItemFromInventory(_oldOriginCellNum, item, _oldDirection);
 
         //originCellNum取得のための補正確認
         CellNumber cellNumOffset = item.GetRotatedCellNumOffset(item.GetDirection(), _newDirection, _mouseCellNumToOriginCellNumOffset);
@@ -231,6 +228,7 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
                 uint remain = _toInventory.InsertItemToInventory(item, _newOriginCellNum, _newDirection);
                 //test1.transform.position = item.GetRectTransform().anchoredPosition;
                 Debug.Log("置けた");
+                
                 if(remain > 0)
                 {
                     //増やしてfromInventoryに再度格納

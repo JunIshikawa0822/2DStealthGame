@@ -37,37 +37,45 @@ public class CellObject
     //cellにAが入る　Bを入れられる
     //cellにAが入る　もう入らない
 
-    public bool CheckItem(Item_GUI item)
-    {
-        return _item == item;
-    }
-
     public uint InsertItem(Item_GUI item, uint insertNumber)
     {
-        if(_isStackableOnCell == false)
+        if(_isStackableOnCell == false || item == null)
         {
             return insertNumber;
         }
-        //すでに入っているものと異なる(null、上書きの場合が該当)
-        //すでに入っているものが同じものの場合は、入れる必要がない
-        if(_item != item)
+
+        //何も入っていない
+        if(_item == null)
         {
             _item = item;
             _itemData = item.GetItemData();
         }
+        else if(_item != item)
+        {
+            _item.OnDestroy();
+            _item = item;
+            _itemData = item.GetItemData();
+        }
+
+        // Debug.Log(insertNumber);
 
         uint remain = insertNumber;
         for(; remain > 0; remain--)
         {
             //stackされている数を上回ったらstackできなくする
-            if(_stackNum >= _itemData.stackableNum)
+            if(_isStackableOnCell == false)
             {
-                _isStackableOnCell = false;
                 break;
             }
             _stackNum++;
+
+            if(_stackNum >= _itemData.stackableNum)
+            {
+                _isStackableOnCell = false;
+            }
         }
-        Debug.Log($"StackNum : {_stackNum}");
+        
+        Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
 
         return remain;
     }
@@ -75,28 +83,27 @@ public class CellObject
     public void ResetCell()
     {
         _item = null;
+        this.Origin = null;
         _itemData = null;
         _isStackableOnCell = true;
         _stackNum = 0;
     }
 
-    public void InsertOriginCellNumber(CellNumber cellNum)
+    public void SetStack()
     {
-        Origin = cellNum;
+        if(_item == null)return;
+        _item.SetStackNum(_stackNum);
     }
 
-    // public void SetStackNum()
-    // {
-    //     if(_item == null)
-    //     {
-    //         _stackNum = 0;
-    //         return;
-    //     }
-
-    //     if(_canStackOnCell == false) return;
-
-    //     #region ん？
-    //     _stackNum = _stackNum + 1;
-    //     #endregion
-    // }
+    public bool CheckEquality(Item_GUI item)
+    {
+        if(_item == null && _itemData == null)
+        {
+            Debug.Log("そもそもnullなのでEqualityとかない");
+            return true;
+        }
+        
+        if(_itemData.itemID == item.GetItemData().itemID)return true;
+        else return false;
+    }
 }
