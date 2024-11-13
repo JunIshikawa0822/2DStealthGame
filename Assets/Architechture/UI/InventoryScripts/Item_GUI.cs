@@ -32,7 +32,9 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public enum ItemDir
     {
         Down,
-        Right
+        Right,
+        DownMiddle,
+        RightMiddle
     }
 
     public void OnSetUp(Scriptable_ItemData itemData)
@@ -57,9 +59,18 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     }
 #endregion
 
-    public void SetRotation(Quaternion quaternion)
+    public void SetRotation(Item_GUI.ItemDir itemDirection)
     {
-        _rectTransform.rotation = quaternion;
+        switch (itemDirection) 
+        {
+            default:
+            case ItemDir.Down :  
+                _rectTransform.rotation = Quaternion.Euler(0, 0, 0);
+                break;
+            case ItemDir.Right:  
+                _rectTransform.rotation = Quaternion.Euler(0, 0, 90);
+                break;
+        }
     }
 
     public void SetPosition(Vector3 pos)
@@ -82,7 +93,9 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             case ItemDir.Right : 
                 _rectTransform.pivot = new Vector2(1, 1);
                 break;
-            
+            case ItemDir.DownMiddle : 
+                _rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                break;
             default :
                 _rectTransform.pivot = new Vector2(1, 1);
                 break;
@@ -247,7 +260,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     //     return rotateOffset;
     // }
 
-    public List<CellNumber> GetCellNumList(ItemDir itemDirection, CellNumber originCellNum) 
+    public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemDir itemDirection) 
     {
         List<CellNumber> gridPositionList = new List<CellNumber>();
 

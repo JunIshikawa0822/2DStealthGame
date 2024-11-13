@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Reflection;
 
 public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
 {
@@ -36,13 +38,6 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
     //テスト用データたち
     [SerializeField]
     private List<Scriptable_ItemData> _item_Data_List;
-
-    [SerializeField]
-    private RectTransform test1;
-
-    [SerializeField]
-    private RectTransform test2;
-
 
     public void Start()
     {
@@ -93,11 +88,13 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
                 _rotateAngle = _nextDirectionAngle - _draggingObject.GetRotationAngle(_draggingObject.GetDirection());//OK
                 //Debug.Log(_rotateAngle);
 
-                _draggingObject.SetRotation(Quaternion.Euler(0, 0, _nextDirectionAngle));
+                _draggingObject.SetRotation(_newDirection);
 
                 //掴んだ時(StartDrag)のmouse→anchorPositionのベクトル(_objectPos)を、何度回転させるかという処理
                 //あくまで掴んだ時点のベクトルを回転させるため、差分の度数を引数として挿入
-                _dragPositionOffset = PositionOffset(_rotateAngle, Vector3.zero, _objectPos);  
+                _dragPositionOffset = PositionOffset(_rotateAngle, Vector3.zero, _objectPos);
+
+                // Debug.Log($"offset2:{_fromInventory.ConvertOffsetVecToCellNumOffset(_dragPositionOffset)}");
             }
 
             //位置補正
@@ -153,11 +150,6 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         //rotationの補正をリセット
         _rotateAngle = 0;
 
-        #region いる？
-        //取得時の回転をキャッシュ
-        //_originDirectionAngle = draggingItemData.GetRotationAngle(_itemDireciton);
-        #endregion
-
         Vector3 mousePos = Input.mousePosition;
         Cursor.visible = true;
 
@@ -166,12 +158,17 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         _dragPositionOffset = _objectPos;
 
         //Inventory上でマウス座標を補足し、マウス座標に対応するGrid座標に変換
-        CellNumber mouseCellNum = ScreenPosToCellNum(mousePos, _fromInventory);
-        //Debug.Log(mouseCellNum);
+        CellNumber mouseCellNum = _fromInventory.ScreenPosToCellNum(mousePos);
+
+        //Debug.Log($"mouseCellNum:{_fromInventory.ScreenPosToCellNum(mousePos)}");
+        //Debug.Log($"mouseCellNum2:{ScreenPosToCellNum(mousePos, _fromInventory)}");
+
+        //Debug.Log($"oldOriginCellNum:{_oldOriginCellNum}");
 
         //マウスのGrid座標から現在いるGrid座標を引くことで、マス目補正を取得
         _mouseCellNumToOriginCellNumOffset = mouseCellNum - _oldOriginCellNum;
-        Debug.Log($"offset{_mouseCellNumToOriginCellNumOffset}");
+        Debug.Log($"offset:{_mouseCellNumToOriginCellNumOffset}");
+        Debug.Log($"offset2:{_fromInventory.ConvertOffsetVecToCellNumOffset(_dragPositionOffset)}");
         //親子関係をcanvasに変更（すべてのオブジェクトよりも前にいくことでBackground問題を解決する）
         item.transform.SetParent(_canvas.transform);
     }
@@ -193,10 +190,12 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         Cursor.visible = true;
 
         //fromInventoryからデータを削除
-        _fromInventory.RemoveItemFromInventory(_oldOriginCellNum, item, _oldDirection);
+        _fromInventory.RemoveItemFromInventory(item, _oldOriginCellNum, _oldDirection);
 
         //originCellNum取得のための補正確認
         CellNumber cellNumOffset = item.GetRotatedCellNumOffset(item.GetDirection(), _newDirection, _mouseCellNumToOriginCellNumOffset);
+        //CellNumber cellNumOffset = _fromInventory.ConvertOffsetVecToCellNumOffset(_dragPositionOffset);
+
         Debug.Log("回転に合わせた補正 : " + cellNumOffset);
 
         CellNumber mouseNum = new CellNumber(0,0);
@@ -204,8 +203,9 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         //所属Inventoryを探す
         foreach (TetrisInventory inventory in _tetrisInventoriesList)
         {
-            mouseNum = ScreenPosToCellNum(mousePos, inventory);
+            mouseNum = inventory.ScreenPosToCellNum(mousePos);
             _newOriginCellNum = mouseNum - cellNumOffset;
+            //_newOriginCellNum = mouseNum + cellNumOffset;
 
             // Debug.Log($"inventoryName: {inventory}, mouse: {mouseNum}");
 
@@ -218,17 +218,17 @@ public class TetrisInventorySystem : MonoBehaviour, IOnUpdate
         //Debug.Log($"mouseNum{mouseNum}");
         Debug.Log($"origin{_newOriginCellNum}");
 
-        List<CellNumber> occupyCellNumList = item.GetCellNumList(_newDirection, _newOriginCellNum);
+        //List<CellNumber> occupyCellNumList = item.GetCellNumList(_newDirection, _newOriginCellNum);
 
         if (_toInventory != null || item == null)
         {
-            if(_toInventory.CanPlaceItem(item, occupyCellNumList))
+            if(_toInventory.CanPlaceItem(item, _newOriginCellNum, _newDirection))
             {
                 Debug.Log("おけてはいる");
                 uint remain = _toInventory.InsertItemToInventory(item, _newOriginCellNum, _newDirection);
                 //test1.transform.position = item.GetRectTransform().anchoredPosition;
                 Debug.Log("置けた");
-                
+
                 if(remain > 0)
                 {
                     //増やしてfromInventoryに再度格納

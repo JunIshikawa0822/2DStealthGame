@@ -117,10 +117,11 @@ public class TetrisInventory : MonoBehaviour
         }
     }
 
-    public bool CanPlaceItem(Item_GUI item, List<CellNumber> cellNumsList)
+    public bool CanPlaceItem(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
         bool canPlace = true;
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
@@ -137,34 +138,34 @@ public class TetrisInventory : MonoBehaviour
                 break;
             }
 
-            Debug.Log("枠外ではない");
+            // Debug.Log("枠外ではない");
 #endregion      
             //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
 
-            CellNumber originCellNum = grid.GetCellObject(checkingCellNum).Origin;
-            Debug.Log(originCellNum);
+            CellNumber origin = grid.GetCellObject(checkingCellNum).Origin;
+            // Debug.Log(origin);
             //originCellがnullの場合も含む
 
 #region Stackすることを想定、確認したCellのOriginCellが全て同じか、下のセルに完全に重なっているか、はみ出しがないかを確認
             if(i == 0)
             {
-                cashedOriginCellNum = originCellNum;
+                cashedOriginCellNum = origin;
             }
             else
             {
                 //originCellが同じでないものがある＝はみ出しがある
-                if(cashedOriginCellNum != originCellNum)
+                if(cashedOriginCellNum != origin)
                 {
                     canPlace = false;
-                    Debug.Log("はみ出てるよ");
+                    //Debug.Log("はみ出てるよ");
                     break;
                 }
 
-                cashedOriginCellNum = originCellNum;
+                cashedOriginCellNum = origin;
             }
         }
 #endregion
-        Debug.Log("はみ出てないよ");
+        //Debug.Log("はみ出てないよ");
         Debug.Log(cashedOriginCellNum);
 #region Stackすることを想定、そのCellにStackできるかどうか
 
@@ -200,7 +201,7 @@ public class TetrisInventory : MonoBehaviour
 #region 変更がかなり必要 フローチャートを書こう
     public uint InsertItemToInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
-        List<CellNumber> cellNumsList = item.GetCellNumList(direction, originCellNum);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
         Debug.Log("以下にデータを入れる");
         Debug.Log(string.Join(", ", cellNumsList));
 
@@ -227,7 +228,7 @@ public class TetrisInventory : MonoBehaviour
         item.SetBelongings(this, originCellNum, direction, inventoryRectTransform);
         item.SetAnchor(direction);
         item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y));
-        item.SetRotation(Quaternion.Euler(0, 0, item.GetRotationAngle(direction)));
+        item.SetRotation(direction);
 
         // foreach(CellObject cellNum in grid.gridArray)
         // {
@@ -239,9 +240,9 @@ public class TetrisInventory : MonoBehaviour
 
 #endregion
 
-    public void RemoveItemFromInventory(CellNumber originCellNum, Item_GUI item, Item_GUI.ItemDir direction)
+    public void RemoveItemFromInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
-        List<CellNumber> removeCellNumList = item.GetCellNumList(direction, originCellNum);
+        List<CellNumber> removeCellNumList = item.GetCellNumList(originCellNum, direction);
         Debug.Log("以下からデータRemove");
         Debug.Log(string.Join(", ", removeCellNumList));
         
@@ -250,6 +251,96 @@ public class TetrisInventory : MonoBehaviour
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
 
             cellObject.ResetCell();
+        }
+    }
+
+    public CellNumber ScreenPosToCellNum(Vector2 pos)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
+        return grid.GetCellNum(convertPosition);
+    }
+
+    public CellNumber ConvertOffsetVecToCellNumOffset(Vector3 offsetVec)
+    {
+        return new CellNumber(-(int)(offsetVec.x / _cellSize), (int)(offsetVec.y / _cellSize));
+    }
+
+    public bool ValidCheck(Vector3 mousePos, Vector3 offsetVector)
+    {
+        CellNumber mouseNum = ScreenPosToCellNum(mousePos);
+        CellNumber origin = mouseNum + ConvertOffsetVecToCellNumOffset(offsetVector);
+
+        if(grid.IsValidCellNum(origin))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public bool CanPlaceItem(Item_GUI item, Vector3 mousePos, Vector3 offsetVector, Item_GUI.ItemDir direction)
+    {
+        CellNumber mouseNum = ScreenPosToCellNum(mousePos);
+        List<CellNumber> cellNumsList = item.GetCellNumList(mouseNum + ConvertOffsetVecToCellNumOffset(offsetVector), direction);
+
+        bool canPlace = true;
+        CellNumber cashedOriginCellNum = new CellNumber(0, 0);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellNumber checkingCellNum = cellNumsList[i];
+            bool isValidPosition = grid.IsValidCellNum(checkingCellNum);
+
+            if (!isValidPosition)
+            {
+                canPlace = false;
+                break;
+            }
+            //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
+            CellNumber originCellNum = grid.GetCellObject(checkingCellNum).Origin;
+
+            if(i == 0)
+            {
+                cashedOriginCellNum = originCellNum;
+            }
+            else
+            {
+                //originCellが同じでないものがある＝はみ出しがある
+                if(cashedOriginCellNum != originCellNum)
+                {
+                    canPlace = false;
+                    break;
+                }
+
+                cashedOriginCellNum = originCellNum;
+            }
+        }
+
+        CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
+
+        if(cashedOriginCellNum != null)
+        {
+            if(!originCell.CheckEquality(item))
+            {
+                canPlace = false;
+                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
+            }
+
+            if(originCell.GetStackabilty() == false)
+            {
+                Debug.Log("挿入先が満杯だよ!");
+                canPlace = false;
+            }
+        }
+        
+        if(canPlace)
+        {
+            Debug.Log("置けるよ！");
+            return true;
+        }
+        else
+        {
+            Debug.Log("置けないよ！");
+            return false;
         }
     }
 }
