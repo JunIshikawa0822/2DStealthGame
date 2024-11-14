@@ -13915,6 +13915,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1704383459}
   - component: {fileID: 1704383460}
+  - component: {fileID: 1704383461}
   m_Layer: 0
   m_Name: InventorySystem
   m_TagString: Untagged
@@ -13944,9 +13945,31 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1704383458}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d4ff80369c014df6a5e95463a9abd4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _canvas: {fileID: 1275934234}
+  _tetrisInventoriesList:
+  - {fileID: 210444091}
+  - {fileID: 574204234}
+  item_GUI_Prefab: {fileID: 606834529127207317, guid: ba3151daa48cd4a5bae6d24077c7f84b,
+    type: 3}
+  _item_Data_List:
+  - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
+  - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
+  - {fileID: 11400000, guid: 8061b3cb93f6e426498d76ebdda1cdb8, type: 2}
+--- !u!114 &1704383461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1704383458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3293cbf4f47d84c8ca33a2dce082ba97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _canvas: {fileID: 1275934234}

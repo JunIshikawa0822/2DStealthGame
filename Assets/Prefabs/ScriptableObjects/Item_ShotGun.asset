@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemKind: 0
   nameString: shotgun
-  itemImage: {fileID: 21300000, guid: a4276507daba9438caf0f8e1a090bcce, type: 3}
+  itemImage: {fileID: 21300000, guid: a1903c967a2ab4a03b251b7d2f0baef1, type: 3}
   widthInGUI: 5
   heightInGUI: 2
   stackableNum: 5

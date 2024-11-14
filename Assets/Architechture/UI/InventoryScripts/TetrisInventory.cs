@@ -223,11 +223,9 @@ public class TetrisInventory : MonoBehaviour
             //Debug.Log($"{cellNumsList[i]}には{cellObject.GetItemInCell()}が入っています");
         }
 
-        
-
         item.SetBelongings(this, originCellNum, direction, inventoryRectTransform);
         item.SetAnchor(direction);
-        item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y));
+        item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum));
         item.SetRotation(direction);
 
         // foreach(CellObject cellNum in grid.gridArray)
@@ -265,22 +263,78 @@ public class TetrisInventory : MonoBehaviour
         return new CellNumber(-(int)(offsetVec.x / _cellSize), (int)(offsetVec.y / _cellSize));
     }
 
-    public bool ValidCheck(Vector3 mousePos, Vector3 offsetVector)
+    public bool ValidCheck(Vector3 originPos)
     {
-        CellNumber mouseNum = ScreenPosToCellNum(mousePos);
-        CellNumber origin = mouseNum + ConvertOffsetVecToCellNumOffset(offsetVector);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos);
 
-        if(grid.IsValidCellNum(origin))
+        if(grid.IsValidCellNum(originCellNum))
         {
             return true;
         }
         return false;
     }
 
-    public bool CanPlaceItem(Item_GUI item, Vector3 mousePos, Vector3 offsetVector, Item_GUI.ItemDir direction)
+    public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
-        CellNumber mouseNum = ScreenPosToCellNum(mousePos);
-        List<CellNumber> cellNumsList = item.GetCellNumList(mouseNum + ConvertOffsetVecToCellNumOffset(offsetVector), direction);
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
+
+        Debug.Log($"origin : {originCellNum}");
+        Debug.Log("以下にデータを入れる");
+        Debug.Log(string.Join(", ", cellNumsList));
+
+        uint remain = 0;
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+            //originCellにStackしていく
+            if(cellNumsList[i] == originCellNum)
+            {
+                remain = cellObject.InsertItem(item, item.StackingNum);
+                cellObject.SetStack();
+            }
+            cellObject.Origin = originCellNum;
+        }
+
+        Debug.Log($"オリジン:{originCellNum}");
+        Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
+
+        item.SetBelongings(this, newPosition, direction);
+        item.GetRectTransform().SetParent(container);
+        item.SetAnchor(direction);
+        item.SetAnchorPosition(newPosition);
+        item.SetRotation(direction);
+        
+
+        return remain;
+    }
+
+    public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    {
+        //OriginCellの左上の座標をCellNumに変換すると、正しく変換されない可能性がある
+        //OriginCellの中心に補正をしてからCellNumに変換しよう
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> removeCellNumList = item.GetCellNumList(originCellNum, direction);
+
+        Debug.Log(originCellNum);
+        Debug.Log("以下からデータRemove");
+        Debug.Log(string.Join(", ", removeCellNumList));
+        
+        for(int i = 0; i < removeCellNumList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
+
+            cellObject.ResetCell();
+        }
+    }
+
+    public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    {
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
 
         bool canPlace = true;
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
@@ -296,22 +350,22 @@ public class TetrisInventory : MonoBehaviour
                 break;
             }
             //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
-            CellNumber originCellNum = grid.GetCellObject(checkingCellNum).Origin;
+            CellNumber cellOrigin = grid.GetCellObject(checkingCellNum).Origin;
 
             if(i == 0)
             {
-                cashedOriginCellNum = originCellNum;
+                cashedOriginCellNum = cellOrigin;
             }
             else
             {
                 //originCellが同じでないものがある＝はみ出しがある
-                if(cashedOriginCellNum != originCellNum)
+                if(cashedOriginCellNum != cellOrigin)
                 {
                     canPlace = false;
                     break;
                 }
 
-                cashedOriginCellNum = originCellNum;
+                cashedOriginCellNum = cellOrigin;
             }
         }
 

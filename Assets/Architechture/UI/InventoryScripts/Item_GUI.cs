@@ -11,6 +11,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private RectTransform _rectTransform;
     private TetrisInventory _belongingInventory;
     private CellNumber _belongingCellNum;
+    private Vector3 _belongingPosition;
     public uint StackingNum{get; set;}
     private Scriptable_ItemData _itemData;
     [SerializeField]
@@ -33,8 +34,8 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     {
         Down,
         Right,
-        DownMiddle,
-        RightMiddle
+        Up,
+        Left
     }
 
     public void OnSetUp(Scriptable_ItemData itemData)
@@ -89,15 +90,22 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         {
             case ItemDir.Down : 
                 _rectTransform.pivot = new Vector2(0, 1);
+                Debug.Log(_rectTransform.pivot);
                 break;
             case ItemDir.Right : 
                 _rectTransform.pivot = new Vector2(1, 1);
+                Debug.Log(_rectTransform.pivot);
                 break;
-            case ItemDir.DownMiddle : 
-                _rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            case ItemDir.Up : 
+                _rectTransform.pivot = new Vector2(1, 0);
+                Debug.Log(_rectTransform.pivot);
+                break;
+            case ItemDir.Left : 
+                _rectTransform.pivot = new Vector2(0, 0);
+                Debug.Log(_rectTransform.pivot);
                 break;
             default :
-                _rectTransform.pivot = new Vector2(1, 1);
+                _rectTransform.pivot = new Vector2(0, 1);
                 break;
         }
     }
@@ -127,6 +135,13 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _rectTransform.SetParent(parent);
     }
 
+    public void SetBelongings(TetrisInventory belongingInventory, Vector3 pos, ItemDir direction)
+    {
+        _belongingInventory = belongingInventory;
+        _belongingPosition = pos;
+        _itemDirection = direction;
+    }
+
     public void OnDestroy()
     {
         Destroy(this.gameObject);
@@ -154,8 +169,10 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         switch (itemDirection) 
         {
             default:
-            case ItemDir.Down :  return 0;
-            case ItemDir.Right:  return 90;
+            case ItemDir.Down : return 0;
+            case ItemDir.Right: return 90;
+            case ItemDir.Up   : return 180;
+            case ItemDir.Left : return 270;
         }
     }
 
@@ -166,6 +183,19 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             default:
             case ItemDir.Down:  return new CellNumber(0, 0);
             case ItemDir.Right:  return new CellNumber((int)_itemData.heightInGUI, 0);
+        }
+    }
+
+    public ItemDir GetEnumByIndex(int index)
+    {
+        ItemDir[] directions = (ItemDir[])Enum.GetValues(typeof(ItemDir));
+        if (index >= 0 && index < directions.Length)
+        {
+            return directions[index];
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "インデックスが範囲外です");
         }
     }
 
