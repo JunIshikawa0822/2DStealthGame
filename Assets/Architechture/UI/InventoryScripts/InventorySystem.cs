@@ -192,9 +192,8 @@ public class InventorySystem : MonoBehaviour
 
                 if(remain > 0)
                 {
-                    //増やしてfromInventoryに再度格納
-                    Item_GUI newInstance = InstantiateObject(item.GetItemData(), remain);
-                    _fromInventory.InsertItemToInventory(newInstance, _oldPosition, _oldDirection);
+                    //remain分はromInventoryに再度格納
+                    _fromInventory.InsertItemToInventory(item, _oldPosition, _oldDirection);
                 }
             }
             else

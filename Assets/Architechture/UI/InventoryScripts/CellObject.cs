@@ -44,17 +44,13 @@ public class CellObject
             return insertNumber;
         }
 
+        bool itemBreak = true;
         //何も入っていない
         if(_item == null)
         {
             _item = item;
             _itemData = item.GetItemData();
-        }
-        else if(_item != item)
-        {
-            _item.OnDestroy();
-            _item = item;
-            _itemData = item.GetItemData();
+            itemBreak = false;
         }
 
         // Debug.Log(insertNumber);
@@ -68,6 +64,7 @@ public class CellObject
                 break;
             }
             _stackNum++;
+            item.StackingNum--;
 
             if(_stackNum >= _itemData.stackableNum)
             {
@@ -75,7 +72,11 @@ public class CellObject
             }
         }
         
-        Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
+        //Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
+        if(itemBreak == true && remain == 0)
+        {
+            item.OnDestroy();
+        }
 
         return remain;
     }
