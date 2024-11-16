@@ -20,8 +20,8 @@ public class InventorySystem : MonoBehaviour
     private List<Scriptable_ItemData> _item_Data_List;
 #endregion
 
-    private TetrisInventory _toInventory;
-    private TetrisInventory _fromInventory;
+    private IInventory _toInventory;
+    private IInventory _fromInventory;
 
     private float _oldAngle;
     private float _newAngle;

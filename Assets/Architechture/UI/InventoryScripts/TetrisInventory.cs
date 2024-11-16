@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TetrisInventory : MonoBehaviour
+public class TetrisInventory : MonoBehaviour, IInventory
 {
     public Grid<CellObject> grid;
     [SerializeField]
@@ -117,170 +117,10 @@ public class TetrisInventory : MonoBehaviour
         }
     }
 
-    public bool CanPlaceItem(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
-    {
-        bool canPlace = true;
-        CellNumber cashedOriginCellNum = new CellNumber(0, 0);
-        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
 
-        for(int i = 0; i < cellNumsList.Count; i++)
-        {
-            CellNumber checkingCellNum = cellNumsList[i];
-            //CellNumber originCellNum;
-
-#region 枠内かどうか確認
-            bool isValidPosition = grid.IsValidCellNum(checkingCellNum);
-
-            if (!isValidPosition)
-            {
-                Debug.Log("枠外だよ");
-                canPlace = false;
-                break;
-            }
-
-            // Debug.Log("枠外ではない");
-#endregion      
-            //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
-
-            CellNumber origin = grid.GetCellObject(checkingCellNum).Origin;
-            // Debug.Log(origin);
-            //originCellがnullの場合も含む
-
-#region Stackすることを想定、確認したCellのOriginCellが全て同じか、下のセルに完全に重なっているか、はみ出しがないかを確認
-            if(i == 0)
-            {
-                cashedOriginCellNum = origin;
-            }
-            else
-            {
-                //originCellが同じでないものがある＝はみ出しがある
-                if(cashedOriginCellNum != origin)
-                {
-                    canPlace = false;
-                    //Debug.Log("はみ出てるよ");
-                    break;
-                }
-
-                cashedOriginCellNum = origin;
-            }
-        }
-#endregion
-        //Debug.Log("はみ出てないよ");
-        Debug.Log(cashedOriginCellNum);
-#region Stackすることを想定、そのCellにStackできるかどうか
-
-        CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
-        if(cashedOriginCellNum != null)
-        {
-            if(!originCell.CheckEquality(item))
-            {
-                canPlace = false;
-                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
-            }
-
-            if(originCell.GetStackabilty() == false)
-            {
-                Debug.Log("挿入先が、満杯だよ!");
-                canPlace = false;
-            }
-        }
-        
-#endregion
-        if(canPlace)
-        {
-            Debug.Log("置けるよ！");
-            return true;
-        }
-        else
-        {
-            Debug.Log("置けないよ！");
-            return false;
-        }
-    }
-
-#region 変更がかなり必要 フローチャートを書こう
     public uint InsertItemToInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
     {
         List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
-        Debug.Log("以下にデータを入れる");
-        Debug.Log(string.Join(", ", cellNumsList));
-
-        uint remain = 0;
-        for(int i = 0; i < cellNumsList.Count; i++)
-        {
-            //Debug.Log(v);
-            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
-            //originCellにStackしていく
-            if(cellNumsList[i] == originCellNum)
-            {
-                remain = cellObject.InsertItem(item, item.StackingNum);
-                cellObject.SetStack();
-            }
-            //cellのOriginNumberをセット
-            cellObject.Origin = originCellNum;
-
-            //Debug.Log($"{cellNumsList[i]}のoriginは{cellObject.Origin}です");
-            //Debug.Log($"{cellNumsList[i]}には{cellObject.GetItemInCell()}が入っています");
-        }
-
-        item.SetBelongings(this, originCellNum, direction, inventoryRectTransform);
-        item.SetAnchor(direction);
-        item.SetAnchorPosition(grid.GetCellOriginAnchoredPosition(originCellNum));
-        item.SetRotation(direction);
-
-        // foreach(CellObject cellNum in grid.gridArray)
-        // {
-        //     BackGroundDebug(cellNum);
-        // }
-
-        return remain;
-    }
-
-#endregion
-
-    public void RemoveItemFromInventory(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
-    {
-        List<CellNumber> removeCellNumList = item.GetCellNumList(originCellNum, direction);
-        Debug.Log("以下からデータRemove");
-        Debug.Log(string.Join(", ", removeCellNumList));
-        
-        for(int i = 0; i < removeCellNumList.Count; i++)
-        {
-            CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
-
-            cellObject.ResetCell();
-        }
-    }
-
-    public CellNumber ScreenPosToCellNum(Vector2 pos)
-    {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
-        return grid.GetCellNum(convertPosition);
-    }
-
-    public CellNumber ConvertOffsetVecToCellNumOffset(Vector3 offsetVec)
-    {
-        return new CellNumber(-(int)(offsetVec.x / _cellSize), (int)(offsetVec.y / _cellSize));
-    }
-
-    public bool ValidCheck(Vector3 originPos)
-    {
-        CellNumber originCellNum = ScreenPosToCellNum(originPos);
-
-        if(grid.IsValidCellNum(originCellNum))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    {
-        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
-        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
-        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
-
-        Debug.Log($"origin : {originCellNum}");
         Debug.Log("以下にデータを入れる");
         Debug.Log(string.Join(", ", cellNumsList));
 
@@ -305,7 +145,47 @@ public class TetrisInventory : MonoBehaviour
         item.SetAnchor(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
-        
+
+        return remain;
+    }
+
+    public CellNumber ScreenPosToCellNum(Vector2 pos)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
+        return grid.GetCellNum(convertPosition);
+    }
+
+    public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    {
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
+
+        // Debug.Log($"origin : {originCellNum}");
+        // Debug.Log("以下にデータを入れる");
+        // Debug.Log(string.Join(", ", cellNumsList));
+
+        uint remain = 0;
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+            //originCellにStackしていく
+            if(cellNumsList[i] == originCellNum)
+            {
+                remain = cellObject.InsertItem(item, item.StackingNum);
+                cellObject.SetStack();
+            }
+            cellObject.Origin = originCellNum;
+        }
+
+        Debug.Log($"オリジン:{originCellNum}");
+        Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
+
+        item.SetBelongings(this, newPosition, direction);
+        item.GetRectTransform().SetParent(container);
+        item.SetAnchor(direction);
+        item.SetAnchorPosition(newPosition);
+        item.SetRotation(direction);
 
         return remain;
     }
@@ -396,5 +276,10 @@ public class TetrisInventory : MonoBehaviour
             Debug.Log("置けないよ！");
             return false;
         }
+    }
+
+    public bool IsValid(Vector3 pos)
+    {
+        return true;
     }
 }
