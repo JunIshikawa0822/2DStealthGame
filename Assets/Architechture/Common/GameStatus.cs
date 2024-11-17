@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using Microsoft.Unity.VisualStudio.Editor;
 
@@ -55,6 +56,12 @@ public class GameStatus
 
     [Header("UI")]
     public LineRenderer shotLineRenderer;
+
+    [Header("UGUI")]
+    public Canvas canvas;
+    public Item_GUI item_GUI;
+    public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
+    public List<IInventory> inventoriesList = new List<IInventory>();
 
 #region  即席
     [HideInInspector]

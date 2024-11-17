@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 public class CellObject
 {   
@@ -7,96 +8,103 @@ public class CellObject
 
     //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
+    Scriptable_ItemData _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
     private uint _stackNum;
-    private CellNumber _originCellNum;
+    public CellNumber Origin{get; set;}
+    private bool _isStackableOnCell;
 
-    private bool _canStackOnCell;
-    //private bool isStackableOnCell;
-
-    public CellObject(/*Grid<CellObject> grid,*/ int x, int y) 
+    public CellObject(int x, int y) 
     {
         //this.grid = grid;
         position_x = x;
         position_y = y;
 
-        //_stackNum = 0;
-        //SetStackability();
-        //cellObjectPosition = worldPosition;
+        _isStackableOnCell = true;
+        _stackNum = 0;
     }
 
     public Item_GUI GetItemInCell(){return _item;}
-    public CellNumber GetOriginCellNum(){return _originCellNum;}
-    public uint GetStackNum()
+    //public CellNumber GetOriginCellNum(){return originCellNum;}
+    public bool GetStackabilty()
     {
-        Debug.Log($"このセルに入っている個数 : {_stackNum}");
-        return _stackNum;
+        return _isStackableOnCell;
     }
 
-    public bool CanStack(Scriptable_ItemData item)
-    {
-        bool canStack = false;
+    //cellがnull
+    //cellにAが入る　Aを入れられる
+    //cellにAが入る　Bを入れられる
+    //cellにAが入る　もう入らない
 
-        if(this._item.GetItemData() == item && this._stackNum < item.stackableNum)
+    public uint InsertItem(Item_GUI item, uint insertNumber)
+    {
+        if(_isStackableOnCell == false || item == null)
         {
-            canStack = true;
+            return insertNumber;
         }
 
-        return canStack;
+        bool itemBreak = true;
+        //何も入っていない
+        if(_item == null)
+        {
+            _item = item;
+            _itemData = item.GetItemData();
+            itemBreak = false;
+        }
+
+        // Debug.Log(insertNumber);
+
+        uint remain = insertNumber;
+        for(; remain > 0; remain--)
+        {
+            //stackされている数を上回ったらstackできなくする
+            if(_isStackableOnCell == false)
+            {
+                break;
+            }
+            _stackNum++;
+            item.StackingNum--;
+
+            if(_stackNum >= _itemData.stackableNum)
+            {
+                _isStackableOnCell = false;
+            }
+        }
+        
+        //Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
+        if(itemBreak == true && remain == 0)
+        {
+            item.OnDestroy();
+        }
+
+        return remain;
     }
 
-    // public void SetStackability()
-    // {
-    //     if(this.placedObject == null)
-    //     {
-    //         canStackOnCell = true;
-    //         return;
-    //     }
-
-    //     int canStackNum = this.placedObject.GetItemData().stackableNum;
-
-    //     if(canStackNum > 0)
-    //     {
-    //         if(this.stackNum < canStackNum)
-    //         {
-    //             canStackOnCell = true;
-    //             return;
-    //         }
-    //     }
-
-    //     canStackOnCell = false;
-    // }
-
-    // public bool GetStackability()
-    // {
-    //     return canStackOnCell;
-    // }
-
-    public void InsertItem(Item_GUI item)
+    public void ResetCell()
     {
-        _item = item;
-        _stackNum++;
-        Debug.Log($"StackNum : {_stackNum}");
+        _item = null;
+        this.Origin = null;
+        _itemData = null;
+        _isStackableOnCell = true;
+        _stackNum = 0;
     }
 
-    public void InsertOriginCellNumber(CellNumber cellNum)
+    public void SetStack()
     {
-        _originCellNum = cellNum;
+        if(_item == null)return;
+        _item.SetStackNum(_stackNum);
     }
 
-    // public void SetStackNum()
-    // {
-    //     if(_item == null)
-    //     {
-    //         _stackNum = 0;
-    //         return;
-    //     }
-
-    //     if(_canStackOnCell == false) return;
-
-    //     #region ん？
-    //     _stackNum = _stackNum + 1;
-    //     #endregion
-    // }
+    public bool CheckEquality(Item_GUI item)
+    {
+        if(_item == null && _itemData == null)
+        {
+            Debug.Log("そもそもnullなのでEqualityとかない");
+            return true;
+        }
+        
+        if(_itemData.itemID == item.GetItemData().itemID)return true;
+        else return false;
+    }
 }

@@ -46,7 +46,7 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnMoveInput(InputAction.CallbackContext context)
     {
-       gameStat.moveDirection = context.ReadValue<Vector2>();
+        gameStat.moveDirection = context.ReadValue<Vector2>();
     }
 
     private void OnAttackInput(InputAction.CallbackContext context)

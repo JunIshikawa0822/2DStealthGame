@@ -90,9 +90,9 @@ public class Grid<T> where T : class
         return new CellNumber(x, y);
     }
 
-    public Vector2 GetCellOriginAnchoredPosition(int cellNum_x, int cellNum_y)
+    public Vector2 GetCellOriginAnchoredPosition(CellNumber cellNum)
     {
-        return /*gridOriginPosition + */ new Vector2(cellNum_x, -cellNum_y) * gridCellSize;
+        return /*gridOriginPosition + */ new Vector2(cellNum.x, -cellNum.y) * gridCellSize;
     } 
 #endregion
 
