@@ -13,8 +13,8 @@ public class Scriptable_ItemData : ScriptableObject
         Food,
         Weapon
     }
-
     public ItemKind itemKind;
+    public bool canRotate;
     public string nameString;
     public Sprite itemImage;
     public uint widthInGUI;

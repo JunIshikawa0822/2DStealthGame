@@ -278,8 +278,11 @@ public class TetrisInventory : MonoBehaviour, IInventory
         }
     }
 
-    public bool IsValid(Vector3 pos)
+    public bool IsValid(Vector3 originPos)
     {
-        return true;
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+
+        return grid.IsValidCellNum(originCellNum);
     }
 }
