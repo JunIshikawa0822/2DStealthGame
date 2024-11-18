@@ -142,7 +142,7 @@ public class TetrisInventory : MonoBehaviour, IInventory
 
         item.SetBelongings(this, newPosition, direction);
         item.GetRectTransform().SetParent(container);
-        item.SetAnchor(direction);
+        item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
 
@@ -183,7 +183,7 @@ public class TetrisInventory : MonoBehaviour, IInventory
 
         item.SetBelongings(this, newPosition, direction);
         item.GetRectTransform().SetParent(container);
-        item.SetAnchor(direction);
+        item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
 

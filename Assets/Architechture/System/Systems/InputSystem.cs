@@ -20,10 +20,11 @@ public class InputSystem : ASystem, IOnPreUpdate
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
+        _gameInputs.PlayerActionTest.PlayerInventoryTest.started += OnInventoryInput;
 
         _gameInputs.Enable();
 
-        Cursor.visible = false;
+        //Cursor.visible = false;
     }
 
     public void OnPreUpdate()
@@ -59,6 +60,12 @@ public class InputSystem : ASystem, IOnPreUpdate
     {
         //Debug.Log("Reload");
         gameStat.onPlayerReloadEvent?.Invoke();
+    }
+
+    private void OnInventoryInput(InputAction.CallbackContext context)
+    {
+        gameStat.onInventoryActiveEvent?.Invoke();
+        Cursor.visible = gameStat.isInventoryPanelActive;
     }
 
     private Vector3 ConvertScreenToWorldPoint(Vector2 screenPos)

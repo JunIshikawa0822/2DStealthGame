@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities.UniversalDelegates;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AI;
 
-public class InventorySystem : ASystem
+public class InventorySystem : ASystem, IOnUpdate
 {
-    private Canvas _canvas;
+    private GameObject _UGUIPanel;
 #region test
     private Item_GUI _item_GUI_Prefab;
     private List<Scriptable_ItemData> _item_Data_List;
-    private List<IInventory> _inventoriesList;
 #endregion
 
     private IInventory _toInventory;
@@ -30,38 +30,62 @@ public class InventorySystem : ASystem
 
     public override void OnSetUp()
     {
-        _canvas = gameStat.canvas;
+        _UGUIPanel = gameStat.inventoryPanel;
         _item_GUI_Prefab = gameStat.item_GUI;
         _item_Data_List = gameStat.item_Data_List;
-        _inventoriesList = gameStat.inventoriesList;
+
+        gameStat.inventoriesList.Add(gameStat.playerInventory);
+        gameStat.inventoriesList.Add(gameStat.otherInventory);
+        gameStat.inventoriesList.Add(gameStat.equipInventory1);
+        gameStat.inventoriesList.Add(gameStat.equipInventory2);
+
+        gameStat.onInventoryActiveEvent += SwitchInventoryActive;
+        PanelLoad();
         
         Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
-        _inventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
+        gameStat.inventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         //test1.anchoredPosition = _tetrisInventoriesList[0].grid.GetCellOriginAnchoredPosition(0, 0);
         Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 1);
-        _inventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
+        gameStat.inventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
         Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 3);
-        _inventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
+        gameStat.inventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
         Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 2);
-        _inventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
+        gameStat.inventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
         Item_GUI instance5 = InstantiateObject(_item_Data_List[0], 1);
-        _inventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
+        gameStat.inventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
         Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 4);
-        _inventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
+        gameStat.inventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
-    public void Update()
+    public void SwitchInventoryActive()
     {
-        OnUpdate();
+        gameStat.isInventoryPanelActive = !gameStat.isInventoryPanelActive;
+        PanelLoad();
+    }
+
+    public void PanelLoad()
+    {
+        gameStat.inventoryPanel.SetActive(gameStat.isInventoryPanelActive);
+        //Cursor.visible = gameStat.isInventoryPanelActive;
     }
 
     public void OnUpdate()
     {
+        if(!gameStat.isInventoryPanelActive)
+        {
+            if(_draggingObject != null)
+            {
+                _fromInventory.InsertItemToInventory(_draggingObject, _oldPosition, _oldDirection);
+                _draggingObject = null;
+            }
+            return;
+        }
+
         if(_draggingObject != null)
         {
             if(!_draggingObject.GetItemData().canRotate)return;
@@ -82,7 +106,7 @@ public class InventorySystem : ASystem
                 _positionOffset = PositionOffset(offsetVec, Vector3.zero, _rotateAngle);
 
                 _draggingObject.SetRotation(_newDirection);
-                _draggingObject.SetAnchor(_newDirection);
+                _draggingObject.SetPivot(_newDirection);
             }
 
             _draggingObject.SetPosition(Input.mousePosition + _positionOffset);
@@ -102,7 +126,7 @@ public class InventorySystem : ASystem
             stackNum = 1;
         }
 
-        Item_GUI item = GameObject.Instantiate(_item_GUI_Prefab, _canvas.transform);
+        Item_GUI item = GameObject.Instantiate(_item_GUI_Prefab, _UGUIPanel.transform);
         item.OnSetUp(itemData);
         item.StackingNum = stackNum;
 
@@ -124,6 +148,7 @@ public class InventorySystem : ASystem
 
     public void StartDragging(Item_GUI item)
     {
+        if(!gameStat.isInventoryPanelActive)return;
         if(item == null)return;
 
         _draggingObject = item;
@@ -154,11 +179,14 @@ public class InventorySystem : ASystem
 
         Debug.Log(_oldDirection);
         _positionOffset = _offsetArray[(int)_oldDirection];
-        item.transform.SetParent(_canvas.transform);
+        item.transform.SetParent(_UGUIPanel.transform);
+        item.SetPivot(_oldDirection);
     }
 
     public void EndDragging(Item_GUI item)
     {
+        if(!gameStat.isInventoryPanelActive)return;
+        
         Vector3 mousePos = Input.mousePosition;
 
         _fromInventory.RemoveItemFromInventory(item, _oldPosition, _oldDirection);
@@ -166,7 +194,7 @@ public class InventorySystem : ASystem
         Vector3 newPosition = mousePos + _positionOffset;
 
         //所属Inventoryを探す
-        foreach (IInventory inventory in _inventoriesList)
+        foreach (IInventory inventory in gameStat.inventoriesList)
         {
             //CellNumber cellNum = inventory.ScreenPosToCellNum(newPosition);
 
