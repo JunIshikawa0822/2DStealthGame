@@ -1,12 +1,9 @@
-using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using UnityEngine;
 using System;
-
-public class HandGun : MonoBehaviour, IGun<Bullet_10mm> 
+public class ShotGun : MonoBehaviour, IGun<Bullet_10mm> 
 {
-    //発射の内部的な処理に必要
-    //----------------------------------------
     [SerializeField]
     private float _muzzleVelocity = 700f;
     [SerializeField] 
@@ -17,7 +14,7 @@ public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
 
     private IObjectPool<Bullet_10mm> _objectPool;
     //private IBulletFactories _bulletFactories;
-    //private IFactory<Bullet_10mm> _bulletcaliberFactory;
+    private IFactory<Bullet_10mm> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
@@ -58,8 +55,10 @@ public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
 
         //射撃と射撃の間隔を制御
         if(_isShotIntervalActive)return;
-        //_objectPoolの有無をチェック
-        if(_objectPool == null)return;
+
+        //BulletのFactoryをチェック
+        if(_bulletcaliberFactory == null)return;
+        
         //Poolからもってくる
         Bullet_10mm bullet = _objectPool.GetFromPool();
 
@@ -159,10 +158,4 @@ public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
     {
         return _magazine;
     }
-
-    // public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
-    // {
-    //     // ここで、T 型が IBType_10mm を継承していることが保証されています
-    //     return _bulletFactories.BulletFactory(typeof(T));
-    // }
 }

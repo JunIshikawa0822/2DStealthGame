@@ -4,7 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Scriptable_Object_GunData", menuName = "ScriptableObject/Object_Data/Object_Gun/HandGun_Data", order = 0)]
 public class SO_Data_HandGun : ScriptableObject, IObjectData
 {
-    [Header("Object")]
-    public string handGunName;
-    public Transform handgunObjectPrefab;
+    public uint StackableNum1;
+    public uint StackableNum {get; set;}
+    public bool CanRotate {get; set;}
+    public Sprite ItemImage{get; set;}
 }
