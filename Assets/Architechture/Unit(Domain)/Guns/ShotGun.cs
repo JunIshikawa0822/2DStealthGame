@@ -39,6 +39,11 @@ public class ShotGun : MonoBehaviour, IGun<Bullet_10mm>
         _isJamming = false;
     }
 
+    public void Init(float velocity, int simulNum, float shotInterval)
+    {
+
+    }
+
     public void OnUpdate()
     {
 
