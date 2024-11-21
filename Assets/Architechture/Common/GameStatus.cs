@@ -11,21 +11,20 @@ public class GameStatus
     [Header("PlayerActions")]
     public Action onPlayerAttackEvent;
     public Action onPlayerReloadEvent;
+    public Action onInventoryActiveEvent;
 
     [Header("Inputs")]
-    public Vector2 moveDirection = Vector2.zero;
-    public Vector2 cursorScreenPosition = Vector2.zero;
-    public Vector3 cursorWorldPosition = Vector3.zero;
+    [HideInInspector]public Vector2 moveDirection = Vector2.zero;
+    [HideInInspector]public Vector2 cursorScreenPosition = Vector2.zero;
+    [HideInInspector]public Vector3 cursorWorldPosition = Vector3.zero;
     //public bool onAttack = false;
     public GameObject cursorObject;
     public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
     public HandGun Pistol1;
-
-    [HideInInspector]
-    public IGun[] playerGunsArray = new IGun[2];
-    public int selectingGunsArrayIndex = 0;
+    [HideInInspector]public IGun[] playerGunsArray = new IGun[2];
+    [HideInInspector]public int selectingGunsArrayIndex = 0;
 
     [Header("PlayerInfo")]
     public PlayerController player;
@@ -63,12 +62,21 @@ public class GameStatus
     public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
     public List<IInventory> inventoriesList = new List<IInventory>();
 
+    public TetrisInventory playerInventory;
+    public TetrisInventory otherInventory;
+    public PlayerEquipInventory equipInventory1;
+    public PlayerEquipInventory equipInventory2;
+
+    public GameObject inventoryPanel;
+    [HideInInspector]public bool isInventoryPanelActive = false;
+
 #region  即席
     [HideInInspector]
     public ObjectPool<Bullet_10mm> bullet_10mm_ObjectPool;
     [HideInInspector]
     public IFactory<Bullet_10mm> bullet_10mm_factory;
 
+    [Header("Enemy")]
     public Transform enemyParent;
 #endregion
 }

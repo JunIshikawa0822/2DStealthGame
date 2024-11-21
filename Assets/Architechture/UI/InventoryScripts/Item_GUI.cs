@@ -85,7 +85,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _rectTransform.anchoredPosition = pos;
     }
 
-    public void SetAnchor(ItemDir direction)
+    public void SetPivot(ItemDir direction)
     {
         switch(direction)
         {

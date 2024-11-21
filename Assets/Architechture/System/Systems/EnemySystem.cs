@@ -25,7 +25,7 @@ public class EnemySystem : ASystem, IOnUpdate
         HandGun gun = GameObject.Instantiate(gameStat.Pistol1);
 
         gun.Reload(new Entity_Magazine(10, 10));
-        gun.OnSetUp(gameStat.bullet_10mm_factory, gameStat.bullet_10mm_ObjectPool);
+        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
         #endregion
         
         enemy.OnSetUp(new Entity_HealthPoint(100, 100), gun.transform);

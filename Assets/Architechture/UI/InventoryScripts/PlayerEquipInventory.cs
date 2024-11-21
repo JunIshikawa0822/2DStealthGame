@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerEquipInventory : MonoBehaviour, IInventory
 {
@@ -10,13 +11,19 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
     private RectTransform inventoryRectTransform;
     private Vector3[] _corners;
 
+    [SerializeField]
+    private Image image;
+
     private Item_GUI _item;
+    private IGun gun;
 
     void Awake()
     {
         inventoryRectTransform = this.GetComponent<RectTransform>();
         _corners = new Vector3[4];
         inventoryRectTransform.GetWorldCorners(_corners);
+
+        _item = null;
     }
 
     public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
@@ -29,20 +36,26 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
 
     public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
+        _item = item;
+
         item.SetBelongings(this, inventoryRectTransform.position, direction);
         item.GetRectTransform().SetParent(inventoryRectTransform);
-        item.SetAnchor(direction);
-        item.SetAnchorPosition(inventoryRectTransform.position);
+        item.SetPivot(Item_GUI.ItemDir.Middle);
+        item.SetPosition(transform.position);
+        image.GetComponent<RectTransform>().position = transform.position;
         item.SetRotation(direction);
+        Debug.Log("Equip!");
         return 0;
     }
 
     public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction)
     {
+        _item = item;
+
         item.SetBelongings(this, inventoryRectTransform.position, direction);
         item.GetRectTransform().SetParent(inventoryRectTransform);
-        item.SetAnchor(direction);
-        item.SetAnchorPosition(inventoryRectTransform.position);
+        item.SetPivot(Item_GUI.ItemDir.Middle);
+        item.SetAnchorPosition(transform.position);
         item.SetRotation(direction);
         return 0;
     }
@@ -58,6 +71,8 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
         float max_x = _corners[2].x;
         float min_y = _corners[0].y;
         float max_y = _corners[2].y;
+
+        //image.transform.position = new Vector3(min_x, min_y, 0);
 
         if(pos.x < max_x && pos.x > min_x && pos.y < max_y && pos.y > min_y)
         {

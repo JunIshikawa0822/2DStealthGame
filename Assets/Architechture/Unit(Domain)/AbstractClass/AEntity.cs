@@ -8,7 +8,7 @@ using System;
 public abstract class AEntity : MonoBehaviour
 {
     //protected Entity_HealthPoint _entityHP;
-    protected List<IItem> _items;
+    //protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
     protected Transform _entityTransform;

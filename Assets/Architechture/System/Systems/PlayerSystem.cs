@@ -30,13 +30,14 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         //銃の割り当て
         IGun<Bullet_10mm> gun = gameStat.Pistol1;
         gun.Reload(new Entity_Magazine(10, 10));
-        gun.OnSetUp(gameStat.bullet_10mm_factory, gameStat.bullet_10mm_ObjectPool);
+        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
         gameStat.playerGunsArray[0] = gun;
 #endregion
     }
 
     public void OnUpdate()
     {
+        if(gameStat.isInventoryPanelActive)return;
         _player.Rotate(gameStat.cursorWorldPosition);
     }
 
@@ -47,6 +48,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnFixedUpdate()
     {
+        if(gameStat.isInventoryPanelActive)return;
+        
         //画面上のプレイヤー移動方向と入力方向が異なってみえる　45度回転することで解決
         float x = (gameStat.moveDirection.x) * Mathf.Cos(-45 * Mathf.Deg2Rad) - (gameStat.moveDirection.y) * Mathf.Sin(-45 * Mathf.Deg2Rad);
         float z = (gameStat.moveDirection.x) * Mathf.Sin(-45 * Mathf.Deg2Rad) + (gameStat.moveDirection.y) * Mathf.Cos(-45 * Mathf.Deg2Rad);
@@ -58,11 +61,13 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnAttack()
     {
+        if(gameStat.isInventoryPanelActive)return;
         _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
     public void OnReload()
     {
+        if(gameStat.isInventoryPanelActive)return;
         Entity_Magazine magazine = new Entity_Magazine(10, 10);
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
     }
