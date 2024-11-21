@@ -7,4 +7,6 @@ public interface IObjectData
     bool CanRotate {get;}
     Sprite ItemImage {get;}
     int ItemID{get;}
+    string ItemName{get;}
+    bool IsClickUse{get;}
 }

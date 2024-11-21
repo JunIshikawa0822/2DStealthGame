@@ -8,7 +8,7 @@ public class CellObject
 
     //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
-    Scriptable_ItemData _itemData;
+    IObjectData _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
     private uint _stackNum;
@@ -36,6 +36,31 @@ public class CellObject
     //cellにAが入る　Aを入れられる
     //cellにAが入る　Bを入れられる
     //cellにAが入る　もう入らない
+
+    public uint DecreaseItem(uint decreaseNumber)
+    {
+        if(_item == null)return 0;
+        uint remain = decreaseNumber;
+
+        Debug.Log(remain + "個減らしたい");
+        for(; remain > 0; remain--)
+        {
+            if(_stackNum == 0)
+            {
+                break;
+            }
+            _stackNum--;
+            //Debug.Log("のこり" + _stackNum + "個:あと" + remain + "へらす");
+        }
+
+        if(_stackNum == 0)
+        {
+            _item.OnDestroy();
+            ResetCell();
+        }
+
+        return _stackNum;
+    }
 
     public uint InsertItem(Item_GUI item, uint insertNumber)
     {
@@ -66,7 +91,7 @@ public class CellObject
             _stackNum++;
             item.StackingNum--;
 
-            if(_stackNum >= _itemData.stackableNum)
+            if(_stackNum >= _itemData.StackableNum)
             {
                 _isStackableOnCell = false;
             }
@@ -104,7 +129,7 @@ public class CellObject
             return true;
         }
         
-        if(_itemData.itemID == item.GetItemData().itemID)return true;
+        if(_itemData.ItemID == item.GetItemData().ItemID)return true;
         else return false;
     }
 }

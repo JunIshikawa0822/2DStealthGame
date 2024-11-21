@@ -28,9 +28,14 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
 
     public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
-        if(item.GetItemData().itemKind != Scriptable_ItemData.ItemKind.Gun)return false;
+        if(item.GetItemData() is IGunData)return false;
         if(item.GetDirection() != Item_GUI.ItemDir.Down)return false;
         return true;
+    }
+
+    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
+    {
+        
     }
 
 

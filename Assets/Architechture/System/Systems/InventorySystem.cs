@@ -10,7 +10,7 @@ public class InventorySystem : ASystem, IOnUpdate
     private GameObject _UGUIPanel;
 #region test
     private Item_GUI _item_GUI_Prefab;
-    private List<Scriptable_ItemData> _item_Data_List;
+    //private List<Scriptable_ItemData> _item_Data_List;
 #endregion
 
     private IInventory _toInventory;
@@ -32,7 +32,6 @@ public class InventorySystem : ASystem, IOnUpdate
     {
         _UGUIPanel = gameStat.inventoryPanel;
         _item_GUI_Prefab = gameStat.item_GUI;
-        _item_Data_List = gameStat.item_Data_List;
 
         gameStat.inventoriesList.Add(gameStat.playerInventory);
         gameStat.inventoriesList.Add(gameStat.otherInventory);
@@ -42,23 +41,23 @@ public class InventorySystem : ASystem, IOnUpdate
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         PanelLoad();
         
-        Item_GUI instance1 = InstantiateObject(_item_Data_List[0], 5);
+        Item_GUI instance1 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 5);
         gameStat.inventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         //test1.anchoredPosition = _tetrisInventoriesList[0].grid.GetCellOriginAnchoredPosition(0, 0);
-        Item_GUI instance2 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance2 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 1);
         gameStat.inventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
-        Item_GUI instance3 = InstantiateObject(_item_Data_List[0], 3);
+        Item_GUI instance3 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 3);
         gameStat.inventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
-        Item_GUI instance4 = InstantiateObject(_item_Data_List[0], 2);
+        Item_GUI instance4 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 2);
         gameStat.inventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
-        Item_GUI instance5 = InstantiateObject(_item_Data_List[0], 1);
+        Item_GUI instance5 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 1);
         gameStat.inventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
-        Item_GUI instance6 = InstantiateObject(_item_Data_List[0], 4);
+        Item_GUI instance6 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 4);
         gameStat.inventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
@@ -88,7 +87,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
         if(_draggingObject != null)
         {
-            if(!_draggingObject.GetItemData().canRotate)return;
+            if(!_draggingObject.GetItemData().CanRotate)return;
 
             if(Input.GetKeyDown(KeyCode.R))
             {
@@ -113,13 +112,13 @@ public class InventorySystem : ASystem, IOnUpdate
         }
     }
 
-    private Item_GUI InstantiateObject(Scriptable_ItemData itemData, uint stackNum)
+    private Item_GUI InstantiateObject(IObjectData itemData, uint stackNum)
     {
         //Debug.Log(stackNum);
         //Debug.Log(itemData.stackableNum);
-        if(stackNum > itemData.stackableNum)
+        if(stackNum > itemData.StackableNum)
         {
-            stackNum = itemData.stackableNum;
+            stackNum = itemData.StackableNum;
         }
         else if(stackNum < 1)
         {
@@ -131,7 +130,7 @@ public class InventorySystem : ASystem, IOnUpdate
         item.StackingNum = stackNum;
 
         item.onBeginDragEvent += StartDragging;
-        //item.onDragEvent += OnDragging;
+        item.onUseEvent += ItemUse;
         item.onEndDragEvent += EndDragging;
 
         return item;
@@ -144,6 +143,12 @@ public class InventorySystem : ASystem, IOnUpdate
 
         Vector3 offsetVec = new Vector3(x, y, 0);
         return offsetVec;
+    }
+
+    public void ItemUse(Item_GUI item)
+    {
+        Debug.Log(item.GetItemData().ItemName + "を使った");
+        item.GetBelongingInventory().DecreaseItemNum(item, item.GetRectTransform().position, item.GetDirection(), 1);
     }
 
     public void StartDragging(Item_GUI item)

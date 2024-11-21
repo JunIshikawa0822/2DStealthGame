@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
 
-public class Handgun_CreateConcreteFactory : IFactory<Handgun>
+public class SubMachinegun_CreateConcreteFactory : IFactory<Handgun>
 {
     Handgun _handGun;
 
-    public Handgun_CreateConcreteFactory(Handgun handGun)
+    public SubMachinegun_CreateConcreteFactory(Handgun handGun)
     {
         _handGun = handGun;
     }

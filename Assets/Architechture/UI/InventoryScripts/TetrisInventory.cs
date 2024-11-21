@@ -145,6 +145,7 @@ public class TetrisInventory : MonoBehaviour, IInventory
         item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
+        item.SetImageSize(_cellSize);
 
         return remain;
     }
@@ -153,6 +154,28 @@ public class TetrisInventory : MonoBehaviour, IInventory
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
         return grid.GetCellNum(convertPosition);
+    }
+
+    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
+    {
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
+
+        Debug.Log("なんばん:" + cellNumsList[0]);
+        CellObject cellObject =  grid.GetCellObject(cellNumsList[0]);
+        uint remain = grid.GetCellObject(cellNumsList[0]).DecreaseItem(num);
+        cellObject.SetStack();
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cell =  grid.GetCellObject(cellNumsList[i]);
+
+            if(remain <= 0)
+            {
+                cell.ResetCell();
+            }
+        }
     }
 
     public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
@@ -186,6 +209,7 @@ public class TetrisInventory : MonoBehaviour, IInventory
         item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
+        item.SetImageSize(_cellSize);
 
         return remain;
     }

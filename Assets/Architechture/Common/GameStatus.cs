@@ -22,7 +22,7 @@ public class GameStatus
     public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
-    public HandGun Pistol1;
+    public Handgun Pistol1;
     [HideInInspector]public IGun[] playerGunsArray = new IGun[2];
     [HideInInspector]public int selectingGunsArrayIndex = 0;
 
@@ -31,6 +31,9 @@ public class GameStatus
 
     [Header("EnemiesInfo")]
     public Enemy_Bandit_Controller bandit;
+
+    [Header("ItemData")]
+    public ScriptableObject[] itemDataArray;
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
@@ -59,7 +62,7 @@ public class GameStatus
     [Header("UGUI")]
     public Canvas canvas;
     public Item_GUI item_GUI;
-    public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
+    //public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
     public List<IInventory> inventoriesList = new List<IInventory>();
 
     public TetrisInventory playerInventory;
@@ -74,9 +77,12 @@ public class GameStatus
     [HideInInspector]
     public ObjectPool<Bullet_10mm> bullet_10mm_ObjectPool;
     [HideInInspector]
-    public IFactory<Bullet_10mm> bullet_10mm_factory;
+    public IFactory<Bullet_10mm> bullet_10mm_Factory;
 
     [Header("Enemy")]
     public Transform enemyParent;
 #endregion
+
+    [Header("Factory")]
+    public IFactory<Handgun> handgun_Factory;
 }

@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
-public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
+public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private ItemDir _itemDirection;
     private RectTransform _rectTransform;
@@ -13,13 +14,16 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private CellNumber _belongingCellNum;
     private Vector3 _belongingPosition;
     public uint StackingNum{get; set;}
-    private Scriptable_ItemData _itemData;
+    private IObjectData _itemData;
     [SerializeField]
     private GameObject _backGroundObject;
     [SerializeField]
     private GameObject _backGroundPrefab;
     [SerializeField]
     private Image _itemImage;
+
+    [SerializeField]
+    private Image _useButton;
     //透過率調整用
     private CanvasGroup _canvasGroup;
     [SerializeField]
@@ -29,6 +33,8 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public event Action<Item_GUI> onBeginDragEvent;
     public event Action<Item_GUI> onEndDragEvent;
     public event Action<Item_GUI> onDragEvent;
+
+    public event Action<Item_GUI> onUseEvent;
     
     public enum ItemDir
     {
@@ -39,7 +45,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         Middle
     }
 
-    public void OnSetUp(Scriptable_ItemData itemData)
+    public void OnSetUp(IObjectData itemData)
     {
         _rectTransform = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -49,8 +55,10 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         // Debug.Log(_itemData.heightInGUI);
 
         _itemDirection = ItemDir.Down;
-        _itemImage.sprite = itemData.itemImage;
+        _itemImage.sprite = itemData.ItemImage;
         BackGroundInit();
+
+        _useButton.gameObject.SetActive(false);
     }
 
 #region stackNumここでセットする？
@@ -66,7 +74,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         switch (itemDirection) 
         {
             default:
-            case ItemDir.Down :  
+            case ItemDir.Down : 
                 _rectTransform.rotation = Quaternion.Euler(0, 0, 0);
                 break;
             case ItemDir.Right:  
@@ -83,6 +91,11 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public void SetAnchorPosition(Vector3 pos)
     {
         _rectTransform.anchoredPosition = pos;
+    }
+
+    public void SetImageSize(float cellSize)
+    {
+        _rectTransform.sizeDelta = new Vector2(cellSize * _itemData.Width, cellSize * _itemData.Height);
     }
 
     public void SetPivot(ItemDir direction)
@@ -113,7 +126,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     private void BackGroundInit()
     {
-        uint occupyCellNum = _itemData.widthInGUI * _itemData.heightInGUI;
+        uint occupyCellNum = _itemData.Width * _itemData.Height;
         for(int i = 0; i < occupyCellNum; i++)
         {
             Instantiate(_backGroundPrefab, _backGroundObject.transform);
@@ -153,10 +166,10 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public RectTransform GetRectTransform(){return _rectTransform;}
     public IInventory GetBelongingInventory(){return _belongingInventory;}
     public CellNumber GetBelongingCellNum(){return _belongingCellNum;}
-    public Scriptable_ItemData GetItemData(){return _itemData;}
+    public IObjectData GetItemData(){return _itemData;}
     //public uint GetStackNum(){return _stackingNum;}
 
-    public ItemDir GetNextDir(ItemDir dir) 
+    public ItemDir GetNextDir(ItemDir dir)
     {
         switch (dir) {
             default:
@@ -299,18 +312,18 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         {
             default:
             case ItemDir.Down:
-                for (int x = 0; x < _itemData.widthInGUI; x++) 
+                for (int x = 0; x < _itemData.Width; x++) 
                 {
-                    for (int y = 0; y < _itemData.heightInGUI; y++) 
+                    for (int y = 0; y < _itemData.Height; y++) 
                     {
                         gridPositionList.Add(originCellNum + new CellNumber(x, y));
                     }
                 }
                 break;
             case ItemDir.Right:
-                for (int x = 0; x < _itemData.heightInGUI; x++) 
+                for (int x = 0; x < _itemData.Height; x++) 
                 {
-                    for (int y = 0; y < _itemData.widthInGUI; y++) 
+                    for (int y = 0; y < _itemData.Width; y++) 
                     {
                         gridPositionList.Add(originCellNum + new CellNumber(x, y));
                     }
@@ -322,30 +335,46 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public CellNumber[] GetOccupyCells(ItemDir itemDirection, CellNumber originCellNum)
     {
-        CellNumber[] gridPositionsArray = new CellNumber[_itemData.widthInGUI * _itemData.heightInGUI];
+        CellNumber[] gridPositionsArray = new CellNumber[_itemData.Width * _itemData.Height];
         switch (itemDirection)
         {
             default:
             case ItemDir.Down:
-                for (int x = 0; x < _itemData.widthInGUI; x++) 
+                for (int x = 0; x < _itemData.Width; x++) 
                 {
-                    for (int y = 0; y < _itemData.heightInGUI; y++)
+                    for (int y = 0; y < _itemData.Height; y++)
                     {
-                        gridPositionsArray[_itemData.heightInGUI * x + y] = originCellNum + new CellNumber(x, y);
+                        gridPositionsArray[_itemData.Height * x + y] = originCellNum + new CellNumber(x, y);
                     }
                 }
                 break;
             case ItemDir.Right:
-                for (int x = 0; x < _itemData.heightInGUI; x++)
+                for (int x = 0; x < _itemData.Height; x++)
                 {
-                    for (int y = 0; y < _itemData.widthInGUI; y++)
+                    for (int y = 0; y < _itemData.Width; y++)
                     {
-                        gridPositionsArray[_itemData.widthInGUI * x + y] = originCellNum + new CellNumber(x, y);
+                        gridPositionsArray[_itemData.Width * x + y] = originCellNum + new CellNumber(x, y);
                     }
                 }
                 break;
         }
         return gridPositionsArray;
+    }
+
+    public void OnUse()
+    {
+        if(onUseEvent == null)return;
+        onUseEvent.Invoke(this);
+    }
+
+    public void OnPointerEnter(PointerEventData pointerEventData)
+    {
+        _useButton.gameObject.SetActive(true);
+    }
+
+    public void OnPointerExit(PointerEventData pointerEventData)
+    {
+        _useButton.gameObject.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData pointerEventData)
