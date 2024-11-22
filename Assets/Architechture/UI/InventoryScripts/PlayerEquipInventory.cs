@@ -28,8 +28,8 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
 
     public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
-        if(item.GetItemData() is IGunData)return false;
-        if(item.GetDirection() != Item_GUI.ItemDir.Down)return false;
+        if(item.ItemData is IGunData)return false;
+        if(item.ItemDirection != Item_GUI.ItemDir.Down)return false;
         return true;
     }
 
@@ -44,7 +44,7 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
         _item = item;
 
         item.SetBelongings(this, inventoryRectTransform.position, direction);
-        item.GetRectTransform().SetParent(inventoryRectTransform);
+        item.RectTransform.SetParent(inventoryRectTransform);
         item.SetPivot(Item_GUI.ItemDir.Middle);
         item.SetPosition(transform.position);
         image.GetComponent<RectTransform>().position = transform.position;
@@ -58,7 +58,7 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
         _item = item;
 
         item.SetBelongings(this, inventoryRectTransform.position, direction);
-        item.GetRectTransform().SetParent(inventoryRectTransform);
+        item.RectTransform.SetParent(inventoryRectTransform);
         item.SetPivot(Item_GUI.ItemDir.Middle);
         item.SetAnchorPosition(transform.position);
         item.SetRotation(direction);
@@ -68,6 +68,11 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
     public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
         _item = null;
+    }
+
+    public void RemoveItemFromInventory(CellNumber cellNum)
+    {
+        
     }
 
     public bool IsValid(Vector3 pos)

@@ -8,11 +8,18 @@ using Unity.VisualScripting;
 
 public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    private ItemDir _itemDirection;
+    public ItemDir _itemDirection;
     private RectTransform _rectTransform;
     private IInventory _belongingInventory;
     private CellNumber _belongingCellNum;
     private Vector3 _belongingPosition;
+
+    public ItemDir ItemDirection {get => _itemDirection;}
+    public RectTransform RectTransform {get => _rectTransform;}
+    public IInventory BelongingInventory {get => _belongingInventory;}
+    public CellNumber BelongingCellNum {get => _belongingCellNum;}
+    public IObjectData ItemData {get => _itemData;}
+
     public uint StackingNum{get; set;}
     private IObjectData _itemData;
     [SerializeField]
@@ -162,11 +169,6 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     }
 
     //public Scriptable_UI_Item GetItemData(){return _itemData;}
-    public ItemDir GetDirection(){return _itemDirection;}
-    public RectTransform GetRectTransform(){return _rectTransform;}
-    public IInventory GetBelongingInventory(){return _belongingInventory;}
-    public CellNumber GetBelongingCellNum(){return _belongingCellNum;}
-    public IObjectData GetItemData(){return _itemData;}
     //public uint GetStackNum(){return _stackingNum;}
 
     public ItemDir GetNextDir(ItemDir dir)
@@ -369,12 +371,12 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void OnPointerEnter(PointerEventData pointerEventData)
     {
-        _useButton.gameObject.SetActive(true);
+        if(_itemData.IsClickUse)_useButton.gameObject.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData pointerEventData)
     {
-        _useButton.gameObject.SetActive(false);
+        if(_itemData.IsClickUse)_useButton.gameObject.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData pointerEventData)
@@ -386,6 +388,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public void OnBeginDrag(PointerEventData pointerEventData)
     {
         if(onBeginDragEvent == null)return;
+        _useButton.gameObject.SetActive(false);
         _backGroundObject.SetActive(true);
         _canvasGroup.alpha = 0.8f;
         onBeginDragEvent.Invoke(this);
@@ -394,6 +397,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public void OnEndDrag(PointerEventData pointerEventData)
     {
         if(onEndDragEvent == null)return;
+        _useButton.gameObject.SetActive(false);
         _backGroundObject.SetActive(false);
         _canvasGroup.alpha = 1f;
         onEndDragEvent.Invoke(this);

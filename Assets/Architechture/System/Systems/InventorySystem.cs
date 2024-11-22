@@ -26,7 +26,10 @@ public class InventorySystem : ASystem, IOnUpdate
     private Vector3[] _offsetArray = new Vector3[4];
     private Vector3 _positionOffset;
     private Vector3 _oldPosition;
-    // private Vector3 _newPosition;
+
+    //------------------
+
+    private CellNumber _oldCellNum;
 
     public override void OnSetUp()
     {
@@ -41,23 +44,23 @@ public class InventorySystem : ASystem, IOnUpdate
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         PanelLoad();
         
-        Item_GUI instance1 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 5);
+        Item_GUI instance1 = InstantiateObject(gameStat.itemDataArray[2] as IObjectData, 5);
         gameStat.inventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         //test1.anchoredPosition = _tetrisInventoriesList[0].grid.GetCellOriginAnchoredPosition(0, 0);
-        Item_GUI instance2 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 1);
+        Item_GUI instance2 = InstantiateObject(gameStat.itemDataArray[3] as IObjectData, 1);
         gameStat.inventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
         Item_GUI instance3 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 3);
         gameStat.inventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
-        Item_GUI instance4 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 2);
+        Item_GUI instance4 = InstantiateObject(gameStat.itemDataArray[3] as IObjectData, 2);
         gameStat.inventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
-        Item_GUI instance5 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 1);
+        Item_GUI instance5 = InstantiateObject(gameStat.itemDataArray[1] as IObjectData, 1);
         gameStat.inventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
-        Item_GUI instance6 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 4);
+        Item_GUI instance6 = InstantiateObject(gameStat.itemDataArray[2] as IObjectData, 4);
         gameStat.inventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
@@ -87,10 +90,10 @@ public class InventorySystem : ASystem, IOnUpdate
 
         if(_draggingObject != null)
         {
-            if(!_draggingObject.GetItemData().CanRotate)return;
-
             if(Input.GetKeyDown(KeyCode.R))
             {
+                if(!_draggingObject.ItemData.CanRotate)return;
+
                 _newDirection = _draggingObject.GetNextDir(_newDirection);//OK
                 _oldAngle = _draggingObject.GetRotationAngle(_oldDirection);
                 _newAngle = _draggingObject.GetRotationAngle(_newDirection);//OK
@@ -147,8 +150,10 @@ public class InventorySystem : ASystem, IOnUpdate
 
     public void ItemUse(Item_GUI item)
     {
-        Debug.Log(item.GetItemData().ItemName + "を使った");
-        item.GetBelongingInventory().DecreaseItemNum(item, item.GetRectTransform().position, item.GetDirection(), 1);
+        Debug.Log(item.ItemData.ItemName + "を使った");
+        item.BelongingInventory.DecreaseItemNum(item, item.RectTransform.position, item.ItemDirection, 1);
+
+        
     }
 
     public void StartDragging(Item_GUI item)
@@ -157,16 +162,16 @@ public class InventorySystem : ASystem, IOnUpdate
         if(item == null)return;
 
         _draggingObject = item;
-        _oldDirection = _newDirection = item.GetDirection();
-        _fromInventory = item.GetBelongingInventory();
-        _oldPosition = item.GetRectTransform().position;
+        _oldDirection = _newDirection = item.ItemDirection;
+        _fromInventory = item.BelongingInventory;
+        _oldPosition = item.RectTransform.position;
 
         _rotateAngle = 0;
 
         Vector3 mousePos = Input.mousePosition;
 
         Vector3[] corners = new Vector3[4];
-        item.GetRectTransform().GetWorldCorners(corners);
+        item.RectTransform.GetWorldCorners(corners);
 
         //GetWorldCornersはCanvasのRenderModeによって変わるらしい
         //ScreenSpace OverlayならそのままScreen座標

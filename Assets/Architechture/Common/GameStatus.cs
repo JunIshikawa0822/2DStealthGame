@@ -35,6 +35,8 @@ public class GameStatus
     [Header("ItemData")]
     public ScriptableObject[] itemDataArray;
 
+    
+
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
     public Bullet_10mm bullet_10mm;

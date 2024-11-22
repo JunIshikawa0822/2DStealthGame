@@ -12,8 +12,10 @@ public class CellObject
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
     private uint _stackNum;
-    public CellNumber Origin{get; set;}
     private bool _isStackableOnCell;
+
+    public CellNumber Origin{get; set;}
+    public Item_GUI ItemInCell{get => _item;}
 
     public CellObject(int x, int y) 
     {
@@ -25,7 +27,7 @@ public class CellObject
         _stackNum = 0;
     }
 
-    public Item_GUI GetItemInCell(){return _item;}
+    //public Item_GUI GetItemInCell(){return _item;}
     //public CellNumber GetOriginCellNum(){return originCellNum;}
     public bool GetStackabilty()
     {
@@ -74,7 +76,7 @@ public class CellObject
         if(_item == null)
         {
             _item = item;
-            _itemData = item.GetItemData();
+            _itemData = item.ItemData;
             itemBreak = false;
         }
 
@@ -129,7 +131,7 @@ public class CellObject
             return true;
         }
         
-        if(_itemData.ItemID == item.GetItemData().ItemID)return true;
+        if(_itemData.ItemID == item.ItemData.ItemID)return true;
         else return false;
     }
 }
