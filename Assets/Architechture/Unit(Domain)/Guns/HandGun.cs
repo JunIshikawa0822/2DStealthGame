@@ -3,26 +3,23 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class HandGun : MonoBehaviour, IGun<Bullet_10mm> 
+public class Handgun : MonoBehaviour, IGun<Bullet_10mm>, IItem
 {
     //発射の内部的な処理に必要
     //----------------------------------------
-    [SerializeField]
     private float _muzzleVelocity = 700f;
-    [SerializeField] 
-    private Transform _muzzlePosition;
-    [SerializeField]
     private float _shotInterval = 0.5f;
-    private LineRenderer _muzzleFlashRenderer;
+    //----------------------------------------
 
+    [SerializeField] 
+    private Transform _muzzlePosition; 
+    private LineRenderer _muzzleFlashRenderer;
     private IObjectPool<Bullet_10mm> _objectPool;
-    //private IBulletFactories _bulletFactories;
-    //private IFactory<Bullet_10mm> _bulletcaliberFactory;
+
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
     private CancellationTokenSource _shotIntervalTokenSource;
-
     //----------------------------------------
 
     //銃に必要な処理
@@ -42,8 +39,10 @@ public class HandGun : MonoBehaviour, IGun<Bullet_10mm>
         _isJamming = false;
     }
 
-    public void Init(float velocity, int simulNum, float shotInterval)
+    public void HandGunInit(float velocity, float shotInterval)
     {
+        _muzzleVelocity = velocity;
+        _shotInterval = shotInterval;
 
     }
 

@@ -22,7 +22,7 @@ public class EnemySystem : ASystem, IOnUpdate
         Debug.Log("つくった");
         #region 銃の割り当て
         Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
-        HandGun gun = GameObject.Instantiate(gameStat.Pistol1);
+        Handgun gun = GameObject.Instantiate(gameStat.Pistol1);
 
         gun.Reload(new Entity_Magazine(10, 10));
         gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);

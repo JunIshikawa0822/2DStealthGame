@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class ShotGun : MonoBehaviour, IGun<Bullet_10mm> 
+public class Shotgun : MonoBehaviour, IGun<Bullet_10mm> 
 {
     [SerializeField]
     private float _muzzleVelocity = 700f;

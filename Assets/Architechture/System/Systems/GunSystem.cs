@@ -16,8 +16,8 @@ public class GunSystem : ASystem, IOnFixedUpdate
         this._player = gameStat.player;
 
         
-        gameStat.bullet_10mm_factory = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
-        gameStat.bullet_10mm_ObjectPool = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, gameStat.bullet_10mm_factory);
+        gameStat.bullet_10mm_Factory = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
+        gameStat.bullet_10mm_ObjectPool = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, gameStat.bullet_10mm_Factory);
         //口径ごとのObjectPoolをそれぞれSetup
         gameStat.bullet_10mm_ObjectPool.PoolSetUp(20);
 

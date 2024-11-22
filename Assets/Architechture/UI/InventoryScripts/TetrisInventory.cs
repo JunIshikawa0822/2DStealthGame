@@ -101,7 +101,7 @@ public class TetrisInventory : MonoBehaviour, IInventory
         // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
         // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
 
-        if(cell.GetItemInCell() != null)
+        if(cell.ItemInCell != null)
         {
             image.enabled = false;
         }
@@ -141,10 +141,11 @@ public class TetrisInventory : MonoBehaviour, IInventory
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
 
         item.SetBelongings(this, newPosition, direction);
-        item.GetRectTransform().SetParent(container);
+        item.RectTransform.SetParent(container);
         item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
+        item.SetImageSize(_cellSize);
 
         return remain;
     }
@@ -153,6 +154,28 @@ public class TetrisInventory : MonoBehaviour, IInventory
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
         return grid.GetCellNum(convertPosition);
+    }
+
+    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
+    {
+        Vector3 coordinateOffset = new Vector3(_cellSize/2, -_cellSize/2);
+        CellNumber originCellNum = ScreenPosToCellNum(originPos + coordinateOffset);
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
+
+        Debug.Log("なんばん:" + cellNumsList[0]);
+        CellObject cellObject =  grid.GetCellObject(cellNumsList[0]);
+        uint remain = grid.GetCellObject(cellNumsList[0]).DecreaseItem(num);
+        cellObject.SetStack();
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cell =  grid.GetCellObject(cellNumsList[i]);
+
+            if(remain <= 0)
+            {
+                cell.ResetCell();
+            }
+        }
     }
 
     public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
@@ -182,10 +205,11 @@ public class TetrisInventory : MonoBehaviour, IInventory
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
 
         item.SetBelongings(this, newPosition, direction);
-        item.GetRectTransform().SetParent(container);
+        item.RectTransform.SetParent(container);
         item.SetPivot(direction);
         item.SetAnchorPosition(newPosition);
         item.SetRotation(direction);
+        item.SetImageSize(_cellSize);
 
         return remain;
     }
@@ -209,6 +233,87 @@ public class TetrisInventory : MonoBehaviour, IInventory
             cellObject.ResetCell();
         }
     }
+
+    public void RemoveItemFromInventory(CellNumber originCellNum)
+    {
+        Item_GUI item = grid.GetCellObject(originCellNum).ItemInCell;
+        Item_GUI.ItemDir direction = item.ItemDirection;
+        List<CellNumber> removeCellNumList = item.GetCellNumList(originCellNum, direction);
+
+        for(int i = 0; i < removeCellNumList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
+
+            cellObject.ResetCell();
+        }
+    }
+
+    public bool CanPlaceItem(Item_GUI item, CellNumber originCellNum, Item_GUI.ItemDir direction)
+    {
+        List<CellNumber> cellNumsList = item.GetCellNumList(originCellNum, direction);
+
+        bool canPlace = true;
+        CellNumber cashedOriginCellNum = new CellNumber(0, 0);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellNumber checkingCellNum = cellNumsList[i];
+            bool isValidPosition = grid.IsValidCellNum(checkingCellNum);
+
+            if (!isValidPosition)
+            {
+                canPlace = false;
+                break;
+            }
+            //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
+            CellNumber cellOrigin = grid.GetCellObject(checkingCellNum).Origin;
+
+            if(i == 0)
+            {
+                cashedOriginCellNum = cellOrigin;
+            }
+            else
+            {
+                //originCellが同じでないものがある＝はみ出しがある
+                if(cashedOriginCellNum != cellOrigin)
+                {
+                    canPlace = false;
+                    break;
+                }
+
+                cashedOriginCellNum = cellOrigin;
+            }
+        }
+
+        CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
+
+        if(cashedOriginCellNum != null)
+        {
+            if(!originCell.CheckEquality(item))
+            {
+                canPlace = false;
+                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
+            }
+
+            if(originCell.GetStackabilty() == false)
+            {
+                Debug.Log("挿入先が満杯だよ!");
+                canPlace = false;
+            }
+        }
+        
+        if(canPlace)
+        {
+            Debug.Log("置けるよ！");
+            return true;
+        }
+        else
+        {
+            Debug.Log("置けないよ！");
+            return false;
+        }
+    }
+
 
     public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {
