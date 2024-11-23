@@ -44,23 +44,23 @@ public class InventorySystem : ASystem, IOnUpdate
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         PanelLoad();
         
-        Item_GUI instance1 = InstantiateObject(gameStat.itemDataArray[2] as IObjectData, 5);
+        Item_GUI instance1 = InstantiateObject(gameStat.itemDataArray[2] as A_Item_Data, 5);
         gameStat.inventoriesList[0].InsertItemToInventory(instance1, new CellNumber(0,0), /*instance1.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum1*/);
         
         //test1.anchoredPosition = _tetrisInventoriesList[0].grid.GetCellOriginAnchoredPosition(0, 0);
-        Item_GUI instance2 = InstantiateObject(gameStat.itemDataArray[3] as IObjectData, 1);
+        Item_GUI instance2 = InstantiateObject(gameStat.itemDataArray[3] as A_Item_Data, 1);
         gameStat.inventoriesList[1].InsertItemToInventory(instance2, new CellNumber(4,5), /*instance2.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum2*/);
 
-        Item_GUI instance3 = InstantiateObject(gameStat.itemDataArray[0] as IObjectData, 3);
+        Item_GUI instance3 = InstantiateObject(gameStat.itemDataArray[0] as A_Item_Data, 3);
         gameStat.inventoriesList[0].InsertItemToInventory(instance3, new CellNumber(0,2), /*instance3.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum3*/);
 
-        Item_GUI instance4 = InstantiateObject(gameStat.itemDataArray[3] as IObjectData, 2);
+        Item_GUI instance4 = InstantiateObject(gameStat.itemDataArray[3] as A_Item_Data, 2);
         gameStat.inventoriesList[0].InsertItemToInventory(instance4, new CellNumber(0,4), /*instance4.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum4*/);
 
-        Item_GUI instance5 = InstantiateObject(gameStat.itemDataArray[1] as IObjectData, 1);
+        Item_GUI instance5 = InstantiateObject(gameStat.itemDataArray[1] as A_Item_Data, 1);
         gameStat.inventoriesList[0].InsertItemToInventory(instance5, new CellNumber(0,6), /*instance5.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum5*/);
 
-        Item_GUI instance6 = InstantiateObject(gameStat.itemDataArray[2] as IObjectData, 4);
+        Item_GUI instance6 = InstantiateObject(gameStat.itemDataArray[2] as A_Item_Data, 4);
         gameStat.inventoriesList[0].InsertItemToInventory(instance6, new CellNumber(0,8), /*instance6.GetStackNum(), */Item_GUI.ItemDir.Down/*, out int remainNum6*/);
     }
 
@@ -115,7 +115,7 @@ public class InventorySystem : ASystem, IOnUpdate
         }
     }
 
-    private Item_GUI InstantiateObject(IObjectData itemData, uint stackNum)
+    private Item_GUI InstantiateObject(A_Item_Data itemData, uint stackNum)
     {
         //Debug.Log(stackNum);
         //Debug.Log(itemData.stackableNum);

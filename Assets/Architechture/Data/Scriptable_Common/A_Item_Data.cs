@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 
-[CreateAssetMenu(fileName = "Scriptable_Shotgun_Data", menuName = "ScriptableObject/ItemData/UnConsumable/Gun/Shotgun", order = 0)]
-public class Scriptable_Shotgun_Data : ScriptableObject, IObjectData
+using System;
+using UnityEngine;
+
+public abstract class A_Item_Data : ScriptableObject
 {
     [Header("GUIの情報")]
     [SerializeField]private string _nameString;
@@ -15,11 +13,6 @@ public class Scriptable_Shotgun_Data : ScriptableObject, IObjectData
     [SerializeField]private uint _heightInGUI;
     [SerializeField]private uint _stackableNum;
 
-
-    [Header("銃の情報")]
-    public int simulNum;
-    public float muzzleVelocity;
-    public float shotInterval;
     [SerializeField]private int _itemID;
 
     #region GUI基本機能
@@ -31,6 +24,7 @@ public class Scriptable_Shotgun_Data : ScriptableObject, IObjectData
     public Sprite ItemImage{get => _itemImage;}
     public int ItemID{get => _itemID;}
     public string ItemName{get => _nameString;}
-    #endregion
 
+    public abstract Type DataType{get;}
+    #endregion
 }

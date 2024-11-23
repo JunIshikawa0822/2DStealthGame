@@ -8,7 +8,7 @@ public class CellObject
 
     //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
-    IObjectData _itemData;
+    A_Item_Data _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
     private uint _stackNum;
@@ -131,7 +131,7 @@ public class CellObject
             return true;
         }
         
-        if(_itemData.ItemID == item.ItemData.ItemID)return true;
+        if(_itemData.ItemID == item.ItemData.ItemID && _itemData.GetType() == item.ItemData.GetType())return true;
         else return false;
     }
 }

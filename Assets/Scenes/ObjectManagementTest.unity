@@ -28297,6 +28297,11 @@ MonoBehaviour:
     - {fileID: 11400000, guid: cf386292ee36642b3a630f3930debf25, type: 2}
     - {fileID: 11400000, guid: 494acae5352a44589bb06c7242ae8b05, type: 2}
     - {fileID: 11400000, guid: f84e4c12f19d64bbd8e34b60b7fe1899, type: 2}
+    medicineDataArray: []
+    handgunDataArray: []
+    rifleDataArray: []
+    shotgunDataArray: []
+    subMachinegunDataArray: []
     bulletObjectPoolTrans: {fileID: 2107302111}
     bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
       type: 3}

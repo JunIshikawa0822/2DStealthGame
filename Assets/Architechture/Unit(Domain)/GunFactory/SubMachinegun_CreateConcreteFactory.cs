@@ -12,7 +12,7 @@ public class SubMachinegun_CreateConcreteFactory : IFactory<Handgun>
 
     public Handgun ObjectInstantiate(IObjectData data)
     {
-        Scriptable_Handgun_Data handGunData = data as Scriptable_Handgun_Data;
+        Handgun_Data handGunData = data as Handgun_Data;
 
         Handgun handGunInstance = GameObject.Instantiate(_handGun);
         handGunInstance.HandGunInit(handGunData.muzzleVelocity, handGunData.shotInterval);

@@ -18,10 +18,10 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public RectTransform RectTransform {get => _rectTransform;}
     public IInventory BelongingInventory {get => _belongingInventory;}
     public CellNumber BelongingCellNum {get => _belongingCellNum;}
-    public IObjectData ItemData {get => _itemData;}
+    public A_Item_Data ItemData {get => _itemData;}
 
     public uint StackingNum{get; set;}
-    private IObjectData _itemData;
+    private A_Item_Data _itemData;
     [SerializeField]
     private GameObject _backGroundObject;
     [SerializeField]
@@ -52,7 +52,7 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         Middle
     }
 
-    public void OnSetUp(IObjectData itemData)
+    public void OnSetUp(A_Item_Data itemData)
     {
         _rectTransform = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();

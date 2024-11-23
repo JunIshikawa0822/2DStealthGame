@@ -11,7 +11,7 @@ public class ItemSystem : ASystem, IOnUpdate
 
     }
 
-    public void ItemInstanceSetUp()
+    public void ConsumableItemSetUp()
     {
         
     }
