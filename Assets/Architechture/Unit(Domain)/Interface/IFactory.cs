@@ -1,7 +1,7 @@
 using System;
-public interface IFactory<out T>
+public interface IFactory
 {
-    public T ObjectInstantiate(IObjectData customData);
+    public IItem ObjectInstantiate();
 
     //public Type GetFactoryType();
 }

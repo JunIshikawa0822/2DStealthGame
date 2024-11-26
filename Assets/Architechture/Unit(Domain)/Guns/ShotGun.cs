@@ -2,32 +2,30 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class Shotgun : MonoBehaviour, IGun<Bullet_10mm> 
+public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledObject<T>
 {
-    [SerializeField]
+   //発射の内部的な処理に必要
+    //----------------------------------------
     private float _muzzleVelocity = 700f;
+    private float _shotInterval = 0.5f;
+    //----------------------------------------
+
     [SerializeField] 
     private Transform _muzzlePosition;
-    [SerializeField]
-    private float _shotInterval = 0.5f;
     private LineRenderer _muzzleFlashRenderer;
+    private IObjectPool<T> _objectPool;
 
-    private IObjectPool<Bullet_10mm> _objectPool;
-    //private IBulletFactories _bulletFactories;
-    private IFactory<Bullet_10mm> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
     private CancellationTokenSource _shotIntervalTokenSource;
-
     //----------------------------------------
 
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
-    //----------------------------------------
 
-    public void OnSetUp(IObjectPool<Bullet_10mm> objectPool)
+    public void OnSetUp(IObjectPool<T> objectPool)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
@@ -39,7 +37,7 @@ public class Shotgun : MonoBehaviour, IGun<Bullet_10mm>
         _isJamming = false;
     }
 
-    public void Init(float velocity, int simulNum, float shotInterval)
+    public void ShotgunInit( int simulNum, float velocity, float shotInterval)
     {
 
     }
@@ -51,47 +49,7 @@ public class Shotgun : MonoBehaviour, IGun<Bullet_10mm>
 
     public void Shot()
     {
-        //マガジンがないor弾がないとそもそも撃てない
-        if(_magazine == null || _magazine.MagazineRemaining < 1)
-        {
-            Debug.Log("弾、ないよ");
-            return;
-        }
-
-        //射撃と射撃の間隔を制御
-        if(_isShotIntervalActive)return;
-
-        //BulletのFactoryをチェック
-        if(_bulletcaliberFactory == null)return;
         
-        //Poolからもってくる
-        Bullet_10mm bullet = _objectPool.GetFromPool();
-
-        if(bullet == null)
-        {
-            Debug.Log("キャスト無理ぃ");
-            return;
-        }
-
-        if (bullet.gameObject == null)return;
-        //発射
-        Debug.Log("発射");
-        bullet.Init(_muzzlePosition.position);
-        bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
-        bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
-
-        //弾を消費する
-        _magazine.ConsumeBullet();
-        _shotIntervalTokenSource = new CancellationTokenSource();
-        ShotInterval(_shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
-
-        if(_muzzleFlashRenderer == null) return;
-
-        _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
-        
-        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
     public void Reload(Entity_Magazine magazine)

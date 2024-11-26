@@ -1,27 +1,43 @@
 using System;
 using UnityEngine;
 
-public class Shotgun_CreateConcreteFactory : IFactory<Handgun>
+public class Shotgun_CreateConcreteFactory : IGunFactory
 {
-    Handgun _handGun;
+    GameObject _shotgun;
 
-    public Shotgun_CreateConcreteFactory(Handgun handGun)
+    public Shotgun_CreateConcreteFactory(GameObject shotgun)
     {
-        _handGun = handGun;
+        _shotgun = shotgun;
     }
 
-    public Handgun ObjectInstantiate(IObjectData data)
+    public IGun GunInstantiate(IGunData data)
     {
-        Handgun_Data handGunData = data as Handgun_Data;
+        if(data == null)return null;
 
-        Handgun handGunInstance = GameObject.Instantiate(_handGun);
-        handGunInstance.HandGunInit(handGunData.muzzleVelocity, handGunData.shotInterval);
+        Shotgun_Data gunData = data as Shotgun_Data;
+        if(gunData == null) return null;
 
-        return handGunInstance;
-    }
+        switch((int)gunData.CaliberType)
+        {
+            case 0 : {
+                Shotgun<Bullet_10mm> instance = GameObject.Instantiate(_shotgun).GetComponent<Shotgun<Bullet_10mm>>();
+                instance.ShotgunInit(gunData.simulNum, gunData.ShotVelocity, gunData.ShotInterval);
+                return instance;}
 
-    public Type GetFactoryType()
-    {
-        return typeof(Handgun);
+            case 1 : {
+                Shotgun<Bullet_5_56mm> instance = GameObject.Instantiate(_shotgun).GetComponent<Shotgun<Bullet_5_56mm>>();
+                instance.ShotgunInit(gunData.simulNum, gunData.ShotVelocity, gunData.ShotInterval);
+                return instance;}
+            
+            case 2 : {
+                Shotgun<Bullet_7_62mm> instance = GameObject.Instantiate(_shotgun).GetComponent<Shotgun<Bullet_7_62mm>>();
+                instance.ShotgunInit(gunData.simulNum, gunData.ShotVelocity, gunData.ShotInterval);
+                return instance;}
+            
+            default : {
+                Shotgun<Bullet_10mm> instance = GameObject.Instantiate(_shotgun).GetComponent<Shotgun<Bullet_10mm>>();
+                instance.ShotgunInit(gunData.simulNum, gunData.ShotVelocity, gunData.ShotInterval);
+                return instance;}
+        }
     }
 }

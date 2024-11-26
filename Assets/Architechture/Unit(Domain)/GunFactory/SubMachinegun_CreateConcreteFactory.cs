@@ -1,27 +1,24 @@
 using System;
 using UnityEngine;
 
-public class SubMachinegun_CreateConcreteFactory : IFactory<Handgun>
+public class SubMachinegun_CreateConcreteFactory : IGunFactory
 {
-    Handgun _handGun;
+    GameObject _submachinegun;
 
-    public SubMachinegun_CreateConcreteFactory(Handgun handGun)
+    public SubMachinegun_CreateConcreteFactory(GameObject submachinegun)
     {
-        _handGun = handGun;
+        _submachinegun = submachinegun;
     }
 
-    public Handgun ObjectInstantiate(IObjectData data)
+    public IGun GunInstantiate(IGunData data)
     {
-        Handgun_Data handGunData = data as Handgun_Data;
+        if(data == null)return null;
 
-        Handgun handGunInstance = GameObject.Instantiate(_handGun);
-        handGunInstance.HandGunInit(handGunData.muzzleVelocity, handGunData.shotInterval);
+        Shotgun_Data gunData = data as Shotgun_Data;
+        if(gunData == null) return null;
 
-        return handGunInstance;
-    }
-
-    public Type GetFactoryType()
-    {
-        return typeof(Handgun);
+        Shotgun<Bullet_10mm> instance = GameObject.Instantiate(_submachinegun).GetComponent<Shotgun<Bullet_10mm>>();
+        instance.ShotgunInit(gunData.simulNum, gunData.ShotVelocity, gunData.ShotInterval);
+        return instance;
     }
 }

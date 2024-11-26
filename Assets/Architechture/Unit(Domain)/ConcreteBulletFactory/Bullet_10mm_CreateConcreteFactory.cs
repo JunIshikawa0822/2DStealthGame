@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-public class Bullet_10mm_CreateConcreteFactory : IFactory<Bullet_10mm>
+public class Bullet_10mm_CreateConcreteFactory : IFactory
 {
     Bullet_10mm bullet;
 
@@ -9,12 +9,12 @@ public class Bullet_10mm_CreateConcreteFactory : IFactory<Bullet_10mm>
         this.bullet = bullet;
     }
 
-    public Bullet_10mm ObjectInstantiate(IObjectData data)
+    public IItem ObjectInstantiate()
     {
         Bullet_10mm bulletInstance = GameObject.Instantiate(bullet);
         //bulletInstance.OnSetUp();
         
-        return bulletInstance;
+        return bulletInstance as IItem;
     }
 
     public Type GetFactoryType()

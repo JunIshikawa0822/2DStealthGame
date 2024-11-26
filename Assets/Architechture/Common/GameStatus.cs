@@ -34,13 +34,18 @@ public class GameStatus
 
     [Header("ItemData")]
     public ScriptableObject[] itemDataArray;
+    public Food_Data[] foodDataArray;
     public Medicine_Data[] medicineDataArray;
+
     public Handgun_Data[] handgunDataArray;
     public Rifle_Data[] rifleDataArray;
     public Shotgun_Data[] shotgunDataArray;
     public SubMachinegun_Data[] subMachinegunDataArray;
 
-    //[Header("ItemInstance")]
+    [Header("ItemInstance")]
+
+    [HideInInspector] public Food foodInstances;
+    [HideInInspector] public Medicine[] medicineInstances;
     
 
     [Header("Bullets")]

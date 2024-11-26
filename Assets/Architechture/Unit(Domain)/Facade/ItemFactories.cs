@@ -3,10 +3,15 @@ public class ItemFactories
 {
     public ItemFactories()
     {
+
+    }
+
+    public void ItemInstantiate()
+    {
         
     }
 
-    public void ConsumableItemUse(IObjectData objectData)
+    public void ConsumableItemUse(A_Item_Data itemData)
     {
 
     }

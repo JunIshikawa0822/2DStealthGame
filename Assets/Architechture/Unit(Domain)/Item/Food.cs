@@ -1,6 +1,6 @@
 public class Food
 {
-    public Food()
+    public Food(Food_Data data)
     {
         
     }

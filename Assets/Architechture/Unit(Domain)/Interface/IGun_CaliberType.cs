@@ -1,4 +1,4 @@
-public interface IGun<T> : IGun where T : IPooledObject<T> 
+public interface IGun<T>
 {
-    public void OnSetUp(IObjectPool<T> objectPool);
+    public void OnSetUp<T>(IObjectPool<T> objectPool) where T : ABullet, IPooledObject<T>;
 }
