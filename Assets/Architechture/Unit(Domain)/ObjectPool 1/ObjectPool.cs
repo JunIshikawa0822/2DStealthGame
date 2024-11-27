@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class O_ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
+public class ObjectPool<T> : IObjectPool where T : APooledObject
 {
-    private Stack<IPooledObject<T>> _pool;
+    private Stack<APooledObject> _pool;
     private GameObject _parent;
     private Transform _transform;
     private IFactory _factory;
 
-    public O_ObjectPool(Transform poolTransform, IFactory factory)
+    public ObjectPool(Transform poolTransform, IFactory factory)
     {
-        _pool = new Stack<IPooledObject<T>>();
-        _parent = new GameObject($"{typeof(T).ToString()}");
+        _pool = new Stack<APooledObject>();
+        _parent = new GameObject(typeof(T).Name);
         _transform = poolTransform;
 
         _factory = factory;
@@ -28,13 +28,14 @@ public class O_ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledOb
             return;
         }
 
-        Stack<IPooledObject<T>> objectPool = _pool;
+        Stack<APooledObject> objectPool = _pool;
         GameObject poolParent = _parent;
 
         //とりあえずPoolSize分instanceを生成して、見えなくしておく
         for (int i = 0; i < initPoolSize; i++)
         {
             T instance = ObjectInstantiate();
+            Debug.Log(instance);
             if(instance == null)return;
 
             instance.gameObject.transform.SetParent(poolParent.transform);
@@ -43,14 +44,14 @@ public class O_ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledOb
         }
     }
 
-    public T GetFromPool()
+    public APooledObject GetFromPool()
     {
         if(_factory == null)
         {
             return null;
         }
 
-        Stack<IPooledObject<T>> objectPool = _pool;
+        Stack<APooledObject> objectPool = _pool;
         GameObject poolParent = _parent;
 
         // プールに在庫があればそれを使用、なければ新規作成
@@ -70,17 +71,17 @@ public class O_ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledOb
 
     public T ObjectInstantiate()
     {
-        IPooledObject<T> instance = _factory.ObjectInstantiate() as IPooledObject<T>;
+        T instance = _factory.ObjectInstantiate() as T;
         if(instance == null)return null;
 
         instance.SetPoolAction(ReturnToPool);
-        return instance as T;
+        return instance;
     }
     
     // 弾をプールに戻す
-    public void ReturnToPool(T pooledObject)
+    public void ReturnToPool(APooledObject pooledObject)
     {
-        Stack<IPooledObject<T>> objectPool = _pool;
+        Stack<APooledObject> objectPool = _pool;
 
         objectPool.Push(pooledObject);
         pooledObject.gameObject.SetActive(false);

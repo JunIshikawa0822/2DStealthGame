@@ -27,11 +27,11 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.onPlayerReloadEvent += OnReload;
 
 #region 銃の割り当て
-        //銃の割り当て
-        IGun<Bullet_10mm> gun = gameStat.Pistol1;
-        gun.Reload(new Entity_Magazine(10, 10));
-        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        gameStat.playerGunsArray[0] = gun;
+        // //銃の割り当て
+        // IGun gun = gameStat.Pistol1;
+        // gun.Reload(new Entity_Magazine(10, 10));
+        // gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
+        // gameStat.playerGunsArray[0] = gun;
 #endregion
     }
 

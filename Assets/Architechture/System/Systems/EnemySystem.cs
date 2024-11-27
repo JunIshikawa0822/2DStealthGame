@@ -19,18 +19,18 @@ public class EnemySystem : ASystem, IOnUpdate
 #region やっつけ
     public void EnemyObjectInstantiate(Vector3 pos)
     {
-        Debug.Log("つくった");
-        #region 銃の割り当て
-        Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
-        Handgun gun = GameObject.Instantiate(gameStat.Pistol1);
+        // Debug.Log("つくった");
+        // #region 銃の割り当て
+        // Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
+        // IGun gun = GameObject.Instantiate(gameStat.Pistol1);
 
-        gun.Reload(new Entity_Magazine(10, 10));
-        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        #endregion
+        // gun.Reload(new Entity_Magazine(10, 10));
+        // gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
+        // #endregion
         
-        enemy.OnSetUp(new Entity_HealthPoint(100, 100), gun.transform);
+        // enemy.OnSetUp(new Entity_HealthPoint(100, 100), gun.transform);
 
-        enemy.transform.SetParent(gameStat.enemyParent);
+        // enemy.transform.SetParent(gameStat.enemyParent);
     }
 #endregion
 }

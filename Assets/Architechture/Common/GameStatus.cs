@@ -90,12 +90,15 @@ public class GameStatus
     [HideInInspector]
     public ObjectPool<Bullet_10mm> bullet_10mm_ObjectPool;
     [HideInInspector]
-    public IFactory<Bullet_10mm> bullet_10mm_Factory;
+    public ObjectPool<Bullet_7_62mm> bullet_7_62mm_ObjectPool;
+    [HideInInspector]
+    public ObjectPool<Bullet_5_56mm> bullet_5_56mm_ObjectPool;
 
     [Header("Enemy")]
     public Transform enemyParent;
 #endregion
 
     [Header("Factory")]
-    public IFactory<Handgun> handgun_Factory;
+    public Dictionary<IGunData.CaliberTypes, IFactory> gunFactoriesDictionary;
+    public Dictionary<string, IFactory> itemFactoriesDictionary;
 }

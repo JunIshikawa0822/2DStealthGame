@@ -13,7 +13,7 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
     [SerializeField] 
     private Transform _muzzlePosition;
     private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool<T> _objectPool;
+    private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -25,7 +25,7 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
     //----------------------------------------
     private Entity_Magazine _magazine;
 
-    public void OnSetUp(IObjectPool<T> objectPool)
+    public void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;

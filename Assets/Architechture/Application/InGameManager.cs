@@ -21,7 +21,7 @@ public class InGameManager : MonoBehaviour
             new InputSystem(),
             new GunSystem(),
             new PlayerSystem(),
-            new UISystem(),
+            //new UISystem(),
             new EnemySystem(),
             new InventorySystem()
         };

@@ -1,4 +1,6 @@
-public interface IObjectPool<T> where T : IPooledObject<T>
+using UnityEngine;
+
+public interface IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
 {
     void PoolSetUp(uint index);
     T GetFromPool();

@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class Handgun : MonoBehaviour, IGun, IItem 
+public class Handgun : MonoBehaviour, IGun, IItem
 {
     //発射の内部的な処理に必要
     //----------------------------------------
@@ -11,10 +11,10 @@ public class Handgun : MonoBehaviour, IGun, IItem
     private float _shotInterval = 0.5f;
     //----------------------------------------
 
-    [SerializeField] 
+    [SerializeField]
     private Transform _muzzlePosition;
     private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool<ABullet> _objectPool;
+    private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -27,7 +27,7 @@ public class Handgun : MonoBehaviour, IGun, IItem
     private Entity_Magazine _magazine;
     //----------------------------------------
 
-    public void OnSetUp(IObjectPool<ABullet> objectPool)
+    public void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
@@ -65,7 +65,7 @@ public class Handgun : MonoBehaviour, IGun, IItem
         //_objectPoolの有無をチェック
         if(_objectPool == null)return;
         //Poolからもってくる
-        ABullet bullet = _objectPool.GetFromPool();
+        ABullet bullet = _objectPool.GetFromPool() as ABullet;
 
         if(bullet == null)
         {
