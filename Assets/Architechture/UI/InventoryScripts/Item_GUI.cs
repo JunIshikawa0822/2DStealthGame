@@ -14,12 +14,6 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private CellNumber _belongingCellNum;
     private Vector3 _belongingPosition;
 
-    public ItemDir ItemDirection {get => _itemDirection;}
-    public RectTransform RectTransform {get => _rectTransform;}
-    public IInventory BelongingInventory {get => _belongingInventory;}
-    public CellNumber BelongingCellNum {get => _belongingCellNum;}
-    public A_Item_Data ItemData {get => _itemData;}
-
     public uint StackingNum{get; set;}
     private A_Item_Data _itemData;
     [SerializeField]
@@ -35,6 +29,12 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private CanvasGroup _canvasGroup;
     [SerializeField]
     private TextMeshProUGUI _stackingNumText;
+
+    public ItemDir ItemDirection {get => _itemDirection;}
+    public RectTransform RectTransform {get => _rectTransform;}
+    public IInventory BelongingInventory {get => _belongingInventory;}
+    public CellNumber BelongingCellNum {get => _belongingCellNum;}
+    public A_Item_Data ItemData {get => _itemData;}
 
     public event Action<Item_GUI> onPointerDownEvent;
     public event Action<Item_GUI> onBeginDragEvent;
@@ -142,20 +142,6 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _backGroundObject.SetActive(false);
     }
 
-    // public void ImageInit(float cellSize)
-    // {
-    //     _rectTransform.sizeDelta = new Vector2(_itemData.widthInGUI, _itemData.heightInGUI) * cellSize;
-    //     _backGroundObject.GetComponent<GridLayoutGroup>().cellSize = new Vector2(cellSize, cellSize);
-    // }
-
-    // public void SetBelongings(IInventory belongingInventory, CellNumber belongingCellNum, ItemDir direction, RectTransform parent)
-    // {
-    //     _belongingInventory = belongingInventory;
-    //     _belongingCellNum = belongingCellNum;
-    //     _itemDirection = direction;
-    //     _rectTransform.SetParent(parent);
-    // }
-
     public void SetBelongings(IInventory belongingInventory, Vector3 pos, ItemDir direction)
     {
         _belongingInventory = belongingInventory;
@@ -191,120 +177,6 @@ public class Item_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             case ItemDir.Left : return 270;
         }
     }
-
-    // public CellNumber GetRotationOffset(ItemDir itemDirection) 
-    // {
-    //     switch (itemDirection)
-    //     {
-    //         default:
-    //         case ItemDir.Down:  return new CellNumber(0, 0);
-    //         case ItemDir.Right:  return new CellNumber((int)_itemData.heightInGUI, 0);
-    //     }
-    // }
-
-    // public ItemDir GetEnumByIndex(int index)
-    // {
-    //     ItemDir[] directions = (ItemDir[])Enum.GetValues(typeof(ItemDir));
-    //     if (index >= 0 && index < directions.Length)
-    //     {
-    //         return directions[index];
-    //     }
-    //     else
-    //     {
-    //         throw new ArgumentOutOfRangeException(nameof(index), "インデックスが範囲外です");
-    //     }
-    // }
-
-    // public CellNumber GetRotatedCellNumOffset(ItemDir originDirection, ItemDir newDirection, CellNumber offset)
-    // {
-    //     int rest_x = (int)(_itemData.widthInGUI - 1) - offset.x;
-    //     int rest_y = (int)(_itemData.heightInGUI - 1) - offset.y;
-
-    //     switch(originDirection)
-    //     {
-    //         default:
-    //         case ItemDir.Right:
-    //         //case ItemDir.Right: 
-    //             rest_x = (int)(_itemData.heightInGUI - 1) - offset.x;
-    //             rest_y = (int)(_itemData.widthInGUI - 1) - offset.y;
-    //             break;
-
-    //         case ItemDir.Down: 
-    //         //case ItemDir.Up:
-    //             rest_x = (int)(_itemData.widthInGUI - 1) - offset.x;
-    //             rest_y = (int)(_itemData.heightInGUI - 1) - offset.y;
-    //             break;
-    //     }
-
-    //     CellNumber rotateOffset = new CellNumber(offset.x, offset.y);
-
-    //     if(originDirection == newDirection)
-    //     {
-    //         rotateOffset = new CellNumber(offset.x, offset.y);
-    //         Debug.Log("same");
-    //     }
-    //     else if(newDirection == ItemDir.Down)
-    //     {
-    //         rotateOffset = new CellNumber(offset.y, rest_y);
-    //         Debug.Log("Down");
-    //     }
-    //     else
-    //     {
-    //         rotateOffset = new CellNumber(offset.y, rest_x);
-    //         // Debug.Log("Left");
-    //     }
-
-    //     // Debug.Log("でてくるoffset : " + rotateOffset);
-    //     return rotateOffset;
-    // }
-
-    // public Vector2Int GetCellNumRotateOffset(ItemDir originDirection, ItemDir itemDirection, Vector2Int offset)
-    // {
-    //     int rest_x = (_width - 1) - offset.x;
-    //     int rest_y = (_height - 1) - offset.y;
-
-    //     switch(originDirection)
-    //     {
-    //         default:
-    //         case ItemDir.Left:  
-    //         //case ItemDir.Right: 
-    //             rest_x = (_height - 1) - offset.x;
-    //             rest_y = (_width - 1) - offset.y;
-    //             break;
-
-    //         case ItemDir.Down: 
-    //         //case ItemDir.Up:
-    //             rest_x = (_width - 1) - offset.x;
-    //             rest_y = (_height - 1) - offset.y;
-    //             break;
-    //     }
-
-    //     Vector2Int rotateOffset = new Vector2Int(offset.x, offset.y);
-
-    //     if(itemDirection == originDirection)
-    //     {
-    //         rotateOffset = new Vector2Int(offset.x, offset.y);
-    //         // Debug.Log("same");
-    //     }
-    //     else if(itemDirection == GetNextDir(originDirection))
-    //     {
-    //         rotateOffset = new Vector2Int(rest_y, offset.x);
-    //         // Debug.Log("next");
-    //     }
-    //     else if(itemDirection == GetNextDir(GetNextDir(originDirection)))
-    //     {
-    //         rotateOffset = new Vector2Int(rest_x, rest_y);
-    //         // Debug.Log("next next");
-    //     }
-    //     else
-    //     {
-    //         rotateOffset = new Vector2Int(offset.y, rest_x);
-    //         // Debug.Log("previous");
-    //     }
-
-    //     // Debug.Log("でてくるoffset : " + rotateOffset);
-    //     return rotateOffset;
-    // }
 
     public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemDir itemDirection) 
     {

@@ -15,8 +15,8 @@ public class GameStatus
 
     [Header("Inputs")]
     [HideInInspector]public Vector2 moveDirection = Vector2.zero;
-    [HideInInspector]public Vector2 cursorScreenPosition = Vector2.zero;
-    [HideInInspector]public Vector3 cursorWorldPosition = Vector3.zero;
+    public Vector2 cursorScreenPosition = Vector2.zero;
+    public Vector3 cursorWorldPosition = Vector3.zero;
     //public bool onAttack = false;
     public GameObject cursorObject;
     public UnityEngine.UI.Image cursorImage;
@@ -84,21 +84,14 @@ public class GameStatus
     public PlayerEquipInventory equipInventory2;
 
     public GameObject inventoryPanel;
-    [HideInInspector]public bool isInventoryPanelActive = false;
+    public bool isInventoryPanelActive = false;
 
 #region  即席
-    [HideInInspector]
-    public ObjectPool<Bullet_10mm> bullet_10mm_ObjectPool;
-    [HideInInspector]
-    public ObjectPool<Bullet_7_62mm> bullet_7_62mm_ObjectPool;
-    [HideInInspector]
-    public ObjectPool<Bullet_5_56mm> bullet_5_56mm_ObjectPool;
-
     [Header("Enemy")]
     public Transform enemyParent;
 #endregion
 
-    [Header("Factory")]
-    public Dictionary<IGunData.CaliberTypes, IFactory> gunFactoriesDictionary;
-    public Dictionary<string, IFactory> itemFactoriesDictionary;
+    [Header("FactoryFacade")]
+    public ItemFacade itemFacade;
+    public GunFacade gunFacade;
 }

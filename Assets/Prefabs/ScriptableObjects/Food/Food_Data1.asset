@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6747dd87885f246148515ba4013bae3d, type: 3}
+  m_Name: Food_Data1
+  m_EditorClassIdentifier: 
+  _nameString: 
+  _canRotate: 0
+  _isClickUse: 0
+  _itemImage: {fileID: 0}
+  _widthInGUI: 0
+  _heightInGUI: 0
+  _stackableNum: 0
+  _itemID: 0

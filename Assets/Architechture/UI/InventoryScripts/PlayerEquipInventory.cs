@@ -17,6 +17,7 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
     private Item_GUI _item;
     private IGun gun;
 
+    
     void Awake()
     {
         inventoryRectTransform = this.GetComponent<RectTransform>();

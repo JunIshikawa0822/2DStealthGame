@@ -3,7 +3,7 @@ using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.XR;
 
-public class Gun_10mm_CreateConcreteFactory : IFactory
+public class Gun_10mm_CreateConcreteFactory : IGunFactory
 {
     private Handgun _handgun;
     private ObjectPool<Bullet_10mm> _objectPool;

@@ -4,11 +4,9 @@ using System.Collections.Generic;
 public class GunSystem : ASystem, IOnFixedUpdate
 {
     private IPlayer _player;
-    IFactory _bullet_10mm_Fac;
-    IFactory _bullet_5_56mm_Fac;
-    IFactory _bullet_7_62mm_Fac;
 
-    List<IObjectPool> objectPools;
+    Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
+    List<IObjectPool> _objectPools;
 
     public override void OnSetUp()
     {
@@ -21,23 +19,24 @@ public class GunSystem : ASystem, IOnFixedUpdate
         ObjectPool<Bullet_5_56mm> bullet_5_56mm_Objp = new ObjectPool<Bullet_5_56mm>(gameStat.bulletObjectPoolTrans, bullet_5_56mm_Fac);
         ObjectPool<Bullet_7_62mm> bullet_7_72mm_Objp = new ObjectPool<Bullet_7_62mm>(gameStat.bulletObjectPoolTrans,  bullet_7_62mm_Fac);
 
-        objectPools = new List<IObjectPool>()
+        _objectPools = new List<IObjectPool>()
         {
             bullet_10mm_Objp,
             bullet_5_56mm_Objp,
             bullet_7_72mm_Objp
         };
-        
-        IFactory gun_10mm_Fac = new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1);
-        //IFactory gun_5_56mm_Fac = new Gun_5_56mm_CreateConcreteFactory(bullet_5_56mm_objp, )
-
-        gameStat.gunFactoriesDictionary.Add(IGunData.CaliberTypes._10mm, gun_10mm_Fac);
 
         //口径ごとのObjectPoolをそれぞれSetup
-        foreach(IObjectPool objectPool in objectPools)
+        foreach(IObjectPool objectPool in _objectPools)
         {
             objectPool.PoolSetUp(20);
         }
+
+        _gunFactoriesDic = new Dictionary<IGunData.CaliberTypes, IGunFactory>();
+        _gunFactoriesDic.Add(IGunData.CaliberTypes._10mm, new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1));
+
+        //facadeの作成
+        gameStat.gunFacade = new GunFacade(_gunFactoriesDic);
     }
 
     public void OnFixedUpdate()

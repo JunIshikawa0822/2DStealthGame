@@ -10,7 +10,7 @@ public class PlayerController : AEntity, IPlayer
     [SerializeField]
     private float _player_RotateSpeed = 500;
 
-    private Entity_HealthPoint _playerHP;
+    //private Entity_HealthPoint _playerHP;
 
     [SerializeField] private float _playerMoveForce = 50;
     private Quaternion _targetRotation;
@@ -33,7 +33,7 @@ public class PlayerController : AEntity, IPlayer
         EntitySetUp();
         #endregion
 
-        _playerHP = playerHP;
+        _entityHP = playerHP;
         _drawFieldOfView = drawFieldOfView;
         _find = find;
         _draw = draw;
@@ -74,9 +74,9 @@ public class PlayerController : AEntity, IPlayer
 
     public override void OnDamage(float damage)
     {
-        _playerHP.EntityDamage(damage);
+        _entityHP.EntityDamage(damage);
 
-        if(_playerHP.CurrentHp <= 0)
+        if(_entityHP.CurrentHp <= 0)
         {
             OnEntityDead();
         }
@@ -100,15 +100,15 @@ public class PlayerController : AEntity, IPlayer
         _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
     }
 
-    public override bool IsEntityDead()
-    {
-        if(_playerHP.CurrentHp <= 0)
-        {
-            return true;
-        }
+    // public override bool IsEntityDead()
+    // {
+    //     if(_entityHP.CurrentHp <= 0)
+    //     {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     public override void OnEntityDead()
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public class Storage
 {
     private List<IItem> storageList;
+
     public Storage()
     {
         storageList = new List<IItem>();
@@ -13,11 +14,8 @@ public class Storage
         storageList.Add(item);
     }
 
-    public void TakeItem(IItem item)
+    public void TakeItem(A_Item_Data item)
     {
-        if(storageList.IndexOf(item) >= 0)
-        {
-            
-        }
+        
     }
 }

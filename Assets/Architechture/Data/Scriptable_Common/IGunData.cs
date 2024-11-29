@@ -11,4 +11,6 @@ public interface IGunData
     public CaliberTypes CaliberType{get;}
     public float ShotInterval{get;}
     public float ShotVelocity{get;}
+
+    public uint MaxAmmoNum{get;}
 }

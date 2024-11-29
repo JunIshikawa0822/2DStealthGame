@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6747dd87885f246148515ba4013bae3d, type: 3}
-  m_Name: Scriptable_FoodData
+  m_Script: {fileID: 11500000, guid: 80e67fc32a0564974864d34e77dd4eab, type: 3}
+  m_Name: Medicine_Data1
   m_EditorClassIdentifier: 
   _nameString: 
   _canRotate: 0
@@ -20,3 +20,6 @@ MonoBehaviour:
   _heightInGUI: 0
   _stackableNum: 0
   _itemID: 0
+  hpHealPoint: 0
+  sanityHealPoint: 0
+  useTime: 0

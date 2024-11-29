@@ -25,19 +25,18 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
-
-#region 銃の割り当て
-        // //銃の割り当て
-        // IGun gun = gameStat.Pistol1;
-        // gun.Reload(new Entity_Magazine(10, 10));
-        // gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        // gameStat.playerGunsArray[0] = gun;
-#endregion
     }
 
     public void OnUpdate()
     {
         if(gameStat.isInventoryPanelActive)return;
+
+        // if(_player == null) 
+        // {
+        //     Debug.Log(_player);
+        //     return;
+        // }
+
         _player.Rotate(gameStat.cursorWorldPosition);
     }
 
@@ -62,6 +61,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnAttack()
     {
         if(gameStat.isInventoryPanelActive)return;
+
+        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)return;
         _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 

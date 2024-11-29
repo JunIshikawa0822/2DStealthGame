@@ -9,11 +9,14 @@ public class Rifle_Data : A_Item_Data, IGunData
     [SerializeField] float shotInterval;
     
     [Header("弾の種類")]
-    public IGunData.CaliberTypes caliberType;
+    [SerializeField] IGunData.CaliberTypes caliberType;
+    [SerializeField] uint maxAmmoNum;
+    
 
     //--------------------------
     public override Type DataType {get => this.GetType();}
     public IGunData.CaliberTypes CaliberType{get => caliberType;}
     public float ShotInterval{get => shotInterval;}
     public float ShotVelocity{get => muzzleVelocity;}
+    public uint MaxAmmoNum{get => maxAmmoNum;}
 }

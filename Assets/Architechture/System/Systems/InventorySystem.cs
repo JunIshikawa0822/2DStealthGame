@@ -128,15 +128,15 @@ public class InventorySystem : ASystem, IOnUpdate
             stackNum = 1;
         }
 
-        Item_GUI item = GameObject.Instantiate(_item_GUI_Prefab, _UGUIPanel.transform);
-        item.OnSetUp(itemData);
-        item.StackingNum = stackNum;
+        Item_GUI gui = GameObject.Instantiate(_item_GUI_Prefab, _UGUIPanel.transform);
+        gui.OnSetUp(itemData);
+        gui.StackingNum = stackNum;
 
-        item.onBeginDragEvent += StartDragging;
-        item.onUseEvent += ItemUse;
-        item.onEndDragEvent += EndDragging;
+        gui.onBeginDragEvent += StartDragging;
+        gui.onUseEvent += ItemUse;
+        gui.onEndDragEvent += EndDragging;
 
-        return item;
+        return gui;
     }
 
     private Vector3 PositionOffset(Vector3 vec, Vector3 center, float rotation)
