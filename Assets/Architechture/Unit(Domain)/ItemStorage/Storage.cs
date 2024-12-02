@@ -17,6 +17,6 @@ public class Storage
 
     public void TakeItem(ItemData data)
     {
-        
+        _storageList.Remove(data);
     }
 }

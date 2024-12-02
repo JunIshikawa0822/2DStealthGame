@@ -146,34 +146,34 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             case ItemData.ItemDir.Left : return 270;
         }
     }
-    public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemData.ItemDir itemDirection) 
-    {
-        List<CellNumber> gridPositionList = new List<CellNumber>();
+    // public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemData.ItemDir itemDirection) 
+    // {
+    //     List<CellNumber> gridPositionList = new List<CellNumber>();
 
-        switch (itemDirection)
-        {
-            default:
-            case ItemData.ItemDir.Down:
-                for (int x = 0; x < _itemData.Object.Width; x++) 
-                {
-                    for (int y = 0; y < _itemData.Object.Height; y++) 
-                    {
-                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
-                    }
-                }
-                break;
-            case ItemData.ItemDir.Right:
-                for (int x = 0; x < _itemData.Object.Height; x++) 
-                {
-                    for (int y = 0; y < _itemData.Object.Width; y++) 
-                    {
-                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
-                    }
-                }
-                break;
-        }
-        return gridPositionList;
-    }
+    //     switch (itemDirection)
+    //     {
+    //         default:
+    //         case ItemData.ItemDir.Down:
+    //             for (int x = 0; x < _itemData.Object.Width; x++) 
+    //             {
+    //                 for (int y = 0; y < _itemData.Object.Height; y++) 
+    //                 {
+    //                     gridPositionList.Add(originCellNum + new CellNumber(x, y));
+    //                 }
+    //             }
+    //             break;
+    //         case ItemData.ItemDir.Right:
+    //             for (int x = 0; x < _itemData.Object.Height; x++) 
+    //             {
+    //                 for (int y = 0; y < _itemData.Object.Width; y++) 
+    //                 {
+    //                     gridPositionList.Add(originCellNum + new CellNumber(x, y));
+    //                 }
+    //             }
+    //             break;
+    //     }
+    //     return gridPositionList;
+    // }
     public CellNumber[] GetOccupyCells(ItemData.ItemDir itemDirection, CellNumber originCellNum)
     {
         CellNumber[] gridPositionsArray = new CellNumber[_itemData.Object.Width * _itemData.Object.Height];

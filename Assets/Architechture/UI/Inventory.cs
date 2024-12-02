@@ -119,10 +119,7 @@ public class Inventory : MonoBehaviour
         //Debug.Log(itemInstantiateEvent);
         foreach(ItemData data in storage.ItemList)
         {
-            GUI_Item gui = itemInstantiateEvent?.Invoke(data, container);
-
-            if(gui != null) Debug.Log("作った");
-            InsertItemToInventory(gui, data.Address, data.Direction);
+            LoadItem(data);
         }
     }
 
@@ -143,13 +140,37 @@ public class Inventory : MonoBehaviour
             Destroy(container.transform.GetChild(i).gameObject);
         }
     }
-    public uint InsertItemToInventory(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
-    {
-        List<CellNumber> cellNumsList = gui.GetCellNumList(originCellNum, direction);
 
-        // Debug.Log($"origin : {originCellNum}");
-        // Debug.Log("以下にデータを入れる");
-        // Debug.Log(string.Join(", ", cellNumsList));
+    public void LoadItem(ItemData data)
+    {
+        GUI_Item gui = itemInstantiateEvent?.Invoke(data, container);
+        List<CellNumber> cellNumsList = GetCellNumList(data.Address, data.Direction, data.Object.Width, data.Object.Height);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+            //originCellにStackしていく
+            if(cellNumsList[i] == data.Address)
+            {
+                cellObject.InsertItem(gui, data.StackingNum);
+                cellObject.SetStack();
+            }
+            cellObject.Origin = data.Address;
+        }
+
+        Vector3 newPosition = grid.GetCellOriginAnchoredPosition(data.Address);
+
+        gui.SetBelongings(this, data.Address, data.Direction);
+        gui.RectTransform.SetParent(container);
+        gui.SetPivot(data.Direction);
+        gui.SetAnchorPosition(newPosition);
+        gui.SetRotation(data.Direction);
+        gui.SetImageSize(_cellSize);
+    }
+
+    public uint InsertItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
+    {
+        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
 
         uint remain = 0;
         for(int i = 0; i < cellNumsList.Count; i++)
@@ -164,7 +185,6 @@ public class Inventory : MonoBehaviour
             cellObject.Origin = originCellNum;
         }
 
-        Debug.Log($"オリジン:{originCellNum}");
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
 
         gui.SetBelongings(this, originCellNum, direction);
@@ -174,39 +194,14 @@ public class Inventory : MonoBehaviour
         gui.SetRotation(direction);
         gui.SetImageSize(_cellSize);
 
+        _openningStorage.AddItem(gui.Data);
+
         return remain;
     }
 
-    // public void InsertToGrid(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
-    // {
-    //     ItemData itemData = gui.ItemData;
-    //     List<CellNumber> cellNumsList = gui.GetCellNumList(originCellNum, direction);
-
-    //     for(int i = 0; i < cellNumsList.Count; i++)
-    //     {
-    //         CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
-
-    //         if(cellNumsList[i] == originCellNum)
-    //         {
-    //             cellObject.InsertItem(itemData, itemData.StackingNum);
-    //             cellObject.SetStack();
-    //         }
-
-    //         cellObject.Origin = originCellNum;
-    //     }
-
-    //     Vector2 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
-    //     gui.RectTransform.SetParent(container);
-    //     gui.SetPivot(direction);
-    //     gui.SetAnchorPosition(newPosition);
-    //     gui.SetImageSize(_cellSize);
-
-    //     Debug.Log("入れた");
-    // }
-
     public bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
     {
-        List<CellNumber> cellNumsList = gui.GetCellNumList(originCellNum, direction);
+        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
 
         bool canPlace = true;
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
@@ -270,20 +265,19 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void RemoveItemFromInventory(CellNumber originCellNum)
+    public void RemoveItem(CellNumber originCellNum)
     {
         GUI_Item gui = grid.GetCellObject(originCellNum).GUIInCell;
-        Debug.Log(gui.Data);
-        // Debug.Log(gui.Data.Direction);
         ItemData.ItemDir direction = gui.Data.Direction;
-        List<CellNumber> removeCellNumList = gui.GetCellNumList(originCellNum, direction);
-
+        List<CellNumber> removeCellNumList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
         for(int i = 0; i < removeCellNumList.Count; i++)
         {
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
 
             cellObject.ResetCell();
         }
+
+        _openningStorage.TakeItem(gui.Data);
     }
 
     public CellNumber ScreenPosToCellNum(Vector2 pos)
@@ -295,5 +289,34 @@ public class Inventory : MonoBehaviour
     public bool IsValid(CellNumber cellNum)
     {
         return grid.IsValidCellNum(cellNum);
+    }
+
+    public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemData.ItemDir itemDirection, uint width, uint height) 
+    {
+        List<CellNumber> gridPositionList = new List<CellNumber>();
+
+        switch (itemDirection)
+        {
+            default:
+            case ItemData.ItemDir.Down:
+                for (int x = 0; x < width; x++) 
+                {
+                    for (int y = 0; y < height; y++) 
+                    {
+                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
+                    }
+                }
+                break;
+            case ItemData.ItemDir.Right:
+                for (int x = 0; x < height; x++) 
+                {
+                    for (int y = 0; y < width; y++)
+                    {
+                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
+                    }
+                }
+                break;
+        }
+        return gridPositionList;
     }
 }

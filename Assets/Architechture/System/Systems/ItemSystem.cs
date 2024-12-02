@@ -15,7 +15,9 @@ public class ItemSystem : ASystem, IOnUpdate
         gameStat.playerStorage.AddItem(ItemMake(gameStat.medicineDataArray[0], 2, new CellNumber(0, 8)));
 
         gameStat.inventory1.OpenInventory(gameStat.playerStorage);
-        
+
+        Storage testStorage = new Storage();
+        gameStat.inventory2.OpenInventory(testStorage);
     }
 
     public ItemData ItemMake(A_Item_Data data, uint num, CellNumber place)

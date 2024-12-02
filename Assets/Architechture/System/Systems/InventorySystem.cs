@@ -172,7 +172,7 @@ public class InventorySystem : ASystem, IOnUpdate
         
         Vector3 mousePos = Input.mousePosition;
 
-        _fromInventory.RemoveItemFromInventory(_oldCellNum);
+        _fromInventory.RemoveItem(_oldCellNum);
 
         Vector3 newPosition = mousePos + _positionOffset;
 
@@ -195,25 +195,25 @@ public class InventorySystem : ASystem, IOnUpdate
             if(_toInventory.CanPlaceItem(gui, newCell, _newDirection))
             {
                 Debug.Log("おけてはいる");
-                uint remain = _toInventory.InsertItemToInventory(gui, newCell, _newDirection);
+                uint remain = _toInventory.InsertItem(gui, newCell, _newDirection);
                 Debug.Log("置けた");
 
                 if(remain > 0)
                 {
                     //remain分はromInventoryに再度格納
-                    _fromInventory.InsertItemToInventory(gui, _oldCellNum, _oldDirection);
+                    _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
                 }
             }
             else
             {
-                _fromInventory.InsertItemToInventory(gui, _oldCellNum, _oldDirection);
+                _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
                 Debug.Log("置けなかった");
             }
         }
         else
         {
             Debug.Log("toInventory、itemがなかった");
-            _fromInventory.InsertItemToInventory(gui, _oldCellNum, _oldDirection);
+            _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
         }
 
         _draggingObject = null;
