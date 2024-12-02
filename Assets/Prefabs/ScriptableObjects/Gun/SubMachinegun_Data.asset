@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59abee920aafe414388cd243498b4304, type: 3}
   m_Name: SubMachinegun_Data
   m_EditorClassIdentifier: 
-  _nameString: 
-  _canRotate: 0
+  _nameString: Submachinegun1
+  _canRotate: 1
   _isClickUse: 0
-  _itemImage: {fileID: 0}
-  _widthInGUI: 0
-  _heightInGUI: 0
-  _stackableNum: 0
-  _itemID: 0
-  simulNum: 0
-  muzzleVelocity: 0
-  shotInterval: 0
+  _itemImage: {fileID: 21300000, guid: e563a52368ce144ddbb8b2c634750e04, type: 3}
+  _widthInGUI: 5
+  _heightInGUI: 2
+  _stackableNum: 1
+  _itemID: 4
+  simulNum: 1
+  muzzleVelocity: 700
+  shotInterval: 0.5
+  caliberType: 0
+  maxAmmoNum: 20

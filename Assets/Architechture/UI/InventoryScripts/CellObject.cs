@@ -6,7 +6,15 @@ public class CellObject
     public int position_x;
     public int position_y;
 
-    //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
+    
+
+#region 新しいデータ管理に対応したい
+    //private GUI_Item _gui_Item;
+    private ItemData _gui_ItemData;
+    private uint _stackNumber;
+#endregion
+
+//このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
     private Item_GUI _item;
     A_Item_Data _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
@@ -62,6 +70,12 @@ public class CellObject
         }
 
         return _stackNum;
+    }
+
+    public void InsertItem(ItemData itemData, uint insertNumber)
+    {
+        _gui_ItemData = itemData;
+        _stackNum = insertNumber;
     }
 
     public uint InsertItem(Item_GUI item, uint insertNumber)

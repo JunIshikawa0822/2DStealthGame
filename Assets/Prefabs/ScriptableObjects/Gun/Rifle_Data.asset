@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7eb833c778ae48c38b89dec0d69de59, type: 3}
   m_Name: Rifle_Data
   m_EditorClassIdentifier: 
-  _nameString: 
-  _canRotate: 0
+  _nameString: Rifle1
+  _canRotate: 1
   _isClickUse: 0
-  _itemImage: {fileID: 0}
-  _widthInGUI: 0
-  _heightInGUI: 0
-  _stackableNum: 0
-  _itemID: 0
-  muzzleVelocity: 0
-  shotInterval: 0
+  _itemImage: {fileID: 21300000, guid: a647620df71454ec2a364e16311cd561, type: 3}
+  _widthInGUI: 5
+  _heightInGUI: 2
+  _stackableNum: 1
+  _itemID: 2
+  muzzleVelocity: 700
+  shotInterval: 0.5
+  caliberType: 0
+  maxAmmoNum: 20

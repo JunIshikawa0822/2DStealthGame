@@ -2,19 +2,20 @@ using System.Collections.Generic;
 
 public class Storage
 {
-    private List<IItem> storageList;
+    List<ItemData> _storageList;
+    public List<ItemData> ItemList{get => _storageList;}
 
     public Storage()
     {
-        storageList = new List<IItem>();
+        _storageList = new List<ItemData>();
     }
 
-    public void AddItem(IItem item)
+    public void AddItem(ItemData data)
     {
-        storageList.Add(item);
+        _storageList.Add(data);
     }
 
-    public void TakeItem(A_Item_Data item)
+    public void TakeItem(ItemData data)
     {
         
     }

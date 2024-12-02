@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IObjectPool
+public interface IObjectPool 
 {
     void PoolSetUp(uint index);
     APooledObject GetFromPool();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6747dd87885f246148515ba4013bae3d, type: 3}
   m_Name: Food_Data1
   m_EditorClassIdentifier: 
-  _nameString: 
+  _nameString: food1
   _canRotate: 0
   _isClickUse: 0
   _itemImage: {fileID: 0}
@@ -20,3 +20,6 @@ MonoBehaviour:
   _heightInGUI: 0
   _stackableNum: 0
   _itemID: 0
+  hpHealPoint: 0
+  sanityHealPoint: 0
+  useTime: 0

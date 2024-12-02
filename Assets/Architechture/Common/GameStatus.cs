@@ -34,6 +34,7 @@ public class GameStatus
 
     [Header("ItemData")]
     public ScriptableObject[] itemDataArray;
+    
     public Food_Data[] foodDataArray;
     public Medicine_Data[] medicineDataArray;
 
@@ -82,6 +83,9 @@ public class GameStatus
     public TetrisInventory otherInventory;
     public PlayerEquipInventory equipInventory1;
     public PlayerEquipInventory equipInventory2;
+
+    public Inventory inventory1;
+    public Inventory inventory2;
 
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
