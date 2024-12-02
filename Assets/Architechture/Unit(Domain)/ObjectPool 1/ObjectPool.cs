@@ -35,7 +35,7 @@ public class ObjectPool<T> : IObjectPool where T : APooledObject
         for (int i = 0; i < initPoolSize; i++)
         {
             T instance = ObjectInstantiate();
-            Debug.Log(instance);
+            // Debug.Log(instance);
             if(instance == null)return;
 
             instance.gameObject.transform.SetParent(poolParent.transform);

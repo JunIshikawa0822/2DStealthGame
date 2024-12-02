@@ -28086,8 +28086,6 @@ MonoBehaviour:
   _cellSize: 50
   _gridWidth: 10
   _gridHeight: 10
-  GUI_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
-    type: 3}
 --- !u!1 &1558614845
 GameObject:
   m_ObjectHideFlags: 0
@@ -28335,8 +28333,13 @@ MonoBehaviour:
     otherInventory: {fileID: 0}
     equipInventory1: {fileID: 2096893025}
     equipInventory2: {fileID: 681662778}
+    inventoryList:
+    - {fileID: 1530848549}
+    - {fileID: 1584286619}
     inventory1: {fileID: 1530848549}
     inventory2: {fileID: 1584286619}
+    gui_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
+      type: 3}
     inventoryPanel: {fileID: 1986844071}
     isInventoryPanelActive: 0
     enemyParent: {fileID: 1365710464}
@@ -28637,8 +28640,6 @@ MonoBehaviour:
   _cellSize: 50
   _gridWidth: 10
   _gridHeight: 10
-  GUI_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
-    type: 3}
 --- !u!1 &1625249778
 GameObject:
   m_ObjectHideFlags: 0

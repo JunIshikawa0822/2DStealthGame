@@ -12,6 +12,9 @@ public class CellObject
     //private GUI_Item _gui_Item;
     private ItemData _gui_ItemData;
     private uint _stackNumber;
+    private GUI_Item _gui_Item;
+    public ItemData DataInCell{get => _gui_ItemData;}
+    public GUI_Item GUIInCell{get => _gui_Item;}
 #endregion
 
 //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
@@ -72,9 +75,10 @@ public class CellObject
         return _stackNum;
     }
 
-    public void InsertItem(ItemData itemData, uint insertNumber)
+    public void InsertItem(GUI_Item gui, uint insertNumber)
     {
-        _gui_ItemData = itemData;
+        _gui_Item = gui;
+        _gui_ItemData = _gui_Item.Data;
         _stackNum = insertNumber;
     }
 
@@ -146,6 +150,18 @@ public class CellObject
         }
         
         if(_itemData.ItemID == item.ItemData.ItemID && _itemData.GetType() == item.ItemData.GetType())return true;
+        else return false;
+    }
+
+    public bool CheckEquality(ItemData data)
+    {
+        if(_gui_Item == null && _gui_ItemData == null)
+        {
+            Debug.Log("そもそもnullなのでEqualityとかない");
+            return true;
+        }
+        
+        if(_gui_ItemData.Object.ItemID == data.Object.ItemID)return true;
         else return false;
     }
 }

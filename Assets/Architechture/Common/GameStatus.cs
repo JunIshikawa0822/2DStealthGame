@@ -84,8 +84,12 @@ public class GameStatus
     public PlayerEquipInventory equipInventory1;
     public PlayerEquipInventory equipInventory2;
 
+    public List<Inventory> inventoryList = new List<Inventory>();
     public Inventory inventory1;
     public Inventory inventory2;
+
+    public GUI_Item gui_Item_Prefab;
+    public Storage playerStorage;
 
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;

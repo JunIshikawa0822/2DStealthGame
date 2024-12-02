@@ -23,7 +23,7 @@ public class InGameManager : MonoBehaviour
             new PlayerSystem(),
             new UISystem(),
             new EnemySystem(),
-            //new InventorySystem()
+            new InventorySystem(),
             new ItemSystem()
         };
 

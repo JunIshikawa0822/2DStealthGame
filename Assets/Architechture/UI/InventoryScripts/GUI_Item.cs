@@ -22,11 +22,10 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private CanvasGroup _canvasGroup;
     [SerializeField]
     private TextMeshProUGUI _stackingNumText;
-
-    //public ItemData.ItemDir ItemDirection {get => _itemData.Direction;}
+    private Inventory _belongingInventory;
     public RectTransform RectTransform {get => _rectTransform;}
-    public ItemData ItemData {get => _itemData;}
-
+    public ItemData Data {get => _itemData;}
+    public Inventory BelongingInventory{get => _belongingInventory; set => _belongingInventory = value;}
     public event Action<GUI_Item> onPointerDownEvent;
     public event Action<GUI_Item> onBeginDragEvent;
     public event Action<GUI_Item> onEndDragEvent;
@@ -76,9 +75,7 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void SetImageSize(float cellSize)
     {
-        Debug.Log(transform.localScale);
         _rectTransform.sizeDelta = new Vector2(cellSize * _itemData.Object.Width, cellSize * _itemData.Object.Height);
-        Debug.Log(transform.localScale);
     }
 
     public void SetPivot(ItemData.ItemDir direction)
@@ -118,8 +115,9 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _backGroundObject.SetActive(false);
     }
 
-    public void SetBelongings(CellNumber originCellNum, ItemData.ItemDir direction)
+    public void SetBelongings(Inventory inventory, CellNumber originCellNum, ItemData.ItemDir direction)
     {
+        _belongingInventory = inventory;
         _itemData.Address = originCellNum;
         _itemData.Direction = direction;
     }
@@ -129,9 +127,6 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         Destroy(this.gameObject);
     }
 
-    //public Scriptable_UI_Item GetItemData(){return _itemData;}
-    //public uint GetStackNum(){return _stackingNum;}
-
     public ItemData.ItemDir GetNextDir(ItemData.ItemDir dir)
     {
         switch (dir) {
@@ -140,7 +135,6 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             case ItemData.ItemDir.Right:  return ItemData.ItemDir.Down;
         }
     }
-
     public int GetRotationAngle(ItemData.ItemDir itemDirection)
     {
         switch (itemDirection) 
@@ -152,7 +146,6 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
             case ItemData.ItemDir.Left : return 270;
         }
     }
-
     public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemData.ItemDir itemDirection) 
     {
         List<CellNumber> gridPositionList = new List<CellNumber>();
@@ -181,7 +174,6 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         }
         return gridPositionList;
     }
-
     public CellNumber[] GetOccupyCells(ItemData.ItemDir itemDirection, CellNumber originCellNum)
     {
         CellNumber[] gridPositionsArray = new CellNumber[_itemData.Object.Width * _itemData.Object.Height];
