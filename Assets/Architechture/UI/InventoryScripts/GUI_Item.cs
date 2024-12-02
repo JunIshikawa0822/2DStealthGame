@@ -76,7 +76,9 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void SetImageSize(float cellSize)
     {
+        Debug.Log(transform.localScale);
         _rectTransform.sizeDelta = new Vector2(cellSize * _itemData.Object.Width, cellSize * _itemData.Object.Height);
+        Debug.Log(transform.localScale);
     }
 
     public void SetPivot(ItemData.ItemDir direction)
