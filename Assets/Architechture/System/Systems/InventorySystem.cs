@@ -28,7 +28,6 @@ public class InventorySystem : ASystem, IOnUpdate
     //private Vector3 _oldPosition;
 
     //------------------
-
     private CellNumber _oldCellNum;
 
     public override void OnSetUp()
@@ -38,6 +37,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         gameStat.inventory1.itemInstantiateEvent += InstantiateGUI;
+        gameStat.inventory2.itemInstantiateEvent += InstantiateGUI;
 
         InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
@@ -55,8 +55,16 @@ public class InventorySystem : ASystem, IOnUpdate
         gameStat.inventoryPanel.SetActive(isActive);
 
         //Storageの中身をロード/アンロード
-        if(isActive) gameStat.inventory1.OpenInventory(gameStat.playerStorage);
-        else gameStat.inventory1.CloseInventory();
+        if(isActive) 
+        {
+            gameStat.inventory1.OpenInventory(gameStat.playerStorage);
+            gameStat.inventory2.OpenInventory(gameStat.otherStorage);
+        }
+        else 
+        {
+            gameStat.inventory1.CloseInventory();
+            gameStat.inventory2.CloseInventory();
+        }
     }
 
     public void OnUpdate()

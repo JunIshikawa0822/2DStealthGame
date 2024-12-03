@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _nameString: food1
   _canRotate: 0
-  _isClickUse: 0
-  _itemImage: {fileID: 0}
-  _widthInGUI: 0
-  _heightInGUI: 0
-  _stackableNum: 0
-  _itemID: 0
-  hpHealPoint: 0
-  sanityHealPoint: 0
-  useTime: 0
+  _isClickUse: 1
+  _itemImage: {fileID: 21300000, guid: f0cc3d7c3ae5f4cc897499435c519cf2, type: 3}
+  _widthInGUI: 2
+  _heightInGUI: 2
+  _stackableNum: 10
+  _itemID: 100
+  hpHealPoint: 5
+  sanityHealPoint: 5
+  useTime: 5

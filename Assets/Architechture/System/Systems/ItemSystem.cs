@@ -36,5 +36,5 @@ public class ItemSystem : ASystem, IOnUpdate
         }
     }
 
-    
+
 }

@@ -117,6 +117,8 @@ public class Inventory : MonoBehaviour
     {
         _openningStorage = storage;
         //Debug.Log(itemInstantiateEvent);
+
+        if(storage == null)return;
         foreach(ItemData data in storage.ItemList)
         {
             LoadItem(data);
@@ -129,6 +131,7 @@ public class Inventory : MonoBehaviour
         {
             for(int y = 0; y < 10; y++)
             {
+                // Debug.Log(grid);
                 grid.GetCellObject(new CellNumber(x, y)).ResetCell();
             }
         }

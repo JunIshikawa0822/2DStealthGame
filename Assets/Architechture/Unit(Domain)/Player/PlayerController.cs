@@ -23,9 +23,11 @@ public class PlayerController : AEntity, IPlayer
     private DrawFieldOfView _drawFieldOfView;
     private FindOpponent _find;
     private DrawOpponent _draw;
-
     private float _viewAngle;
     private float _viewRadius;
+
+    public Action<Storage> storageFindEvent;
+    public Action<Storage> leaveStorageEvent;
 
     public void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
@@ -126,5 +128,17 @@ public class PlayerController : AEntity, IPlayer
             tokenSource = null;
             _isEntityActionInterval = false;
         }
+    }
+
+    public void OnTriggerEnter(Collider collider)
+    {
+        if(collider.gameObject.tag == "Storage")Debug.Log("Storage見つけた");
+        storageFindEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+    }
+
+    public void OnTriggerExit(Collider collider)
+    {
+        if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
+        leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
     }
 }

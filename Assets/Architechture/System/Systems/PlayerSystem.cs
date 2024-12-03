@@ -1,7 +1,7 @@
 using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
-    private IPlayer _player;
+    private PlayerController _player;
     public override void OnSetUp()
     {
         _player = gameStat.player;
@@ -22,6 +22,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Entity_HealthPoint playerHP = new Entity_HealthPoint(100, 100);
 
         _player.OnSetUp(playerHP, playerFieldOfView, findOpponent, drawOpponent, gameStat.radius, gameStat.angle);
+        _player.storageFindEvent += OnFindStorage;
+        _player.leaveStorageEvent += OnExitStorage;
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
@@ -71,5 +73,15 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(gameStat.isInventoryPanelActive)return;
         Entity_Magazine magazine = new Entity_Magazine(10, 10);
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
+    }
+
+    public void OnFindStorage(Storage storage)
+    {
+        gameStat.otherStorage = storage;
+    }
+
+    public void OnExitStorage(Storage storage)
+    {
+        gameStat.otherStorage = null;
     }
 }
