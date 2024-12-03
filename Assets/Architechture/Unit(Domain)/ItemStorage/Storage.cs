@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public class Storage
+public class Storage : MonoBehaviour
 {
     List<ItemData> _storageList;
     public List<ItemData> ItemList{get => _storageList;}

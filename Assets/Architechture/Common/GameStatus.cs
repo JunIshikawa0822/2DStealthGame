@@ -77,10 +77,10 @@ public class GameStatus
     public Canvas canvas;
     public Item_GUI item_GUI;
     //public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
-    public List<IInventory> inventoriesList = new List<IInventory>();
+    //public List<IInventory> inventoriesList = new List<IInventory>();
 
-    public TetrisInventory playerInventory;
-    public TetrisInventory otherInventory;
+    //public TetrisInventory playerInventory;
+    //public TetrisInventory otherInventory;
     public PlayerEquipInventory equipInventory1;
     public PlayerEquipInventory equipInventory2;
 

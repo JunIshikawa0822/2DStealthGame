@@ -49,6 +49,12 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _itemData = itemData;
     }
 
+    public void SetStackNum(uint stackNum)
+    {
+        _itemData.StackingNum = stackNum;
+        _stackingNumText.text = _itemData.StackingNum.ToString();
+    }
+
     public void SetRotation(ItemData.ItemDir itemDirection)
     {
         switch (itemDirection) 
@@ -84,19 +90,19 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         {
             case ItemData.ItemDir.Down : 
                 _rectTransform.pivot = new Vector2(0, 1);
-                Debug.Log(_rectTransform.pivot);
+                // Debug.Log(_rectTransform.pivot);
                 break;
             case ItemData.ItemDir.Right : 
                 _rectTransform.pivot = new Vector2(1, 1);
-                Debug.Log(_rectTransform.pivot);
+                // Debug.Log(_rectTransform.pivot);
                 break;
             case ItemData.ItemDir.Up : 
                 _rectTransform.pivot = new Vector2(1, 0);
-                Debug.Log(_rectTransform.pivot);
+                // Debug.Log(_rectTransform.pivot);
                 break;
             case ItemData.ItemDir.Left : 
                 _rectTransform.pivot = new Vector2(0, 0);
-                Debug.Log(_rectTransform.pivot);
+                //Debug.Log(_rectTransform.pivot);
                 break;
             default :
                 _rectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -115,11 +121,9 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _backGroundObject.SetActive(false);
     }
 
-    public void SetBelongings(Inventory inventory, CellNumber originCellNum, ItemData.ItemDir direction)
+    public void SetInventory(Inventory inventory)
     {
         _belongingInventory = inventory;
-        _itemData.Address = originCellNum;
-        _itemData.Direction = direction;
     }
 
     public void OnDestroy()

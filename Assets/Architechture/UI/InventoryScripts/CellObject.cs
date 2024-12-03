@@ -10,23 +10,23 @@ public class CellObject
 
 #region 新しいデータ管理に対応したい
     //private GUI_Item _gui_Item;
-    private ItemData _gui_ItemData;
+    private ItemData _itemData;
     private uint _stackNumber;
-    private GUI_Item _gui_Item;
-    public ItemData DataInCell{get => _gui_ItemData;}
-    public GUI_Item GUIInCell{get => _gui_Item;}
+    private GUI_Item _gui;
+    public ItemData DataInCell{get => _itemData;}
+    public GUI_Item GUIInCell{get => _gui;}
 #endregion
 
 //このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
-    private Item_GUI _item;
-    A_Item_Data _itemData;
+    //private Item_GUI _item;
+    //A_Item_Data _itemData;
     //セルに入っているオブジェクトのOriginCellNumを示す
     //現在Stackされている数
-    private uint _stackNum;
+    //private uint _stackNum;
     private bool _isStackableOnCell;
 
     public CellNumber Origin{get; set;}
-    public Item_GUI ItemInCell{get => _item;}
+    //public Item_GUI ItemInCell{get => _item;}
 
     public CellObject(int x, int y) 
     {
@@ -35,7 +35,7 @@ public class CellObject
         position_y = y;
 
         _isStackableOnCell = true;
-        _stackNum = 0;
+        _stackNumber = 0;
     }
 
     //public Item_GUI GetItemInCell(){return _item;}
@@ -52,116 +52,116 @@ public class CellObject
 
     public uint DecreaseItem(uint decreaseNumber)
     {
-        if(_item == null)return 0;
+        if(_itemData == null)return 0;
         uint remain = decreaseNumber;
 
         Debug.Log(remain + "個減らしたい");
         for(; remain > 0; remain--)
         {
-            if(_stackNum == 0)
+            if(_stackNumber == 0)
             {
                 break;
             }
-            _stackNum--;
+            _stackNumber--;
             //Debug.Log("のこり" + _stackNum + "個:あと" + remain + "へらす");
         }
 
-        if(_stackNum == 0)
+        if(_stackNumber == 0)
         {
-            _item.OnDestroy();
+            _gui.OnDestroy();
             ResetCell();
         }
 
-        return _stackNum;
+        return _stackNumber;
     }
 
     public void InsertItem(GUI_Item gui, uint insertNumber)
     {
-        _gui_Item = gui;
-        _gui_ItemData = _gui_Item.Data;
-        _stackNum = insertNumber;
+        _gui = gui;
+        _itemData = _gui.Data;
+        _stackNumber = insertNumber;
     }
 
     public uint InsertItem(Item_GUI item, uint insertNumber)
     {
-        if(_isStackableOnCell == false || item == null)
-        {
-            return insertNumber;
-        }
+        // if(_isStackableOnCell == false || item == null)
+        // {
+        //     return insertNumber;
+        // }
 
-        bool itemBreak = true;
-        //何も入っていない
-        if(_item == null)
-        {
-            _item = item;
-            _itemData = item.ItemData;
-            itemBreak = false;
-        }
+        // bool itemBreak = true;
+        // //何も入っていない
+        // if(_gui == null)
+        // {
+        //     _item = item;
+        //     _itemData = item.ItemData;
+        //     itemBreak = false;
+        // }
 
-        // Debug.Log(insertNumber);
+        // // Debug.Log(insertNumber);
 
         uint remain = insertNumber;
-        for(; remain > 0; remain--)
-        {
-            //stackされている数を上回ったらstackできなくする
-            if(_isStackableOnCell == false)
-            {
-                break;
-            }
-            _stackNum++;
-            item.StackingNum--;
+        // for(; remain > 0; remain--)
+        // {
+        //     //stackされている数を上回ったらstackできなくする
+        //     if(_isStackableOnCell == false)
+        //     {
+        //         break;
+        //     }
+        //     _stackNum++;
+        //     item.StackingNum--;
 
-            if(_stackNum >= _itemData.StackableNum)
-            {
-                _isStackableOnCell = false;
-            }
-        }
+        //     if(_stackNum >= _itemData.StackableNum)
+        //     {
+        //         _isStackableOnCell = false;
+        //     }
+        // }
         
-        //Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
-        if(itemBreak == true && remain == 0)
-        {
-            item.OnDestroy();
-        }
+        // //Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
+        // if(itemBreak == true && remain == 0)
+        // {
+        //     item.OnDestroy();
+        // }
 
         return remain;
     }
 
     public void ResetCell()
     {
-        _item = null;
+        _gui = null;
         this.Origin = null;
         _itemData = null;
         _isStackableOnCell = true;
-        _stackNum = 0;
+        _stackNumber = 0;
     }
 
     public void SetStack()
     {
-        if(_item == null)return;
-        _item.SetStackNum(_stackNum);
+        if(_gui == null)return;
+        _gui.SetStackNum(_stackNumber);
     }
 
-    public bool CheckEquality(Item_GUI item)
-    {
-        if(_item == null && _itemData == null)
-        {
-            Debug.Log("そもそもnullなのでEqualityとかない");
-            return true;
-        }
+    // public bool CheckEquality(Item_GUI item)
+    // {
+    //     if(_item == null && _itemData == null)
+    //     {
+    //         Debug.Log("そもそもnullなのでEqualityとかない");
+    //         return true;
+    //     }
         
-        if(_itemData.ItemID == item.ItemData.ItemID && _itemData.GetType() == item.ItemData.GetType())return true;
-        else return false;
-    }
+    //     if(_itemData.ItemID == item.ItemData.ItemID && _itemData.GetType() == item.ItemData.GetType())return true;
+    //     else return false;
+    // }
 
     public bool CheckEquality(ItemData data)
     {
-        if(_gui_Item == null && _gui_ItemData == null)
+        if(_gui == null && _itemData == null)
         {
             Debug.Log("そもそもnullなのでEqualityとかない");
             return true;
         }
         
-        if(_gui_ItemData.Object.ItemID == data.Object.ItemID)return true;
+        if(_itemData.ItemID == data.ItemID)return true;
         else return false;
     }
 }

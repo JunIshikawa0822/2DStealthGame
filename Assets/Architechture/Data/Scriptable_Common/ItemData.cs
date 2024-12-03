@@ -10,15 +10,7 @@ public class ItemData
         if(stackNum > item_Data.StackableNum)_stackNum = item_Data.StackableNum;
         else _stackNum = stackNum;
     }
-
-    public void SetPosDir(CellNumber cellNumber, ItemDir dir)
-    {
-        _address = cellNumber;
-        _direction = dir;
-    }
-
     int _itemID;
-    
     A_Item_Data _Object;
     CellNumber _address;
     ItemDir _direction;

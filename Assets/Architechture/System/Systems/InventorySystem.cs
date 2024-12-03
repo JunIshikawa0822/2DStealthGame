@@ -9,7 +9,7 @@ public class InventorySystem : ASystem, IOnUpdate
 {
     private GameObject _UGUIPanel;
 #region test
-    private Item_GUI _item_GUI_Prefab;
+    //private Item_GUI _item_GUI_Prefab;
     //private List<Scriptable_ItemData> _item_Data_List;
 #endregion
 
@@ -25,7 +25,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
     private Vector3[] _offsetArray = new Vector3[4];
     private Vector3 _positionOffset;
-    private Vector3 _oldPosition;
+    //private Vector3 _oldPosition;
 
     //------------------
 
@@ -34,26 +34,30 @@ public class InventorySystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         _UGUIPanel = gameStat.inventoryPanel;
-        _item_GUI_Prefab = gameStat.item_GUI;
+        //_item_GUI_Prefab = gameStat.item_GUI;
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
-        PanelLoad();
-
         gameStat.inventory1.itemInstantiateEvent += InstantiateGUI;
+
+        InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
 
     public void SwitchInventoryActive()
     {
         gameStat.isInventoryPanelActive = !gameStat.isInventoryPanelActive;
-        PanelLoad();
+
+        InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
 
-    public void PanelLoad()
+    public void InventoryPanelActive(bool isActive)
     {
-        gameStat.inventoryPanel.SetActive(gameStat.isInventoryPanelActive);
-        //Cursor.visible = gameStat.isInventoryPanelActive;
+         //InventoryのPanelをオン/オフ
+        gameStat.inventoryPanel.SetActive(isActive);
+
+        //Storageの中身をロード/アンロード
+        if(isActive) gameStat.inventory1.OpenInventory(gameStat.playerStorage);
+        else gameStat.inventory1.CloseInventory();
     }
-    
 
     public void OnUpdate()
     {
@@ -77,12 +81,12 @@ public class InventorySystem : ASystem, IOnUpdate
                 _oldAngle = _draggingObject.GetRotationAngle(_oldDirection);
                 _newAngle = _draggingObject.GetRotationAngle(_newDirection);//OK
 
-                Debug.Log("newAngle: " + _newAngle);
+                //Debug.Log("newAngle: " + _newAngle);
                 _rotateAngle = _newAngle - _oldAngle;//OK
-                Debug.Log("回転: " + _rotateAngle);
+                //Debug.Log("回転: " + _rotateAngle);
 
                 Vector3 offsetVec = _offsetArray[(int)_newDirection];
-                Debug.Log(_newDirection);
+                //Debug.Log(_newDirection);
 
                 _positionOffset = PositionOffset(offsetVec, Vector3.zero, _rotateAngle);
 
@@ -123,7 +127,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
     public void PointerDown(GUI_Item gui)
     {
-        UnityEngine.Debug.Log("クリックした！！");
+        // UnityEngine.Debug.Log("クリックした！！");
     }
 
     public void StartDragging(GUI_Item gui)
@@ -136,7 +140,7 @@ public class InventorySystem : ASystem, IOnUpdate
         _draggingObject = gui;
         _oldDirection = _newDirection = itemData.Direction;
         _fromInventory = gui.BelongingInventory;
-        _oldPosition = gui.RectTransform.position;
+        //_oldPosition = gui.RectTransform.position;
         _oldCellNum = itemData.Address;
 
         _rotateAngle = 0;
@@ -153,11 +157,11 @@ public class InventorySystem : ASystem, IOnUpdate
 
         for(int i = 0; i < corners.Length; i++)
         {
-            Debug.Log((i + 1) % 4);
+            //Debug.Log((i + 1) % 4);
             _offsetArray[i] = corners[(i + 1) % 4] - mousePos;
 
             //Debug.Log($"{corners[(i + 1) % 4]} : {_offsetArray[i].magnitude}");
-            Debug.Log($"{corners[i]} : {corners[i].magnitude}");
+            //Debug.Log($"{corners[i]} : {corners[i].magnitude}");
         }
 
         // Debug.Log(_oldDirection);
@@ -194,7 +198,7 @@ public class InventorySystem : ASystem, IOnUpdate
         {
             if(_toInventory.CanPlaceItem(gui, newCell, _newDirection))
             {
-                Debug.Log("おけてはいる");
+                //Debug.Log("おけてはいる");
                 uint remain = _toInventory.InsertItem(gui, newCell, _newDirection);
                 Debug.Log("置けた");
 

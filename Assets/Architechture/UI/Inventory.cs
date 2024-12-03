@@ -83,18 +83,18 @@ public class Inventory : MonoBehaviour
         // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
         // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
 
-        if(cell.ItemInCell != null)
+        if(cell.GUIInCell != null)
         {
             image.enabled = false;
         }
         else if(cell.Origin != null)
         {
-            Debug.Log("2");
+            //Debug.Log("2");
             image.enabled = false;
         }
         else
         {
-            Debug.Log("3");
+            //Debug.Log("3");
             image.enabled = true;
         }
     }
@@ -160,7 +160,7 @@ public class Inventory : MonoBehaviour
 
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(data.Address);
 
-        gui.SetBelongings(this, data.Address, data.Direction);
+        gui.SetInventory(this);
         gui.RectTransform.SetParent(container);
         gui.SetPivot(data.Direction);
         gui.SetAnchorPosition(newPosition);
@@ -187,12 +187,17 @@ public class Inventory : MonoBehaviour
 
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
 
-        gui.SetBelongings(this, originCellNum, direction);
+//GUIの更新
+        gui.SetInventory(this);
         gui.RectTransform.SetParent(container);
         gui.SetPivot(direction);
         gui.SetAnchorPosition(newPosition);
         gui.SetRotation(direction);
         gui.SetImageSize(_cellSize);
+
+//Dataの更新
+        gui.Data.Address = originCellNum;
+        gui.Data.Direction = direction;
 
         _openningStorage.AddItem(gui.Data);
 
@@ -255,12 +260,12 @@ public class Inventory : MonoBehaviour
         
         if(canPlace)
         {
-            Debug.Log("置けるよ！");
+            // Debug.Log("置けるよ！");
             return true;
         }
         else
         {
-            Debug.Log("置けないよ！");
+            // Debug.Log("置けないよ！");
             return false;
         }
     }
