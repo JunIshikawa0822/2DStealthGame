@@ -99,7 +99,8 @@ public class GameStatus
     public Transform enemyParent;
 #endregion
 
-    [Header("FactoryFacade")]
+    [Header("Facade")]
     public ItemFacade itemFacade;
-    public GunFacade gunFacade;
+    public GunFactories gunFactories;
+
 }

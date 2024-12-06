@@ -1,16 +1,14 @@
 
-public class Medicine
+public class Medicine : IItem
 {
-    AEntity _entity;
-    string _medicineName;
-    public Medicine(Medicine_Data data, AEntity entity)
+    public string Name{get;set;}
+    public Medicine(Medicine_Data data)
     {
-        _entity = entity;
-        _medicineName = data.ItemName;
+        Name = data.ItemName;
     }
 
     public void ItemUse()
     {
-        UnityEngine.Debug.Log($"{_medicineName}をつかったよ");
+        UnityEngine.Debug.Log($"{Name}をつかったよ");
     }
 }

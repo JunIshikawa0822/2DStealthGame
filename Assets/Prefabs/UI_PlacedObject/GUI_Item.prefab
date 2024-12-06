@@ -240,8 +240,8 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: Item_GUI, Assembly-CSharp
+        - m_Target: {fileID: 8924252677613569574}
+          m_TargetAssemblyTypeName: GUI_Item, Assembly-CSharp
           m_MethodName: OnUse
           m_Mode: 1
           m_Arguments:

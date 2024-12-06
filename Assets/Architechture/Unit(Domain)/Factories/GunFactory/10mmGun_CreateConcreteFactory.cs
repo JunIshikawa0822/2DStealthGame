@@ -10,7 +10,6 @@ public class Gun_10mm_CreateConcreteFactory : IGunFactory
     public Gun_10mm_CreateConcreteFactory(ObjectPool<Bullet_10mm> objectPool, Handgun handgun)
     {
         _objectPool = objectPool;
-
         _handgun = handgun;
     }
 
@@ -30,36 +29,8 @@ public class Gun_10mm_CreateConcreteFactory : IGunFactory
             newGun = handgun;
         }
 
-        newGun.OnSetUp(_objectPool);
-
+        A_Item_Data baseData = data as A_Item_Data;
+        newGun.OnSetUp(_objectPool, baseData.ItemName);
         return newGun;
-    }
-
-    public IItem ObjectInstantiate()
-    {
-        return null;
-    }
-
-    public IItem ObjectInstantiate(A_Item_Data data)
-    {
-        IGunData gunData = data as IGunData;
-        
-        IGun newGun;
-        if(data is Handgun_Data)
-        {
-            Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(gunData.ShotVelocity, gunData.ShotInterval);
-            newGun = handgun;
-        }
-        else
-        {
-            Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(700, 0.5f);
-            newGun = handgun;
-        }
-
-        newGun.OnSetUp(_objectPool);
-
-        return newGun as IItem;
     }
 }

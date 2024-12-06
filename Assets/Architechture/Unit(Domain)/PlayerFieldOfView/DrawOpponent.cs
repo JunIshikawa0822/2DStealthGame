@@ -26,9 +26,8 @@ public class DrawOpponent
     {
         foreach(Transform target in _newVisibleTargets)
         {
-            AEntity entity = target.GetComponent<AEntity>();
-
-            entity.EntityMeshAble();
+            MeshChangable meshChanger = target.GetComponent<MeshChangable>();
+            meshChanger.EntityMeshAble();
         }
     }
 
@@ -51,9 +50,8 @@ public class DrawOpponent
             //含まれていないならオフ
             if (isInclude == false)
             {
-                AEntity entity = oldTarget.GetComponent<AEntity>();
-
-                entity.EntityMeshDisable();
+                MeshChangable meshChanger = oldTarget.GetComponent<MeshChangable>();
+                meshChanger.EntityMeshDisable();
             }
         }
     }

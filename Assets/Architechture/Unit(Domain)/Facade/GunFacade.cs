@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-public class GunFacade
+public class GunFactories
 {
     Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
 
-    public GunFacade(Dictionary<IGunData.CaliberTypes, IGunFactory> gunFactoriesDic)
+    public GunFactories(Dictionary<IGunData.CaliberTypes, IGunFactory> gunFactoriesDic)
     {
         _gunFactoriesDic = gunFactoriesDic;
     }

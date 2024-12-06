@@ -26,8 +26,8 @@ public class Handgun : MonoBehaviour, IGun, IItem
     //----------------------------------------
     private Entity_Magazine _magazine;
     //----------------------------------------
-
-    public void OnSetUp(IObjectPool objectPool)
+    public string Name{get;set;}
+    public void OnSetUp(IObjectPool objectPool, string name)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
@@ -37,6 +37,8 @@ public class Handgun : MonoBehaviour, IGun, IItem
 
         _isShotIntervalActive = false;
         _isJamming = false;
+
+        Name = name;
     }
 
     public void HandGunInit(float velocity, float shotInterval)

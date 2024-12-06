@@ -8,15 +8,15 @@ public class Food : IItem
     float _useTime;
     string _foodName;
 
-    AEntity _entity;
-    public Food(Food_Data data, AEntity entity)
+    public string Name{get;set;}
+
+    public Food(Food_Data data)
     {
         _hpHealPoint = data.hpHealPoint;
         _sanityHealPoint = data.sanityHealPoint;
         _useTime = data.useTime;
         _foodName = data.ItemName;
-
-        _entity = entity;
+        Name = data.ItemName;
     }
 
     public virtual void ItemUse()

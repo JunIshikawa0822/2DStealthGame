@@ -24,8 +24,9 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+    public string Name{get;set;}
 
-    public void OnSetUp(IObjectPool objectPool)
+    public void OnSetUp(IObjectPool objectPool, string name)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
@@ -35,6 +36,7 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
 
         _isShotIntervalActive = false;
         _isJamming = false;
+        Name = name;
     }
 
     public void ShotgunInit( int simulNum, float velocity, float shotInterval)
