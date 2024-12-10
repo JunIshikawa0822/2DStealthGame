@@ -2,11 +2,14 @@ using System;
 using UnityEngine;
 using System.Threading;
 
-public class Bullet_7_62mm : ABullet
+public class Bullet_7_62mm : ABullet, IItem
 {
     [SerializeField]
     float _LifeDistance;
     private CancellationTokenSource bulletLifeCTS;
+
+    private Action<Bullet_7_62mm> poolAction;
+    public string Name{get; set;}
 
     public void Awake()
     {

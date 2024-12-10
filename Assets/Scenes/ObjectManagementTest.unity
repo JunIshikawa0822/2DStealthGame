@@ -28039,7 +28039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1530848548}
-  - component: {fileID: 1530848549}
+  - component: {fileID: 1530848550}
   m_Layer: 5
   m_Name: PlayerInventory
   m_TagString: Untagged
@@ -28068,7 +28068,7 @@ RectTransform:
   m_AnchoredPosition: {x: -383.00006, y: 98.99995}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1530848549
+--- !u!114 &1530848550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28077,7 +28077,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1530848547}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfd4671034d19458e99a2e2a80de2ed3, type: 3}
+  m_Script: {fileID: 11500000, guid: 69115d47855894b2ea10f1fa896ae5e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 861268784}
@@ -28087,6 +28087,8 @@ MonoBehaviour:
   _cellSize: 50
   _gridWidth: 10
   _gridHeight: 10
+  GUI_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
+    type: 3}
 --- !u!1 &1558614845
 GameObject:
   m_ObjectHideFlags: 0
@@ -28297,6 +28299,18 @@ MonoBehaviour:
     - {fileID: 11400000, guid: cf386292ee36642b3a630f3930debf25, type: 2}
     - {fileID: 11400000, guid: 494acae5352a44589bb06c7242ae8b05, type: 2}
     - {fileID: 11400000, guid: f84e4c12f19d64bbd8e34b60b7fe1899, type: 2}
+    foodDataArray:
+    - {fileID: 11400000, guid: 82b3f78d09896414fae9dfa1eff1a36d, type: 2}
+    medicineDataArray:
+    - {fileID: 11400000, guid: ff4111a48e3064307bed7e1b5028d412, type: 2}
+    handgunDataArray:
+    - {fileID: 11400000, guid: f1e9312c560754a20b97c1e22378aa51, type: 2}
+    rifleDataArray:
+    - {fileID: 11400000, guid: 953a3d23afaf444faaa5257568744eef, type: 2}
+    shotgunDataArray:
+    - {fileID: 11400000, guid: 7c93fda871afb4372bd75fd89c3e9f2e, type: 2}
+    subMachinegunDataArray:
+    - {fileID: 11400000, guid: 1c34322ee299d45b6b89a7314005e285, type: 2}
     bulletObjectPoolTrans: {fileID: 2107302111}
     bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
       type: 3}
@@ -28321,10 +28335,12 @@ MonoBehaviour:
     canvas: {fileID: 562743217}
     item_GUI: {fileID: 606834529127207317, guid: ba3151daa48cd4a5bae6d24077c7f84b,
       type: 3}
-    playerInventory: {fileID: 1530848549}
-    otherInventory: {fileID: 1584286619}
+    playerInventory: {fileID: 0}
+    otherInventory: {fileID: 0}
     equipInventory1: {fileID: 2096893025}
     equipInventory2: {fileID: 681662778}
+    inventory1: {fileID: 1530848550}
+    inventory2: {fileID: 1584286620}
     inventoryPanel: {fileID: 1986844071}
     isInventoryPanelActive: 0
     enemyParent: {fileID: 1365710464}
@@ -28577,7 +28593,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1584286618}
-  - component: {fileID: 1584286619}
+  - component: {fileID: 1584286620}
   m_Layer: 5
   m_Name: OtherInventory
   m_TagString: Untagged
@@ -28606,7 +28622,7 @@ RectTransform:
   m_AnchoredPosition: {x: 382.00006, y: 98.99995}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1584286619
+--- !u!114 &1584286620
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28615,7 +28631,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1584286617}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfd4671034d19458e99a2e2a80de2ed3, type: 3}
+  m_Script: {fileID: 11500000, guid: 69115d47855894b2ea10f1fa896ae5e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 1472288968}
@@ -28625,6 +28641,8 @@ MonoBehaviour:
   _cellSize: 50
   _gridWidth: 10
   _gridHeight: 10
+  GUI_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
+    type: 3}
 --- !u!1 &1625249778
 GameObject:
   m_ObjectHideFlags: 0

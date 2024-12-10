@@ -69,7 +69,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         _enemyFindView = new FindOpponent(opponentLayer, obstacleLayer);
 
         EntitySetUp();
-        EntityMeshDisable();
+        //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
 
         _currentStatus = new ReactiveProperty<IBandit.BanditStatus>(IBandit.BanditStatus.Usual);

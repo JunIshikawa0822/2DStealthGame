@@ -10,7 +10,7 @@ public class PlayerController : AEntity, IPlayer
     [SerializeField]
     private float _player_RotateSpeed = 500;
 
-    private Entity_HealthPoint _playerHP;
+    //private Entity_HealthPoint _playerHP;
 
     [SerializeField] private float _playerMoveForce = 50;
     private Quaternion _targetRotation;
@@ -23,9 +23,11 @@ public class PlayerController : AEntity, IPlayer
     private DrawFieldOfView _drawFieldOfView;
     private FindOpponent _find;
     private DrawOpponent _draw;
-
     private float _viewAngle;
     private float _viewRadius;
+
+    public Action<Storage> storageFindEvent;
+    public Action<Storage> leaveStorageEvent;
 
     public void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
     {
@@ -33,7 +35,7 @@ public class PlayerController : AEntity, IPlayer
         EntitySetUp();
         #endregion
 
-        _playerHP = playerHP;
+        _entityHP = playerHP;
         _drawFieldOfView = drawFieldOfView;
         _find = find;
         _draw = draw;
@@ -74,9 +76,9 @@ public class PlayerController : AEntity, IPlayer
 
     public override void OnDamage(float damage)
     {
-        _playerHP.EntityDamage(damage);
+        _entityHP.EntityDamage(damage);
 
-        if(_playerHP.CurrentHp <= 0)
+        if(_entityHP.CurrentHp <= 0)
         {
             OnEntityDead();
         }
@@ -100,15 +102,15 @@ public class PlayerController : AEntity, IPlayer
         _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
     }
 
-    public override bool IsEntityDead()
-    {
-        if(_playerHP.CurrentHp <= 0)
-        {
-            return true;
-        }
+    // public override bool IsEntityDead()
+    // {
+    //     if(_entityHP.CurrentHp <= 0)
+    //     {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     public override void OnEntityDead()
     {
@@ -126,5 +128,17 @@ public class PlayerController : AEntity, IPlayer
             tokenSource = null;
             _isEntityActionInterval = false;
         }
+    }
+
+    public void OnTriggerEnter(Collider collider)
+    {
+        if(collider.gameObject.tag == "Storage")Debug.Log("Storage見つけた");
+        storageFindEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+    }
+
+    public void OnTriggerExit(Collider collider)
+    {
+        if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
+        leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
     }
 }

@@ -3,42 +3,47 @@ using System.Collections.Generic;
 
 public class GunSystem : ASystem, IOnFixedUpdate
 {
-    //private List<ABullet> bulletsList;
-    //private IObjectPool<Bullet_10mm> _bullet_10mm_ObjectPool;
-    //private IFactory<Bullet_10mm> _bullet_10mm_factory;
-    //private IBulletFactories _bulletFactories;
-    //private Dictionary<Type, IFactory<ABullet>> _factoriesDic;
-    //private List<Type> _bulletCaliberTypesList;
     private IPlayer _player;
-
+    List<IObjectPool> _objectPools;
+    Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
     public override void OnSetUp()
     {
-        this._player = gameStat.player;
+        //this._player = gameStat.player;
+        IFactory bullet_10mm_Fac = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
+        IFactory bullet_5_56mm_Fac = new Bullet_5_56mm_CreateConcreteFactory(gameStat.bullet_5_56mm);
+        IFactory bullet_7_62mm_Fac = new Bullet_7_62mm_CreateConcreteFactory(gameStat.bullet_7_62mm);
+    
+        ObjectPool<Bullet_10mm> bullet_10mm_Objp = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, bullet_10mm_Fac);
+        ObjectPool<Bullet_5_56mm> bullet_5_56mm_Objp = new ObjectPool<Bullet_5_56mm>(gameStat.bulletObjectPoolTrans, bullet_5_56mm_Fac);
+        ObjectPool<Bullet_7_62mm> bullet_7_62mm_Objp = new ObjectPool<Bullet_7_62mm>(gameStat.bulletObjectPoolTrans,  bullet_7_62mm_Fac);
 
-        
-        gameStat.bullet_10mm_Factory = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
-        gameStat.bullet_10mm_ObjectPool = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, gameStat.bullet_10mm_Factory);
+        _objectPools = new List<IObjectPool>()
+        {
+            bullet_10mm_Objp,
+            bullet_5_56mm_Objp,
+            bullet_7_62mm_Objp
+        };
+
         //口径ごとのObjectPoolをそれぞれSetup
-        gameStat.bullet_10mm_ObjectPool.PoolSetUp(20);
+        foreach(IObjectPool objectPool in _objectPools)
+        {
+            objectPool.PoolSetUp(20);
+        }
 
-        // gameStat.playerGunsArray[0] = GunObjectInstantiate();
-        //_player.SetEquipment(GunObjectInstantiate(), 0);
+        _gunFactoriesDic = new Dictionary<IGunData.CaliberTypes, IGunFactory>
+        {
+            { IGunData.CaliberTypes._10mm, new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1) },
+            { IGunData.CaliberTypes._5_56mm, new Gun_5_56mm_CreateConcreteFactory(bullet_5_56mm_Objp, gameStat.Pistol1) },
+            { IGunData.CaliberTypes._7_62mm, new Gun_7_62mm_CreateConcreteFactory(bullet_7_62mm_Objp, gameStat.Pistol1) }
+
+        };
+
+        //facadeの作成
+        gameStat.gunFactories = new GunFactories(_gunFactoriesDic);
     }
 
     public void OnFixedUpdate()
     {
         
     }
-
-#region やっつけ
-    public IGun<Bullet_10mm> GunObjectInstantiate()
-    {
-        IGun<Bullet_10mm> gun = gameStat.Pistol1;
-        gun.Reload(new Entity_Magazine(10, 10));
-
-        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        
-        return gun;
-    }
-#endregion
 }

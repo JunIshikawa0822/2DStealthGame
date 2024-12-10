@@ -2,15 +2,14 @@ using System;
 using UnityEngine;
 using System.Threading;
 using Unity.VisualScripting;
-public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
+public class Bullet_10mm : ABullet, IItem
 {
     [SerializeField]
     float _lifeDistance;
-
     [SerializeField]
     float _bulletDamage;
-
     private Action<Bullet_10mm> poolAction;
+    public string Name{get; set;}
 
     void Awake()
     {
@@ -40,17 +39,6 @@ public class Bullet_10mm : ABullet, IPooledObject<Bullet_10mm>
             if(entity == null)return;
             entity.OnDamage(_bulletDamage);
         }
-    }
-
-    public void Release()
-    {
-        if(poolAction == null)return;
-        poolAction?.Invoke(this);
-    }
-
-    public void SetPoolAction(Action<Bullet_10mm> action)
-    {
-        poolAction += action;
     }
 
     public override Type GetBulletType()

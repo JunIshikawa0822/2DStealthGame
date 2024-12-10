@@ -1,5 +1,6 @@
 using System;
-public interface IPooledObject<T>
+using UnityEngine;
+public interface IPooledObject<T> where T : MonoBehaviour
 {
     public void Release();
     public void SetPoolAction(Action<T> action);

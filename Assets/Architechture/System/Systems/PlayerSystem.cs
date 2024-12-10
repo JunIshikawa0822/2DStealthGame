@@ -1,7 +1,7 @@
 using UnityEngine;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
-    private IPlayer _player;
+    private PlayerController _player;
     public override void OnSetUp()
     {
         _player = gameStat.player;
@@ -22,22 +22,23 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Entity_HealthPoint playerHP = new Entity_HealthPoint(100, 100);
 
         _player.OnSetUp(playerHP, playerFieldOfView, findOpponent, drawOpponent, gameStat.radius, gameStat.angle);
+        _player.storageFindEvent += OnFindStorage;
+        _player.leaveStorageEvent += OnExitStorage;
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
-
-#region 銃の割り当て
-        //銃の割り当て
-        IGun<Bullet_10mm> gun = gameStat.Pistol1;
-        gun.Reload(new Entity_Magazine(10, 10));
-        gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        gameStat.playerGunsArray[0] = gun;
-#endregion
     }
 
     public void OnUpdate()
     {
         if(gameStat.isInventoryPanelActive)return;
+
+        // if(_player == null) 
+        // {
+        //     Debug.Log(_player);
+        //     return;
+        // }
+
         _player.Rotate(gameStat.cursorWorldPosition);
     }
 
@@ -62,6 +63,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnAttack()
     {
         if(gameStat.isInventoryPanelActive)return;
+
+        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)return;
         _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
@@ -70,5 +73,15 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(gameStat.isInventoryPanelActive)return;
         Entity_Magazine magazine = new Entity_Magazine(10, 10);
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
+    }
+
+    public void OnFindStorage(Storage storage)
+    {
+        gameStat.otherStorage = storage;
+    }
+
+    public void OnExitStorage(Storage storage)
+    {
+        gameStat.otherStorage = null;
     }
 }

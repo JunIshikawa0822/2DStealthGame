@@ -7,7 +7,7 @@ using System;
 
 public abstract class AEntity : MonoBehaviour
 {
-    //protected Entity_HealthPoint _entityHP;
+    protected Entity_HealthPoint _entityHP;
     //protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
@@ -39,8 +39,16 @@ public abstract class AEntity : MonoBehaviour
     //     if(_entityHP.CurrentHp <= 0) return true;
     //     else return false;
     // }
-    public abstract bool IsEntityDead();
-    public abstract void OnEntityDead();
+    public virtual bool IsEntityDead()
+    {
+        if(_entityHP.CurrentHp <= 0)return true;
+        return false;
+    }
+    public virtual void OnEntityDead()
+    {
+        Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
+    }
+
     public abstract void OnDamage(float damage);
 
     public Transform GetEntityTransform(){return this._entityTransform;}

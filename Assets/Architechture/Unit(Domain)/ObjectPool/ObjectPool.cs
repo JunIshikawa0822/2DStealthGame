@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
+public class O_ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObject<T>
 {
     private Stack<IPooledObject<T>> _pool;
     private GameObject _parent;
     private Transform _transform;
-    private IFactory<T> _factory;
+    private IFactory _factory;
 
-    public ObjectPool(Transform poolTransform, IFactory<T> factory)
+    public O_ObjectPool(Transform poolTransform, IFactory factory)
     {
         _pool = new Stack<IPooledObject<T>>();
         _parent = new GameObject($"{typeof(T).ToString()}");
@@ -35,6 +35,7 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
         for (int i = 0; i < initPoolSize; i++)
         {
             T instance = ObjectInstantiate();
+            if(instance == null)return;
 
             instance.gameObject.transform.SetParent(poolParent.transform);
             instance.gameObject.SetActive(false);
@@ -56,6 +57,8 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
         if (objectPool.Count < 1)
         {
             T newInstance = ObjectInstantiate();
+            if(newInstance == null)return null;
+
             newInstance.gameObject.transform.SetParent(poolParent.transform);
             return newInstance;
         }
@@ -67,7 +70,9 @@ public class ObjectPool<T> : IObjectPool<T> where T : MonoBehaviour, IPooledObje
 
     public T ObjectInstantiate()
     {
-        IPooledObject<T> instance = _factory.ObjectInstantiate(null);
+        IPooledObject<T> instance = _factory.ObjectInstantiate() as IPooledObject<T>;
+        if(instance == null)return null;
+
         instance.SetPoolAction(ReturnToPool);
         return instance as T;
     }
