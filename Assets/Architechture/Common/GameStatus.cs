@@ -22,9 +22,13 @@ public class GameStatus
     public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
-    public Handgun Pistol1;
+    //public Handgun Pistol1;
     [HideInInspector]public IGun[] playerGunsArray = new IGun[2];
     [HideInInspector]public int selectingGunsArrayIndex = 0;
+
+    [Header("GunPrefabs")]
+    //public Handgun handgunPrefab;
+    public Handgun[] handgunPrefabs;
 
     [Header("PlayerInfo")]
     public PlayerController player;
@@ -42,12 +46,6 @@ public class GameStatus
     public Rifle_Data[] rifleDataArray;
     public Shotgun_Data[] shotgunDataArray;
     public SubMachinegun_Data[] subMachinegunDataArray;
-
-    [Header("ItemInstance")]
-
-    [HideInInspector] public Food foodInstances;
-    [HideInInspector] public Medicine[] medicineInstances;
-    
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
@@ -75,12 +73,6 @@ public class GameStatus
 
     [Header("UGUI")]
     public Canvas canvas;
-    public Item_GUI item_GUI;
-    //public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
-    //public List<IInventory> inventoriesList = new List<IInventory>();
-
-    //public TetrisInventory playerInventory;
-    //public TetrisInventory otherInventory;
     public PlayerEquipInventory equipInventory1;
     public PlayerEquipInventory equipInventory2;
 
@@ -101,6 +93,8 @@ public class GameStatus
 
     [Header("Facade")]
     public ItemFacade itemFacade;
-    public GunFactories gunFactories;
+    //public GunFactories gunFactories;
+
+    public List<IGunFactory> gunFactoriesList;
 
 }

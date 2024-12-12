@@ -32,8 +32,8 @@ public class Handgun : MonoBehaviour, IGun, IItem
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        _muzzleFlashRenderer = GetComponent<LineRenderer>();
-        _muzzleFlashRenderer.enabled = false;
+        //_muzzleFlashRenderer = GetComponent<LineRenderer>();
+        // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;

@@ -10311,18 +10311,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 393601895}
   m_CullTransparentMesh: 1
---- !u!114 &408173148 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2921033561580289107, guid: 0502a9a29bee74094ace2fbaf087b0ef,
-    type: 3}
-  m_PrefabInstance: {fileID: 3514247124795816321}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28ccd603bc9f64f6f88df99cc0d7dec6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &408509382
 GameObject:
   m_ObjectHideFlags: 0
@@ -28424,8 +28412,9 @@ MonoBehaviour:
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     cursorObject: {fileID: 985123735}
     cursorImage: {fileID: 393601897}
-    Pistol1: {fileID: 408173148}
     selectingGunsArrayIndex: 0
+    handgunPrefabs:
+    - {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
     player: {fileID: 38237714}
     bandit: {fileID: 5773702129760587681, guid: c8c454c7eb1544cd7a1579ac81a40a87,
       type: 3}
@@ -28465,8 +28454,6 @@ MonoBehaviour:
     edgeDstThreshold: 0.5
     shotLineRenderer: {fileID: 0}
     canvas: {fileID: 562743217}
-    item_GUI: {fileID: 606834529127207317, guid: ba3151daa48cd4a5bae6d24077c7f84b,
-      type: 3}
     equipInventory1: {fileID: 2096893025}
     equipInventory2: {fileID: 681662778}
     inventoryList:
@@ -33895,50 +33882,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2099324469}
   m_CullTransparentMesh: 1
---- !u!1 &2100723220
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2100723221}
-  - component: {fileID: 2100723222}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2100723221
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100723220}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 123.21456, y: -22.02314, z: -35.96389}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2100723222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100723220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40e76cfa8a0fc4fa9adbb1121de6f2d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2104574195
 GameObject:
   m_ObjectHideFlags: 0
@@ -34483,5 +34426,4 @@ SceneRoots:
   - {fileID: 666166186}
   - {fileID: 1365710464}
   - {fileID: 1844719485}
-  - {fileID: 2100723221}
   - {fileID: 1092969816}

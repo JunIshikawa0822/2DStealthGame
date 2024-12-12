@@ -9,6 +9,15 @@ public class ItemFacade
     public ItemFacade(Dictionary<int, IItem> itemInstaceDic)
     {
         _itemInstaceDic = itemInstaceDic;
+
+        // foreach(KeyValuePair<int, IItem> item in _itemInstaceDic)
+        // {
+        //     if(item.Value is IGun) 
+        //     {
+        //         MonoBehaviour gunOject = item.Value as MonoBehaviour;
+        //         gunOject.gameObject.SetActive(false);
+        //     }
+        // }
     }
 
     public void ItemUse()
