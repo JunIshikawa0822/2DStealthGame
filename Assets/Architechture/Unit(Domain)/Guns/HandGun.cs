@@ -32,8 +32,8 @@ public class Handgun : MonoBehaviour, IGun, IItem
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        //_muzzleFlashRenderer = GetComponent<LineRenderer>();
-        // _muzzleFlashRenderer.enabled = false;
+        _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
@@ -45,7 +45,6 @@ public class Handgun : MonoBehaviour, IGun, IItem
     {
         _muzzleVelocity = velocity;
         _shotInterval = shotInterval;
-
     }
 
     public void OnUpdate()
@@ -166,9 +165,9 @@ public class Handgun : MonoBehaviour, IGun, IItem
         return _magazine;
     }
 
-    // public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
-    // {
-    //     // ここで、T 型が IBType_10mm を継承していることが保証されています
-    //     return _bulletFactories.BulletFactory(typeof(T));
-    // }
+    public void ObjectActive(bool isActive)
+    {
+        this.gameObject.SetActive(isActive);
+    }
+
 }

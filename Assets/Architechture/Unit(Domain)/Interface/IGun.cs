@@ -7,4 +7,6 @@ public interface IGun
     void Shot();
     void Jam();
     Entity_Magazine GetMagazine();
+
+    void ObjectActive(bool isActive);
 }

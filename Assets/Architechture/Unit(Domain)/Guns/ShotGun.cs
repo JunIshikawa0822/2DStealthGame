@@ -123,4 +123,9 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
     {
         return _magazine;
     }
+
+    public void ObjectActive(bool isActive)
+    {
+        this.gameObject.SetActive(isActive);
+    }
 }
