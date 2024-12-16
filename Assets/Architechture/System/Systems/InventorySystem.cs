@@ -4,6 +4,7 @@ using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AI;
+using System.Linq;
 
 public class InventorySystem : ASystem, IOnUpdate
 {
@@ -13,8 +14,8 @@ public class InventorySystem : ASystem, IOnUpdate
     //private List<Scriptable_ItemData> _item_Data_List;
 #endregion
 
-    private Inventory _toInventory;
-    private Inventory _fromInventory;
+    private AInventory _toInventory;
+    private AInventory _fromInventory;
 
     private float _oldAngle;
     private float _newAngle;
@@ -36,8 +37,8 @@ public class InventorySystem : ASystem, IOnUpdate
         //_item_GUI_Prefab = gameStat.item_GUI;
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
-        gameStat.inventory1.itemInstantiateEvent += InstantiateGUI;
-        gameStat.inventory2.itemInstantiateEvent += InstantiateGUI;
+        gameStat.inventoryList[0].itemInstantiateEvent += InstantiateGUI;
+        gameStat.inventoryList[1].itemInstantiateEvent += InstantiateGUI;
 
         InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
@@ -57,33 +58,34 @@ public class InventorySystem : ASystem, IOnUpdate
         //Storageの中身をロード/アンロード
         if(isActive) 
         {
-            gameStat.inventory1.OpenInventory(gameStat.playerStorage);
-            gameStat.inventory2.OpenInventory(gameStat.otherStorage);
+            gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
+            gameStat.inventoryList[1].OpenInventory(gameStat.otherStorage);
+
+            gameStat.inventoryList[2].OpenInventory(gameStat.playerStorage);
+            gameStat.inventoryList[3].OpenInventory(gameStat.playerStorage);
         }
         else 
         {
-            gameStat.inventory1.CloseInventory();
-            gameStat.inventory2.CloseInventory();
+            foreach(AInventory inventory in gameStat.inventoryList)
+            {
+                inventory.CloseInventory();
+            }
         }
     }
 
     public void OnUpdate()
     {
-        // if(!gameStat.isInventoryPanelActive)
-        // {
-        //     if(_draggingObject != null)
-        //     {
-        //         _fromInventory.InsertItemToInventory(_draggingObject, _oldPosition, _oldDirection);
-        //         _draggingObject = null;
-        //     }
-        //     return;
-        // }
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            //ItemData[] value = gameStat.playerStorage.WeaponArray;
+            Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ToString())));
+        }
 
         if(_draggingObject != null)
         {
             if(Input.GetKeyDown(KeyCode.R))
             {
-                if(!_draggingObject.Data.Object.CanRotate)return;
+                if(!_draggingObject.Data.ObjectData.CanRotate)return;
 
                 _newDirection = _draggingObject.GetNextDir(_newDirection);//OK
                 _oldAngle = _draggingObject.GetRotationAngle(_oldDirection);
@@ -103,6 +105,7 @@ public class InventorySystem : ASystem, IOnUpdate
             }
 
             _draggingObject.SetPosition(Input.mousePosition + _positionOffset);
+            // Debug.Log(_draggingObject.transform.position);
         }
     }
 
@@ -117,7 +120,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
     public void ItemUse(GUI_Item item)
     {
-        Debug.Log(item.Data.Object.ItemName + "を使った");
+        Debug.Log(item.Data.ObjectData.ItemName + "を使った");
     }
 
 #region 新しい処理
@@ -147,7 +150,7 @@ public class InventorySystem : ASystem, IOnUpdate
 
         _draggingObject = gui;
         _oldDirection = _newDirection = itemData.Direction;
-        _fromInventory = gui.BelongingInventory;
+        _fromInventory =  gui.BelongingInventory;
         //_oldPosition = gui.RectTransform.position;
         _oldCellNum = itemData.Address;
 
@@ -191,16 +194,24 @@ public class InventorySystem : ASystem, IOnUpdate
         CellNumber newCell = new CellNumber(0, 0);
 
         //所属Inventoryを探す
-        foreach (Inventory inventory in gameStat.inventoryList)
+        foreach (AInventory inventory in gameStat.inventoryList)
         {
             newCell = inventory.ScreenPosToCellNum(newPosition);
+
+            Debug.Log(inventory.IsValid(newCell));
 
             if (inventory.IsValid(newCell))
             {
                 _toInventory = inventory;
+                Debug.Log(inventory);
+                Debug.Log(newCell);
+                Debug.Log(inventory.IsValid(newCell));
                 break;
             }
         }
+
+        Debug.Log(newCell);
+        Debug.Log(_toInventory);
 
         if (_toInventory != null || gui == null)
         {
@@ -229,6 +240,7 @@ public class InventorySystem : ASystem, IOnUpdate
         }
 
         _draggingObject = null;
+        _toInventory = null;
     }
 #endregion
 }

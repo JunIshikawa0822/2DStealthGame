@@ -73,12 +73,12 @@ public class GameStatus
 
     [Header("UGUI")]
     public Canvas canvas;
-    public PlayerEquipInventory equipInventory1;
-    public PlayerEquipInventory equipInventory2;
+    //public PlayerEquipInventory equipInventory1;
+    //public PlayerEquipInventory equipInventory2;
 
-    public List<Inventory> inventoryList = new List<Inventory>();
-    public Inventory inventory1;
-    public Inventory inventory2;
+    public List<AInventory> inventoryList = new List<AInventory>();
+    //public Inventory inventory1;
+    //public Inventory inventory2;
     public GUI_Item gui_Item_Prefab;
     public Storage playerStorage;
     public Storage otherStorage = null;

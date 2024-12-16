@@ -6,12 +6,20 @@ public class Storage : MonoBehaviour
 {
     [SerializeField] A_Item_Data[] testDataArray;
     List<ItemData> _storageList;
+    ItemData[] _weaponArray;
+    // ItemData _gunData1;
+    // ItemData _gunData2;
     public List<ItemData> ItemList{get => _storageList;}
+    public ItemData[] WeaponArray{get => _weaponArray;}
+    // public ItemData Gun1{get => _gunData1;}
+    // public ItemData Gun2{get => _gunData2;}
+
     public bool test;
 
     void Awake()
     {
         _storageList = new List<ItemData>();
+        _weaponArray = new ItemData[2];
     }
 
     void Start()
@@ -29,6 +37,16 @@ public class Storage : MonoBehaviour
     public void TakeItem(ItemData data)
     {
         _storageList.Remove(data);
+    }
+
+    public void AddWeapon(ItemData data, int index)
+    {
+        _weaponArray[index] = data;
+    }
+
+    public void RemoveWeapon(int index)
+    {
+        _weaponArray[index] = null;
     }
 
     public void TestData()

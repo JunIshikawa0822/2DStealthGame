@@ -22,10 +22,10 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     private CanvasGroup _canvasGroup;
     [SerializeField]
     private TextMeshProUGUI _stackingNumText;
-    private Inventory _belongingInventory;
+    private AInventory _belongingInventory;
     public RectTransform RectTransform {get => _rectTransform;}
     public ItemData Data {get => _itemData;}
-    public Inventory BelongingInventory{get => _belongingInventory; set => _belongingInventory = value;}
+    public AInventory BelongingInventory{get => _belongingInventory; set => _belongingInventory = value;}
     public event Action<GUI_Item> onPointerDownEvent;
     public event Action<GUI_Item> onBeginDragEvent;
     public event Action<GUI_Item> onEndDragEvent;
@@ -41,7 +41,7 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
         BackGroundInit();
         _useButton.gameObject.SetActive(false);
-        _itemImage.sprite = itemData.Object.ItemImage;
+        _itemImage.sprite = itemData.ObjectData.ItemImage;
     }
 
     public void DataSet(ItemData itemData)
@@ -81,7 +81,7 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void SetImageSize(float cellSize)
     {
-        _rectTransform.sizeDelta = new Vector2(cellSize * _itemData.Object.Width, cellSize * _itemData.Object.Height);
+        _rectTransform.sizeDelta = new Vector2(cellSize * _itemData.ObjectData.Width, cellSize * _itemData.ObjectData.Height);
     }
 
     public void SetPivot(ItemData.ItemDir direction)
@@ -112,7 +112,7 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     private void BackGroundInit()
     {
-        uint occupyCellNum = _itemData.Object.Width * _itemData.Object.Height;
+        uint occupyCellNum = _itemData.ObjectData.Width * _itemData.ObjectData.Height;
         for(int i = 0; i < occupyCellNum; i++)
         {
             Instantiate(_backGroundPrefab, _backGroundObject.transform);
@@ -121,7 +121,7 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         _backGroundObject.SetActive(false);
     }
 
-    public void SetInventory(Inventory inventory)
+    public void SetInventory(AInventory inventory)
     {
         _belongingInventory = inventory;
     }
@@ -180,25 +180,25 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     // }
     public CellNumber[] GetOccupyCells(ItemData.ItemDir itemDirection, CellNumber originCellNum)
     {
-        CellNumber[] gridPositionsArray = new CellNumber[_itemData.Object.Width * _itemData.Object.Height];
+        CellNumber[] gridPositionsArray = new CellNumber[_itemData.ObjectData.Width * _itemData.ObjectData.Height];
         switch (itemDirection)
         {
             default:
             case ItemData.ItemDir.Down:
-                for (int x = 0; x < _itemData.Object.Width; x++) 
+                for (int x = 0; x < _itemData.ObjectData.Width; x++) 
                 {
-                    for (int y = 0; y < _itemData.Object.Height; y++)
+                    for (int y = 0; y < _itemData.ObjectData.Height; y++)
                     {
-                        gridPositionsArray[_itemData.Object.Height * x + y] = originCellNum + new CellNumber(x, y);
+                        gridPositionsArray[_itemData.ObjectData.Height * x + y] = originCellNum + new CellNumber(x, y);
                     }
                 }
                 break;
             case ItemData.ItemDir.Right:
-                for (int x = 0; x < _itemData.Object.Height; x++)
+                for (int x = 0; x < _itemData.ObjectData.Height; x++)
                 {
-                    for (int y = 0; y < _itemData.Object.Width; y++)
+                    for (int y = 0; y < _itemData.ObjectData.Width; y++)
                     {
-                        gridPositionsArray[_itemData.Object.Width * x + y] = originCellNum + new CellNumber(x, y);
+                        gridPositionsArray[_itemData.ObjectData.Width * x + y] = originCellNum + new CellNumber(x, y);
                     }
                 }
                 break;
@@ -214,12 +214,12 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void OnPointerEnter(PointerEventData pointerEventData)
     {
-        if(_itemData.Object.IsClickUse)_useButton.gameObject.SetActive(true);
+        if(_itemData.ObjectData.IsClickUse)_useButton.gameObject.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData pointerEventData)
     {
-        if(_itemData.Object.IsClickUse)_useButton.gameObject.SetActive(false);
+        if(_itemData.ObjectData.IsClickUse)_useButton.gameObject.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData pointerEventData)

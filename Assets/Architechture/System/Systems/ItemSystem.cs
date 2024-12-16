@@ -45,12 +45,12 @@ public class ItemSystem : ASystem, IOnUpdate
     {
         if(Input.GetKeyDown(KeyCode.O))
         {
-            gameStat.inventory1.OpenInventory(gameStat.playerStorage);
+            gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
         }
 
         if(Input.GetKeyDown(KeyCode.P))
         {
-            gameStat.inventory1.CloseInventory();
+            gameStat.inventoryList[0].CloseInventory();
         }
 
         if(Input.GetKeyDown(KeyCode.N))
