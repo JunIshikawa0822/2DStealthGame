@@ -6,23 +6,36 @@ public class GunFacade
 
     private List<IGunFactory> _gunFactories;
     private List<GunCategory> categories;
+    private Transform _facadeTrans;
 
-    public GunFacade(List<IGunFactory> gunFactories)
+    public GunFacade(List<IGunFactory> gunFactories, Transform facadeTrans)
     {
         _gunFactories = gunFactories;
-        categories = new List<GunCategory>
-        {
-            new GunCategory("Handgun", _gunFactories[0]),
-        };
+        _facadeTrans = facadeTrans;
+
+        categories = new List<GunCategory>();
+
+        AddCategory("Handgun", _gunFactories[0]);
+    }
+
+    private void AddCategory(string name, IGunFactory gunFactory)
+    {
+        GameObject parent = new GameObject(name);
+        parent.transform.SetParent(_facadeTrans);
+
+        categories.Add(new GunCategory(name, gunFactory, parent.transform));
     }
 
     public AGun GetGunInstance(IGunData gunData)
     {
-        AGun gun = categories[0].GetInstance(gunData);
+        //Debug.Log("呼ばれた");
+
+        AGun gun = null;
 
         switch(gunData)
         {
             case Handgun_Data handgunData: gun = categories[0].GetInstance(gunData);
+            Debug.Log("ハンドガン");
             break;
         }
 

@@ -23,7 +23,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     [SerializeField]
     private float _enemyViewAngle;
-     [SerializeField]
+    [SerializeField]
     private float _enemyViewRadius;
 
     [SerializeField]
@@ -51,11 +51,11 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         
     }
 
-    public void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, Transform gun)
+    public void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
     {
         _enemy_Bandit_HP = enemy_Bandit_HP;
-        gun.position = _gunTrans.position;
-        gun.SetParent(_gunTrans);
+        //gun.position = _gunTrans.position;
+        //gun.SetParent(_gunTrans);
 
         if(_enemy_Bandit_HP == null)
         {
@@ -64,7 +64,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             return;
         }
 
-        _enemyGun = gun.GetComponent<AGun>();
+        _enemyStorage = GetComponent<Storage>();
 
         _enemyFindView = new FindOpponent(opponentLayer, obstacleLayer);
 
@@ -281,6 +281,13 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
+    public void Equip(AGun gun)
+    {
+        gun.transform.SetParent(_gunTrans);
+        gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
+        _enemyGun = gun;
+    }
+
     public override void OnDamage(float damage)
     {
         _enemy_Bandit_HP.EntityDamage(damage);
@@ -304,10 +311,9 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     public override void OnEntityDead()
     {
         _disposablesByLifeCycle.Clear();
+        _disposablesByStatus.Clear();
 
         this.gameObject.SetActive(false);
         Debug.Log($"{this.gameObject.name}はやられた！");
-    }
-
-    
+    }   
 }

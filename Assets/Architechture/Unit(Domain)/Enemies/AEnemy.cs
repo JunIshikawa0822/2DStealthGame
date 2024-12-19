@@ -4,6 +4,9 @@ using UnityEngine;
 
 public abstract class AEnemy : AEntity
 {
+     //[HideInInspector]
+    protected Storage _enemyStorage;
+    public Storage Storage{get => _enemyStorage;}
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
         Transform nearestObject = null;

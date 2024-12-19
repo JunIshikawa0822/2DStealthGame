@@ -1,11 +1,15 @@
+using System.Diagnostics;
 using Microsoft.Unity.VisualStudio.Editor;
 using Unity.Entities.UniversalDelegates;
+using UnityEngine;
 
 public class ItemData
 {
     public ItemData(A_Item_Data item_Data, uint stackNum)
     {
         _ObjectData = item_Data;
+
+        //UnityEngine.Debug.Log(item_Data);
         _itemID = item_Data.ItemID;
 
         if(stackNum > item_Data.StackableNum)_stackNum = item_Data.StackableNum;

@@ -21,7 +21,7 @@ public class HandGun_CreateConcreteFactory : IGunFactory
 
         IObjectPool objectPool = _objectPoolList[0];
 
-        Debug.Log(string.Join(", " , _objectPoolList));
+        // Debug.Log(string.Join(", " , _objectPoolList));
 
         switch(gunData.CaliberType)
         {

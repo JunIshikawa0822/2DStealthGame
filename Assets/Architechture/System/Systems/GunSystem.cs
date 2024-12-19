@@ -45,7 +45,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
             new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
         };
 
-        gameStat.gunFacade = new GunFacade(_gunFactoriesList);
+        gameStat.gunFacade = new GunFacade(_gunFactoriesList, gameStat.gunInstanceParent);
     }
 
     public void OnFixedUpdate()

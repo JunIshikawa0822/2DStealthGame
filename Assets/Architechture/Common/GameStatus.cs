@@ -95,8 +95,12 @@ public class GameStatus
 #endregion
 
     [Header("Facade")]
+    public Transform gunInstanceParent;
+
+    
     public ItemFacade itemFacade;
     public GunFacade gunFacade;
+    
 
     //public List<IGunFactory> gunFactoriesList;
 
