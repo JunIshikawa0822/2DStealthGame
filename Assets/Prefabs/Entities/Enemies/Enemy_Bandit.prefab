@@ -159,8 +159,8 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
+  _enemyViewAngle: 80
+  _enemyViewRadius: 30
   _statusText: {fileID: 6887859463965506929}
 --- !u!114 &2560281350579773584
 MonoBehaviour:
