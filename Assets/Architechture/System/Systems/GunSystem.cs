@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class GunSystem : ASystem, IOnFixedUpdate
 {
@@ -44,7 +45,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
             new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
         };
 
-        gameStat.gunFactoriesList = _gunFactoriesList;
+        gameStat.gunFacade = new GunFacade(_gunFactoriesList);
     }
 
     public void OnFixedUpdate()

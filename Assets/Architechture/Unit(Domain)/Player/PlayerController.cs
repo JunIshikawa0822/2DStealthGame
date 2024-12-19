@@ -12,6 +12,8 @@ public class PlayerController : AEntity, IPlayer
 
     //private Entity_HealthPoint _playerHP;
 
+    public Transform equipPos;
+
     [SerializeField] private float _playerMoveForce = 50;
     private Quaternion _targetRotation;
 
@@ -60,18 +62,24 @@ public class PlayerController : AEntity, IPlayer
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, _targetRotation.eulerAngles.y, _player_RotateSpeed * Time.deltaTime);
     }
 
-    public void Attack(IGun gun)
+    public void Attack(AGun gun)
     {
         gun.Shot();
     }
 
-    public void Reload(IGun gun, Entity_Magazine magazine)
+    public void Reload(AGun gun, Entity_Magazine magazine)
     {
         if(_isEntityActionInterval)return;
         //CancelAction(actionCancellationTokenSource);
 
        // _actionCancellationTokenSource = new CancellationTokenSource();
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
+    }
+
+    public void Equip(AGun gun)
+    {
+        gun.transform.SetParent(equipPos);
+        gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
     }
 
     public override void OnDamage(float damage)

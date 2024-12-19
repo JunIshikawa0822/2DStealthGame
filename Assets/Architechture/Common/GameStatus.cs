@@ -13,6 +13,9 @@ public class GameStatus
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
 
+    public Action<int, ItemData> onEquipEvent;
+    public Action<int> onUnEquipEvent;
+
     [Header("Inputs")]
     [HideInInspector]public Vector2 moveDirection = Vector2.zero;
     public Vector2 cursorScreenPosition = Vector2.zero;
@@ -23,7 +26,7 @@ public class GameStatus
 
     [Header("PlayerGunsInfo")]
     //public Handgun Pistol1;
-    [HideInInspector]public IGun[] playerGunsArray = new IGun[2];
+    [HideInInspector]public AGun[] playerGunsArray = new AGun[2];
     [HideInInspector]public int selectingGunsArrayIndex = 0;
 
     [Header("GunPrefabs")]
@@ -93,8 +96,8 @@ public class GameStatus
 
     [Header("Facade")]
     public ItemFacade itemFacade;
-    //public GunFactories gunFactories;
+    public GunFacade gunFacade;
 
-    public List<IGunFactory> gunFactoriesList;
+    //public List<IGunFactory> gunFactoriesList;
 
 }

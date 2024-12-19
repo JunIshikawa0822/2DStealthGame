@@ -5,19 +5,11 @@ using Unity.Entities.UniversalDelegates;
 
 public class ItemFacade
 {
+    //オブジェクトとして使用しないもの（インスタンスが唯一であるアイテムだけ）
     Dictionary<int, IItem> _itemInstaceDic;
     public ItemFacade(Dictionary<int, IItem> itemInstaceDic)
     {
         _itemInstaceDic = itemInstaceDic;
-
-        foreach(KeyValuePair<int, IItem> item in _itemInstaceDic)
-        {
-            if(item.Value is IGun) 
-            {
-                IGun gun = item.Value as IGun;
-                gun.ObjectActive(false);
-            }
-        }
     }
 
     public void ItemUse()
@@ -33,5 +25,6 @@ public class ItemFacade
     public void CheckRef(int ID)
     {
         UnityEngine.Debug.Log(_itemInstaceDic[ID].Name);
+        UnityEngine.Debug.Log(string.Join(",", _itemInstaceDic));
     }
 }

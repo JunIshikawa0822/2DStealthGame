@@ -6,6 +6,7 @@ public class ItemData
     public ItemData(A_Item_Data item_Data, uint stackNum)
     {
         _ObjectData = item_Data;
+        _itemID = item_Data.ItemID;
 
         if(stackNum > item_Data.StackableNum)_stackNum = item_Data.StackableNum;
         else _stackNum = stackNum;

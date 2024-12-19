@@ -15,7 +15,7 @@ public class PlayerEquipInventory : MonoBehaviour
     private Image image;
 
     private Item_GUI _item;
-    private IGun gun;
+    private AGun gun;
 
     
     void Awake()

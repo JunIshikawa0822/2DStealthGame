@@ -31,7 +31,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     private bool isFighting;
 
-    IGun _enemyGun;
+    AGun _enemyGun;
 
     private FindOpponent _enemyFindView;
 
@@ -64,7 +64,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             return;
         }
 
-        _enemyGun = gun.GetComponent<IGun>();
+        _enemyGun = gun.GetComponent<AGun>();
 
         _enemyFindView = new FindOpponent(opponentLayer, obstacleLayer);
 
@@ -103,7 +103,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             {
                 TriggerEventOnBattleActionChanged(ref battleAction);
             }).AddTo(_disposablesByLifeCycle,this);
-         
+        
          //状態が変化した時に一度だけ状態変化イベントを行う（未定）
         _currentTarget.DistinctUntilChanged().Subscribe(target =>
             {
@@ -124,7 +124,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         {
             case IBandit.BanditStatus.Usual : 
                 _statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
-               
+            
                 StartSearchAround(0.5f); 
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; 
                 _currentAction.Value = IBandit.BanditAction.Standing; 
@@ -271,7 +271,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
        //隠れる行動
     }
 
-    public void Reload(IGun gun, Entity_Magazine magazine)
+    public void Reload(AGun gun, Entity_Magazine magazine)
     {
         //リロード
         if(_isEntityActionInterval)return;

@@ -26,7 +26,7 @@ public class ItemSystem : ASystem, IOnUpdate
         { 
             gameStat.foodDataArray.ToDictionary(data => data.ItemID, data => new Food(data) as IItem), 
             gameStat.medicineDataArray.ToDictionary(data => data.ItemID, data => new Medicine(data) as IItem),
-            gameStat.handgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactoriesList[0].GunInstantiate(data) as IItem),
+            //gameStat.handgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactoriesList[0].GunInstantiate(data) as IItem),
             // gameStat.rifleDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),
             // gameStat.shotgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),
             // gameStat.subMachinegunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem)

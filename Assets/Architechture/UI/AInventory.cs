@@ -4,6 +4,11 @@ using System;
 public abstract class AInventory : MonoBehaviour
 {
     public Func<ItemData, Transform, GUI_Item> itemInstantiateEvent; 
+
+    public Action<int, ItemData> onInsertEvent;
+    public Action<int> onRemoveEvent;
+
+    public abstract void OnSetUp(ItemFacade facade);
     public abstract void OpenInventory(Storage storage);
     public abstract void CloseInventory();
     public abstract CellNumber ScreenPosToCellNum(Vector2 pos);

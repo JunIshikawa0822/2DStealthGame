@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class Handgun : MonoBehaviour, IGun, IItem
+public class Handgun : AGun, IItem
 {
     //発射の内部的な処理に必要
     //----------------------------------------
@@ -13,7 +13,7 @@ public class Handgun : MonoBehaviour, IGun, IItem
 
     [SerializeField]
     private Transform _muzzlePosition;
-    private LineRenderer _muzzleFlashRenderer;
+    //private LineRenderer _muzzleFlashRenderer;
     private IObjectPool _objectPool;
 
     //----------------------------------------
@@ -27,13 +27,13 @@ public class Handgun : MonoBehaviour, IGun, IItem
     private Entity_Magazine _magazine;
     //----------------------------------------
     public string Name{get;set;}
-    public void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool, string name)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        _muzzleFlashRenderer = GetComponent<LineRenderer>();
-        _muzzleFlashRenderer.enabled = false;
+        // _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
@@ -52,7 +52,7 @@ public class Handgun : MonoBehaviour, IGun, IItem
 
     }
 
-    public void Shot()
+    public override void Shot()
     {
         //マガジンがないor弾がないとそもそも撃てない
         if(_magazine == null || _magazine.MagazineRemaining < 1)
@@ -86,21 +86,22 @@ public class Handgun : MonoBehaviour, IGun, IItem
         _shotIntervalTokenSource = new CancellationTokenSource();
         ShotInterval(_shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
 
-        if(_muzzleFlashRenderer == null) return;
+        // if(_muzzleFlashRenderer == null) return;
 
-        _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
+        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
+        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
+        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
         
         //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
-    public void Reload(Entity_Magazine magazine)
+    public override void Reload(Entity_Magazine magazine)
     {
+        Debug.Log(this.gameObject.name + ":" + magazine);
         _magazine = magazine;
     }
 
-    public void Jam()
+    public override void Jam()
     {
         _isJamming = true;
     }
@@ -160,14 +161,14 @@ public class Handgun : MonoBehaviour, IGun, IItem
     //     }
     // }
 
-    public Entity_Magazine GetMagazine()
+    public override Entity_Magazine GetMagazine()
     {
         return _magazine;
     }
 
-    public void ObjectActive(bool isActive)
-    {
-        this.gameObject.SetActive(isActive);
-    }
+    // public override void ObjectActive(bool isActive)
+    // {
+    //     this.gameObject.SetActive(isActive);
+    // }
 
 }

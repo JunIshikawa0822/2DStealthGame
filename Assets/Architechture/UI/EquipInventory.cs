@@ -20,7 +20,7 @@ public class EquipInventory : AInventory
 
     private IObjectPool _objectPool;
 
-    private IGun[] _playerGunsRef;
+    private ItemFacade _facade;
 
     private RectTransform _rectTransform;
 
@@ -47,24 +47,28 @@ public class EquipInventory : AInventory
         }
     }
 
-    void OnSetUp(IGun[] guns)
+    public override void OnSetUp(ItemFacade facade)
     {
-        _playerGunsRef = guns;
+        _facade = facade;
     }
 
     void Update()
     {
         //Debug.Log(gameObject.name + ":" + ScreenPToCellNum(Input.mousePosition));
-        //Debug.Log(Input.mousePosition);
+        // Debug.Log(_accessIndex);
     }
 
     public override void OpenInventory(Storage storage)
     {
         //if(_playerGunsRef[_accessIndexToPlayerGuns] == null)return;
-        Debug.Log(storage);
+        //Debug.Log(storage + ":" + _accessIndex);
 
         if(storage == null)return;
         _openningStorage = storage;
+
+        Debug.Log(_accessIndex);
+        Debug.Log(storage.WeaponArray[_accessIndex]);
+
         LoadItem(storage.WeaponArray[_accessIndex]);
     }
 
@@ -78,21 +82,25 @@ public class EquipInventory : AInventory
 
     public override void LoadItem(ItemData data)
     {
+        //Debug.Log("Load");
         if(data == null)return;
 
         GUI_Item gui = itemInstantiateEvent?.Invoke(data, container);
+        //Debug.Log("Load");
+        Vector3 newPosition = _rectTransform.position;
 
-        Vector3 newPosition = _rectTransform.anchoredPosition;
+        //Dataの更新
+        gui.Data.Address = new CellNumber(0, 0);
+        gui.Data.Direction = ItemData.ItemDir.Down;
 
-        data.Address = new CellNumber(0, 0);
-        data.Direction = ItemData.ItemDir.Down;
-
+        //GUIの更新
         gui.SetInventory(this);
         gui.RectTransform.SetParent(container);
-        gui.SetPivot(ItemData.ItemDir.Down);
-        gui.SetAnchorPosition(newPosition);
+        gui.SetPivot(ItemData.ItemDir.Middle);
+        gui.SetPosition(newPosition);
         gui.SetRotation(ItemData.ItemDir.Down);
         gui.SetImageSize(_cellSize);
+        gui.SetStackNum(gui.Data.StackingNum);
     }
 
     public override bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
@@ -114,25 +122,29 @@ public class EquipInventory : AInventory
         {
             Vector3 newPosition = _rectTransform.position;
 
-        //Dataの更新
+            //Dataの更新
             gui.Data.Address = new CellNumber(0, 0);
             gui.Data.Direction = ItemData.ItemDir.Down;
 
-        //GUIの更新
+            //GUIの更新
             gui.SetInventory(this);
             gui.RectTransform.SetParent(container);
             gui.SetPivot(ItemData.ItemDir.Middle);
             gui.SetPosition(newPosition);
             gui.SetRotation(ItemData.ItemDir.Down);
             gui.SetImageSize(_cellSize);
+            gui.SetStackNum(gui.Data.StackingNum);
 
             _openningStorage.AddWeapon(gui.Data, _accessIndex);
+
+            onInsertEvent?.Invoke(_accessIndex, gui.Data);
         }
         return 0;
     }
 
     public override void RemoveItem(CellNumber originCellNum)
     {
+        onRemoveEvent?.Invoke(_accessIndex);
         _openningStorage.RemoveWeapon(_accessIndex);
     }
 

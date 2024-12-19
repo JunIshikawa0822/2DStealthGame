@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledObject<T>
+public class Shotgun<T> : IItem where T : ABullet, IPooledObject<T>
 {
    //発射の内部的な処理に必要
     //----------------------------------------
@@ -31,7 +31,7 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        //_muzzleFlashRenderer = GetComponent<LineRenderer>();
         _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
@@ -124,8 +124,5 @@ public class Shotgun<T> : MonoBehaviour, IGun, IItem where T : ABullet, IPooledO
         return _magazine;
     }
 
-    public void ObjectActive(bool isActive)
-    {
-        this.gameObject.SetActive(isActive);
-    }
+
 }

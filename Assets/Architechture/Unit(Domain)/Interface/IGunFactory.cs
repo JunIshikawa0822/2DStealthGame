@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IGunFactory
 {
-    public IGun GunInstantiate(IGunData customData);
+    public AGun GunInstantiate(IGunData customData);
 }

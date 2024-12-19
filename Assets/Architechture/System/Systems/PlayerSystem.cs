@@ -27,6 +27,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
+        gameStat.onEquipEvent += OnEquipGun;
+        gameStat.onUnEquipEvent += OnUnEquipGun;
     }
 
     public void OnUpdate()
@@ -73,6 +75,24 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(gameStat.isInventoryPanelActive)return;
         Entity_Magazine magazine = new Entity_Magazine(10, 10);
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
+    }
+
+    public void OnEquipGun(int index, ItemData data)
+    {
+        IGunData gunData = data.ObjectData as IGunData;
+        if(gunData == null) return;
+
+        AGun gun = gameStat.gunFacade.GetGunInstance(gunData);
+        gameStat.playerGunsArray[index] = gun;
+
+        _player.Equip(gun);
+    }
+
+    public void OnUnEquipGun(int index)
+    {
+        //gameStat.playerGunsArray[index].gameObject.SetActive(false);
+        gameStat.gunFacade.ReturnGunInstance(gameStat.playerGunsArray[index]);
+        gameStat.playerGunsArray[index] = null;
     }
 
     public void OnFindStorage(Storage storage)

@@ -37,8 +37,17 @@ public class InventorySystem : ASystem, IOnUpdate
         //_item_GUI_Prefab = gameStat.item_GUI;
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
+        
         gameStat.inventoryList[0].itemInstantiateEvent += InstantiateGUI;
         gameStat.inventoryList[1].itemInstantiateEvent += InstantiateGUI;
+        gameStat.inventoryList[2].itemInstantiateEvent += InstantiateGUI;
+        gameStat.inventoryList[3].itemInstantiateEvent += InstantiateGUI;
+
+        gameStat.inventoryList[2].onInsertEvent += EquipmentInsert;
+        gameStat.inventoryList[2].onRemoveEvent += EquipmentRemove;
+
+        gameStat.inventoryList[3].onInsertEvent += EquipmentInsert;
+        gameStat.inventoryList[3].onRemoveEvent += EquipmentRemove;
 
         InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
@@ -77,8 +86,8 @@ public class InventorySystem : ASystem, IOnUpdate
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            //ItemData[] value = gameStat.playerStorage.WeaponArray;
-            Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ToString())));
+            Debug.Log(gameStat.playerStorage.WeaponArray);
+            Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ObjectData.ItemName)));
         }
 
         if(_draggingObject != null)
@@ -123,6 +132,16 @@ public class InventorySystem : ASystem, IOnUpdate
         Debug.Log(item.Data.ObjectData.ItemName + "を使った");
     }
 
+    public void EquipmentInsert(int index, ItemData data)
+    {
+        gameStat.onEquipEvent(index, data);
+    }
+
+    public void EquipmentRemove(int index)
+    {
+        gameStat.onUnEquipEvent(index);
+    }
+
 #region 新しい処理
     public GUI_Item InstantiateGUI(ItemData data, Transform transform)
     {
@@ -132,6 +151,8 @@ public class InventorySystem : ASystem, IOnUpdate
         gui.onBeginDragEvent += StartDragging;
         gui.onPointerDownEvent += PointerDown;
         gui.onEndDragEvent += EndDragging;
+
+        gui.onUseEvent += ItemUse;
 
         return gui;
     }
@@ -203,15 +224,12 @@ public class InventorySystem : ASystem, IOnUpdate
             if (inventory.IsValid(newCell))
             {
                 _toInventory = inventory;
-                Debug.Log(inventory);
-                Debug.Log(newCell);
-                Debug.Log(inventory.IsValid(newCell));
                 break;
             }
         }
 
-        Debug.Log(newCell);
-        Debug.Log(_toInventory);
+        //Debug.Log(newCell);
+        //Debug.Log(_toInventory);
 
         if (_toInventory != null || gui == null)
         {
@@ -219,7 +237,6 @@ public class InventorySystem : ASystem, IOnUpdate
             {
                 //Debug.Log("おけてはいる");
                 uint remain = _toInventory.InsertItem(gui, newCell, _newDirection);
-                Debug.Log("置けた");
 
                 if(remain > 0)
                 {

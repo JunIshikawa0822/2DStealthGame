@@ -23,6 +23,7 @@ public class Inventory : AInventory
 
     //public GUI_Item GUI_Item_Prefab;
     private IObjectPool _objectPool;
+    private ItemFacade _facade;
 
     private Storage _openningStorage;
 
@@ -37,9 +38,9 @@ public class Inventory : AInventory
         );
     }
 
-    void OnSetUp(IObjectPool guiPool)
+    public override void OnSetUp(ItemFacade facade)
     {
-        _objectPool = guiPool;
+        _facade = facade;
     }
 
     void Update()
