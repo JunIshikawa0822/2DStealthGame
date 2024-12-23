@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class GunSystem : ASystem, IOnFixedUpdate
 {
     private IPlayer _player;
     List<IObjectPool> _objectPools;
-    Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
+    List<IGunFactory> _gunFactoriesList;
+    //Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
     public override void OnSetUp()
     {
         //this._player = gameStat.player;
@@ -30,16 +32,21 @@ public class GunSystem : ASystem, IOnFixedUpdate
             objectPool.PoolSetUp(20);
         }
 
-        _gunFactoriesDic = new Dictionary<IGunData.CaliberTypes, IGunFactory>
-        {
-            { IGunData.CaliberTypes._10mm, new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1) },
-            { IGunData.CaliberTypes._5_56mm, new Gun_5_56mm_CreateConcreteFactory(bullet_5_56mm_Objp, gameStat.Pistol1) },
-            { IGunData.CaliberTypes._7_62mm, new Gun_7_62mm_CreateConcreteFactory(bullet_7_62mm_Objp, gameStat.Pistol1) }
+        // _gunFactoriesDic = new Dictionary<IGunData.CaliberTypes, IGunFactory>
+        // {
+        //     { IGunData.CaliberTypes._10mm, new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1) },
+        //     { IGunData.CaliberTypes._5_56mm, new Gun_5_56mm_CreateConcreteFactory(bullet_5_56mm_Objp, gameStat.Pistol1) },
+        //     { IGunData.CaliberTypes._7_62mm, new Gun_7_62mm_CreateConcreteFactory(bullet_7_62mm_Objp, gameStat.Pistol1) }
 
+        // };
+
+        _gunFactoriesList = new List<IGunFactory>
+        {
+            new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
+            new ShotGun_CreateConcreteFactory(gameStat.shotgunPrefabs, _objectPools)
         };
 
-        //facadeの作成
-        gameStat.gunFactories = new GunFactories(_gunFactoriesDic);
+        gameStat.gunFacade = new GunFacade(_gunFactoriesList, gameStat.gunInstanceParent);
     }
 
     public void OnFixedUpdate()

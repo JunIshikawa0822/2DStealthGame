@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerEquipInventory : MonoBehaviour, IInventory
+public class PlayerEquipInventory : MonoBehaviour
 {
     //private RectTransform container;
     // [SerializeField]
@@ -15,7 +15,7 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
     private Image image;
 
     private Item_GUI _item;
-    private IGun gun;
+    private AGun gun;
 
     
     void Awake()
@@ -40,31 +40,31 @@ public class PlayerEquipInventory : MonoBehaviour, IInventory
     }
 
 
-    public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    {
-        _item = item;
+    // public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    // {
+    //     _item = item;
 
-        item.SetBelongings(this, inventoryRectTransform.position, direction);
-        item.RectTransform.SetParent(inventoryRectTransform);
-        item.SetPivot(Item_GUI.ItemDir.Middle);
-        item.SetPosition(transform.position);
-        image.GetComponent<RectTransform>().position = transform.position;
-        item.SetRotation(direction);
-        Debug.Log("Equip!");
-        return 0;
-    }
+    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
+    //     item.RectTransform.SetParent(inventoryRectTransform);
+    //     item.SetPivot(Item_GUI.ItemDir.Middle);
+    //     item.SetPosition(transform.position);
+    //     image.GetComponent<RectTransform>().position = transform.position;
+    //     item.SetRotation(direction);
+    //     Debug.Log("Equip!");
+    //     return 0;
+    // }
 
-    public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction)
-    {
-        _item = item;
+    // public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction)
+    // {
+    //     _item = item;
 
-        item.SetBelongings(this, inventoryRectTransform.position, direction);
-        item.RectTransform.SetParent(inventoryRectTransform);
-        item.SetPivot(Item_GUI.ItemDir.Middle);
-        item.SetAnchorPosition(transform.position);
-        item.SetRotation(direction);
-        return 0;
-    }
+    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
+    //     item.RectTransform.SetParent(inventoryRectTransform);
+    //     item.SetPivot(Item_GUI.ItemDir.Middle);
+    //     item.SetAnchorPosition(transform.position);
+    //     item.SetRotation(direction);
+    //     return 0;
+    // }
 
     public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
     {

@@ -20,17 +20,23 @@ public class EnemySystem : ASystem, IOnUpdate
     public void EnemyObjectInstantiate(Vector3 pos)
     {
         // Debug.Log("つくった");
-        // #region 銃の割り当て
-        // Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
-        // IGun gun = GameObject.Instantiate(gameStat.Pistol1);
+        #region 銃の割り当て
+        Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
+        //IGun gun = GameObject.Instantiate(gameStat.Pistol1);
 
-        // gun.Reload(new Entity_Magazine(10, 10));
-        // gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        // #endregion
+        //gun.Reload(new Entity_Magazine(10, 10));
+        //gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
         
-        // enemy.OnSetUp(new Entity_HealthPoint(100, 100), gun.transform);
+        #endregion
+        
+        enemy.OnSetUp(new Entity_HealthPoint(100, 100));
 
-        // enemy.transform.SetParent(gameStat.enemyParent);
+        // Debug.Log(enemy.Storage.WeaponArray[0]);
+
+        IGunData gunData = enemy.Storage.TestWeaponData[0] as IGunData;
+        enemy.Equip(gameStat.gunFacade.GetGunInstance(gunData));
+
+        enemy.transform.SetParent(gameStat.enemyParent);
     }
 #endregion
 }

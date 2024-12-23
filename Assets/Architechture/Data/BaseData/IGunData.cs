@@ -13,4 +13,6 @@ public interface IGunData
     public float ShotVelocity{get;}
 
     public uint MaxAmmoNum{get;}
+
+    public bool Equals(IGunData data);
 }

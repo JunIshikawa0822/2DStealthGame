@@ -20,8 +20,9 @@ MonoBehaviour:
   _heightInGUI: 2
   _stackableNum: 1
   _itemID: 3
-  simulNum: 5
-  muzzleVelocity: 700
-  shotInterval: 0.5
+  simulNum: 8
+  spreadAngle: 40
+  muzzleVelocity: 3000
+  shotInterval: 1
   caliberType: 0
-  maxAmmoNum: 2
+  maxAmmoNum: 5

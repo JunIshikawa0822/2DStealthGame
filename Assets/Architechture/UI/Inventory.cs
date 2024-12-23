@@ -4,16 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Inventory : MonoBehaviour
+public class Inventory : AInventory
 {
     public Grid<CellObject> grid;
     [SerializeField]
     private RectTransform container;
     [SerializeField]
     private RectTransform background;
-    public RectTransform inventoryRectTransform;
-    [HideInInspector]
-    public RectTransform test1;
 
     [SerializeField]
     private float _cellSize = 50;
@@ -26,10 +23,9 @@ public class Inventory : MonoBehaviour
 
     //public GUI_Item GUI_Item_Prefab;
     private IObjectPool _objectPool;
+    private ItemFacade _facade;
 
     private Storage _openningStorage;
-
-    public event Func<ItemData, Transform, GUI_Item> itemInstantiateEvent; 
 
     void Awake()
     {
@@ -42,9 +38,9 @@ public class Inventory : MonoBehaviour
         );
     }
 
-    void OnSetUp(IObjectPool guiPool)
+    public override void OnSetUp(ItemFacade facade)
     {
-        _objectPool = guiPool;
+        _facade = facade;
     }
 
     void Update()
@@ -113,7 +109,7 @@ public class Inventory : MonoBehaviour
         image.enabled = true;
     }
 
-    public void OpenInventory(Storage storage)
+    public override void OpenInventory(Storage storage)
     {
         _openningStorage = storage;
         //Debug.Log(itemInstantiateEvent);
@@ -125,7 +121,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void CloseInventory()
+    public override void CloseInventory()
     {
         for(int x = 0; x < 10; x++)
         {
@@ -144,10 +140,10 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void LoadItem(ItemData data)
+    public override void LoadItem(ItemData data)
     {
         GUI_Item gui = itemInstantiateEvent?.Invoke(data, container);
-        List<CellNumber> cellNumsList = GetCellNumList(data.Address, data.Direction, data.Object.Width, data.Object.Height);
+        List<CellNumber> cellNumsList = GetCellNumList(data.Address, data.Direction, data.ObjectData.Width, data.ObjectData.Height);
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
@@ -171,9 +167,9 @@ public class Inventory : MonoBehaviour
         gui.SetImageSize(_cellSize);
     }
 
-    public uint InsertItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
+    public override uint InsertItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
     {
-        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
+        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.ObjectData.Width, gui.Data.ObjectData.Height);
 
         uint remain = 0;
         for(int i = 0; i < cellNumsList.Count; i++)
@@ -190,6 +186,12 @@ public class Inventory : MonoBehaviour
 
         Vector3 newPosition = grid.GetCellOriginAnchoredPosition(originCellNum);
 
+//Dataの更新
+        gui.Data.Address = originCellNum;
+        gui.Data.Direction = direction;
+
+        _openningStorage.AddItem(gui.Data);
+
 //GUIの更新
         gui.SetInventory(this);
         gui.RectTransform.SetParent(container);
@@ -197,19 +199,13 @@ public class Inventory : MonoBehaviour
         gui.SetAnchorPosition(newPosition);
         gui.SetRotation(direction);
         gui.SetImageSize(_cellSize);
-
-//Dataの更新
-        gui.Data.Address = originCellNum;
-        gui.Data.Direction = direction;
-
-        _openningStorage.AddItem(gui.Data);
-
+        
         return remain;
     }
 
-    public bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
+    public override bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
     {
-        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
+        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.ObjectData.Width, gui.Data.ObjectData.Height);
 
         bool canPlace = true;
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
@@ -273,11 +269,12 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void RemoveItem(CellNumber originCellNum)
+    public override void RemoveItem(CellNumber originCellNum)
     {
         GUI_Item gui = grid.GetCellObject(originCellNum).GUIInCell;
         ItemData.ItemDir direction = gui.Data.Direction;
-        List<CellNumber> removeCellNumList = GetCellNumList(originCellNum, direction, gui.Data.Object.Width, gui.Data.Object.Height);
+        List<CellNumber> removeCellNumList = GetCellNumList(originCellNum, direction, gui.Data.ObjectData.Width, gui.Data.ObjectData.Height);
+
         for(int i = 0; i < removeCellNumList.Count; i++)
         {
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
@@ -288,14 +285,16 @@ public class Inventory : MonoBehaviour
         _openningStorage.TakeItem(gui.Data);
     }
 
-    public CellNumber ScreenPosToCellNum(Vector2 pos)
+    public override CellNumber ScreenPosToCellNum(Vector2 pos)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
         return grid.GetCellNum(convertPosition);
     }
 
-    public bool IsValid(CellNumber cellNum)
+    public override bool IsValid(CellNumber cellNum)
     {
+        //Debug.Log(cellNum);
+        //Debug.Log(grid.IsValidCellNum(cellNum));
         return grid.IsValidCellNum(cellNum);
     }
 

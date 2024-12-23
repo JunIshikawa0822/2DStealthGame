@@ -2,14 +2,11 @@ using UnityEngine;
 
 public interface IInventory
 {
-    public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction);
-    public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction);
-    public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction);
-    public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction);
+    public CellNumber ScreenPosToCellNum(Vector2 pos);
+    public bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction);
+    public uint InsertItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction);
+    public void RemoveItem(CellNumber originCellNum);
+    public bool IsValid(CellNumber originCellNum);
+    public void LoadItem(ItemData data);
 
-    public void RemoveItemFromInventory(CellNumber cellNum);
-
-    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num);
-
-    public bool IsValid(Vector3 pos);
 }

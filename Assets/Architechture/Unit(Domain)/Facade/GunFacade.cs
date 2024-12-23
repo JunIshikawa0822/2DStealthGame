@@ -1,22 +1,56 @@
 using System.Collections.Generic;
-public class GunFactories
+using UnityEngine;
+public class GunFacade
 {
-    Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
+    //Dictionary<int, GunCategory> _gunCategoriesDic;
 
-    public GunFactories(Dictionary<IGunData.CaliberTypes, IGunFactory> gunFactoriesDic)
+    private List<IGunFactory> _gunFactories;
+    private List<GunCategory> categories;
+    private Transform _facadeTrans;
+
+    public GunFacade(List<IGunFactory> gunFactories, Transform facadeTrans)
     {
-        _gunFactoriesDic = gunFactoriesDic;
+        _gunFactories = gunFactories;
+        _facadeTrans = facadeTrans;
+
+        categories = new List<GunCategory>();
+
+        AddCategory("Handgun", _gunFactories[0]);
+        AddCategory("Shotgun", _gunFactories[1]);
     }
 
-    public IGun GunInstantiate(IGunData gunData)
+    private void AddCategory(string name, IGunFactory gunFactory)
     {
-        IGun gun = null;
+        GameObject parent = new GameObject(name);
+        parent.transform.SetParent(_facadeTrans);
 
-        if(gunData.CaliberType == IGunData.CaliberTypes._10mm) gun =  _gunFactoriesDic[IGunData.CaliberTypes._10mm].GunInstantiate(gunData);
-        if(gunData.CaliberType == IGunData.CaliberTypes._5_56mm) gun = _gunFactoriesDic[IGunData.CaliberTypes._5_56mm].GunInstantiate(gunData);
-        if(gunData.CaliberType == IGunData.CaliberTypes._7_62mm) gun = _gunFactoriesDic[IGunData.CaliberTypes._7_62mm].GunInstantiate(gunData);
+        categories.Add(new GunCategory(name, gunFactory, parent.transform));
+    }
 
-        gun.Reload(new Entity_Magazine(0, 0));
+    public AGun GetGunInstance(IGunData gunData)
+    {
+        //Debug.Log("呼ばれた");
+
+        AGun gun = null;
+
+        switch(gunData)
+        {
+            case Handgun_Data handgunData : gun = categories[0].GetInstance(gunData);break;
+
+            case Shotgun_Data shotgunData : gun = categories[1].GetInstance(gunData);break;
+        }
+
+        gun.gameObject.SetActive(true);
         return gun;
+    }
+
+    public void ReturnGunInstance(AGun gun)
+    {
+        gun.gameObject.SetActive(false);
+        switch(gun.GunData)
+        {
+            case Handgun_Data handgunData: categories[0].ReturnToList(gun); break;
+            case Shotgun_Data shotgunData: categories[1].ReturnToList(gun); break;
+        }
     }
 }

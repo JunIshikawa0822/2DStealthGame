@@ -17,9 +17,9 @@ public class Gun_5_56mm_CreateConcreteFactory : IGunFactory
         return null;
     }
 
-    public IGun GunInstantiate(IGunData data)
+    public AGun GunInstantiate(IGunData data)
     {
-        IGun newGun;
+        AGun newGun;
         if(data is Handgun_Data)
         {
             Handgun handgun = GameObject.Instantiate(_handgun);

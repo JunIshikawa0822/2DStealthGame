@@ -13,6 +13,9 @@ public class GameStatus
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
 
+    public Action<int, ItemData> onEquipEvent;
+    public Action<int> onUnEquipEvent;
+
     [Header("Inputs")]
     [HideInInspector]public Vector2 moveDirection = Vector2.zero;
     public Vector2 cursorScreenPosition = Vector2.zero;
@@ -22,9 +25,14 @@ public class GameStatus
     public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
-    public Handgun Pistol1;
-    [HideInInspector]public IGun[] playerGunsArray = new IGun[2];
+    //public Handgun Pistol1;
+    [HideInInspector]public AGun[] playerGunsArray = new AGun[2];
     [HideInInspector]public int selectingGunsArrayIndex = 0;
+
+    [Header("GunPrefabs")]
+    //public Handgun handgunPrefab;
+    public Handgun[] handgunPrefabs;
+    public Shotgun[] shotgunPrefabs;
 
     [Header("PlayerInfo")]
     public PlayerController player;
@@ -42,12 +50,6 @@ public class GameStatus
     public Rifle_Data[] rifleDataArray;
     public Shotgun_Data[] shotgunDataArray;
     public SubMachinegun_Data[] subMachinegunDataArray;
-
-    [Header("ItemInstance")]
-
-    [HideInInspector] public Food foodInstances;
-    [HideInInspector] public Medicine[] medicineInstances;
-    
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
@@ -75,18 +77,12 @@ public class GameStatus
 
     [Header("UGUI")]
     public Canvas canvas;
-    public Item_GUI item_GUI;
-    //public List<Scriptable_ItemData> item_Data_List = new List<Scriptable_ItemData>();
-    //public List<IInventory> inventoriesList = new List<IInventory>();
+    //public PlayerEquipInventory equipInventory1;
+    //public PlayerEquipInventory equipInventory2;
 
-    //public TetrisInventory playerInventory;
-    //public TetrisInventory otherInventory;
-    public PlayerEquipInventory equipInventory1;
-    public PlayerEquipInventory equipInventory2;
-
-    public List<Inventory> inventoryList = new List<Inventory>();
-    public Inventory inventory1;
-    public Inventory inventory2;
+    public List<AInventory> inventoryList = new List<AInventory>();
+    //public Inventory inventory1;
+    //public Inventory inventory2;
     public GUI_Item gui_Item_Prefab;
     public Storage playerStorage;
     public Storage otherStorage = null;
@@ -100,7 +96,13 @@ public class GameStatus
 #endregion
 
     [Header("Facade")]
+    public Transform gunInstanceParent;
+
+
     public ItemFacade itemFacade;
-    public GunFactories gunFactories;
+    public GunFacade gunFacade;
+    
+
+    //public List<IGunFactory> gunFactoriesList;
 
 }
