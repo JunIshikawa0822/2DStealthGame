@@ -33,6 +33,28 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public event Action<GUI_Item> onUseEvent;
 
+    #region  計算用
+
+    private AInventory _toInventory;
+    private AInventory _fromInventory;
+
+    private float _oldAngle;
+    private float _newAngle;
+    private float _rotateAngle;
+    //private GUI_Item _draggingObject;
+
+    private bool _isDragging;
+    private ItemData.ItemDir _oldDirection;
+    private ItemData.ItemDir _newDirection;
+
+    private Vector3[] _offsetArray = new Vector3[4];
+    private Vector3 _positionOffset;
+    //private Vector3 _oldPosition;
+
+    //------------------
+    private CellNumber _oldCellNum;
+    #endregion
+
     public void OnSetUp(ItemData itemData)
     {
         _rectTransform = GetComponent<RectTransform>();
@@ -250,5 +272,102 @@ public class GUI_Item : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     {
         if(onDragEvent == null)return;
         onDragEvent.Invoke(this);
+    }
+
+    public void StartDragging()
+    {
+        //if(!gameStat.isInventoryPanelActive)return;
+        //if(gui == null)return
+
+        _isDragging = true;
+
+        _oldDirection = _newDirection = Data.Direction;
+        _fromInventory =  _belongingInventory;
+        //_oldPosition = gui.RectTransform.position;
+        _oldCellNum = Data.Address;
+
+        _rotateAngle = 0;
+
+        Vector3 mousePos = Input.mousePosition;
+
+        Vector3[] corners = new Vector3[4];
+        RectTransform.GetWorldCorners(corners);
+
+        //GetWorldCornersはCanvasのRenderModeによって変わるらしい
+        //ScreenSpace OverlayならそのままScreen座標
+        //ScreenSpace Camera、World Spaceなら、その後WorldToScreenPosで変換する必要がある
+        //GetWorldCornersは、左下、左上、右上、右下の順で格納してしまうので、ItemDirの並び順と揃える必要がある
+
+        for(int i = 0; i < corners.Length; i++)
+        {
+            //Debug.Log((i + 1) % 4);
+            _offsetArray[i] = corners[(i + 1) % 4] - mousePos;
+
+            //Debug.Log($"{corners[(i + 1) % 4]} : {_offsetArray[i].magnitude}");
+            //Debug.Log($"{corners[i]} : {corners[i].magnitude}");
+        }
+
+        // Debug.Log(_oldDirection);
+        _positionOffset = _offsetArray[(int)_oldDirection];
+        //transform.SetParent(_UGUIPanel.transform);
+        SetPivot(_oldDirection);
+    }
+
+    public void EndDragging(GUI_Item gui)
+    {
+        //if(!gameStat.isInventoryPanelActive)return;
+        
+        Vector3 mousePos = Input.mousePosition;
+
+        _fromInventory.RemoveItem(_oldCellNum);
+
+        Vector3 newPosition = mousePos + _positionOffset;
+
+        CellNumber newCell = new CellNumber(0, 0);
+
+        //所属Inventoryを探す
+        foreach (AInventory inventory in gameStat.inventoryList)
+        {
+            newCell = inventory.ScreenPosToCellNum(newPosition);
+
+            Debug.Log(inventory.IsValid(newCell));
+
+            if (inventory.IsValid(newCell))
+            {
+                _toInventory = inventory;
+                break;
+            }
+        }
+
+        //Debug.Log(newCell);
+        //Debug.Log(_toInventory);
+
+        if (_toInventory != null || gui == null)
+        {
+            if(_toInventory.CanPlaceItem(gui, newCell, _newDirection))
+            {
+                //Debug.Log("おけてはいる");
+                uint remain = _toInventory.InsertItem(gui, newCell, _newDirection);
+
+                if(remain > 0)
+                {
+                    //remain分はromInventoryに再度格納
+                    _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
+                }
+            }
+            else
+            {
+                _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
+                Debug.Log("置けなかった");
+            }
+        }
+        else
+        {
+            Debug.Log("toInventory、itemがなかった");
+            _fromInventory.InsertItem(gui, _oldCellNum, _oldDirection);
+        }
+
+        _draggingObject = null;
+        _toInventory = null;
     }
 }
