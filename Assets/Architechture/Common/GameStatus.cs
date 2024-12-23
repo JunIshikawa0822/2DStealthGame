@@ -32,6 +32,7 @@ public class GameStatus
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
+    public Shotgun[] shotgunPrefabs;
 
     [Header("PlayerInfo")]
     public PlayerController player;
@@ -97,7 +98,7 @@ public class GameStatus
     [Header("Facade")]
     public Transform gunInstanceParent;
 
-    
+
     public ItemFacade itemFacade;
     public GunFacade gunFacade;
     

@@ -2,17 +2,20 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class Shotgun<T> : IItem where T : ABullet, IPooledObject<T>
+public class Shotgun : AGun, IItem
 {
-   //発射の内部的な処理に必要
+    //発射の内部的な処理に必要
     //----------------------------------------
     private float _muzzleVelocity = 700f;
     private float _shotInterval = 0.5f;
+
+    private int _simulNum; 
+    private float _spreadAngle;
     //----------------------------------------
 
-    [SerializeField] 
+    [SerializeField]
     private Transform _muzzlePosition;
-    private LineRenderer _muzzleFlashRenderer;
+    //private LineRenderer _muzzleFlashRenderer;
     private IObjectPool _objectPool;
 
     //----------------------------------------
@@ -24,24 +27,28 @@ public class Shotgun<T> : IItem where T : ABullet, IPooledObject<T>
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+    //----------------------------------------
     public string Name{get;set;}
-
-    public void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool, string name)
     {
         //_bulletFactories = bulletFactories;
         _objectPool = objectPool;
 
-        //_muzzleFlashRenderer = GetComponent<LineRenderer>();
-        _muzzleFlashRenderer.enabled = false;
+        // _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
+
         Name = name;
     }
 
-    public void ShotgunInit( int simulNum, float velocity, float shotInterval)
+    public void ShotgunInit(float velocity, float shotInterval, int simulNum, float spreadAngle)
     {
-
+        _muzzleVelocity = velocity;
+        _shotInterval = shotInterval;
+        _simulNum = simulNum;
+        _spreadAngle = spreadAngle;
     }
 
     public void OnUpdate()
@@ -49,17 +56,69 @@ public class Shotgun<T> : IItem where T : ABullet, IPooledObject<T>
 
     }
 
-    public void Shot()
+    public override void Shot()
     {
+        //マガジンがないor弾がないとそもそも撃てない
+        if(_magazine == null || _magazine.MagazineRemaining < 1)
+        {
+            Debug.Log("弾、ないよ");
+            return;
+        }
+
+        //射撃と射撃の間隔を制御
+        if(_isShotIntervalActive)return;
+        //_objectPoolの有無をチェック
+        if(_objectPool == null)return;
+
+        Quaternion centerAngle = _muzzlePosition.rotation;
+
+        for(int i = 0; i < _simulNum; i++)
+        {
+            //Poolからもってくる
+            ABullet bullet = _objectPool.GetFromPool() as ABullet;
+
+            if(bullet == null)
+            {
+                Debug.Log("キャスト無理ぃ");
+                return;
+            }
+
+            if (bullet.gameObject == null)return;
+
+            float angleOffset = -_spreadAngle / 2 + (_spreadAngle / (_simulNum - 1)) * i;
+
+            Debug.Log(angleOffset);
+            Quaternion bulletRotation = centerAngle * Quaternion.Euler(0, angleOffset, 0);
+
+            //発射
+            Debug.Log("発射");
+            bullet.Init(_muzzlePosition.position);
+            bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, bulletRotation);
+            bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
+        }
+
+        //弾を消費する
+        _magazine.ConsumeBullet();
         
+        _shotIntervalTokenSource = new CancellationTokenSource();
+        ShotInterval(_shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
+
+        // if(_muzzleFlashRenderer == null) return;
+
+        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
+        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
+        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
+        
+        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
-    public void Reload(Entity_Magazine magazine)
+    public override void Reload(Entity_Magazine magazine)
     {
+        Debug.Log(this.gameObject.name + ":" + magazine);
         _magazine = magazine;
     }
 
-    public void Jam()
+    public override void Jam()
     {
         _isJamming = true;
     }
@@ -119,10 +178,13 @@ public class Shotgun<T> : IItem where T : ABullet, IPooledObject<T>
     //     }
     // }
 
-    public Entity_Magazine GetMagazine()
+    public override Entity_Magazine GetMagazine()
     {
         return _magazine;
     }
 
-
+    // public override void ObjectActive(bool isActive)
+    // {
+    //     this.gameObject.SetActive(isActive);
+    // }
 }

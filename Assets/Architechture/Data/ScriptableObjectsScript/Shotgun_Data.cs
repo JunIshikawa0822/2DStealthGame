@@ -5,6 +5,7 @@ using System;
 public class Shotgun_Data : A_Item_Data, IGunData
 { 
     public int simulNum;
+    public float spreadAngle;
     [Header("銃の情報")]
     [SerializeField] float muzzleVelocity;
     [SerializeField] float shotInterval;

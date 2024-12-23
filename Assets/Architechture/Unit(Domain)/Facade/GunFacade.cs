@@ -16,6 +16,7 @@ public class GunFacade
         categories = new List<GunCategory>();
 
         AddCategory("Handgun", _gunFactories[0]);
+        AddCategory("Shotgun", _gunFactories[1]);
     }
 
     private void AddCategory(string name, IGunFactory gunFactory)
@@ -34,9 +35,9 @@ public class GunFacade
 
         switch(gunData)
         {
-            case Handgun_Data handgunData: gun = categories[0].GetInstance(gunData);
-            Debug.Log("ハンドガン");
-            break;
+            case Handgun_Data handgunData : gun = categories[0].GetInstance(gunData);break;
+
+            case Shotgun_Data shotgunData : gun = categories[1].GetInstance(gunData);break;
         }
 
         gun.gameObject.SetActive(true);
@@ -48,8 +49,8 @@ public class GunFacade
         gun.gameObject.SetActive(false);
         switch(gun.GunData)
         {
-            case Handgun_Data handgunData: categories[0].ReturnToList(gun);
-            break;
+            case Handgun_Data handgunData: categories[0].ReturnToList(gun); break;
+            case Shotgun_Data shotgunData: categories[1].ReturnToList(gun); break;
         }
     }
 }

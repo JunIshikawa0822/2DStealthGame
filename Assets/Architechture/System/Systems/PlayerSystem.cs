@@ -73,7 +73,10 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnReload()
     {
         if(gameStat.isInventoryPanelActive)return;
-        Entity_Magazine magazine = new Entity_Magazine(10, 10);
+        uint max = gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GunData.MaxAmmoNum;
+        uint current = gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GunData.MaxAmmoNum;
+
+        Entity_Magazine magazine = new Entity_Magazine(max, current);
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
     }
 
