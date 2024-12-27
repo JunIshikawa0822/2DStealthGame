@@ -108,7 +108,7 @@ Transform:
   m_GameObject: {fileID: 4027061008668728201}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.26}
+  m_LocalPosition: {x: 0, y: 0, z: 0.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -294,9 +294,9 @@ GameObject:
   - component: {fileID: 7755843863711846219}
   - component: {fileID: 3825389683501906179}
   - component: {fileID: 5016923181861598370}
-  - component: {fileID: 1856292006724937380}
-  - component: {fileID: 293719101139183283}
   - component: {fileID: 5104503251638018806}
+  - component: {fileID: 8656905598818628961}
+  - component: {fileID: 2682329674959188862}
   m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
@@ -436,56 +436,6 @@ MonoBehaviour:
   _player_RotateSpeed: 500
   equipPos: {fileID: 176234815862013403}
   _playerMoveForce: 50
---- !u!114 &1856292006724937380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8944434050612652416}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a208c5d5c4ed74d28885d7237433617b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewRadius: 40
-  viewAngle: 45
-  targetMask:
-    serializedVersion: 2
-    m_Bits: 128
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 768
-  newVisibleTargets: []
-  meshResolution: 1
-  edgeResolveIterations: 4
-  edgeDstThreshold: 0.5
-  viewMeshFilter: {fileID: 7844428495608391410}
---- !u!114 &293719101139183283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8944434050612652416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a208c5d5c4ed74d28885d7237433617b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewRadius: 60
-  viewAngle: 360
-  targetMask:
-    serializedVersion: 2
-    m_Bits: 0
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 768
-  newVisibleTargets: []
-  meshResolution: 1
-  edgeResolveIterations: 4
-  edgeDstThreshold: 0.5
-  viewMeshFilter: {fileID: 7152923058299605207}
 --- !u!114 &5104503251638018806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -499,4 +449,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testDataArray: []
-  test: 0
+  testWeaponDataArray:
+  - {fileID: 0}
+  - {fileID: 0}
+  test: 1
+--- !u!114 &8656905598818628961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8944434050612652416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRadius: 60
+  viewAngle: 74
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 128
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 768
+  meshResolution: 1
+  edgeResolveIterations: 4
+  edgeDstThreshold: 0.5
+  isDisplayChange: 1
+  isDraw: 1
+  viewMeshFilter: {fileID: 7232746533770956479}
+--- !u!114 &2682329674959188862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8944434050612652416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRadius: 60
+  viewAngle: 360
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 768
+  meshResolution: 1
+  edgeResolveIterations: 4
+  edgeDstThreshold: 0.5
+  isDisplayChange: 0
+  isDraw: 1
+  viewMeshFilter: {fileID: 7152923058299605207}

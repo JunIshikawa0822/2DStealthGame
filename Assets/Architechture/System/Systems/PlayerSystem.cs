@@ -6,22 +6,22 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     {
         _player = gameStat.player;
 
-        DrawFieldOfView playerFieldOfView = new DrawFieldOfView
-        (
-            gameStat.meshFilter, 
-            new Mesh(), 
-            gameStat.targetLayer, 
-            gameStat.obstacleLayer, 
-            gameStat.meshResolution, 
-            gameStat.edgeResolveIterations,
-            gameStat.edgeDstThreshold
-        );
+        // DrawFieldOfView playerFieldOfView = new DrawFieldOfView
+        // (
+        //     gameStat.meshFilter, 
+        //     new Mesh(), 
+        //     gameStat.targetLayer, 
+        //     gameStat.obstacleLayer, 
+        //     gameStat.meshResolution, 
+        //     gameStat.edgeResolveIterations,
+        //     gameStat.edgeDstThreshold
+        // );
 
-        FindOpponent findOpponent = new FindOpponent(gameStat.targetLayer, gameStat.obstacleLayer);
-        DrawOpponent drawOpponent = new DrawOpponent();
+        //FindOpponent findOpponent = new FindOpponent(gameStat.targetLayer, gameStat.obstacleLayer);
+        //DrawOpponent drawOpponent = new DrawOpponent();
         Entity_HealthPoint playerHP = new Entity_HealthPoint(100, 100);
 
-        _player.OnSetUp(playerHP, playerFieldOfView, findOpponent, drawOpponent, gameStat.radius, gameStat.angle);
+        _player.OnSetUp(playerHP);
         _player.storageFindEvent += OnFindStorage;
         _player.leaveStorageEvent += OnExitStorage;
 
@@ -46,7 +46,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnLateUpdate()
     {
-        _player.DrawView();
+        //_player.DrawView();
     }
 
     public void OnFixedUpdate()

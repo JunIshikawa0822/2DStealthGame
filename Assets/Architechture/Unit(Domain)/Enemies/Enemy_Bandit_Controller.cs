@@ -15,16 +15,6 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private Entity_HealthPoint _enemy_Bandit_HP;
     [SerializeField]
     private float _enemy_Bandit_RotateSpeed;
-    [SerializeField]
-    private LayerMask opponentLayer;
-
-    [SerializeField]
-    private LayerMask obstacleLayer;
-
-    [SerializeField]
-    private float _enemyViewAngle;
-    [SerializeField]
-    private float _enemyViewRadius;
 
     [SerializeField]
     private TextMeshPro _statusText;
@@ -33,7 +23,9 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     AGun _enemyGun;
 
-    private FindOpponent _enemyFindView;
+    FOV _enemyFieldOfView;
+
+    //private FindOpponent _enemyFindView;
 
     private ReactiveProperty<Transform>_currentTarget;
     private ReactiveProperty<IBandit.BanditStatus> _currentStatus;
@@ -65,9 +57,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         }
 
         _enemyStorage = GetComponent<Storage>();
-
-        _enemyFindView = new FindOpponent(opponentLayer, obstacleLayer);
-
+        _enemyFieldOfView = GetComponent<FOV>()
+;
         EntitySetUp();
         //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
@@ -206,7 +197,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     private void SearchAround()
     {
-        List<Transform> objectList = _enemyFindView.FindVisibleTargets(_enemyViewAngle, _enemyViewRadius, this.transform);
+        List<Transform> objectList = _enemyFieldOfView.FindTargets();
         _currentTarget.Value = FindNearestObject(objectList, this.transform);
 
         if(_currentTarget.Value == null)return;
