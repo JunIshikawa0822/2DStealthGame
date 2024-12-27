@@ -20,8 +20,8 @@ public class FOV : MonoBehaviour
     [SerializeField] float meshResolution;
     [SerializeField] int edgeResolveIterations;
     [SerializeField] float edgeDstThreshold;
-    [SerializeField] bool isDisplayChange;
-    [SerializeField] bool isDraw;
+    [SerializeField] bool isTargetDisplayChange;
+    [SerializeField] bool isDrawFieldOfView;
 
     [SerializeField] MeshFilter viewMeshFilter;
     private Mesh _viewMesh;
@@ -64,7 +64,7 @@ public class FOV : MonoBehaviour
         //if(this == null)return;
         //_newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius);
 
-        if(isDisplayChange == true)
+        if(isTargetDisplayChange == true)
         {
             //newVisibleTargetを描画
             DisplayVisibleTargets(_newVisibleTargets);
@@ -90,7 +90,7 @@ public class FOV : MonoBehaviour
     void LateUpdate()
     {
         if(_viewMesh == null)return;
-        if(isDraw == false)return;
+        if(isDrawFieldOfView == false)return;
         DrawFieldOfView(viewAngle, viewRadius, _viewMesh);
         //DrawFieldOfView(roundViewAngle1, roundViewRadius1, viewRoundMesh);
     }

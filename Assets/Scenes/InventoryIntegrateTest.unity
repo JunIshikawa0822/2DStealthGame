@@ -9389,14 +9389,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &355968625
 Rigidbody:
@@ -19845,14 +19837,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &666166182
 Rigidbody:
@@ -20003,14 +19987,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &674823311
 Rigidbody:
@@ -29246,14 +29222,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &1652049841
 Rigidbody:
@@ -32083,14 +32051,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &1928619148
 Rigidbody:
@@ -34712,6 +34672,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2682329674959188862, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isDrawFieldOfView
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5104503251638018806, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: test
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isFindAndDraw
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isDrawFieldOfView
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isTargetDisplayChange
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
