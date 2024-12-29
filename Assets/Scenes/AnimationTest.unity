@@ -7646,7 +7646,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 13
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7671,7 +7671,7 @@ Transform:
   m_GameObject: {fileID: 165118306}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: -3.6399996, y: 14.682136, z: -0.89999896}
+  m_LocalPosition: {x: 29.930002, y: 14.182136, z: 35.36826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19367,6 +19367,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: BountyHunter_RIO
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 710767f33357e7746886ce660d34ff9d,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5a7aa79d6bcf349f8b36c59f1c09d83c, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 710767f33357e7746886ce660d34ff9d,
+        type: 3}
+      propertyPath: m_CullingMode
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -22594,6 +22604,8 @@ GameObject:
   m_Component:
   - component: {fileID: 885074463}
   - component: {fileID: 885074464}
+  - component: {fileID: 885074466}
+  - component: {fileID: 885074465}
   m_Layer: 0
   m_Name: AnimationPlayer
   m_TagString: Untagged
@@ -22633,6 +22645,56 @@ MonoBehaviour:
   _player_RotateSpeed: 500
   equipPos: {fileID: 216855964}
   _playerMoveForce: 50
+--- !u!136 &885074465
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885074462}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3873825
+  m_Height: 1.7609111
+  m_Direction: 1
+  m_Center: {x: -0.000030517578, y: 0.93657273, z: 0}
+--- !u!54 &885074466
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885074462}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
 --- !u!1 &925929520
 GameObject:
   m_ObjectHideFlags: 0
@@ -24759,11 +24821,11 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 38237712}
-  m_Follow: {fileID: 38237712}
+  m_LookAt: {fileID: 885074463}
+  m_Follow: {fileID: 885074463}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 13
+    OrthographicSize: 8
     NearClipPlane: 0
     FarClipPlane: 1000
     Dutch: 0
@@ -24789,7 +24851,7 @@ Transform:
   m_GameObject: {fileID: 1141584801}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: -3.6399996, y: 14.682136, z: -0.89999896}
+  m_LocalPosition: {x: 29.930002, y: 14.182136, z: 35.36826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
