@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.UI;
+
 public class UISystem : ASystem, IOnUpdate
 {
     public override void OnSetUp()
@@ -18,5 +20,17 @@ public class UISystem : ASystem, IOnUpdate
 
         if(gameStat.isInventoryPanelActive)return;
         gameStat.cursorImage.rectTransform.position = gameStat.cursorScreenPosition;
+    }
+
+    public void ToggleUI<T>(T uiElement) where T : Component
+    {
+        if (uiElement == null)
+        {
+            return;
+        }
+
+        GameObject targetGameObject = uiElement.gameObject;
+        bool currentState = targetGameObject.activeSelf;
+        targetGameObject.SetActive(!currentState);
     }
 }
