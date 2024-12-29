@@ -33,15 +33,18 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnUpdate()
     {
-        if(gameStat.isInventoryPanelActive)return;
+        if(gameStat.isInventoryPanelActive)
+        {
 
-        // if(_player == null) 
-        // {
-        //     Debug.Log(_player);
-        //     return;
-        // }
+        }
+        else
+        {
+            Vector2 vector = RotateVec(gameStat.moveDirection, -45);
+            _player.UpdateAnimation(vector);
 
-        _player.Rotate(gameStat.cursorWorldPosition);
+            if(gameStat.cursorWorldPosition == Vector3.zero)return;
+            _player.Rotate(gameStat.cursorWorldPosition);
+        }
     }
 
     public void OnLateUpdate()
@@ -53,13 +56,17 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     {
         if(gameStat.isInventoryPanelActive)return;
         
-        //画面上のプレイヤー移動方向と入力方向が異なってみえる　45度回転することで解決
-        float x = (gameStat.moveDirection.x) * Mathf.Cos(-45 * Mathf.Deg2Rad) - (gameStat.moveDirection.y) * Mathf.Sin(-45 * Mathf.Deg2Rad);
-        float z = (gameStat.moveDirection.x) * Mathf.Sin(-45 * Mathf.Deg2Rad) + (gameStat.moveDirection.y) * Mathf.Cos(-45 * Mathf.Deg2Rad);
-        Vector2 vector = new Vector3(x, z);
-
+        Vector2 vector = RotateVec(gameStat.moveDirection, -45);
         if(vector == Vector2.zero)return;
         _player.Move(vector);
+    }
+
+    private Vector2 RotateVec(Vector2 baseVec, float rotateAngle)
+    {
+        float x = (baseVec.x) * Mathf.Cos(rotateAngle * Mathf.Deg2Rad) - (baseVec.y) * Mathf.Sin(rotateAngle * Mathf.Deg2Rad);
+        float z = (baseVec.x) * Mathf.Sin(rotateAngle * Mathf.Deg2Rad) + (baseVec.y) * Mathf.Cos(rotateAngle * Mathf.Deg2Rad);
+
+        return new Vector2(x,z);
     }
 
     public void OnAttack()

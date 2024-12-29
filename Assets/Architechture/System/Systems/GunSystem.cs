@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 public class GunSystem : ASystem, IOnFixedUpdate
 {
-    private IPlayer _player;
+    //private IPlayer _player;
     List<IObjectPool> _objectPools;
     List<IGunFactory> _gunFactoriesList;
     //Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;

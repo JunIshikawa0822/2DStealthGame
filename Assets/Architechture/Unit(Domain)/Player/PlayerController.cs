@@ -4,8 +4,9 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using UnityEngine.Rendering;
 
-public class PlayerController : AEntity, IPlayer
+public class PlayerController : AEntity
 {
     [SerializeField]
     private float _player_RotateSpeed = 500;
@@ -15,21 +16,12 @@ public class PlayerController : AEntity, IPlayer
     public Transform equipPos;
 
     [SerializeField] private float _playerMoveForce = 50;
-    private Quaternion _targetRotation;
-
-    //視界の情報
-    //------------------------------------------
-    //private DrawFieldOfView _drawFieldOfView;
-    //private FindOpponent _find;
-    //private DrawOpponent _draw;
-    //private float _viewAngle;
-    //private float _viewRadius;
 
     private FOV _fieldOfView;
+    private Animator _playerAnimator;
 
     public Action<Storage> storageFindEvent;
     public Action<Storage> leaveStorageEvent;
-
     public void OnSetUp(Entity_HealthPoint playerHP)
     {
         #region 直で代入でよくね
@@ -38,6 +30,7 @@ public class PlayerController : AEntity, IPlayer
 
         _entityHP = playerHP;
         _fieldOfView = GetComponent<FOV>();
+        _playerAnimator = GetComponent<Animator>();
         
         //FindAndDrawEnemies(0.2f).Forget();
     }
@@ -51,9 +44,32 @@ public class PlayerController : AEntity, IPlayer
 
     public void Rotate(Vector3 mouseWorldPosition)
     {
+        
         //回転
-        _targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
-        _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, _targetRotation.eulerAngles.y, _player_RotateSpeed * Time.deltaTime);
+        Quaternion targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
+        _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _player_RotateSpeed * Time.deltaTime);
+    }
+
+    public void UpdateAnimation(Vector2 inputDirection)
+    {
+        //ここから移動アニメーション用計算
+        Vector2 forwardDirection = new Vector2(this.transform.forward.x, this.transform.forward.z);
+        Vector2 relativeVec = CalculateRelativePosition(forwardDirection, inputDirection);
+
+        _playerAnimator.SetFloat("Horizontal", relativeVec.x);
+        _playerAnimator.SetFloat("Vertical", relativeVec.y);
+        _playerAnimator.SetFloat("Speed", relativeVec.magnitude);
+
+        Vector2 CalculateRelativePosition(Vector2 A, Vector2 B)
+        {
+            Vector2 normalizedBaseVec = A.normalized;
+            float relativeX = normalizedBaseVec.x * B.x + normalizedBaseVec.y * B.y;     // Aを基準にしたBのx成分
+            float relativeY = -normalizedBaseVec.y * B.x + normalizedBaseVec.x * B.y;    // Aを基準にしたBのy成分
+
+            Debug.Log(new Vector2(-relativeY, relativeX));
+
+            return new Vector2(-relativeY, relativeX);
+        }
     }
 
     public void Attack(AGun gun)
@@ -133,4 +149,6 @@ public class PlayerController : AEntity, IPlayer
         if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
         leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
     }
+
+    
 }

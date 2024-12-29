@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Diagnostics;
+//using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +14,11 @@ public class ItemSystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         gameStat.playerStorage = gameStat.player.GetComponent<Storage>();
+
+        if(gameStat.playerStorage == null)
+        {
+            Debug.LogError("ない");
+        }
 
         gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.handgunDataArray[0], 1, new CellNumber(0, 0)));
         gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.shotgunDataArray[0], 1, new CellNumber(0, 2)));
