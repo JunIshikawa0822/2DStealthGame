@@ -52,10 +52,10 @@ public class Storage : MonoBehaviour
     public void TestData()
     {
         if(testDataArray[0] != null)AddItem(ItemMake(testDataArray[0], 1, new CellNumber(0, 0)));
-        if(testDataArray[0] != null)AddItem(ItemMake(testDataArray[1], 1, new CellNumber(0, 2)));
-        if(testDataArray[0] != null)AddItem(ItemMake(testDataArray[2], 1, new CellNumber(0, 4)));
-        if(testDataArray[0] != null)AddItem(ItemMake(testDataArray[3], 1, new CellNumber(0, 6)));
-        if(testDataArray[0] != null)AddItem(ItemMake(testDataArray[4], 2, new CellNumber(0, 8)));
+        if(testDataArray[1] != null)AddItem(ItemMake(testDataArray[1], 1, new CellNumber(0, 2)));
+        if(testDataArray[2] != null)AddItem(ItemMake(testDataArray[2], 1, new CellNumber(0, 4)));
+        if(testDataArray[3] != null)AddItem(ItemMake(testDataArray[3], 1, new CellNumber(0, 6)));
+        if(testDataArray[4] != null)AddItem(ItemMake(testDataArray[4], 2, new CellNumber(0, 8)));
 
         if(testWeaponDataArray[0] != null)AddWeapon(ItemMake(testWeaponDataArray[0], 1, new CellNumber(0, 0)), 0);
     }

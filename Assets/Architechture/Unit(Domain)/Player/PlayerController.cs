@@ -17,35 +17,29 @@ public class PlayerController : AEntity, IPlayer
     [SerializeField] private float _playerMoveForce = 50;
     private Quaternion _targetRotation;
 
-    //private bool _isActionInterval = false;
-    //private CancellationTokenSource _actionCancellationTokenSource;
-
     //視界の情報
     //------------------------------------------
-    private DrawFieldOfView _drawFieldOfView;
-    private FindOpponent _find;
-    private DrawOpponent _draw;
-    private float _viewAngle;
-    private float _viewRadius;
+    //private DrawFieldOfView _drawFieldOfView;
+    //private FindOpponent _find;
+    //private DrawOpponent _draw;
+    //private float _viewAngle;
+    //private float _viewRadius;
+
+    private FOV _fieldOfView;
 
     public Action<Storage> storageFindEvent;
     public Action<Storage> leaveStorageEvent;
 
-    public void OnSetUp(Entity_HealthPoint playerHP, DrawFieldOfView drawFieldOfView, FindOpponent find, DrawOpponent draw, float viewRadius, float viewAngle)
+    public void OnSetUp(Entity_HealthPoint playerHP)
     {
         #region 直で代入でよくね
         EntitySetUp();
         #endregion
 
         _entityHP = playerHP;
-        _drawFieldOfView = drawFieldOfView;
-        _find = find;
-        _draw = draw;
+        _fieldOfView = GetComponent<FOV>();
         
-        _viewRadius = viewRadius;
-        _viewAngle = viewAngle;
-
-        FindAndDrawEnemies(0.2f).Forget();
+        //FindAndDrawEnemies(0.2f).Forget();
     }
 
     public void Move(Vector2 inputDirection)
@@ -92,32 +86,22 @@ public class PlayerController : AEntity, IPlayer
         }
     }
 
-    public async UniTask FindAndDrawEnemies(float delayTime)
-    {
-        while(true)
-        {
-            if(this == null)return;
-
-            List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
-            _draw.DrawTargets(foundOpponents);
-
-            await UniTask.Delay((int)delayTime * 1000);
-        }
-    }
-
-    public void DrawView()
-    {
-        _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
-    }
-
-    // public override bool IsEntityDead()
+    // public async UniTask FindAndDrawEnemies(float delayTime)
     // {
-    //     if(_entityHP.CurrentHp <= 0)
+    //     while(true)
     //     {
-    //         return true;
-    //     }
+    //         if(this == null)return;
 
-    //     return false;
+    //         List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
+    //         _draw.DrawTargets(foundOpponents);
+
+    //         await UniTask.Delay((int)delayTime * 1000);
+    //     }
+    // }
+
+    // public void DrawView()
+    // {
+    //     _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
     // }
 
     public override void OnEntityDead()
