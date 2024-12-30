@@ -57,7 +57,10 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(gameStat.isInventoryPanelActive)return;
         
         Vector2 vector = RotateVec(gameStat.moveDirection, -45);
+        Debug.Log(vector);
+
         if(vector == Vector2.zero)return;
+
         _player.Move(vector);
     }
 

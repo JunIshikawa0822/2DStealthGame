@@ -71,6 +71,15 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DashTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""c838005d-de49-4b34-8f14-e7b6a6aaad11"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -183,6 +192,39 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""action"": ""PlayerInventoryTest"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""affa2790-1b17-43f6-b625-afa39bf530c9"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DashTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d1d50b17-7423-4534-9c79-84723f924104"",
+                    ""path"": ""<Keyboard>/rightShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DashTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""79e4ff9e-5eed-443a-80ec-a83bcd17f91f"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DashTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -196,6 +238,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         m_PlayerActionTest_CursorPosition = m_PlayerActionTest.FindAction("CursorPosition", throwIfNotFound: true);
         m_PlayerActionTest_PlayerReloadTest = m_PlayerActionTest.FindAction("PlayerReloadTest", throwIfNotFound: true);
         m_PlayerActionTest_PlayerInventoryTest = m_PlayerActionTest.FindAction("PlayerInventoryTest", throwIfNotFound: true);
+        m_PlayerActionTest_DashTest = m_PlayerActionTest.FindAction("DashTest", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -262,6 +305,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActionTest_CursorPosition;
     private readonly InputAction m_PlayerActionTest_PlayerReloadTest;
     private readonly InputAction m_PlayerActionTest_PlayerInventoryTest;
+    private readonly InputAction m_PlayerActionTest_DashTest;
     public struct PlayerActionTestActions
     {
         private @InputAction_Test m_Wrapper;
@@ -271,6 +315,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         public InputAction @CursorPosition => m_Wrapper.m_PlayerActionTest_CursorPosition;
         public InputAction @PlayerReloadTest => m_Wrapper.m_PlayerActionTest_PlayerReloadTest;
         public InputAction @PlayerInventoryTest => m_Wrapper.m_PlayerActionTest_PlayerInventoryTest;
+        public InputAction @DashTest => m_Wrapper.m_PlayerActionTest_DashTest;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionTest; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -295,6 +340,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @PlayerInventoryTest.started += instance.OnPlayerInventoryTest;
             @PlayerInventoryTest.performed += instance.OnPlayerInventoryTest;
             @PlayerInventoryTest.canceled += instance.OnPlayerInventoryTest;
+            @DashTest.started += instance.OnDashTest;
+            @DashTest.performed += instance.OnDashTest;
+            @DashTest.canceled += instance.OnDashTest;
         }
 
         private void UnregisterCallbacks(IPlayerActionTestActions instance)
@@ -314,6 +362,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @PlayerInventoryTest.started -= instance.OnPlayerInventoryTest;
             @PlayerInventoryTest.performed -= instance.OnPlayerInventoryTest;
             @PlayerInventoryTest.canceled -= instance.OnPlayerInventoryTest;
+            @DashTest.started -= instance.OnDashTest;
+            @DashTest.performed -= instance.OnDashTest;
+            @DashTest.canceled -= instance.OnDashTest;
         }
 
         public void RemoveCallbacks(IPlayerActionTestActions instance)
@@ -338,5 +389,6 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         void OnCursorPosition(InputAction.CallbackContext context);
         void OnPlayerReloadTest(InputAction.CallbackContext context);
         void OnPlayerInventoryTest(InputAction.CallbackContext context);
+        void OnDashTest(InputAction.CallbackContext context);
     }
 }

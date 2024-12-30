@@ -21,6 +21,7 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
         _gameInputs.PlayerActionTest.PlayerInventoryTest.started += OnInventoryInput;
+        _gameInputs.PlayerActionTest.DashTest.started += OnDashInput;
 
         _gameInputs.Enable();
 
@@ -47,7 +48,14 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnMoveInput(InputAction.CallbackContext context)
     {
-        gameStat.moveDirection = context.ReadValue<Vector2>();
+        gameStat.moveDirection = context.ReadValue<Vector2>() * 0.8f;
+    }
+
+    private void OnDashInput(InputAction.CallbackContext context)
+    {
+        gameStat.moveDirection = (gameStat.moveDirection * 2).normalized;
+
+        Debug.Log("押している");
     }
 
     private void OnAttackInput(InputAction.CallbackContext context)

@@ -149,6 +149,4 @@ public class PlayerController : AEntity
         if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
         leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
     }
-
-    
 }
