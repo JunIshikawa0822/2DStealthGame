@@ -29725,13 +29725,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gun_Pistol_M1911
       objectReference: {fileID: 0}
+    - target: {fileID: 4827498857130004, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.012
+      objectReference: {fileID: 0}
+    - target: {fileID: 4827498857130004, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0781
+      objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.35
+      value: 0.55
       objectReference: {fileID: 0}
     - target: {fileID: 4952727429218122, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
       propertyPath: m_LocalPosition.z
@@ -34786,7 +34794,7 @@ PrefabInstance:
     - target: {fileID: 1407720292690076904, guid: ca71673b6174c4fcfbb77292923163fb,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.4
+      value: 0.91
       objectReference: {fileID: 0}
     - target: {fileID: 1407720292690076904, guid: ca71673b6174c4fcfbb77292923163fb,
         type: 3}
@@ -34979,10 +34987,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2682329674959188862, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isDrawFieldOfView
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5016923181861598370, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: _playerMoveForce
-      value: 30
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 5104503251638018806, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -34993,6 +35006,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isDrawFieldOfView
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: isTargetDisplayChange
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
