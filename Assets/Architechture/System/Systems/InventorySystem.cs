@@ -134,12 +134,12 @@ public class InventorySystem : ASystem, IOnUpdate
 
     public void EquipmentInsert(int index, ItemData data)
     {
-        gameStat.onEquipEvent(index, data);
+        gameStat.onEquipEvent?.Invoke(index, data);
     }
 
     public void EquipmentRemove(int index)
     {
-        gameStat.onUnEquipEvent(index);
+        gameStat.onUnEquipEvent?.Invoke(index);
     }
 
 #region 新しい処理

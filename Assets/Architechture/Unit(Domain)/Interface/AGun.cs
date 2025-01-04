@@ -12,4 +12,10 @@ public abstract class AGun : MonoBehaviour
 
     private IGunData _gunData;
     public IGunData GunData{get => _gunData; set => _gunData = value;}
+
+    private string _gunName;
+    public string Name{get => _gunName; set => _gunName = value;}
+
+    private float _reloadTime;
+    public float ReloadTime{get => _reloadTime; set => _reloadTime = value;}
 }

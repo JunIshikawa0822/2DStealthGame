@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine.UI;
 using Microsoft.Unity.VisualStudio.Editor;
 
@@ -25,9 +26,9 @@ public class GameStatus
     public UnityEngine.UI.Image cursorImage;
 
     [Header("PlayerGunsInfo")]
-    //public Handgun Pistol1;
-    [HideInInspector]public AGun[] playerGunsArray = new AGun[2];
-    [HideInInspector]public int selectingGunsArrayIndex = 0;
+    [HideInInspector]public Entity_HealthPoint playerHP;
+    [HideInInspector]public ObservableArray<AGun> playerGunsArray = new ObservableArray<AGun>(2);
+    [HideInInspector]public ReactiveProperty<int> selectingGunsArrayIndex = new ReactiveProperty<int>(0);
 
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
@@ -59,18 +60,6 @@ public class GameStatus
 
     [Header("TextUI")]
     public TextMeshProUGUI AmmoText;
-
-    [Header("PlayerFieldOfView")]
-    public float radius;
-
-    [Range(0, 360)]
-    public float angle;
-    public MeshFilter meshFilter;
-    public LayerMask targetLayer;
-    public LayerMask obstacleLayer;
-    public float meshResolution;
-    public int edgeResolveIterations;
-    public float edgeDstThreshold;
 
     [Header("UI")]
     public LineRenderer shotLineRenderer;

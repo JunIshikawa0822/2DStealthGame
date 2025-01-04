@@ -12,7 +12,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 {
     [SerializeField]
     private Transform _gunTrans;
-    private Entity_HealthPoint _enemy_Bandit_HP;
+    //private Entity_HealthPoint _enemy_Bandit_HP;
     [SerializeField]
     private float _enemy_Bandit_RotateSpeed;
 
@@ -43,13 +43,14 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         
     }
 
-    public void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
+    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
     {
-        _enemy_Bandit_HP = enemy_Bandit_HP;
+        //_enemy_Bandit_HP = enemy_Bandit_HP;
         //gun.position = _gunTrans.position;
         //gun.SetParent(_gunTrans);
+        base.OnSetUp(enemy_Bandit_HP);
 
-        if(_enemy_Bandit_HP == null)
+        if(_entityHP == null)
         {
             this.gameObject.SetActive(false);
             Debug.LogWarning($"{this.gameObject.name}に体力を設定してください、行動を開始できません");
@@ -57,9 +58,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         }
 
         _enemyStorage = GetComponent<Storage>();
-        _enemyFieldOfView = GetComponent<FOV>()
-;
-        EntitySetUp();
+        _enemyFieldOfView = GetComponent<FOV>();
         //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
 
@@ -281,7 +280,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void OnDamage(float damage)
     {
-        _enemy_Bandit_HP.EntityDamage(damage);
+        _entityHP.EntityDamage(damage);
 
         if(IsEntityDead())
         {
@@ -291,7 +290,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override bool IsEntityDead()
     {
-        if(_enemy_Bandit_HP.CurrentHp <= 0)
+        if(_entityHP.CurrentHp <= 0)
         {
             return true;
         }

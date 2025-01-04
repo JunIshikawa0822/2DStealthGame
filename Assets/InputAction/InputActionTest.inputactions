@@ -58,6 +58,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SelectingIndexChangeTest",
+                    "type": "Button",
+                    "id": "dfcc90db-5f94-471f-a3f4-aa1b1f3b36ca",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -201,6 +210,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "DashTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0063ee60-9670-4a6a-b9f1-09694299cde4",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7f4cb63c-6212-42e2-8bc5-8b0228063667",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "379e071e-c5dd-44e1-a589-e712aa1ddd81",
+                    "path": "<Keyboard>/#(1-9)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

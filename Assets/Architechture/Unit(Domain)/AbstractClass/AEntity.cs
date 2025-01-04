@@ -19,8 +19,10 @@ public abstract class AEntity : MonoBehaviour
     protected bool _isEntityActionInterval;
     protected CancellationTokenSource _actionCancellationTokenSource;
 
-    public void EntitySetUp()
+    public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint)
     {
+        _entityHP = entity_HealthPoint;
+        
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();
 

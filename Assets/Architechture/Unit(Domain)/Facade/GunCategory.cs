@@ -40,7 +40,7 @@ public class GunCategory
     public AGun GetInstance(IGunData data)
     {
         int index = FindInstanceIndex(data);
-        Debug.Log(index);
+        // Debug.Log(index);
 
         if(index < 0)
         {

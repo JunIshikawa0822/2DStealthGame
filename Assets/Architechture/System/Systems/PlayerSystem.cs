@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
     private PlayerController _player;
+    private AGun[] _playerGuns;
     public override void OnSetUp()
     {
         _player = gameStat.player;
@@ -19,9 +22,11 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         //FindOpponent findOpponent = new FindOpponent(gameStat.targetLayer, gameStat.obstacleLayer);
         //DrawOpponent drawOpponent = new DrawOpponent();
-        Entity_HealthPoint playerHP = new Entity_HealthPoint(100, 100);
+        gameStat.playerHP = new Entity_HealthPoint(100, 100);
 
-        _player.OnSetUp(playerHP);
+        _player.OnSetUp(gameStat.playerHP);
+        //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
+
         _player.storageFindEvent += OnFindStorage;
         _player.leaveStorageEvent += OnExitStorage;
 
@@ -29,6 +34,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.onPlayerReloadEvent += OnReload;
         gameStat.onEquipEvent += OnEquipGun;
         gameStat.onUnEquipEvent += OnUnEquipGun;
+        gameStat.playerGunsArray.OnValueChanged += OnEquip;
     }
 
     public void OnUpdate()
@@ -40,7 +46,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         else
         {
             Vector2 vector = RotateVec(gameStat.moveDirection, -45);
-            _player.UpdateAnimation(vector);
+            _player.MoveAnimation(vector);
 
             if(gameStat.cursorWorldPosition == Vector3.zero)return;
             _player.Rotate(gameStat.cursorWorldPosition);
@@ -57,7 +63,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(gameStat.isInventoryPanelActive)return;
         
         Vector2 vector = RotateVec(gameStat.moveDirection, -45);
-        Debug.Log(vector);
+        // Debug.Log(vector);
 
         if(vector == Vector2.zero)return;
 
@@ -75,19 +81,18 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnAttack()
     {
         if(gameStat.isInventoryPanelActive)return;
-
-        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)return;
-        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
     }
 
     public void OnReload()
     {
         if(gameStat.isInventoryPanelActive)return;
-        uint max = gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GunData.MaxAmmoNum;
-        uint current = gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GunData.MaxAmmoNum;
+        _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
+    }
 
-        Entity_Magazine magazine = new Entity_Magazine(max, current);
-        _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex], magazine);
+    public void OnEquip(int index, AGun gun)
+    {
+        _player.Equip(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
     }
 
     public void OnEquipGun(int index, ItemData data)
@@ -98,7 +103,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         AGun gun = gameStat.gunFacade.GetGunInstance(gunData);
         gameStat.playerGunsArray[index] = gun;
 
-        _player.Equip(gun);
+        //_player.Equip(gun);
     }
 
     public void OnUnEquipGun(int index)

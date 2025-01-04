@@ -10,10 +10,10 @@ public class UISystem : ASystem, IOnUpdate
     public void OnUpdate()
     {
         //Playerの銃がないなら...
-        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] != null)
+        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value] != null)
         {
             // UnityEngine.Debug.Log(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GetMagazine());
-            gameStat.AmmoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GetMagazine().MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GetMagazine().MagazineCapacity}";
+            gameStat.AmmoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].GetMagazine().MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].GetMagazine().MagazineCapacity}";
         }
 
         if(gameStat.isInventoryPanelActive)return;

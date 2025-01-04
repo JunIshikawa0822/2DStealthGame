@@ -4,7 +4,10 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using UniRx;
 using UnityEngine.Rendering;
+using Unity.Entities.UniversalDelegates;
+using UnityEngine.InputSystem;
 
 public class PlayerController : AEntity
 {
@@ -19,20 +22,52 @@ public class PlayerController : AEntity
 
     private FOV _fieldOfView;
     private Animator _playerAnimator;
+    //private AGun[] _playerGunsArray;
+    //private int _selectingGunsArrayIndex;
+    //private CompositeDisposable _disposablesByLifeCycle;
 
     public Action<Storage> storageFindEvent;
     public Action<Storage> leaveStorageEvent;
-    public void OnSetUp(Entity_HealthPoint playerHP)
+    public override void OnSetUp(Entity_HealthPoint playerHP)
     {
-        #region 直で代入でよくね
-        EntitySetUp();
-        #endregion
+        base.OnSetUp(playerHP);
 
-        _entityHP = playerHP;
         _fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();
+    }
+
+    public void SetEvent()
+    {
+        //状態が変化した時に一度だけ状態変化イベントを行う（未定）
+        // _selectingGunsArrayIndex.DistinctUntilChanged().Subscribe(status =>  
+        //     {
+        //         Debug.Log(_selectingGunsArrayIndex);
+        //         Equip(_playerGunsArray[_selectingGunsArrayIndex.Value]);
+        //     }).AddTo(_disposablesByLifeCycle, this);
+
+        //  //状態が変化した時に一度だけ状態変化イベントを行う（未定）
+        // _currentAction.DistinctUntilChanged().Subscribe(action =>
+        //     {
+        //         TriggerEventOnActionChanged(ref action);
+        //     }).AddTo(_disposablesByLifeCycle,this);
+
+        // _currentBattleAction.DistinctUntilChanged().Subscribe(battleAction =>
+        //     {
+        //         TriggerEventOnBattleActionChanged(ref battleAction);
+        //     }).AddTo(_disposablesByLifeCycle,this);
         
-        //FindAndDrawEnemies(0.2f).Forget();
+        //  //状態が変化した時に一度だけ状態変化イベントを行う（未定）
+        // _currentTarget.DistinctUntilChanged().Subscribe(target =>
+        //     {
+        //         TriggerEventOnTargetTransformChanged(ref target);
+        //     }).AddTo(_disposablesByLifeCycle, this);
+
+        //targetを見つけている時は常にtargetの方を向く
+        // Observable.EveryUpdate().Subscribe(_ => 
+        //     {
+        //         Rotate();
+        //         _statusText.transform.LookAt(Camera.main.transform.position);
+        //     }).AddTo(_disposablesByLifeCycle, this);
     }
 
     public void Move(Vector2 inputDirection)
@@ -44,13 +79,12 @@ public class PlayerController : AEntity
 
     public void Rotate(Vector3 mouseWorldPosition)
     {
-        
         //回転
         Quaternion targetRotation = Quaternion.LookRotation(mouseWorldPosition - _entityTransform.position);
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _player_RotateSpeed * Time.deltaTime);
     }
 
-    public void UpdateAnimation(Vector2 inputDirection)
+    public void MoveAnimation(Vector2 inputDirection)
     {
         //ここから移動アニメーション用計算
         Vector2 forwardDirection = new Vector2(this.transform.forward.x, this.transform.forward.z);
@@ -66,28 +100,70 @@ public class PlayerController : AEntity
             float relativeX = normalizedBaseVec.x * B.x + normalizedBaseVec.y * B.y;     // Aを基準にしたBのx成分
             float relativeY = -normalizedBaseVec.y * B.x + normalizedBaseVec.x * B.y;    // Aを基準にしたBのy成分
 
-            Debug.Log(new Vector2(-relativeY, relativeX));
+        //Debug.Log(new Vector2(-relativeY, relativeX));
 
             return new Vector2(-relativeY, relativeX);
         }
     }
 
-    public void Attack(AGun gun)
+    void Update()
     {
-        gun.Shot();
+
+        equipPos.SetPositionAndRotation(equipPos.position, this.transform.rotation);
+        // if(Input.GetKeyDown(KeyCode.J))
+        // {
+        //     List<string> isList = new List<string>();
+        //     foreach(AGun gun in _playerGunsArray)
+        //     {
+        //         if(gun == null)
+        //         {
+        //             isList.Add("入っていない");
+        //         }
+        //         else
+        //         {
+        //             isList.Add("入っている");
+        //         }
+        //     }
+
+        //     //Debug.Log("1" + _playerGun1.Name);
+        //     //Debug.Log("2" + _playerGun2.Name);
+
+        //     Debug.Log(string.Join(",", isList));
+        // }
     }
 
-    public void Reload(AGun gun, Entity_Magazine magazine)
+    public void Attack(AGun gun)
+    {
+        if(gun == null)return;
+        gun.Shot();
+
+        _playerAnimator.SetTrigger("Shot");
+    }
+
+    public void Reload(AGun gun)
     {
         if(_isEntityActionInterval)return;
-        //CancelAction(actionCancellationTokenSource);
 
-       // _actionCancellationTokenSource = new CancellationTokenSource();
-        EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
+        if(gun == null)return;
+        uint max = gun.GunData.MaxAmmoNum;
+        uint current = gun.GunData.MaxAmmoNum;
+        Entity_Magazine magazine = new Entity_Magazine(max, current);
+
+        EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
     }
 
     public void Equip(AGun gun)
     {
+        if(gun == null)
+        {
+            _playerAnimator.SetInteger("Equip", 0);
+        }
+        else
+        {
+            Debug.Log("nullじゃない");
+            _playerAnimator.SetInteger("Equip", 2);
+        }
+
         gun.transform.SetParent(equipPos);
         gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
     }
@@ -101,24 +177,6 @@ public class PlayerController : AEntity
             OnEntityDead();
         }
     }
-
-    // public async UniTask FindAndDrawEnemies(float delayTime)
-    // {
-    //     while(true)
-    //     {
-    //         if(this == null)return;
-
-    //         List<Transform> foundOpponents = _find.FindVisibleTargets(_viewAngle, _viewRadius, this.transform);
-    //         _draw.DrawTargets(foundOpponents);
-
-    //         await UniTask.Delay((int)delayTime * 1000);
-    //     }
-    // }
-
-    // public void DrawView()
-    // {
-    //     _drawFieldOfView.DrawFOV(_viewAngle, _viewRadius, this.transform);
-    // }
 
     public override void OnEntityDead()
     {

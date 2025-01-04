@@ -9,6 +9,7 @@ public class Handgun : AGun, IItem
     //----------------------------------------
     private float _muzzleVelocity = 700f;
     private float _shotInterval = 0.5f;
+    private float _reloadInterval = 2f;
     //----------------------------------------
 
     [SerializeField]
@@ -20,13 +21,14 @@ public class Handgun : AGun, IItem
     private bool _isShotIntervalActive;
     private bool _isJamming;
     private CancellationTokenSource _shotIntervalTokenSource;
+    private CancellationTokenSource _actionIntervalTokenSource;
     //----------------------------------------
 
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
     //----------------------------------------
-    public string Name{get;set;}
+
     public override void OnSetUp(IObjectPool objectPool, string name)
     {
         //_bulletFactories = bulletFactories;
@@ -39,6 +41,7 @@ public class Handgun : AGun, IItem
         _isJamming = false;
 
         Name = name;
+        ReloadTime = _reloadInterval;
     }
 
     public void HandGunInit(float velocity, float shotInterval)
@@ -97,7 +100,11 @@ public class Handgun : AGun, IItem
 
     public override void Reload(Entity_Magazine magazine)
     {
-        Debug.Log(this.gameObject.name + ":" + magazine);
+        //Debug.Log(this.gameObject.name + ":" + magazine);
+
+        //_actionIntervalTokenSource = new CancellationTokenSource();
+        //ActionInterval(null, _actionIntervalTokenSource.Token, _reloadInterval, "リロードクールダウン").Forget();
+
         _magazine = magazine;
     }
 
@@ -137,7 +144,7 @@ public class Handgun : AGun, IItem
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
             //Debug.Log($"{ActionName} 開始");
-            action.Invoke();
+            action?.Invoke();
             await UniTask.Delay((int)(time * 1000), cancellationToken: token);
             //Debug.Log($"{ActionName} 終了");
         }
@@ -147,28 +154,12 @@ public class Handgun : AGun, IItem
         }
         finally
         {
-            action.Invoke();
+            action?.Invoke();
         }
     }
-
-    // public void CancelInterval(CancellationTokenSource tokenSource)
-    // {
-    //     if (tokenSource != null && !tokenSource.IsCancellationRequested)
-    //     {
-    //         tokenSource.Cancel();
-    //         tokenSource.Dispose();
-    //         tokenSource = null;
-    //     }
-    // }
 
     public override Entity_Magazine GetMagazine()
     {
         return _magazine;
     }
-
-    // public override void ObjectActive(bool isActive)
-    // {
-    //     this.gameObject.SetActive(isActive);
-    // }
-
 }

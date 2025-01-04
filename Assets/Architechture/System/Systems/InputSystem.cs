@@ -23,6 +23,8 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerInventoryTest.started += OnInventoryInput;
         _gameInputs.PlayerActionTest.DashTest.started += OnDashInput;
 
+        _gameInputs.PlayerActionTest.SelectingIndexChangeTest.started += OnPlayerSelectingIndexChangeFromKey;
+
         _gameInputs.Enable();
 
         //Cursor.visible = false;
@@ -68,6 +70,19 @@ public class InputSystem : ASystem, IOnPreUpdate
     {
         //Debug.Log("Reload");
         gameStat.onPlayerReloadEvent?.Invoke();
+    }
+
+    private void OnPlayerSelectingIndexChangeFromKey(InputAction.CallbackContext context)
+    {
+        string pressedKey = context.control.name;
+        if(int.TryParse(pressedKey, out int index))
+        {
+            gameStat.selectingGunsArrayIndex.Value = index - 1;
+        }
+        else
+        {
+            Debug.Log($"{pressedKey}は無効なキー入力です");
+        }
     }
 
     private void OnInventoryInput(InputAction.CallbackContext context)

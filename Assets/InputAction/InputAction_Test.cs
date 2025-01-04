@@ -80,6 +80,15 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectingIndexChangeTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""dfcc90db-5f94-471f-a3f4-aa1b1f3b36ca"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -225,6 +234,39 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""action"": ""DashTest"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0063ee60-9670-4a6a-b9f1-09694299cde4"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectingIndexChangeTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7f4cb63c-6212-42e2-8bc5-8b0228063667"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectingIndexChangeTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""379e071e-c5dd-44e1-a589-e712aa1ddd81"",
+                    ""path"": ""<Keyboard>/#(1-9)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectingIndexChangeTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -239,6 +281,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         m_PlayerActionTest_PlayerReloadTest = m_PlayerActionTest.FindAction("PlayerReloadTest", throwIfNotFound: true);
         m_PlayerActionTest_PlayerInventoryTest = m_PlayerActionTest.FindAction("PlayerInventoryTest", throwIfNotFound: true);
         m_PlayerActionTest_DashTest = m_PlayerActionTest.FindAction("DashTest", throwIfNotFound: true);
+        m_PlayerActionTest_SelectingIndexChangeTest = m_PlayerActionTest.FindAction("SelectingIndexChangeTest", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -306,6 +349,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActionTest_PlayerReloadTest;
     private readonly InputAction m_PlayerActionTest_PlayerInventoryTest;
     private readonly InputAction m_PlayerActionTest_DashTest;
+    private readonly InputAction m_PlayerActionTest_SelectingIndexChangeTest;
     public struct PlayerActionTestActions
     {
         private @InputAction_Test m_Wrapper;
@@ -316,6 +360,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         public InputAction @PlayerReloadTest => m_Wrapper.m_PlayerActionTest_PlayerReloadTest;
         public InputAction @PlayerInventoryTest => m_Wrapper.m_PlayerActionTest_PlayerInventoryTest;
         public InputAction @DashTest => m_Wrapper.m_PlayerActionTest_DashTest;
+        public InputAction @SelectingIndexChangeTest => m_Wrapper.m_PlayerActionTest_SelectingIndexChangeTest;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionTest; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -343,6 +388,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @DashTest.started += instance.OnDashTest;
             @DashTest.performed += instance.OnDashTest;
             @DashTest.canceled += instance.OnDashTest;
+            @SelectingIndexChangeTest.started += instance.OnSelectingIndexChangeTest;
+            @SelectingIndexChangeTest.performed += instance.OnSelectingIndexChangeTest;
+            @SelectingIndexChangeTest.canceled += instance.OnSelectingIndexChangeTest;
         }
 
         private void UnregisterCallbacks(IPlayerActionTestActions instance)
@@ -365,6 +413,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @DashTest.started -= instance.OnDashTest;
             @DashTest.performed -= instance.OnDashTest;
             @DashTest.canceled -= instance.OnDashTest;
+            @SelectingIndexChangeTest.started -= instance.OnSelectingIndexChangeTest;
+            @SelectingIndexChangeTest.performed -= instance.OnSelectingIndexChangeTest;
+            @SelectingIndexChangeTest.canceled -= instance.OnSelectingIndexChangeTest;
         }
 
         public void RemoveCallbacks(IPlayerActionTestActions instance)
@@ -390,5 +441,6 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         void OnPlayerReloadTest(InputAction.CallbackContext context);
         void OnPlayerInventoryTest(InputAction.CallbackContext context);
         void OnDashTest(InputAction.CallbackContext context);
+        void OnSelectingIndexChangeTest(InputAction.CallbackContext context);
     }
 }
