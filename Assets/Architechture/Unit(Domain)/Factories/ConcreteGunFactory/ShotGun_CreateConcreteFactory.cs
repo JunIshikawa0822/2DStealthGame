@@ -30,15 +30,15 @@ public class ShotGun_CreateConcreteFactory : IGunFactory
         switch(gunData.CaliberType)
         {
             case IGunData.CaliberTypes._10mm :
-                foreach(IObjectPool pool in _objectPoolList)if(pool is ObjectPool<Bullet_10mm>) objectPool = pool;
+                foreach(IObjectPool pool in _objectPoolList)if(pool is MyObjectPool<Bullet_10mm>) objectPool = pool;
                 break;
             
             case IGunData.CaliberTypes._5_56mm :
-                foreach(IObjectPool pool in _objectPoolList)if(pool is ObjectPool<Bullet_5_56mm>) objectPool = pool;
+                foreach(IObjectPool pool in _objectPoolList)if(pool is MyObjectPool<Bullet_5_56mm>) objectPool = pool;
                 break;
 
             case IGunData.CaliberTypes._7_62mm : 
-                foreach(IObjectPool pool in _objectPoolList)if(pool is ObjectPool<Bullet_7_62mm>) objectPool = pool;
+                foreach(IObjectPool pool in _objectPoolList)if(pool is MyObjectPool<Bullet_7_62mm>) objectPool = pool;
                 break;
         }
 

@@ -132,6 +132,8 @@ public class PlayerController : AEntity
             else _playerAnimator.SetInteger("Equip", 2);
         }
 
+        if(gun == null)return;
+
         gun.transform.SetParent(equipPos);
         gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
     }
