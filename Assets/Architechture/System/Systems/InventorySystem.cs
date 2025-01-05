@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities.UniversalDelegates;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.AI;
 using System.Linq;
 
 public class InventorySystem : ASystem, IOnUpdate

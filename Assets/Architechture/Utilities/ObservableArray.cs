@@ -4,6 +4,7 @@ public class ObservableArray<T>
     private T[] _array;
 
     public event Action<int, T> OnValueChanged;
+    public event Action ValueChangeEvent;
     public event Action<T> OnArrayCleared;
 
     public ObservableArray(int size)
@@ -18,6 +19,7 @@ public class ObservableArray<T>
         {
             _array[index] = value;
             OnValueChanged?.Invoke(index, value); // 値が変更されたことを通知
+            ValueChangeEvent?.Invoke();
         }
     }
 

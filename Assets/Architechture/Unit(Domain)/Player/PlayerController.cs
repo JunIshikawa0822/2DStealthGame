@@ -36,40 +36,6 @@ public class PlayerController : AEntity
         _playerAnimator = GetComponent<Animator>();
     }
 
-    public void SetEvent()
-    {
-        //状態が変化した時に一度だけ状態変化イベントを行う（未定）
-        // _selectingGunsArrayIndex.DistinctUntilChanged().Subscribe(status =>  
-        //     {
-        //         Debug.Log(_selectingGunsArrayIndex);
-        //         Equip(_playerGunsArray[_selectingGunsArrayIndex.Value]);
-        //     }).AddTo(_disposablesByLifeCycle, this);
-
-        //  //状態が変化した時に一度だけ状態変化イベントを行う（未定）
-        // _currentAction.DistinctUntilChanged().Subscribe(action =>
-        //     {
-        //         TriggerEventOnActionChanged(ref action);
-        //     }).AddTo(_disposablesByLifeCycle,this);
-
-        // _currentBattleAction.DistinctUntilChanged().Subscribe(battleAction =>
-        //     {
-        //         TriggerEventOnBattleActionChanged(ref battleAction);
-        //     }).AddTo(_disposablesByLifeCycle,this);
-        
-        //  //状態が変化した時に一度だけ状態変化イベントを行う（未定）
-        // _currentTarget.DistinctUntilChanged().Subscribe(target =>
-        //     {
-        //         TriggerEventOnTargetTransformChanged(ref target);
-        //     }).AddTo(_disposablesByLifeCycle, this);
-
-        //targetを見つけている時は常にtargetの方を向く
-        // Observable.EveryUpdate().Subscribe(_ => 
-        //     {
-        //         Rotate();
-        //         _statusText.transform.LookAt(Camera.main.transform.position);
-        //     }).AddTo(_disposablesByLifeCycle, this);
-    }
-
     public void Move(Vector2 inputDirection)
     {
         //Debug.Log("移動");
@@ -161,7 +127,9 @@ public class PlayerController : AEntity
         else
         {
             Debug.Log("nullじゃない");
-            _playerAnimator.SetInteger("Equip", 2);
+            if(gun.GunData is Rifle_Data)_playerAnimator.SetInteger("Equip", 2);
+            else if(gun.GunData is Handgun_Data)_playerAnimator.SetInteger("Equip", 1);
+            else _playerAnimator.SetInteger("Equip", 2);
         }
 
         gun.transform.SetParent(equipPos);
@@ -171,6 +139,8 @@ public class PlayerController : AEntity
     public override void OnDamage(float damage)
     {
         _entityHP.EntityDamage(damage);
+
+        Debug.Log(_entityHP.CurrentHp);
 
         if(_entityHP.CurrentHp <= 0)
         {

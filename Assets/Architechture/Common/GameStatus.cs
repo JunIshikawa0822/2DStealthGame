@@ -25,17 +25,19 @@ public class GameStatus
     public GameObject cursorObject;
     public UnityEngine.UI.Image cursorImage;
 
-    [Header("PlayerGunsInfo")]
+    [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;
-    [HideInInspector]public ObservableArray<AGun> playerGunsArray = new ObservableArray<AGun>(2);
+    [HideInInspector]public ReactiveCollection<AGun> playerGunsArray = new ReactiveCollection<AGun>(new AGun[2]);
     [HideInInspector]public ReactiveProperty<int> selectingGunsArrayIndex = new ReactiveProperty<int>(0);
+
+    public ReactiveCollection<AGun> playerGunArray = new ReactiveCollection<AGun>(new AGun[2]);
 
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
     public Shotgun[] shotgunPrefabs;
 
-    [Header("PlayerInfo")]
+    [Header("Player")]
     public PlayerController player;
 
     [Header("EnemiesInfo")]
@@ -58,16 +60,15 @@ public class GameStatus
     public Bullet_5_56mm bullet_5_56mm;
     public Bullet_7_62mm bullet_7_62mm;
 
-    [Header("TextUI")]
-    public TextMeshProUGUI AmmoText;
-
     [Header("UI")]
     public LineRenderer shotLineRenderer;
+    public TextMeshProUGUI ammoText;
+    public Slider playerHPSlider;
 
     [Header("UGUI")]
     public Canvas canvas;
     //public PlayerEquipInventory equipInventory1;
-    //public PlayerEquipInventory equipInventory2;
+    //public PlayerEquipInventory equipInventory2; 
 
     public List<AInventory> inventoryList = new List<AInventory>();
     //public Inventory inventory1;

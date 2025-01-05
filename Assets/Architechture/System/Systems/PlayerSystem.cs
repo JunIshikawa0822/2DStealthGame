@@ -4,25 +4,12 @@ using UniRx;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
     private PlayerController _player;
-    private AGun[] _playerGuns;
+    //private AGun[] _playerGuns;
     public override void OnSetUp()
     {
         _player = gameStat.player;
-
-        // DrawFieldOfView playerFieldOfView = new DrawFieldOfView
-        // (
-        //     gameStat.meshFilter, 
-        //     new Mesh(), 
-        //     gameStat.targetLayer, 
-        //     gameStat.obstacleLayer, 
-        //     gameStat.meshResolution, 
-        //     gameStat.edgeResolveIterations,
-        //     gameStat.edgeDstThreshold
-        // );
-
-        //FindOpponent findOpponent = new FindOpponent(gameStat.targetLayer, gameStat.obstacleLayer);
-        //DrawOpponent drawOpponent = new DrawOpponent();
         gameStat.playerHP = new Entity_HealthPoint(100, 100);
+        //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
         _player.OnSetUp(gameStat.playerHP);
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
@@ -34,7 +21,16 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.onPlayerReloadEvent += OnReload;
         gameStat.onEquipEvent += OnEquipGun;
         gameStat.onUnEquipEvent += OnUnEquipGun;
-        gameStat.playerGunsArray.OnValueChanged += OnEquip;
+
+        SetEvent();
+    }
+
+    public void SetEvent()
+    {
+        gameStat.playerGunsArray.ObserveReplace().Subscribe(x =>
+        {
+            OnEquip();
+        });
     }
 
     public void OnUpdate()
@@ -90,7 +86,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
     }
 
-    public void OnEquip(int index, AGun gun)
+    public void OnEquip()
     {
         _player.Equip(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
     }

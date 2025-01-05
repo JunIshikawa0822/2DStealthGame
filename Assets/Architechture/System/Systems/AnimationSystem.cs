@@ -1,14 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
 using UnityEngine;
 
 public class AnimationSystem : ASystem, IOnUpdate
 {
-    Animator _playerAnimator;
+    //Animator _playerAnimator;
     public override void OnSetUp()
     {
-        _playerAnimator = gameStat.player.GetComponentInChildren<Animator>();
+        //_playerAnimator = gameStat.player.GetComponentInChildren<Animator>();
     }
 
     public void OnUpdate()
@@ -16,7 +13,7 @@ public class AnimationSystem : ASystem, IOnUpdate
         float horizontal = gameStat.moveDirection.x;
         float vertical = gameStat.moveDirection.y;
 
-        _playerAnimator.SetFloat("Horizontal", horizontal);
-        _playerAnimator.SetFloat("Vertical", vertical);
+        //_playerAnimator.SetFloat("Horizontal", horizontal);
+        //_playerAnimator.SetFloat("Vertical", vertical);
     }
 }

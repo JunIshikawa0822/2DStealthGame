@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 public class GunSystem : ASystem, IOnFixedUpdate
 {
@@ -31,14 +30,6 @@ public class GunSystem : ASystem, IOnFixedUpdate
         {
             objectPool.PoolSetUp(20);
         }
-
-        // _gunFactoriesDic = new Dictionary<IGunData.CaliberTypes, IGunFactory>
-        // {
-        //     { IGunData.CaliberTypes._10mm, new Gun_10mm_CreateConcreteFactory(bullet_10mm_Objp, gameStat.Pistol1) },
-        //     { IGunData.CaliberTypes._5_56mm, new Gun_5_56mm_CreateConcreteFactory(bullet_5_56mm_Objp, gameStat.Pistol1) },
-        //     { IGunData.CaliberTypes._7_62mm, new Gun_7_62mm_CreateConcreteFactory(bullet_7_62mm_Objp, gameStat.Pistol1) }
-
-        // };
 
         _gunFactoriesList = new List<IGunFactory>
         {
