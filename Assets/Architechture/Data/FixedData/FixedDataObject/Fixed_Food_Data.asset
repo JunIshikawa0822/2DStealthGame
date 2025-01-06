@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96418f56b87994965b0b89eb85c4f321, type: 3}
+  m_Name: Fixed_Food_Data
+  m_EditorClassIdentifier: 
+  _itemName: 
+  _itemDiscription: 
+  _itemImage: {fileID: 0}
+  _widthInGUI: 0
+  _heightInGUI: 0
+  _stackableNum: 0
+  _itemID: 0
+  _itemPrice: 0
+  hpHealPoint: 0
+  sanityHealPoint: 0
+  useTime: 0
