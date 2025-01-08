@@ -21,7 +21,6 @@ public class Item_GUI : A_Item_GUI
     private Image _useButton;
     [SerializeField]
     private TextMeshProUGUI _stackingNumText;
-
         //透過率調整用
     private CanvasGroup _canvasGroup;
 
@@ -38,6 +37,8 @@ public class Item_GUI : A_Item_GUI
     {
         _inventoryItem = inventoryItem;
         _itemImage.sprite = inventoryItem.Data.ItemImage;
+        
+        if(_inventoryItem.Data.StackableNum == 1)_stackingNumText.gameObject.SetActive(false);
     }
 
     public override void SetNewStatus(CellNumber newAddress, IInventoryItem.ItemDir newDir)

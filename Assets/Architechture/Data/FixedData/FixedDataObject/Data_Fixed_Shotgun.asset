@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96418f56b87994965b0b89eb85c4f321, type: 3}
-  m_Name: Fixed_Food_Data
+  m_Script: {fileID: 11500000, guid: 3a3ad57852940408e9fdac929d76fa3e, type: 3}
+  m_Name: Data_Fixed_Shotgun
   m_EditorClassIdentifier: 
   _itemName: 
   _itemDiscription: 
@@ -20,6 +20,9 @@ MonoBehaviour:
   _stackableNum: 0
   _itemID: 0
   _itemPrice: 0
-  hpHealPoint: 0
-  sanityHealPoint: 0
-  useTime: 0
+  _muzzleVelocity: 0
+  _shotInterval: 0
+  _caliberType: 0
+  _maxAmmoNum: 0
+  _simulNum: 0
+  _spreadAngle: 0

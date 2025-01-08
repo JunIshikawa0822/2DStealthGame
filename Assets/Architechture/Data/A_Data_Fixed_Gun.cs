@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using System;
 
 public abstract class A_Data_Fixed_Gun : A_Data_Fixed
 {
@@ -25,6 +26,8 @@ public abstract class A_Data_Fixed_Gun : A_Data_Fixed
 
     public override bool Equals(I_Data_Item data)
     {
+        Debug.Log("A_Data_Fixed_Gun");
+
         A_Data_Fixed_Gun gunData = data as A_Data_Fixed_Gun;
         if(gunData == null)return false;
 
@@ -34,5 +37,21 @@ public abstract class A_Data_Fixed_Gun : A_Data_Fixed
         if(_maxAmmoNum != gunData.MaxAmmoNum) return false;
 
         return base.Equals(data);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            HashCode hashCode = new HashCode();
+            hashCode.Add(base.GetHashCode());
+
+            hashCode.Add(_muzzleVelocity);
+            hashCode.Add(_shotInterval);
+            hashCode.Add(_caliberType);
+            hashCode.Add(_maxAmmoNum);
+
+            return hashCode.ToHashCode();
+        }
     }
 }

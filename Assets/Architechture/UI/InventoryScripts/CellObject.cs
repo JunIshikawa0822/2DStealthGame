@@ -78,13 +78,29 @@ public class CellObject
         _stackNumber = insertNumber;
     }
 
-    public uint InsertItem(I_Data_Item itemData, uint insertNumber)
+    public uint InsertItem(I_Data_Item data, uint insertNumber)
     {
-        
-        uint add = _count + insertNumber;
-        uint remain = _count - _data.StackableNum;
+        _data = data;
+
+        uint remain = 0;
+        if(_count + insertNumber >= _data.StackableNum) 
+        {
+            remain = _count + insertNumber - _data.StackableNum;
+            _count = _data.StackableNum;
+        }
+        else
+        {
+            _count += insertNumber;
+        }
 
         return remain;
+    }
+
+    public void Reset()
+    {
+        _data = null;
+        Origin = null;
+        _count = 0;
     }
 
     public void ResetCell()
@@ -124,5 +140,13 @@ public class CellObject
         
         if(_itemData.ItemID == data.ItemID)return true;
         else return false;
+    }
+
+    public bool CheckEquality(I_Data_Item data)
+    {
+        if(_data == null)return true;
+        if(_data.Equals(data))return true;
+
+        return false;
     }
 }

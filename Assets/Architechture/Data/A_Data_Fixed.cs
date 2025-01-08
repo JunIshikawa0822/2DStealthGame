@@ -23,10 +23,10 @@ public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}
     public int ItemID{get => _itemID;}
-    public abstract float UseTime{get;}
     #endregion
     #region カスタマイズかそうでないかで機能が変わるやつら
     public int Price {get => _itemPrice;}
+    public abstract float UseTime{get;}
     public abstract bool IsClickUse{get;}
     //public abstract bool Equals(IItemData data);
     #endregion
@@ -39,6 +39,8 @@ public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
 
     public virtual bool Equals(I_Data_Item data)
     {
+        Debug.Log("A_Data_Fixed");
+
         if(_itemName != data.ItemName) return false;
         if(_itemDiscription != data.ItemDiscription) return false;
         if(_itemImage != data.ItemImage) return false;
@@ -56,12 +58,12 @@ public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
         unchecked
         {
             HashCode hashCode = new HashCode();
-            
+
             // プロパティに基づいてハッシュコードを生成
             hashCode.Add(_itemName);
             hashCode.Add(_itemDiscription);
             hashCode.Add(_itemID);
-            hashCode.Add(_itemImage.GetHashCode());
+            hashCode.Add(_itemImage);
             hashCode.Add(_widthInGUI);
             hashCode.Add(_heightInGUI);
             hashCode.Add(_stackableNum);
