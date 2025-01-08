@@ -27,17 +27,17 @@ public class PlayerEquipInventory : MonoBehaviour
         _item = null;
     }
 
-    public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    {
-        if(item.ItemData is IGunData)return false;
-        if(item.ItemDirection != Item_GUI.ItemDir.Down)return false;
-        return true;
-    }
+    // public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    // {
+    //     if(item.ItemData is IGunData)return false;
+    //     if(item.ItemDirection != Item_GUI.ItemDir.Down)return false;
+    //     return true;
+    // }
 
-    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
-    {
+    // public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
+    // {
         
-    }
+    // }
 
 
     // public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
@@ -66,10 +66,10 @@ public class PlayerEquipInventory : MonoBehaviour
     //     return 0;
     // }
 
-    public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    {
-        _item = null;
-    }
+    // public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    // {
+    //     _item = null;
+    // }
 
     public void RemoveItemFromInventory(CellNumber cellNum)
     {

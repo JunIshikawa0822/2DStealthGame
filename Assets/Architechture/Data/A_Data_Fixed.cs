@@ -1,3 +1,6 @@
+using System;
+using NUnit.Framework;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
 {
@@ -27,4 +30,45 @@ public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
     public abstract bool IsClickUse{get;}
     //public abstract bool Equals(IItemData data);
     #endregion
+
+    public override bool Equals(object obj)
+    {
+        Debug.Log("比較");
+        return Equals(obj as I_Data_Item);
+    }
+
+    public virtual bool Equals(I_Data_Item data)
+    {
+        if(_itemName != data.ItemName) return false;
+        if(_itemDiscription != data.ItemDiscription) return false;
+        if(_itemImage != data.ItemImage) return false;
+        if(_widthInGUI != data.Width) return false;
+        if(_heightInGUI != data.Height) return false;
+        if(_stackableNum != data.StackableNum) return false;
+        if(_itemID != data.ItemID) return false;
+        if(_itemPrice != data.Price) return false;
+
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            HashCode hashCode = new HashCode();
+            
+            // プロパティに基づいてハッシュコードを生成
+            hashCode.Add(_itemName);
+            hashCode.Add(_itemDiscription);
+            hashCode.Add(_itemID);
+            hashCode.Add(_itemImage.GetHashCode());
+            hashCode.Add(_widthInGUI);
+            hashCode.Add(_heightInGUI);
+            hashCode.Add(_stackableNum);
+            hashCode.Add(_itemID);
+            hashCode.Add(_itemPrice);
+
+            return hashCode.ToHashCode();
+        }
+    }
 }

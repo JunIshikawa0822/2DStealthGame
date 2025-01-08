@@ -1,3 +1,4 @@
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
 
@@ -5,8 +6,6 @@ public class CellObject
 {   
     public int position_x;
     public int position_y;
-
-    
 
 #region 新しいデータ管理に対応したい
     //private GUI_Item _gui_Item;
@@ -17,16 +16,13 @@ public class CellObject
     public GUI_Item GUIInCell{get => _gui;}
 #endregion
 
-//このセルオブジェクトがOriginCellの場合、入っているオブジェクトを示す
-    //private Item_GUI _item;
-    //A_Item_Data _itemData;
-    //セルに入っているオブジェクトのOriginCellNumを示す
-    //現在Stackされている数
-    //private uint _stackNum;
     private bool _isStackableOnCell;
 
     public CellNumber Origin{get; set;}
     //public Item_GUI ItemInCell{get => _item;}
+
+    private I_Data_Item _data;
+    private uint _count;
 
     public CellObject(int x, int y) 
     {
@@ -82,46 +78,11 @@ public class CellObject
         _stackNumber = insertNumber;
     }
 
-    public uint InsertItem(Item_GUI item, uint insertNumber)
+    public uint InsertItem(I_Data_Item itemData, uint insertNumber)
     {
-        // if(_isStackableOnCell == false || item == null)
-        // {
-        //     return insertNumber;
-        // }
-
-        // bool itemBreak = true;
-        // //何も入っていない
-        // if(_gui == null)
-        // {
-        //     _item = item;
-        //     _itemData = item.ItemData;
-        //     itemBreak = false;
-        // }
-
-        // // Debug.Log(insertNumber);
-
-        uint remain = insertNumber;
-        // for(; remain > 0; remain--)
-        // {
-        //     //stackされている数を上回ったらstackできなくする
-        //     if(_isStackableOnCell == false)
-        //     {
-        //         break;
-        //     }
-        //     _stackNum++;
-        //     item.StackingNum--;
-
-        //     if(_stackNum >= _itemData.StackableNum)
-        //     {
-        //         _isStackableOnCell = false;
-        //     }
-        // }
         
-        // //Debug.Log($"{position_x},{position_y} : {_isStackableOnCell}");
-        // if(itemBreak == true && remain == 0)
-        // {
-        //     item.OnDestroy();
-        // }
+        uint add = _count + insertNumber;
+        uint remain = _count - _data.StackableNum;
 
         return remain;
     }
