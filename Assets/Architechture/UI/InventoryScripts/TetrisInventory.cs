@@ -150,29 +150,7 @@ public class TetrisInventory : A_Inventory
 
         item_GUI.Init(inventoryItem);
 
-        List<CellNumber> cellNumsList = item_GUI.GetOccupyCellList(inventoryItem.Address, inventoryItem.Direction);
-
-        for(int i = 0; i < cellNumsList.Count; i++)
-        {
-            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
-            //originCellにStackしていく
-            if(cellNumsList[i] == inventoryItem.Address)
-            {
-                cellObject.InsertItem(inventoryItem);
-                item_GUI.SetStackText(inventoryItem.StackingNum);
-            }
-
-            cellObject.Origin = inventoryItem.Address;
-        }
-
-        Vector3 newPosition = grid.GetCellOriginAnchoredPosition(inventoryItem.Address);
-
-        // gui.SetInventory(this);
-        item_GUI.SetParent(container);
-        item_GUI.SetPivot(inventoryItem.Direction);
-        item_GUI.SetAnchorPosition(newPosition);
-        item_GUI.SetRotation(inventoryItem.Direction);
-        item_GUI.SetImageSize(_cellSize);
+        InsertToCell()
     }
 
     private uint InsertToCell(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
@@ -187,8 +165,7 @@ public class TetrisInventory : A_Inventory
             //originCellにStackしていく
             if(cellNumsList[i] == origin)
             {
-                remain = cellObject.InsertItem(gui.Item);
-                gui.SetStackText(gui.Item.StackingNum);
+                remain = cellObject.Insert(gui);
             }
 
             cellObject.Origin = origin;
@@ -205,10 +182,11 @@ public class TetrisInventory : A_Inventory
         return remain;
     }
 
+    public 
+
     public uint InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
     {
         uint remain = InsertToCell(gui, origin, direction);
-
 //Dataの更新
         gui.Item.Address = origin;
         gui.Item.Direction = direction;

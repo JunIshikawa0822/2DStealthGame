@@ -21,7 +21,7 @@ public class CellObject
     public CellNumber Origin{get; set;}
     //public Item_GUI ItemInCell{get => _item;}
 
-    private IInventoryItem _inventoryItem;
+    private A_Item_GUI _item_GUI;
     //private uint _count;
 
     public CellObject(int x, int y) 
@@ -46,31 +46,6 @@ public class CellObject
     //cellにAが入る　Bを入れられる
     //cellにAが入る　もう入らない
 
-    public uint DecreaseItem(uint decreaseNumber)
-    {
-        if(_itemData == null)return 0;
-        uint remain = decreaseNumber;
-
-        Debug.Log(remain + "個減らしたい");
-        for(; remain > 0; remain--)
-        {
-            if(_stackNumber == 0)
-            {
-                break;
-            }
-            _stackNumber--;
-            //Debug.Log("のこり" + _stackNum + "個:あと" + remain + "へらす");
-        }
-
-        if(_stackNumber == 0)
-        {
-            _gui.OnDestroy();
-            ResetCell();
-        }
-
-        return _stackNumber;
-    }
-
     public void InsertItem(GUI_Item gui, uint insertNumber)
     {
         _gui = gui;
@@ -78,24 +53,38 @@ public class CellObject
         _stackNumber = insertNumber;
     }
 
-    public uint InsertItem(IInventoryItem inventoryItem)
+    public uint Insert(A_Item_GUI insertGUI)
     {
         uint remain = 0;
-
-        if(_inventoryItem == null)
-        {
-            _inventoryItem = inventoryItem;
-        }
+        //insert
+        if(_item_GUI == null) _item_GUI = insertGUI;
+        //stack
         else
         {
-            if(_inventoryItem.StackingNum + inventoryItem.StackingNum >= _inventoryItem.Data.StackableNum)
+            //overflow
+            if(_item_GUI.Item.StackingNum + insertGUI.Item.StackingNum > _item_GUI.Item.Data.StackableNum)
             {
-                remain = _inventoryItem.StackingNum + inventoryItem.StackingNum - _inventoryItem.Data.StackableNum;
-                _inventoryItem.StackingNum = _inventoryItem.Data.StackableNum;
+                remain = _item_GUI.Item.StackingNum + insertGUI.Item.StackingNum - _item_GUI.Item.Data.StackableNum;
+                
+                _item_GUI.Item.StackingNum = _item_GUI.Item.Data.StackableNum;
+                insertGUI.Item.StackingNum = remain; 
             }
+            //un overflow
             else
             {
-                _inventoryItem.StackingNum += inventoryItem.StackingNum;
+                _item_GUI.Item.StackingNum += insertGUI.Item.StackingNum;
+                insertGUI.Item.StackingNum = 0;
+            }
+
+            _item_GUI.SetStackText(_item_GUI.Item.StackingNum);
+            insertGUI.SetStackText(insertGUI.Item.StackingNum);
+
+            Debug.Log("入れたGUI " + insertGUI.Item.StackingNum);
+            Debug.Log("もともと入ってたGUI" + _item_GUI.Item.StackingNum);
+
+            if(insertGUI.Item.StackingNum <= 0)
+            {
+                insertGUI.OnDestroy();
             }
         }
 
@@ -104,7 +93,7 @@ public class CellObject
 
     public void Reset()
     {
-        _inventoryItem = null;
+        _item_GUI = null;
         Origin = null;
     }
 
@@ -147,11 +136,5 @@ public class CellObject
         else return false;
     }
 
-    public bool CheckEquality(IInventoryItem inventoryItem)
-    {
-        if(inventoryItem.Data == null)return true;
-        if(inventoryItem.Data.Equals(_inventoryItem.Data))return true;
-
-        return false;
-    }
+    
 }
