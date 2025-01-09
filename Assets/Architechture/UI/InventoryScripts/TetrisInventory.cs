@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
-using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,11 +20,8 @@ public class TetrisInventory : A_Inventory
     private int _gridHeight = 10;
 
     public RectTransform GetContainer(){return container;}
-
-    //public GUI_Item GUI_Item_Prefab;
-    private IObjectPool _objectPool;
+    private IObjectPool _guiPool;
     //private ItemFacade _facade;
-
     private IStorage _openningStorage;
 
     void Awake()
@@ -40,9 +35,9 @@ public class TetrisInventory : A_Inventory
         );
     }
 
-    public override void OnSetUp(IObjectPool objectPool)
+    public override void Init(IObjectPool objectPool)
     {
-        
+        _guiPool = objectPool;
     }
 
     void Update()
@@ -144,20 +139,38 @@ public class TetrisInventory : A_Inventory
 
     private void LoadItem(IInventoryItem inventoryItem)
     {
-        A_Item_GUI item_GUI = _objectPool.GetFromPool() as A_Item_GUI;
+        A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
 
-        if(item_GUI == null)return;
+        if(gui == null)return;
 
-        item_GUI.Init(inventoryItem);
+        gui.Init(inventoryItem);
 
-        InsertToCell()
+        List<CellNumber> cellNumsList = gui.GetOccupyCellList(inventoryItem.Address, inventoryItem.Direction);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+
+            if(cellNumsList[i] == inventoryItem.Address)
+            {
+                cellObject.Insert(gui);
+
+                Vector3 newPosition = grid.GetCellOriginAnchoredPosition(inventoryItem.Address);
+
+                gui.SetParent(container);
+                gui.SetPivot(inventoryItem.Direction);
+                gui.SetAnchorPosition(newPosition);
+                gui.SetRotation(inventoryItem.Direction);
+                gui.SetImageSize(_cellSize);
+            }
+
+            cellObject.Origin = inventoryItem.Address;
+        }
     }
 
-    private uint InsertToCell(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
+    public override void InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
     {
         List<CellNumber> cellNumsList = gui.GetOccupyCellList(origin, direction);
-
-        uint remain = 0;
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
@@ -165,47 +178,52 @@ public class TetrisInventory : A_Inventory
             //originCellにStackしていく
             if(cellNumsList[i] == origin)
             {
-                remain = cellObject.Insert(gui);
+                A_Item_GUI guiInCell = cellObject.GuiInCell;
+
+                if(guiInCell == null)
+                {
+                    cellObject.Insert(gui);
+
+                    Vector3 newPosition = grid.GetCellOriginAnchoredPosition(origin);
+
+                    gui.Item.Address = origin;
+                    gui.Item.Direction = direction;
+
+                    gui.SetParent(container);
+                    gui.SetPivot(direction);
+                    gui.SetAnchorPosition(newPosition);
+                    gui.SetRotation(direction);
+                    gui.SetImageSize(_cellSize);
+
+                    _openningStorage.Add(gui.Item);
+                }
+                else
+                {
+                    _openningStorage.Remove(guiInCell.Item);
+
+                    cellObject.Stack(gui);
+
+                    guiInCell = cellObject.GuiInCell;
+                    _openningStorage.Add(guiInCell.Item);
+                }
             }
 
             cellObject.Origin = origin;
         }
-
-        Vector3 newPosition = grid.GetCellOriginAnchoredPosition(origin);
-
-        gui.SetParent(container);
-        gui.SetPivot(direction);
-        gui.SetAnchorPosition(newPosition);
-        gui.SetRotation(direction);
-        gui.SetImageSize(_cellSize);
-
-        return remain;
     }
 
-    public 
-
-    public uint InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
+    public override bool CanPlaceItem(A_Item_GUI gui, CellNumber originCellNum, IInventoryItem.ItemDir direction)
     {
-        uint remain = InsertToCell(gui, origin, direction);
-//Dataの更新
-        gui.Item.Address = origin;
-        gui.Item.Direction = direction;
-
-        _openningStorage.Add(gui.Item);
-        
-        return remain;
-    }
-
-    public override bool CanPlaceItem(GUI_Item gui, CellNumber originCellNum, ItemData.ItemDir direction)
-    {
-        List<CellNumber> cellNumsList = GetCellNumList(originCellNum, direction, gui.Data.ObjectData.Width, gui.Data.ObjectData.Height);
+        List<CellNumber> cellNumsList = gui.GetOccupyCellList(originCellNum, direction);
 
         bool canPlace = true;
+
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
             CellNumber checkingCellNum = cellNumsList[i];
+
             bool isValidPosition = grid.IsValidCellNum(checkingCellNum);
 
             if (!isValidPosition)
@@ -214,7 +232,9 @@ public class TetrisInventory : A_Inventory
                 break;
             }
             //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
-            CellNumber cellOrigin = grid.GetCellObject(checkingCellNum).Origin;
+
+            CellObject cellObject = grid.GetCellObject(checkingCellNum);
+            CellNumber cellOrigin = cellObject.Origin;
 
             if(i == 0)
             {
@@ -237,16 +257,16 @@ public class TetrisInventory : A_Inventory
 
         if(cashedOriginCellNum != null)
         {
-            if(!originCell.CheckEquality(gui.Data))
-            {
-                canPlace = false;
-                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
-            }
-
-            if(originCell.GetStackabilty() == false)
+            if(originCell.IsStackable() == false)
             {
                 Debug.Log("挿入先が満杯だよ!");
                 canPlace = false;
+            }
+
+            if(!originCell.CheckEquality(gui.Item))
+            {
+                canPlace = false;
+                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
             }
         }
         
@@ -262,20 +282,22 @@ public class TetrisInventory : A_Inventory
         }
     }
 
-    public override void RemoveItem(CellNumber originCellNum)
+    public override void RemoveItem(CellNumber origin)
     {
-        GUI_Item gui = grid.GetCellObject(originCellNum).GUIInCell;
-        ItemData.ItemDir direction = gui.Data.Direction;
-        List<CellNumber> removeCellNumList = GetCellNumList(originCellNum, direction, gui.Data.ObjectData.Width, gui.Data.ObjectData.Height);
+        CellObject originCell = grid.GetCellObject(origin);
+        A_Item_GUI gui = originCell.GuiInCell;
+
+        IInventoryItem.ItemDir direction = gui.Item.Direction;
+        List<CellNumber> removeCellNumList = gui.GetOccupyCellList(origin, direction);
 
         for(int i = 0; i < removeCellNumList.Count; i++)
         {
             CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
 
-            cellObject.ResetCell();
+            cellObject.Reset();
         }
 
-        _openningStorage.TakeItem(gui.Data);
+        _openningStorage.Remove(gui.Item);
     }
 
     public override CellNumber ScreenPosToCellNum(Vector2 pos)
@@ -286,38 +308,6 @@ public class TetrisInventory : A_Inventory
 
     public override bool IsValid(CellNumber cellNum)
     {
-        //Debug.Log(cellNum);
-        //Debug.Log(grid.IsValidCellNum(cellNum));
         return grid.IsValidCellNum(cellNum);
     }
-
-    public List<CellNumber> GetCellNumList(CellNumber originCellNum, ItemData.ItemDir itemDirection, uint width, uint height) 
-    {
-        List<CellNumber> gridPositionList = new List<CellNumber>();
-
-        switch (itemDirection)
-        {
-            default:
-            case ItemData.ItemDir.Down:
-                for (int x = 0; x < width; x++) 
-                {
-                    for (int y = 0; y < height; y++) 
-                    {
-                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
-                    }
-                }
-                break;
-            case ItemData.ItemDir.Right:
-                for (int x = 0; x < height; x++) 
-                {
-                    for (int y = 0; y < width; y++)
-                    {
-                        gridPositionList.Add(originCellNum + new CellNumber(x, y));
-                    }
-                }
-                break;
-        }
-        return gridPositionList;
-    }
-
 }

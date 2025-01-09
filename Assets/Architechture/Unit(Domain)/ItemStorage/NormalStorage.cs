@@ -14,7 +14,16 @@ public class NormalStorage : MonoBehaviour, IStorage
 
     public void Remove(IInventoryItem item)
     {
-        _itemList.Remove(item);
+        int num = _itemList.IndexOf(item);
+
+        if(num > 0)
+        {
+            _itemList.RemoveAt(num);
+        }
+        else
+        {
+            Debug.Log("該当のデータが存在しません");
+        }
     }
 
     public IInventoryItem[] GetItems()
