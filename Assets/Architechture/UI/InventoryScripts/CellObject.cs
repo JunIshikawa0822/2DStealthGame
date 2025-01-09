@@ -21,8 +21,8 @@ public class CellObject
     public CellNumber Origin{get; set;}
     //public Item_GUI ItemInCell{get => _item;}
 
-    private I_Data_Item _data;
-    private uint _count;
+    private IInventoryItem _inventoryItem;
+    //private uint _count;
 
     public CellObject(int x, int y) 
     {
@@ -78,19 +78,25 @@ public class CellObject
         _stackNumber = insertNumber;
     }
 
-    public uint InsertItem(I_Data_Item data, uint insertNumber)
+    public uint InsertItem(IInventoryItem inventoryItem)
     {
-        _data = data;
-
         uint remain = 0;
-        if(_count + insertNumber >= _data.StackableNum) 
+
+        if(_inventoryItem == null)
         {
-            remain = _count + insertNumber - _data.StackableNum;
-            _count = _data.StackableNum;
+            _inventoryItem = inventoryItem;
         }
         else
         {
-            _count += insertNumber;
+            if(_inventoryItem.StackingNum + inventoryItem.StackingNum >= _inventoryItem.Data.StackableNum)
+            {
+                remain = _inventoryItem.StackingNum + inventoryItem.StackingNum - _inventoryItem.Data.StackableNum;
+                _inventoryItem.StackingNum = _inventoryItem.Data.StackableNum;
+            }
+            else
+            {
+                _inventoryItem.StackingNum += inventoryItem.StackingNum;
+            }
         }
 
         return remain;
@@ -98,9 +104,8 @@ public class CellObject
 
     public void Reset()
     {
-        _data = null;
+        _inventoryItem = null;
         Origin = null;
-        _count = 0;
     }
 
     public void ResetCell()
@@ -142,10 +147,10 @@ public class CellObject
         else return false;
     }
 
-    public bool CheckEquality(I_Data_Item data)
+    public bool CheckEquality(IInventoryItem inventoryItem)
     {
-        if(_data == null)return true;
-        if(_data.Equals(data))return true;
+        if(inventoryItem.Data == null)return true;
+        if(inventoryItem.Data.Equals(_inventoryItem.Data))return true;
 
         return false;
     }

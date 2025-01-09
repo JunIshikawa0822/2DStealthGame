@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 
-public abstract class A_Interactive_GUI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
+public abstract class A_Interactive_GUI : APooledObject, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     protected RectTransform _rectTransform;
     public event Action<A_Interactive_GUI> onPointerDownEvent;
@@ -39,6 +39,11 @@ public abstract class A_Interactive_GUI : MonoBehaviour, IPointerDownHandler, IB
     public virtual void SetRotation(Quaternion quaternion)
     {
         _rectTransform.rotation = quaternion;
+    }
+
+    public virtual void SetParent(Transform transform)
+    {
+        _rectTransform.SetParent(transform);
     }
 
     public virtual void OnDestroy()

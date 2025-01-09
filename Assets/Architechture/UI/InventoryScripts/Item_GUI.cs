@@ -20,9 +20,11 @@ public class Item_GUI : A_Item_GUI
     [SerializeField]
     private Image _useButton;
     [SerializeField]
-    private TextMeshProUGUI _stackingNumText;
+    private TextMeshProUGUI _stackNumText;
         //透過率調整用
     private CanvasGroup _canvasGroup;
+
+    public override IInventoryItem Item{get => _inventoryItem;}
 
     public override void OnSetUp()
     {
@@ -38,7 +40,7 @@ public class Item_GUI : A_Item_GUI
         _inventoryItem = inventoryItem;
         _itemImage.sprite = inventoryItem.Data.ItemImage;
         
-        if(_inventoryItem.Data.StackableNum == 1)_stackingNumText.gameObject.SetActive(false);
+        if(_inventoryItem.Data.StackableNum == 1)_stackNumText.gameObject.SetActive(false);
     }
 
     public override void SetNewStatus(CellNumber newAddress, IInventoryItem.ItemDir newDir)
@@ -78,6 +80,11 @@ public class Item_GUI : A_Item_GUI
     public override void SetImageSize(float cellSize)
     {
         _rectTransform.sizeDelta = new Vector2(cellSize * _inventoryItem.Data.Width, cellSize * _inventoryItem.Data.Height);
+    }
+
+    public override void SetStackText(uint stackNum)
+    {
+        _stackNumText.text = stackNum.ToString();
     }
     public override void SetPivot(IInventoryItem.ItemDir direction)
     {
@@ -130,7 +137,7 @@ public class Item_GUI : A_Item_GUI
         }
     }
 
-    public override List<CellNumber> GetOccupyCellList(IInventoryItem.ItemDir itemDirection, CellNumber originCellNum) 
+    public override List<CellNumber> GetOccupyCellList(CellNumber originCellNum, IInventoryItem.ItemDir itemDirection) 
     {
         List<CellNumber> gridPositionList = new List<CellNumber>();
 
@@ -159,7 +166,7 @@ public class Item_GUI : A_Item_GUI
         return gridPositionList;
     }
 
-    public override CellNumber[] GetOccupyCellArray(IInventoryItem.ItemDir itemDirection, CellNumber originCellNum)
+    public override CellNumber[] GetOccupyCellArray(CellNumber originCellNum, IInventoryItem.ItemDir itemDirection)
     {
         CellNumber[] gridPositionsArray = new CellNumber[_inventoryItem.Data.Width * _inventoryItem.Data.Height];
         switch (itemDirection)
