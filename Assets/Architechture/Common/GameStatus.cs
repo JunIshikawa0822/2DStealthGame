@@ -64,6 +64,7 @@ public class GameStatus
     public LineRenderer shotLineRenderer;
     public TextMeshProUGUI ammoText;
     public Slider playerHPSlider;
+    public Transform item_GUI_PoolTrans;
 
     [Header("UGUI")]
     public Canvas canvas;
@@ -74,6 +75,10 @@ public class GameStatus
     //public Inventory inventory1;
     //public Inventory inventory2;
     public GUI_Item gui_Item_Prefab;
+
+    public List<A_Inventory> inventories = new List<A_Inventory>();
+    public Item_GUI item_GUI_Prefab;
+    
     public Storage playerStorage;
     public Storage otherStorage = null;
 

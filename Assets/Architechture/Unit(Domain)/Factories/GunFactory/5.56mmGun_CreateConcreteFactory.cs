@@ -12,7 +12,9 @@ public class Gun_5_56mm_CreateConcreteFactory : IGunFactory
         _handgun = handgun;
     }
 
-    public IItem ObjectInstantiate()
+    
+
+    public IObject ObjectInstantiate()
     {
         return null;
     }

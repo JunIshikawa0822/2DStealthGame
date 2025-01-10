@@ -8,20 +8,17 @@ public class CellObject
     public int position_x;
     public int position_y;
 
-#region 新しいデータ管理に対応したい
+#region 古くなった機能
     //private GUI_Item _gui_Item;
     private ItemData _itemData;
     private uint _stackNumber;
     private GUI_Item _gui;
     public ItemData DataInCell{get => _itemData;}
     public GUI_Item GUIInCell{get => _gui;}
+    private bool _isStackableOnCell;
 #endregion
 
-    private bool _isStackableOnCell;
-
     public CellNumber Origin{get; set;}
-    //public Item_GUI ItemInCell{get => _item;}
-
     private A_Item_GUI _item_GUI;
     public A_Item_GUI GuiInCell{get => _item_GUI;}
     //private uint _count;
@@ -57,7 +54,7 @@ public class CellObject
     }
 
     //使う
-    public void Stack(A_Item_GUI insertGUI)
+    public uint Stack(A_Item_GUI insertGUI)
     {
         uint overflow = 0;
         uint add = _item_GUI.Item.StackingNum + insertGUI.Item.StackingNum;
@@ -79,6 +76,8 @@ public class CellObject
         }
 
         _item_GUI.SetStackText(_item_GUI.Item.StackingNum);
+
+        return overflow;
     }
 
     //使う

@@ -1,5 +1,5 @@
 
-public class Medicine : IItem
+public class Medicine : IObject
 {
     public string Name{get;set;}
     public Medicine(Medicine_Data data)

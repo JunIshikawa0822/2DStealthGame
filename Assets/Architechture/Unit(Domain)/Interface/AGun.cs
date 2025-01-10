@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class AGun : MonoBehaviour
+public abstract class AGun : MonoBehaviour, IObject
 {
     //void Init(float velocity, int simulNum, float shotInterval);
     public abstract void OnSetUp(IObjectPool objectPool, string name);

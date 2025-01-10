@@ -5,7 +5,7 @@ using System.Linq;
 
 public class ItemSystem : ASystem, IOnUpdate
 {
-    Dictionary<int, IItem> itemInstanceArray;
+    Dictionary<int, IObject> itemInstanceArray;
 
     #region DataArray
     A_Item_Data[][] _dataArray;
@@ -29,8 +29,8 @@ public class ItemSystem : ASystem, IOnUpdate
         //全てのデータをもとに、それぞれ一つのインスタンスを作成。IDとインスタンスをセットにして保存
         itemInstanceArray = new[]
         { 
-            gameStat.foodDataArray.ToDictionary(data => data.ItemID, data => new Food(data) as IItem), 
-            gameStat.medicineDataArray.ToDictionary(data => data.ItemID, data => new Medicine(data) as IItem),
+            gameStat.foodDataArray.ToDictionary(data => data.ItemID, data => new Food(data) as IObject), 
+            gameStat.medicineDataArray.ToDictionary(data => data.ItemID, data => new Medicine(data) as IObject),
             //gameStat.handgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactoriesList[0].GunInstantiate(data) as IItem),
             // gameStat.rifleDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),
             // gameStat.shotgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),

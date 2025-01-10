@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class Handgun : AGun, IItem
+public class Handgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------

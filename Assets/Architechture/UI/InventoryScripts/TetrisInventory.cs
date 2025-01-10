@@ -6,9 +6,10 @@ using UnityEngine.UI;
 
 public class TetrisInventory : A_Inventory
 {
+    private RectTransform _rectTransform;
     public Grid<CellObject> grid;
     [SerializeField]
-    private RectTransform container;
+    private RectTransform _container;
     [SerializeField]
     private RectTransform background;
 
@@ -19,7 +20,7 @@ public class TetrisInventory : A_Inventory
     [SerializeField]
     private int _gridHeight = 10;
 
-    public RectTransform GetContainer(){return container;}
+    public RectTransform GetContainer(){return _container;}
     private IObjectPool _guiPool;
     //private ItemFacade _facade;
     private IStorage _openningStorage;
@@ -33,6 +34,8 @@ public class TetrisInventory : A_Inventory
             _cellSize,
             (Grid<CellObject> grid, int cellPosition_x, int cellPosition_y) => new CellObject(cellPosition_x, cellPosition_y)
         );
+
+        _rectTransform = GetComponent<RectTransform>();
     }
 
     public override void Init(IObjectPool objectPool)
@@ -129,11 +132,11 @@ public class TetrisInventory : A_Inventory
             }
         }
 
-        int n = container.transform.childCount;
+        int n = _container.transform.childCount;
 
-        for(int i = 0; i < container.childCount; i++)
+        for(int i = 0; i < _container.childCount; i++)
         {
-            Destroy(container.transform.GetChild(i).gameObject);
+            Destroy(_container.transform.GetChild(i).gameObject);
         }
     }
 
@@ -157,7 +160,7 @@ public class TetrisInventory : A_Inventory
 
                 Vector3 newPosition = grid.GetCellOriginAnchoredPosition(inventoryItem.Address);
 
-                gui.SetParent(container);
+                gui.SetParent(_container);
                 gui.SetPivot(inventoryItem.Direction);
                 gui.SetAnchorPosition(newPosition);
                 gui.SetRotation(inventoryItem.Direction);
@@ -168,9 +171,11 @@ public class TetrisInventory : A_Inventory
         }
     }
 
-    public override void InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
+    public override uint InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
     {
         List<CellNumber> cellNumsList = gui.GetOccupyCellList(origin, direction);
+
+        uint overflow = 0;
 
         for(int i = 0; i < cellNumsList.Count; i++)
         {
@@ -189,7 +194,7 @@ public class TetrisInventory : A_Inventory
                     gui.Item.Address = origin;
                     gui.Item.Direction = direction;
 
-                    gui.SetParent(container);
+                    gui.SetParent(_container);
                     gui.SetPivot(direction);
                     gui.SetAnchorPosition(newPosition);
                     gui.SetRotation(direction);
@@ -201,7 +206,7 @@ public class TetrisInventory : A_Inventory
                 {
                     _openningStorage.Remove(guiInCell.Item);
 
-                    cellObject.Stack(gui);
+                    overflow = cellObject.Stack(gui);
 
                     guiInCell = cellObject.GuiInCell;
                     _openningStorage.Add(guiInCell.Item);
@@ -210,6 +215,8 @@ public class TetrisInventory : A_Inventory
 
             cellObject.Origin = origin;
         }
+
+        return overflow;
     }
 
     public override bool CanPlaceItem(A_Item_GUI gui, CellNumber originCellNum, IInventoryItem.ItemDir direction)
@@ -302,12 +309,54 @@ public class TetrisInventory : A_Inventory
 
     public override CellNumber ScreenPosToCellNum(Vector2 pos)
     {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(container, pos, null, out Vector2 convertPosition);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_container, pos, null, out Vector2 convertPosition);
         return grid.GetCellNum(convertPosition);
     }
 
-    public override bool IsValid(CellNumber cellNum)
+    // public override bool IsValid(CellNumber cellNum)
+    // {
+    //     return grid.IsValidCellNum(cellNum);
+    // }
+
+    public override bool IsCollide(A_Item_GUI gui)
     {
-        return grid.IsValidCellNum(cellNum);
+        Vector3[] inventoryRect = new Vector3[4];
+        _rectTransform.GetWorldCorners(inventoryRect);
+
+        Vector3[] guiRect = new Vector3[4];
+        gui.RectTransform.GetWorldCorners(guiRect);
+
+        //重なっていない
+        if(guiRect[0].x >= inventoryRect[2].x 
+        || guiRect[2].x <= inventoryRect[0].x 
+        || guiRect[0].y >= inventoryRect[2].y 
+        || guiRect[2].y <= inventoryRect[0].y) return false;
+
+        float threshold = 0.4f;
+
+        //重なっているとき
+        float overlapX1 = Mathf.Max(guiRect[0].x, inventoryRect[0].x);
+        float overlapY1 = Mathf.Max(guiRect[0].y, inventoryRect[0].y);
+
+        float overlapX2 = Mathf.Max(guiRect[2].x, inventoryRect[2].x);
+        float overlapY2 = Mathf.Max(guiRect[2].y, inventoryRect[2].y);
+
+        float overlapWidth = overlapX1 * overlapX2;
+        float overlapHeight = overlapY1 * overlapY2;
+
+        float overlapArea = Mathf.Max(0, overlapWidth) * Mathf.Max(0, overlapHeight);
+        float guiArea = (guiRect[2].x - guiRect[0].x) * (guiRect[2].y - guiRect[0].y);
+
+        if(overlapArea < guiArea * threshold) return false;
+
+        return true;
+    }
+
+    public override Vector3[] GetCorners()
+    {
+        Vector3[] corners = new Vector3[4];
+        _rectTransform.GetWorldCorners(corners);
+
+        return corners;
     }
 }

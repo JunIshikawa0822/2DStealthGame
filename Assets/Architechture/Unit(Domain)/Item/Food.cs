@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using R3;
 using UnityEngine;
-public class Food : IItem
+public class Food : IObject
 {
     float _hpHealPoint;
     float _sanityHealPoint;

@@ -5,16 +5,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 
-public abstract class A_Interactive_GUI : APooledObject, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
+public abstract class A_Interactive_GUI : APooledObject, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     protected RectTransform _rectTransform;
-    public event Action<A_Interactive_GUI> onPointerDownEvent;
-    public event Action<A_Interactive_GUI> onPointerEnterEvent;
-    public event Action<A_Interactive_GUI> OnPointerExitEvent;
-    public event Action<A_Interactive_GUI> onBeginDragEvent;
-    public event Action<A_Interactive_GUI> onEndDragEvent;
-    public event Action<A_Interactive_GUI> onDragEvent;
-    public event Action<A_Interactive_GUI> onDestroyEvent;
+
+    public RectTransform RectTransform{get => _rectTransform;}
 
     public virtual void OnSetUp()
     {
@@ -48,38 +43,43 @@ public abstract class A_Interactive_GUI : APooledObject, IPointerDownHandler, IB
 
     public virtual void OnDestroy()
     {
-        onDestroyEvent?.Invoke(this);
+        //onDestroyEvent?.Invoke(this);
         Destroy(this.gameObject);
     }
 
     public virtual void OnPointerEnter(PointerEventData pointerEventData)
     {
         //説明文表示もしたい
-        onPointerEnterEvent?.Invoke(this);
+        //onPointerEnterEvent?.Invoke(this);
     }
 
     public virtual void OnPointerExit(PointerEventData pointerEventData)
     {
-        OnPointerExitEvent?.Invoke(this);
+        //OnPointerExitEvent?.Invoke(this);
     }
 
     public virtual void OnPointerDown(PointerEventData pointerEventData)
     {
-        onPointerDownEvent?.Invoke(this);
+        //onPointerDownEvent?.Invoke(this);
+    }
+
+    public virtual void OnPointerUp(PointerEventData pointerEventData)
+    {
+        //onPointerUpEvent?.Invoke(this);
     }
 
     public virtual void OnBeginDrag(PointerEventData pointerEventData)
     {
-        onBeginDragEvent?.Invoke(this);
+        //onBeginDragEvent?.Invoke(this);
     }
 
     public virtual void OnEndDrag(PointerEventData pointerEventData)
     {
-        onEndDragEvent?.Invoke(this);
+        //onEndDragEvent?.Invoke(this);
     }
 
     public virtual void OnDrag(PointerEventData pointerEventData)
     {
-        onDragEvent?.Invoke(this);
+        //onDragEvent?.Invoke(this);
     }
 }

@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class Shotgun : AGun, IItem
+public class Shotgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------

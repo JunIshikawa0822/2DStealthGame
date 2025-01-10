@@ -7,7 +7,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityDebugSheet.Runtime.Core.Scripts;
 
-public class Item_GUI : A_Item_GUI
+public class Item_GUI : A_Item_GUI, IObject
 {
     IInventoryItem _inventoryItem;
     //private A_Item_Data _itemData;
@@ -24,6 +24,7 @@ public class Item_GUI : A_Item_GUI
         //透過率調整用
     private CanvasGroup _canvasGroup;
 
+    //private A_Inventory 
     public override IInventoryItem Item{get => _inventoryItem;}
 
     public override void OnSetUp()
@@ -68,7 +69,7 @@ public class Item_GUI : A_Item_GUI
         }
     }
 
-    public IInventoryItem.ItemDir GetNextDir(IInventoryItem.ItemDir dir)
+    public override IInventoryItem.ItemDir GetNextDir(IInventoryItem.ItemDir dir)
     {
         switch (dir) {
             default:
@@ -125,7 +126,7 @@ public class Item_GUI : A_Item_GUI
         _inventoryItem.Direction = direction;
     }
 
-    public int GetRotationAngle(IInventoryItem.ItemDir itemDirection)
+    public override float GetRotationAngle(IInventoryItem.ItemDir itemDirection)
     {
         switch (itemDirection) 
         {

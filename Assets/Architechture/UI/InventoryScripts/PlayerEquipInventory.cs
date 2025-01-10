@@ -3,94 +3,94 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerEquipInventory : MonoBehaviour
+public class PlayerEquipInventory : A_Inventory
 {
-    //private RectTransform container;
-    // [SerializeField]
-    // private RectTransform background;
-    private RectTransform inventoryRectTransform;
-    private Vector3[] _corners;
+    private RectTransform _rectTransform;
 
-    [SerializeField]
-    private Image image;
-
-    private Item_GUI _item;
-    private AGun gun;
-
-    
     void Awake()
     {
-        inventoryRectTransform = this.GetComponent<RectTransform>();
-        _corners = new Vector3[4];
-        inventoryRectTransform.GetWorldCorners(_corners);
-
-        _item = null;
+        _rectTransform = GetComponent<RectTransform>();
     }
 
-    // public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    public override void Init(IObjectPool objectPool)
+    {
+        
+    }
+
+    public override void OpenInventory(IStorage storage)
+    {
+
+    }
+
+    public override void CloseInventory()
+    {
+        
+    }
+
+    public override bool CanPlaceItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
+    {
+        return true;
+    }
+
+    public override uint InsertItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void RemoveItem(CellNumber origin)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    // public override bool IsValid(CellNumber origin)
     // {
-    //     if(item.ItemData is IGunData)return false;
-    //     if(item.ItemDirection != Item_GUI.ItemDir.Down)return false;
     //     return true;
     // }
 
-    // public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
-    // {
-        
-    // }
-
-
-    // public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    // {
-    //     _item = item;
-
-    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
-    //     item.RectTransform.SetParent(inventoryRectTransform);
-    //     item.SetPivot(Item_GUI.ItemDir.Middle);
-    //     item.SetPosition(transform.position);
-    //     image.GetComponent<RectTransform>().position = transform.position;
-    //     item.SetRotation(direction);
-    //     Debug.Log("Equip!");
-    //     return 0;
-    // }
-
-    // public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction)
-    // {
-    //     _item = item;
-
-    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
-    //     item.RectTransform.SetParent(inventoryRectTransform);
-    //     item.SetPivot(Item_GUI.ItemDir.Middle);
-    //     item.SetAnchorPosition(transform.position);
-    //     item.SetRotation(direction);
-    //     return 0;
-    // }
-
-    // public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    // {
-    //     _item = null;
-    // }
-
-    public void RemoveItemFromInventory(CellNumber cellNum)
+    public override bool IsCollide(A_Item_GUI gui)
     {
-        
+        Vector3[] inventoryRect = new Vector3[4];
+        _rectTransform.GetWorldCorners(inventoryRect);
+
+        Vector3[] guiRect = new Vector3[4];
+        gui.RectTransform.GetWorldCorners(guiRect);
+
+        //重なっていない
+        if(guiRect[0].x >= inventoryRect[2].x 
+        || guiRect[2].x <= inventoryRect[0].x 
+        || guiRect[0].y >= inventoryRect[2].y 
+        || guiRect[2].y <= inventoryRect[0].y) return false;
+
+        float threshold = 0.4f;
+
+        //重なっているとき
+        float overlapX1 = Mathf.Max(guiRect[0].x, inventoryRect[0].x);
+        float overlapY1 = Mathf.Max(guiRect[0].y, inventoryRect[0].y);
+
+        float overlapX2 = Mathf.Max(guiRect[2].x, inventoryRect[2].x);
+        float overlapY2 = Mathf.Max(guiRect[2].y, inventoryRect[2].y);
+
+        float overlapWidth = overlapX1 * overlapX2;
+        float overlapHeight = overlapY1 * overlapY2;
+
+        float overlapArea = Mathf.Max(0, overlapWidth) * Mathf.Max(0, overlapHeight);
+        float guiArea = (guiRect[2].x - guiRect[0].x) * (guiRect[2].y - guiRect[0].y);
+
+        if(overlapArea < guiArea * threshold) return false;
+
+        return true;
     }
 
-    public bool IsValid(Vector3 pos)
+    public override CellNumber ScreenPosToCellNum(Vector2 pos)
     {
-        float min_x = _corners[0].x;
-        float max_x = _corners[2].x;
-        float min_y = _corners[0].y;
-        float max_y = _corners[2].y;
-
-        //image.transform.position = new Vector3(min_x, min_y, 0);
-
-        if(pos.x < max_x && pos.x > min_x && pos.y < max_y && pos.y > min_y)
-        {
-            return true;
-        }
-
-        return false;
+        return new CellNumber(0, 0);
     }
 
+    public override Vector3[] GetCorners()
+    {
+        Vector3[] corners = new Vector3[4];
+        _rectTransform.GetWorldCorners(corners);
+
+        return corners;
+    }
 }
