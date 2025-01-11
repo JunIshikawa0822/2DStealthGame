@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using System;
 
-public abstract class A_Data_Fixed_Gun : A_Data_Fixed, I_Data_Gun
+public abstract class A_Data_Customizable_Gun : A_Data_Customizable, I_Data_Gun
 {
-    [Header("銃の基本データ")]
+        [Header("銃の基本データ")]
     [SerializeField] float _muzzleVelocity;
     [SerializeField] float _shotInterval;
     [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
@@ -47,4 +46,5 @@ public abstract class A_Data_Fixed_Gun : A_Data_Fixed, I_Data_Gun
             return hashCode.ToHashCode();
         }
     }
+
 }

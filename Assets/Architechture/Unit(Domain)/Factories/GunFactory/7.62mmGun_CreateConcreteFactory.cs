@@ -29,7 +29,7 @@ public class Gun_7_62mm_CreateConcreteFactory : IGunFactory
         }
 
         A_Item_Data baseData = data as A_Item_Data;
-        newGun.OnSetUp(_objectPool, baseData.ItemName);
+        newGun.OnSetUp(_objectPool);
 
         return newGun;
     }

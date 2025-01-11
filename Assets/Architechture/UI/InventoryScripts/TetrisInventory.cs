@@ -24,6 +24,8 @@ public class TetrisInventory : A_Inventory
     private IObjectPool _guiPool;
     //private ItemFacade _facade;
     private IStorage _openningStorage;
+    public override Action<int, I_Data_Item> InsertAction{get; set;} 
+    public override Action<int, I_Data_Item> RemoveAction{get; set;}
 
     void Awake()
     {
@@ -111,7 +113,11 @@ public class TetrisInventory : A_Inventory
 
     public override void OpenInventory(IStorage storage)
     {
-        if(storage == null)return;
+        if(storage == null)
+        {
+            Debug.Log("Storageを開けられません");
+            return;
+        }
 
         _openningStorage = storage;
         
@@ -123,6 +129,12 @@ public class TetrisInventory : A_Inventory
 
     public override void CloseInventory()
     {
+        if(_openningStorage == null)
+        {
+            Debug.Log("Storageを閉められません");
+            return;
+        }
+
         for(int x = 0; x < 10; x++)
         {
             for(int y = 0; y < 10; y++)
@@ -138,6 +150,8 @@ public class TetrisInventory : A_Inventory
         {
             Destroy(_container.transform.GetChild(i).gameObject);
         }
+
+        _openningStorage = null;
     }
 
     private void LoadItem(IInventoryItem inventoryItem)
@@ -352,11 +366,11 @@ public class TetrisInventory : A_Inventory
         return true;
     }
 
-    public override Vector3[] GetCorners()
-    {
-        Vector3[] corners = new Vector3[4];
-        _rectTransform.GetWorldCorners(corners);
+    // public override Vector3[] GetCorners()
+    // {
+    //     Vector3[] corners = new Vector3[4];
+    //     _rectTransform.GetWorldCorners(corners);
 
-        return corners;
-    }
+    //     return corners;
+    // }
 }

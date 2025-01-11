@@ -70,7 +70,7 @@ MonoBehaviour:
     type: 3}
   _itemImage: {fileID: 1459501715203489701}
   _useButton: {fileID: 5623327923025923675}
-  _stackingNumText: {fileID: 5727888961169850178}
+  _stackNumText: {fileID: 5727888961169850178}
 --- !u!1 &2825255206449526162
 GameObject:
   m_ObjectHideFlags: 0

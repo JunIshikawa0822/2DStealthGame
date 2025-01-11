@@ -24,6 +24,7 @@ public abstract class A_Data_Fixed : ScriptableObject, I_Data_Item
     public Sprite ItemImage{get => _itemImage;}
     public int ItemID{get => _itemID;}
     #endregion
+    
     #region カスタマイズかそうでないかで機能が変わるやつら
     public int Price {get => _itemPrice;}
     public abstract float UseTime{get;}

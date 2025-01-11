@@ -27,20 +27,17 @@ public class Shotgun : AGun
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+    public override Entity_Magazine Magazine{get => _magazine;}
     //----------------------------------------
-    public string Name{get;set;}
-    public override void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
-        _objectPool = objectPool;
-
+        base.OnSetUp(objectPool);
         // _muzzleFlashRenderer = GetComponent<LineRenderer>();
         // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
-
-        Name = name;
     }
 
     public void ShotgunInit(float velocity, float shotInterval, int simulNum, float spreadAngle)
@@ -176,15 +173,5 @@ public class Shotgun : AGun
     //         tokenSource.Dispose();
     //         tokenSource = null;
     //     }
-    // }
-
-    public override Entity_Magazine GetMagazine()
-    {
-        return _magazine;
-    }
-
-    // public override void ObjectActive(bool isActive)
-    // {
-    //     this.gameObject.SetActive(isActive);
     // }
 }

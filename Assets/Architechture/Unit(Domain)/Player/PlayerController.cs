@@ -111,8 +111,8 @@ public class PlayerController : AEntity
         if(_isEntityActionInterval)return;
 
         if(gun == null)return;
-        uint max = gun.GunData.MaxAmmoNum;
-        uint current = gun.GunData.MaxAmmoNum;
+        uint max = gun.MaxAmmoNum;
+        uint current = gun.MaxAmmoNum;
         Entity_Magazine magazine = new Entity_Magazine(max, current);
 
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();

@@ -235,7 +235,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             .TakeWhile(_ => _currentBattleAction.Value == IBandit.BanditBattleAction.Attacking)
             .Subscribe(_ =>
             {
-                if(_enemyGun.GetMagazine().MagazineRemaining > 0)
+                if(_enemyGun.Magazine.MagazineRemaining > 0)
                 {
                     Attack();
                 }

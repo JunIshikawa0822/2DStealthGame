@@ -9389,14 +9389,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &355968625
 Rigidbody:
@@ -19845,14 +19837,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &666166182
 Rigidbody:
@@ -20003,14 +19987,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &674823311
 Rigidbody:
@@ -20138,7 +20114,6 @@ GameObject:
   - component: {fileID: 681662780}
   - component: {fileID: 681662779}
   - component: {fileID: 681662778}
-  - component: {fileID: 681662781}
   m_Layer: 5
   m_Name: EqiupmentInventory (2)
   m_TagString: Untagged
@@ -20178,7 +20153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3200a6d229c0542118912b50d0079ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 1098662813}
+  _container: {fileID: 0}
+  _background: {fileID: 0}
+  _accessIndex: 1
+  _cellSize: 50
 --- !u!114 &681662779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20217,22 +20195,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 681662776}
   m_CullTransparentMesh: 1
---- !u!114 &681662781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 681662776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9925f5fd7240b4d00869091c216418b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  container: {fileID: 1087222109}
-  background: {fileID: 0}
-  _accessIndex: 1
-  _cellSize: 50
 --- !u!1 &683397212
 GameObject:
   m_ObjectHideFlags: 0
@@ -21711,12 +21673,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 773153930}
   m_CullTransparentMesh: 1
---- !u!33 &774469255 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: 7232746533770956479, guid: 0502a9a29bee74094ace2fbaf087b0ef,
-    type: 3}
-  m_PrefabInstance: {fileID: 3514247124795816321}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &774630418
 GameObject:
   m_ObjectHideFlags: 0
@@ -28393,10 +28349,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1530848547}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69115d47855894b2ea10f1fa896ae5e8, type: 3}
+  m_Script: {fileID: 11500000, guid: bfd4671034d19458e99a2e2a80de2ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  container: {fileID: 861268784}
+  _container: {fileID: 861268784}
   background: {fileID: 770805683}
   _cellSize: 50
   _gridWidth: 10
@@ -28601,10 +28557,8 @@ MonoBehaviour:
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     cursorObject: {fileID: 985123735}
     cursorImage: {fileID: 393601897}
-    playerGunsArray:
-    - {fileID: 0}
-    - {fileID: 0}
-    selectingGunsArrayIndex: 0
+    selectingGunsArrayIndex:
+      value: 0
     handgunPrefabs:
     - {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
     shotgunPrefabs:
@@ -28633,30 +28587,29 @@ MonoBehaviour:
       type: 3}
     bullet_7_62mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
       type: 3}
-    AmmoText: {fileID: 1018401282}
-    radius: 40
-    angle: 50
-    meshFilter: {fileID: 774469255}
-    targetLayer:
-      serializedVersion: 2
-      m_Bits: 2176
-    obstacleLayer:
-      serializedVersion: 2
-      m_Bits: 768
-    meshResolution: 1
-    edgeResolveIterations: 4
-    edgeDstThreshold: 0.5
     shotLineRenderer: {fileID: 0}
+    ammoText: {fileID: 0}
+    playerHPSlider: {fileID: 0}
+    item_GUI_PoolTrans: {fileID: 0}
     canvas: {fileID: 562743217}
     inventoryList:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    gui_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
+      type: 3}
+    inventories:
     - {fileID: 1530848549}
     - {fileID: 1584286619}
     - {fileID: 2096893025}
-    - {fileID: 681662781}
-    gui_Item_Prefab: {fileID: 8924252677613569574, guid: 4609a263c37064a15808fbe5431b58b6,
+    - {fileID: 681662778}
+    item_GUI_Prefab: {fileID: 606834529127207317, guid: ba3151daa48cd4a5bae6d24077c7f84b,
       type: 3}
     playerStorage: {fileID: 0}
     otherStorage: {fileID: 0}
+    storage: {fileID: 0}
+    anotherStorage: {fileID: 0}
     inventoryPanel: {fileID: 1986844071}
     isInventoryPanelActive: 0
     enemyParent: {fileID: 1365710464}
@@ -28948,10 +28901,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1584286617}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69115d47855894b2ea10f1fa896ae5e8, type: 3}
+  m_Script: {fileID: 11500000, guid: bfd4671034d19458e99a2e2a80de2ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  container: {fileID: 1472288968}
+  _container: {fileID: 1472288968}
   background: {fileID: 1821450245}
   _cellSize: 50
   _gridWidth: 10
@@ -29246,14 +29199,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &1652049841
 Rigidbody:
@@ -32083,14 +32028,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
-  opponentLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  _enemyViewAngle: 45
-  _enemyViewRadius: 25
   _statusText: {fileID: 0}
 --- !u!54 &1928619148
 Rigidbody:
@@ -34052,11 +33989,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2096893021}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9925f5fd7240b4d00869091c216418b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 3200a6d229c0542118912b50d0079ed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  container: {fileID: 415828487}
-  background: {fileID: 0}
+  _container: {fileID: 415828487}
+  _background: {fileID: 0}
   _accessIndex: 0
   _cellSize: 50
 --- !u!1 &2099324469

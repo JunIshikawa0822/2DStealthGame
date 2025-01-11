@@ -17,6 +17,9 @@ public class GameStatus
     public Action<int, ItemData> onEquipEvent;
     public Action<int> onUnEquipEvent;
 
+    public Action<int, I_Data_Item> onPlayerEquipEvent;
+    public Action<int, I_Data_Item> onPlayerUnEquipEvent;
+
     [Header("Inputs")]
     public Vector2 moveDirection = Vector2.zero;
     public Vector2 cursorScreenPosition = Vector2.zero;
@@ -78,9 +81,12 @@ public class GameStatus
 
     public List<A_Inventory> inventories = new List<A_Inventory>();
     public Item_GUI item_GUI_Prefab;
-    
-    public Storage playerStorage;
-    public Storage otherStorage = null;
+
+    [HideInInspector]public Storage playerStorage;
+    [HideInInspector]public Storage otherStorage = null;
+
+    [HideInInspector]public NormalStorage storage = null;
+    [HideInInspector]public NormalStorage anotherStorage = null;
 
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;

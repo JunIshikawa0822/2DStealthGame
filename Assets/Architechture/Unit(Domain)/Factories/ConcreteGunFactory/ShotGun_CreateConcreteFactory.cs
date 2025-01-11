@@ -19,9 +19,10 @@ public class ShotGun_CreateConcreteFactory : IGunFactory
         Shotgun gun = GameObject.Instantiate(_prefabs[0]);
 
         Shotgun_Data shotgun_Data = gunData as Shotgun_Data;
+
         gun.ShotgunInit(
             shotgun_Data.ShotVelocity, 
-            shotgun_Data.ShotInterval, 
+            shotgun_Data.ShotInterval,
             shotgun_Data.simulNum,
             shotgun_Data.spreadAngle);
 
@@ -46,7 +47,7 @@ public class ShotGun_CreateConcreteFactory : IGunFactory
         gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
 
         A_Item_Data baseData = gunData as A_Item_Data;
-        gun.OnSetUp(objectPool, baseData.ItemName);
+        gun.OnSetUp(objectPool);
 
         return gun;
     }

@@ -37,12 +37,6 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         
-        gameStat.inventoryList[2].onInsertEvent += EquipmentInsert;
-        gameStat.inventoryList[2].onRemoveEvent += EquipmentRemove;
-
-        gameStat.inventoryList[3].onInsertEvent += EquipmentInsert;
-        gameStat.inventoryList[3].onRemoveEvent += EquipmentRemove;
-
         InventoryPanelActive(gameStat.isInventoryPanelActive);
 
         IFactory item_GUI_Fac = new Item_GUI_CreateConcreteFactory(gameStat.item_GUI_Prefab, StartDragging, EndDragging);
@@ -51,6 +45,12 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         foreach(A_Inventory inventory in gameStat.inventories)
         {
             inventory.Init(item_GUI_Objp);
+
+            if(inventory is PlayerEquipInventory)
+            {
+                inventory.InsertAction += EquipmentInsert;
+                inventory.RemoveAction += EquipmentRemove;
+            }
         }
     }
 
@@ -69,15 +69,12 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         //Storageの中身をロード/アンロード
         if(isActive) 
         {
-            gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
-            gameStat.inventoryList[1].OpenInventory(gameStat.otherStorage);
-
-            gameStat.inventoryList[2].OpenInventory(gameStat.playerStorage);
-            gameStat.inventoryList[3].OpenInventory(gameStat.playerStorage);
+            gameStat.inventories[0].OpenInventory(gameStat.storage);
+            gameStat.inventories[1].OpenInventory(gameStat.anotherStorage);
         }
         else 
         {
-            foreach(AInventory inventory in gameStat.inventoryList)
+            foreach(A_Inventory inventory in gameStat.inventories)
             {
                 inventory.CloseInventory();
             }
@@ -133,14 +130,14 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         Debug.Log(item.Data.ObjectData.ItemName + "を使った");
     }
 
-    public void EquipmentInsert(int index, ItemData data)
+    public void EquipmentInsert(int index, I_Data_Item data)
     {
-        gameStat.onEquipEvent?.Invoke(index, data);
+        gameStat.onPlayerEquipEvent?.Invoke(index, data);
     }
 
-    public void EquipmentRemove(int index)
+    public void EquipmentRemove(int index, I_Data_Item data)
     {
-        gameStat.onUnEquipEvent?.Invoke(index);
+        gameStat.onPlayerUnEquipEvent?.Invoke(index, data);
     }
 
     public void PointerDown(A_Item_GUI gui)

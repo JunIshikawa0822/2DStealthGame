@@ -15,7 +15,7 @@ public class Handgun : AGun
     [SerializeField]
     private Transform _muzzlePosition;
     //private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool _objectPool;
+    //private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -27,20 +27,20 @@ public class Handgun : AGun
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+
+    public override Entity_Magazine Magazine{get => _magazine;}
     //----------------------------------------
 
-    public override void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
-        _objectPool = objectPool;
-
+        base.OnSetUp(objectPool);
         // _muzzleFlashRenderer = GetComponent<LineRenderer>();
         // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
 
-        Name = name;
         ReloadTime = _reloadInterval;
     }
 
@@ -156,10 +156,5 @@ public class Handgun : AGun
         {
             action?.Invoke();
         }
-    }
-
-    public override Entity_Magazine GetMagazine()
-    {
-        return _magazine;
     }
 }

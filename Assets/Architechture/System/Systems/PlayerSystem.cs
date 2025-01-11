@@ -98,8 +98,6 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         AGun gun = gameStat.gunFacade.GetGunInstance(gunData);
         gameStat.playerGunsArray[index] = gun;
-
-        //_player.Equip(gun);
     }
 
     public void OnUnEquipGun(int index)

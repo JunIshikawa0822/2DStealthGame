@@ -39,7 +39,7 @@ public class UISystem : ASystem, IOnUpdate
         if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value] != null)
         {
             // UnityEngine.Debug.Log(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GetMagazine());
-            gameStat.ammoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].GetMagazine().MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].GetMagazine().MagazineCapacity}";
+            gameStat.ammoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].Magazine.MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].Magazine.MagazineCapacity}";
         }
     }
 
