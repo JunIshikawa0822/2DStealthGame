@@ -234,6 +234,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         _disposablesByBattleAction.Clear();
 
         if(_enemyWeaponStorage == null) return;
+        if(_enemyGun == null)return;
         //statusに応じたインターバルで周囲を探索する
         Observable.Interval(System.TimeSpan.FromSeconds(interval))
             .TakeWhile(_ => _currentBattleAction.Value == IBandit.BanditBattleAction.Attacking)

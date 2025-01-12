@@ -81,7 +81,7 @@ public class PlayerEquipInventory : A_Inventory
 
         if(_gui_Item == null)
         {
-            Vector3 newPosition = _rectTransform.position;
+            Vector3 newPosition = _container.position;
 
             gui.Item.Address = new CellNumber(0, 0);
             gui.Item.Direction = IInventoryItem.ItemDir.Down;
@@ -93,7 +93,7 @@ public class PlayerEquipInventory : A_Inventory
             gui.SetScale(new Vector3(1, 1, 1));
 
             gui.SetPivot(IInventoryItem.ItemDir.Middle);
-            gui.SetAnchorPosition(newPosition);
+            gui.SetPosition(newPosition);
             gui.SetRotation(IInventoryItem.ItemDir.Middle);
             gui.SetImageSize(_cellSize);
         }
@@ -126,6 +126,9 @@ public class PlayerEquipInventory : A_Inventory
         insertGUI.Item.Direction = direction;
 
         insertGUI.SetParent(_container);
+
+        insertGUI.SetScale(new Vector3(1, 1, 1));
+
         insertGUI.SetPivot(IInventoryItem.ItemDir.Middle);
         insertGUI.SetPosition(_container.transform.position);
         insertGUI.SetRotation(IInventoryItem.ItemDir.Down);

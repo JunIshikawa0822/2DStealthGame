@@ -12,11 +12,11 @@ public class WeaponStorage : MonoBehaviour, IStorage
 
     void Awake()
     {
-        
+        TestDataLoad(_testDataList);
     }
     void Start()
     {
-        TestDataLoad(_testDataList);
+        
     }
 
     public void Add(IInventoryItem item)

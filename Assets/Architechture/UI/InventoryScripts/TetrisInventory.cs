@@ -216,6 +216,9 @@ public class TetrisInventory : A_Inventory
                     gui.Item.Direction = direction;
 
                     gui.SetParent(_container);
+
+                    gui.SetScale(new Vector3(1, 1, 1));
+                    
                     gui.SetPivot(direction);
                     gui.SetAnchorPosition(newPosition);
                     gui.SetRotation(direction);
@@ -284,7 +287,7 @@ public class TetrisInventory : A_Inventory
         if(cashedOriginCellNum != null)
         {
             CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
-            
+
             if(originCell.IsStackable() == false)
             {
                 Debug.Log("挿入先が満杯だよ!");
