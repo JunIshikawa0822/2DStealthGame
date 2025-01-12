@@ -22,7 +22,6 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private bool isFighting;
 
     AGun _enemyGun;
-
     FOV _enemyFieldOfView;
 
     //private FindOpponent _enemyFindView;
@@ -57,7 +56,9 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             return;
         }
 
-        _enemyStorage = GetComponent<Storage>();
+        _enemyStorage = GetComponent<NormalStorage>();
+        _enemyWeaponStorage = GetComponent<WeaponStorage>();
+        
         _enemyFieldOfView = GetComponent<FOV>();
         //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
@@ -214,12 +215,12 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     //     }
     // }
 
-    public void Move()
+    public override void Move()
     {
         //ランダムな移動
     }
 
-    public void Rotate()
+    public override void Rotate()
     {
         if(_currentTarget.Value == null)return;
         Quaternion targetRotation = Quaternion.LookRotation(_currentTarget.Value.position - _entityTransform.position);
@@ -247,12 +248,12 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             .AddTo(_disposablesByBattleAction, this);
     }
 
-    public void Attack()
+    public override void Attack()
     {
         _enemyGun.Shot();
     }
 
-    public void Hide()
+    public override void Hide()
     {
        //攻撃された状態のとき一定間隔で
        //HPが一定以下になったら
@@ -261,7 +262,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
        //隠れる行動
     }
 
-    public void Reload(AGun gun, Entity_Magazine magazine)
+    public override void Reload(AGun gun, Entity_Magazine magazine)
     {
         //リロード
         if(_isEntityActionInterval)return;
@@ -271,7 +272,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
-    public void Equip(AGun gun)
+    public override void Equip(AGun gun)
     {
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);

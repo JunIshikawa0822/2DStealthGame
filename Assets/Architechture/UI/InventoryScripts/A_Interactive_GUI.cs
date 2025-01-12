@@ -31,6 +31,11 @@ public abstract class A_Interactive_GUI : APooledObject, IPointerDownHandler, IP
         _rectTransform.pivot = pivot;
     }
 
+    public virtual void SetScale(Vector3 scale)
+    {
+        _rectTransform.localScale = scale;
+    }
+
     public virtual void SetRotation(Quaternion quaternion)
     {
         _rectTransform.rotation = quaternion;

@@ -32,15 +32,17 @@ public class Item_GUI : A_Item_GUI, IObject
         base.OnSetUp();
 
         _canvasGroup = GetComponent<CanvasGroup>();
-        BackGroundInit();
         _useButton.gameObject.SetActive(false);
     }
 
     public override void Init(IInventoryItem inventoryItem)
     {
+        // Debug.Log(inventoryItem);
+
         _inventoryItem = inventoryItem;
         _itemImage.sprite = inventoryItem.Data.ItemImage;
         
+        BackGroundInit();
         if(_inventoryItem.Data.StackableNum == 1)_stackNumText.gameObject.SetActive(false);
     }
 
@@ -111,6 +113,7 @@ public class Item_GUI : A_Item_GUI, IObject
 
     private void BackGroundInit()
     {
+        //Debug.Log(_inventoryItem);
         uint occupyCellNum = _inventoryItem.Data.Width * _inventoryItem.Data.Height;
         for(int i = 0; i < occupyCellNum; i++)
         {

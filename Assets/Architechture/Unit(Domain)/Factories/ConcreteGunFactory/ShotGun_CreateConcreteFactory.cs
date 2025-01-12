@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-public class ShotGun_CreateConcreteFactory : IGunFactory
+public class ShotGun_CreateConcreteFactory : ICustomizeFactory
 {
     //private Handgun _handgun;
     private Shotgun[] _prefabs;
@@ -14,41 +14,35 @@ public class ShotGun_CreateConcreteFactory : IGunFactory
         _bulletPools = objectPoolList;
     }
 
-    public AGun GunInstantiate(IGunData gunData)
+        public IObject ObjectInstantiate(I_Data_Item data)
     {
+        I_Data_Shotgun gunData = data as I_Data_Shotgun;
+        if(gunData == null) return null;
+
         Shotgun gun = GameObject.Instantiate(_prefabs[0]);
-
-        Shotgun_Data shotgun_Data = gunData as Shotgun_Data;
-
-        gun.ShotgunInit(
-            shotgun_Data.ShotVelocity, 
-            shotgun_Data.ShotInterval,
-            shotgun_Data.simulNum,
-            shotgun_Data.spreadAngle);
-
         IObjectPool objectPool = _bulletPools[0];
 
         switch(gunData.CaliberType)
         {
-            case IGunData.CaliberTypes._10mm :
+            case I_Data_Gun.CaliberTypes._10mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_10mm>) objectPool = pool;
                 break;
             
-            case IGunData.CaliberTypes._5_56mm :
+            case I_Data_Gun.CaliberTypes._5_56mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_5_56mm>) objectPool = pool;
                 break;
 
-            case IGunData.CaliberTypes._7_62mm : 
+            case I_Data_Gun.CaliberTypes._7_62mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_7_62mm>) objectPool = pool;
                 break;
         }
 
-        gun.GunData = gunData;
+        //gun.GunData = gunData;
+        gun.ShotgunInit(gunData.ShotVelocity, gunData.ShotInterval, gunData.SimulNum, gunData.SpreadAngle);
         gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
-
-        A_Item_Data baseData = gunData as A_Item_Data;
         gun.OnSetUp(objectPool);
 
         return gun;
     }
+
 }

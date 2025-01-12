@@ -41,6 +41,7 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
         IFactory item_GUI_Fac = new Item_GUI_CreateConcreteFactory(gameStat.item_GUI_Prefab, StartDragging, EndDragging);
         IObjectPool item_GUI_Objp = new ObjectPool<Item_GUI>(gameStat.item_GUI_PoolTrans, item_GUI_Fac);
+        item_GUI_Objp.PoolSetUp(20);
 
         foreach(A_Inventory inventory in gameStat.inventories)
         {
@@ -57,20 +58,21 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     public void SwitchInventoryActive()
     {
         gameStat.isInventoryPanelActive = !gameStat.isInventoryPanelActive;
-
         InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
 
-    public void InventoryPanelActive(bool isActive)
+    private void InventoryPanelActive(bool isActive)
     {
          //InventoryのPanelをオン/オフ
         gameStat.inventoryPanel.SetActive(isActive);
 
         //Storageの中身をロード/アンロード
-        if(isActive) 
+        if(isActive)
         {
-            gameStat.inventories[0].OpenInventory(gameStat.storage);
-            gameStat.inventories[1].OpenInventory(gameStat.anotherStorage);
+            gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
+            gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
+            gameStat.inventories[2].OpenInventory(gameStat.weaponStorages[0]);
+            gameStat.inventories[3].OpenInventory(gameStat.weaponStorages[1]);
         }
         else 
         {
@@ -83,11 +85,11 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
     public void OnUpdate()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log(gameStat.playerStorage.WeaponArray);
-            Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ObjectData.ItemName)));
-        }
+        // if(Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     Debug.Log(gameStat.playerStorage.WeaponArray);
+        //     Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ObjectData.ItemName)));
+        // }
 
         if(_draggingObject == null) return;
 
@@ -232,6 +234,7 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
             {
                 //Debug.Log("おけてはいる");
                 uint overflow = _toInventory.InsertItem(gui, newCell, _newDirection);
+                Debug.Log(_toInventory.gameObject.name + "におけたよ！");
 
                 if(overflow > 0)
                 {

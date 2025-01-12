@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface I_Data_Gun
+public interface I_Data_Gun : I_Data_Item
 {
     public enum CaliberTypes
     {
@@ -16,4 +16,6 @@ public interface I_Data_Gun
     public float ShotVelocity{get;}
 
     public uint MaxAmmoNum{get;}
+
+    public float ReloadTime{get;}
 }

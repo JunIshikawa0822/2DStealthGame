@@ -8,11 +8,12 @@ public abstract class AGun : MonoBehaviour, IObject
         _objectPool = objectPool;
     }
 
-    public virtual void Init(string name, float reloadTime, uint maxAmmoNum)
+    public virtual void Init(I_Data_Gun data)
     {
-        _gunName = name;
-        _reloadTime = reloadTime;
-        _maxAmmoNum = maxAmmoNum;
+        _reloadTime = data.ReloadTime;
+        _maxAmmoNum = data.MaxAmmoNum;
+
+        _gun_Data = data;
     }
     //public abstract void OnUpdate();
     public abstract void Reload(Entity_Magazine magazine);
@@ -21,6 +22,9 @@ public abstract class AGun : MonoBehaviour, IObject
 
     private IGunData _gunData;
     public IGunData GunData{get => _gunData; set => _gunData = value;}
+
+    public I_Data_Gun _gun_Data;
+    public I_Data_Gun Data {get => _gun_Data;}
 
     protected IObjectPool _objectPool;
     public abstract Entity_Magazine Magazine{get;}

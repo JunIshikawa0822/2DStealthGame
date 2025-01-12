@@ -13,24 +13,26 @@ public class ItemSystem : ASystem, IOnUpdate
 
     public override void OnSetUp()
     {
-        gameStat.playerStorage = gameStat.player.GetComponent<Storage>();
+        //gameStat.playerStorage = gameStat.player.GetComponent<Storage>();
 
-        if(gameStat.playerStorage == null)
-        {
-            Debug.LogError("ない");
-        }
+        //gameStat.storage = gameStat.player.GetComponent<NormalStorage>();
 
-        gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.handgunDataArray[0], 1, new CellNumber(0, 0)));
-        gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.shotgunDataArray[0], 1, new CellNumber(0, 2)));
-        gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.rifleDataArray[0], 1, new CellNumber(0, 4)));
-        gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.handgunDataArray[0], 1, new CellNumber(0, 6)));
-        gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.medicineDataArray[0], 2, new CellNumber(0, 8)));
+        // if(gameStat.playerStorage == null)
+        // {
+        //     Debug.LogError("ない");
+        // }
+
+        // gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.handgunDataArray[0], 1, new CellNumber(0, 0)));
+        // gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.shotgunDataArray[0], 1, new CellNumber(0, 2)));
+        // gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.rifleDataArray[0], 1, new CellNumber(0, 4)));
+        // gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.handgunDataArray[0], 1, new CellNumber(0, 6)));
+        // gameStat.playerStorage.AddItem(gameStat.playerStorage.ItemMake(gameStat.medicineDataArray[0], 2, new CellNumber(0, 8)));
 
         //全てのデータをもとに、それぞれ一つのインスタンスを作成。IDとインスタンスをセットにして保存
         itemInstanceArray = new[]
         { 
-            gameStat.foodDataArray.ToDictionary(data => data.ItemID, data => new Food(data) as IObject), 
-            gameStat.medicineDataArray.ToDictionary(data => data.ItemID, data => new Medicine(data) as IObject),
+            gameStat.data_Fixed_Food_Array.ToDictionary(data => data.ItemID, data => new Food(data) as IObject), 
+            gameStat.data_Fixed_Medicine_Array.ToDictionary(data => data.ItemID, data => new Medicine(data) as IObject),
             //gameStat.handgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactoriesList[0].GunInstantiate(data) as IItem),
             // gameStat.rifleDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),
             // gameStat.shotgunDataArray.ToDictionary(data => data.ItemID, data => gameStat.gunFactories.GunInstantiate(data) as IItem),
@@ -50,12 +52,12 @@ public class ItemSystem : ASystem, IOnUpdate
     {
         if(Input.GetKeyDown(KeyCode.O))
         {
-            gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
+            gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
         }
 
         if(Input.GetKeyDown(KeyCode.P))
         {
-            gameStat.inventoryList[0].CloseInventory();
+            gameStat.inventories[0].CloseInventory();
         }
 
         if(Input.GetKeyDown(KeyCode.N))

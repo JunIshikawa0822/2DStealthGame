@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class PlayerEquipInventory : A_Inventory
 {
     private RectTransform _rectTransform;
-    private IObjectPool _objectPool;
 
     [SerializeField]
     private RectTransform _container;
@@ -27,7 +26,7 @@ public class PlayerEquipInventory : A_Inventory
     private event Action<int, I_Data_Item> _onRemoveEvent;
 
     public override Action<int, I_Data_Item> InsertAction{get => _onInsertEvent; set => _onInsertEvent += value;}
-    public override Action<int, I_Data_Item> RemoveAction{get => _onRemoveEvent; set => _onInsertEvent += value;}
+    public override Action<int, I_Data_Item> RemoveAction{get => _onRemoveEvent; set => _onRemoveEvent += value;}
     void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
@@ -42,15 +41,16 @@ public class PlayerEquipInventory : A_Inventory
     {
         if(storage == null)
         {
-            Debug.Log("Storageを開けられません");
+            Debug.Log(this.gameObject.name + " :Storageを開けられません");
             return;
         }
 
         _openningStorage = storage;
-        
-        foreach(IInventoryItem data in storage.GetItems())
+
+        foreach(IInventoryItem item in storage.GetItems())
         {
-            LoadItem(data);
+            if(item == null)return;
+            LoadItem(item);
         }
     }
 
@@ -69,11 +69,14 @@ public class PlayerEquipInventory : A_Inventory
 
         _openningStorage = null;
     }
-        private void LoadItem(IInventoryItem inventoryItem)
+    
+    private void LoadItem(IInventoryItem inventoryItem)
     {
         A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
 
         if(gui == null)return;
+
+        gui.OnSetUp();
         gui.Init(inventoryItem);
 
         if(_gui_Item == null)
@@ -86,6 +89,9 @@ public class PlayerEquipInventory : A_Inventory
             InsertItem(gui, gui.Item.Address, gui.Item.Direction);
 
             gui.SetParent(_container);
+
+            gui.SetScale(new Vector3(1, 1, 1));
+
             gui.SetPivot(IInventoryItem.ItemDir.Middle);
             gui.SetAnchorPosition(newPosition);
             gui.SetRotation(IInventoryItem.ItemDir.Middle);
@@ -93,21 +99,22 @@ public class PlayerEquipInventory : A_Inventory
         }
     }
 
-
     public override bool CanPlaceItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
     {
+        //Debug.Log("検証開始");
         bool canPlace = false;
 
         if(direction != IInventoryItem.ItemDir.Down) return false;
-        
-        if(insertGUI.Item.Data is A_Data_Fixed_Gun || insertGUI.Item.Data is A_Data_Customizable)
+        //Debug.Log("向きは大丈夫");
+        if(_gui_Item != null)return false;
+        //Debug.Log("guiは大丈夫");    
+        if(insertGUI.Item.Data is I_Data_Gun)
         {
             if(origin.x == 0 && origin.y == 0)
             {
                 canPlace = true;
             }
         }
-        
         return canPlace;
     }
 
@@ -118,6 +125,12 @@ public class PlayerEquipInventory : A_Inventory
         insertGUI.Item.Address = origin;
         insertGUI.Item.Direction = direction;
 
+        insertGUI.SetParent(_container);
+        insertGUI.SetPivot(IInventoryItem.ItemDir.Middle);
+        insertGUI.SetPosition(_container.transform.position);
+        insertGUI.SetRotation(IInventoryItem.ItemDir.Down);
+        insertGUI.SetImageSize(_cellSize);
+
         _openningStorage.Add(insertGUI.Item);
 
         _onInsertEvent?.Invoke(_accessIndex, insertGUI.Item.Data);
@@ -127,9 +140,9 @@ public class PlayerEquipInventory : A_Inventory
     public override void RemoveItem(CellNumber origin)
     {
         if(_gui_Item == null) return;
+        _openningStorage.Remove(_gui_Item.Item);
 
         _gui_Item = null;
-        _openningStorage.Remove(_gui_Item.Item);
 
         _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item.Data);
     }

@@ -11,9 +11,6 @@ public interface I_Data_Item : IEquatable<I_Data_Item>
     public bool IsRotate{get;}
     public Sprite ItemImage{get;}
     public int ItemID{get;}
-    #endregion
-
-    #region カスタマイズかそうでないかで機能が変わるやつら
     public int Price {get;}
     public bool IsClickUse {get;}
     public float UseTime {get;}

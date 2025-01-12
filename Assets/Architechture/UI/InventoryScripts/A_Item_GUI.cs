@@ -14,6 +14,10 @@ public abstract class A_Item_GUI : A_Interactive_GUI
 
     public abstract void SetRotation(IInventoryItem.ItemDir itemDir);    
     public abstract void SetPivot(IInventoryItem.ItemDir itemDir);
+    public override void SetScale(Vector3 scale)
+    {
+        base.SetScale(scale);
+    }
     public abstract void SetImageSize(float cellSize);
     public abstract void SetStackText(uint stackNum);
     public abstract (CellNumber oldAddress, IInventoryItem.ItemDir oldDir) GetOldStatus();

@@ -120,10 +120,11 @@ public class TetrisInventory : A_Inventory
         }
 
         _openningStorage = storage;
-        
-        foreach(IInventoryItem data in storage.GetItems())
+
+        foreach(IInventoryItem item in storage.GetItems())
         {
-            LoadItem(data);
+            if(item == null)return;
+            LoadItem(item);
         }
     }
 
@@ -158,8 +159,11 @@ public class TetrisInventory : A_Inventory
     {
         A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
 
-        if(gui == null)return;
+        if(gui == null)return; 
 
+        // Debug.Log(inventoryItem);
+
+        gui.OnSetUp();
         gui.Init(inventoryItem);
 
         List<CellNumber> cellNumsList = gui.GetOccupyCellList(inventoryItem.Address, inventoryItem.Direction);
@@ -175,6 +179,9 @@ public class TetrisInventory : A_Inventory
                 Vector3 newPosition = grid.GetCellOriginAnchoredPosition(inventoryItem.Address);
 
                 gui.SetParent(_container);
+
+                gui.SetScale(new Vector3(1, 1, 1));
+
                 gui.SetPivot(inventoryItem.Direction);
                 gui.SetAnchorPosition(newPosition);
                 gui.SetRotation(inventoryItem.Direction);
@@ -274,10 +281,10 @@ public class TetrisInventory : A_Inventory
             }
         }
 
-        CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
-
         if(cashedOriginCellNum != null)
         {
+            CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
+            
             if(originCell.IsStackable() == false)
             {
                 Debug.Log("挿入先が満杯だよ!");

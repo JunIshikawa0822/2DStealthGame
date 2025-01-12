@@ -33,9 +33,17 @@ public class EnemySystem : ASystem, IOnUpdate
 
         // Debug.Log(enemy.Storage.WeaponArray[0]);
 
-        IGunData gunData = enemy.Storage.TestWeaponData[0] as IGunData;
-        enemy.Equip(gameStat.gunFacade.GetGunInstance(gunData));
+        IInventoryItem[] weaponDataArray = enemy.EnemyWeaponStorage.GetItems();
 
+        if(weaponDataArray == null || weaponDataArray[0] == null)
+        {
+            Debug.LogWarning("武器のデータを入れてください");
+
+            //武器のデータを入れる処理
+            return;
+        }
+
+        enemy.Equip(gameStat.gunFacade.GetGunInstance(weaponDataArray[0].Data));
         enemy.transform.SetParent(gameStat.enemyParent);
     }
 #endregion

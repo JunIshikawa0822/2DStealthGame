@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using Unity.Entities.UniversalDelegates;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
     private PlayerController _player;
@@ -11,6 +12,14 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.playerHP = new Entity_HealthPoint(100, 100);
         //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
+        gameStat.playerStorage = gameStat.player.PlayerStorage;
+        gameStat.weaponStorages[0] = gameStat.player.PlayerWeaponStorage1;
+        gameStat.weaponStorages[1] = gameStat.player.PlayerWeaponStorage2;
+
+        Debug.Log(gameStat.playerStorage);
+        Debug.Log(gameStat.weaponStorages[0]);
+        Debug.Log(gameStat.weaponStorages[1]);
+
         _player.OnSetUp(gameStat.playerHP);
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
 
@@ -19,8 +28,8 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
-        gameStat.onEquipEvent += OnEquipGun;
-        gameStat.onUnEquipEvent += OnUnEquipGun;
+        gameStat.onPlayerEquipEvent += OnEquipGun;
+        gameStat.onPlayerUnEquipEvent += OnUnEquipGun;
 
         SetEvent();
     }
@@ -91,28 +100,26 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.Equip(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
     }
 
-    public void OnEquipGun(int index, ItemData data)
+    public void OnEquipGun(int index, I_Data_Item data)
     {
-        IGunData gunData = data.ObjectData as IGunData;
-        if(gunData == null) return;
+        if(data == null) return;
 
-        AGun gun = gameStat.gunFacade.GetGunInstance(gunData);
+        AGun gun = gameStat.gunFacade.GetGunInstance(data);
         gameStat.playerGunsArray[index] = gun;
     }
 
-    public void OnUnEquipGun(int index)
+    public void OnUnEquipGun(int index, I_Data_Item data)
     {
-        //gameStat.playerGunsArray[index].gameObject.SetActive(false);
         gameStat.gunFacade.ReturnGunInstance(gameStat.playerGunsArray[index]);
         gameStat.playerGunsArray[index] = null;
     }
 
-    public void OnFindStorage(Storage storage)
+    public void OnFindStorage(IStorage storage)
     {
         gameStat.otherStorage = storage;
     }
 
-    public void OnExitStorage(Storage storage)
+    public void OnExitStorage(IStorage storage)
     {
         gameStat.otherStorage = null;
     }

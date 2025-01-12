@@ -5,16 +5,18 @@ using System;
 
 public abstract class A_Data_Customizable_Gun : A_Data_Customizable, I_Data_Gun
 {
-        [Header("銃の基本データ")]
+    [Header("銃の基本データ")]
     [SerializeField] float _muzzleVelocity;
     [SerializeField] float _shotInterval;
     [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
+    [SerializeField] float _reloadTime;
 
     public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
-    public float ShotInterval{get => _shotInterval;}
-    public float ShotVelocity{get => _muzzleVelocity;}
-    public uint MaxAmmoNum{get => _maxAmmoNum;}
+    public virtual float ShotInterval{get => _shotInterval;}
+    public virtual float ShotVelocity{get => _muzzleVelocity;}
+    public virtual uint MaxAmmoNum{get => _maxAmmoNum;}
+    public virtual float ReloadTime{get => _reloadTime;}
 
     public override bool Equals(I_Data_Item data)
     {

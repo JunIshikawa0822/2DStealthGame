@@ -22,12 +22,19 @@ public class PlayerController : AEntity
 
     private FOV _fieldOfView;
     private Animator _playerAnimator;
+
+    public NormalStorage PlayerStorage{get => _playerStorage;}
+    public WeaponStorage PlayerWeaponStorage1{get => _weaponStorage1;}
+    public WeaponStorage PlayerWeaponStorage2{get => _weaponStorage2;}
+    [SerializeField] WeaponStorage _weaponStorage1;
+    [SerializeField] WeaponStorage _weaponStorage2;
+    [SerializeField] NormalStorage _playerStorage;
     //private AGun[] _playerGunsArray;
     //private int _selectingGunsArrayIndex;
     //private CompositeDisposable _disposablesByLifeCycle;
 
-    public Action<Storage> storageFindEvent;
-    public Action<Storage> leaveStorageEvent;
+    [HideInInspector]public Action<IStorage> storageFindEvent;
+    [HideInInspector]public Action<IStorage> leaveStorageEvent;
     public override void OnSetUp(Entity_HealthPoint playerHP)
     {
         base.OnSetUp(playerHP);
@@ -113,6 +120,8 @@ public class PlayerController : AEntity
         if(gun == null)return;
         uint max = gun.MaxAmmoNum;
         uint current = gun.MaxAmmoNum;
+
+        Debug.Log(max + "," + current);
         Entity_Magazine magazine = new Entity_Magazine(max, current);
 
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
@@ -169,12 +178,12 @@ public class PlayerController : AEntity
     public void OnTriggerEnter(Collider collider)
     {
         if(collider.gameObject.tag == "Storage")Debug.Log("Storage見つけた");
-        storageFindEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+        storageFindEvent?.Invoke(collider.gameObject.GetComponent<NormalStorage>());
     }
 
     public void OnTriggerExit(Collider collider)
     {
         if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
-        leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+        leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<NormalStorage>());
     }
 }

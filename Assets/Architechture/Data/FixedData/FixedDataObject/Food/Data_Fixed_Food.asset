@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96418f56b87994965b0b89eb85c4f321, type: 3}
   m_Name: Data_Fixed_Food
   m_EditorClassIdentifier: 
-  _itemName: 
-  _itemDiscription: 
-  _itemImage: {fileID: 0}
-  _widthInGUI: 0
-  _heightInGUI: 0
-  _stackableNum: 0
-  _itemID: 0
-  _itemPrice: 0
-  hpHealPoint: 0
-  sanityHealPoint: 0
-  useTime: 0
+  _itemName: testFixedFood
+  _itemDiscription: Test Data of Fixed Data Food
+  _itemImage: {fileID: -476280721, guid: b00f4581993094288b15364bb8345c51, type: 3}
+  _widthInGUI: 1
+  _heightInGUI: 1
+  _stackableNum: 5
+  _itemID: 222
+  _itemPrice: 120
+  _hpHealPoint: 2
+  _sanityHealPoint: 0
+  _useTime: 4

@@ -15,8 +15,9 @@ GameObject:
   - component: {fileID: 2750694731274445073}
   - component: {fileID: 5773702129760587681}
   - component: {fileID: 2560281350579773584}
-  - component: {fileID: 679365949463112461}
   - component: {fileID: -6884874141055475908}
+  - component: {fileID: 4419682093541667456}
+  - component: {fileID: -1219752251601528049}
   m_Layer: 7
   m_Name: Enemy_Bandit
   m_TagString: Untagged
@@ -167,28 +168,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &679365949463112461
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1556439052511264716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91c2439d7ae3d4cb881cacbc69770e1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testDataArray:
-  - {fileID: 11400000, guid: 82b3f78d09896414fae9dfa1eff1a36d, type: 2}
-  - {fileID: 11400000, guid: 82b3f78d09896414fae9dfa1eff1a36d, type: 2}
-  - {fileID: 11400000, guid: 953a3d23afaf444faaa5257568744eef, type: 2}
-  - {fileID: 11400000, guid: 7c93fda871afb4372bd75fd89c3e9f2e, type: 2}
-  - {fileID: 11400000, guid: f1e9312c560754a20b97c1e22378aa51, type: 2}
-  testWeaponDataArray:
-  - {fileID: 11400000, guid: f1e9312c560754a20b97c1e22378aa51, type: 2}
-  - {fileID: 0}
-  test: 0
 --- !u!114 &-6884874141055475908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,9 +191,34 @@ MonoBehaviour:
   meshResolution: 1
   edgeResolveIterations: 4
   edgeDstThreshold: 0.5
-  isDisplayChange: 0
-  isDraw: 0
+  isTargetDisplayChange: 0
+  isDrawFieldOfView: 0
   viewMeshFilter: {fileID: 0}
+--- !u!114 &4419682093541667456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556439052511264716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ff2852db6bd4c1abb401f7255f4726, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _testDataList: []
+--- !u!114 &-1219752251601528049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556439052511264716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0038a5f9930314fa1ab94e2c02a5296b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4113056496054094476
 GameObject:
   m_ObjectHideFlags: 0

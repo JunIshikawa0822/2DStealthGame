@@ -16,7 +16,7 @@ public class Shotgun : AGun
     [SerializeField]
     private Transform _muzzlePosition;
     //private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool _objectPool;
+    //private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
