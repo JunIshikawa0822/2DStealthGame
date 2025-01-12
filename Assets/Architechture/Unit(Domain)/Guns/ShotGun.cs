@@ -6,9 +6,6 @@ public class Shotgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------
-    private float _muzzleVelocity = 700f;
-    private float _shotInterval = 0.5f;
-
     private int _simulNum; 
     private float _spreadAngle;
     //----------------------------------------
@@ -40,12 +37,13 @@ public class Shotgun : AGun
         _isJamming = false;
     }
 
-    public void ShotgunInit(float velocity, float shotInterval, int simulNum, float spreadAngle)
+    public override void Init(I_Data_Gun data)
     {
-        _muzzleVelocity = velocity;
-        _shotInterval = shotInterval;
-        _simulNum = simulNum;
-        _spreadAngle = spreadAngle;
+        base.Init(data);
+
+        if(!(data is I_Data_Shotgun shotgunData))return;
+        _simulNum = shotgunData.SimulNum;
+        _spreadAngle = shotgunData.SpreadAngle;
     }
 
     public void OnUpdate()

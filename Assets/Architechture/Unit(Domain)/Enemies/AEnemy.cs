@@ -5,10 +5,7 @@ using UnityEngine;
 public abstract class AEnemy : AEntity
 {
      //[HideInInspector]
-    protected NormalStorage _enemyStorage;
-    protected WeaponStorage _enemyWeaponStorage;
-    public IStorage EnemyStorage{get => _enemyStorage;}
-    public IStorage EnemyWeaponStorage{get => _enemyWeaponStorage;}
+    public abstract IStorage WeaponStorage{get;}
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
         Transform nearestObject = null;

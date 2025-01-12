@@ -7,9 +7,6 @@ public class Handgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------
-    private float _muzzleVelocity = 700f;
-    private float _shotInterval = 0.5f;
-    private float _reloadInterval = 2f;
     //----------------------------------------
 
     [SerializeField]
@@ -40,14 +37,14 @@ public class Handgun : AGun
 
         _isShotIntervalActive = false;
         _isJamming = false;
-
-        ReloadTime = _reloadInterval;
     }
 
-    public void HandGunInit(float velocity, float shotInterval)
+    public override void Init(I_Data_Gun data)
     {
-        _muzzleVelocity = velocity;
-        _shotInterval = shotInterval;
+        base.Init(data);
+
+        if(!(data is I_Data_HandGun handgunData)) return;
+        
     }
 
     public void OnUpdate()

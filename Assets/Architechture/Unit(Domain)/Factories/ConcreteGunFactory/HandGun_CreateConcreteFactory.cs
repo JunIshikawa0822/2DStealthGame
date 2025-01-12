@@ -37,7 +37,7 @@ public class HandGun_CreateConcreteFactory : ICustomizeFactory
         }
 
         //gun.GunData = gunData;
-        gun.HandGunInit(gunData.ShotVelocity, gunData.ShotInterval);
+        gun.Init(gunData);
         gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
         gun.OnSetUp(objectPool);
 

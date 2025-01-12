@@ -9390,6 +9390,8 @@ MonoBehaviour:
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
   _statusText: {fileID: 0}
+  _enemyStorage: {fileID: 0}
+  _enemyWeaponStorage: {fileID: 0}
 --- !u!54 &355968625
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -19869,6 +19871,8 @@ MonoBehaviour:
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
   _statusText: {fileID: 0}
+  _enemyStorage: {fileID: 0}
+  _enemyWeaponStorage: {fileID: 0}
 --- !u!54 &666166182
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -20019,6 +20023,8 @@ MonoBehaviour:
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
   _statusText: {fileID: 0}
+  _enemyStorage: {fileID: 0}
+  _enemyWeaponStorage: {fileID: 0}
 --- !u!54 &674823311
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -29216,6 +29222,8 @@ MonoBehaviour:
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
   _statusText: {fileID: 0}
+  _enemyStorage: {fileID: 0}
+  _enemyWeaponStorage: {fileID: 0}
 --- !u!54 &1652049841
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -32045,6 +32053,8 @@ MonoBehaviour:
   _gunTrans: {fileID: 0}
   _enemy_Bandit_RotateSpeed: 500
   _statusText: {fileID: 0}
+  _enemyStorage: {fileID: 0}
+  _enemyWeaponStorage: {fileID: 0}
 --- !u!54 &1928619148
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -34478,7 +34488,7 @@ PrefabInstance:
     - target: {fileID: 1407720292690076904, guid: ca71673b6174c4fcfbb77292923163fb,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.4
+      value: 1.39
       objectReference: {fileID: 0}
     - target: {fileID: 1407720292690076904, guid: ca71673b6174c4fcfbb77292923163fb,
         type: 3}
@@ -34666,12 +34676,23 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5016923181861598370, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _playerMoveForce
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7944571613810100279, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5104503251638018806, guid: 0502a9a29bee74094ace2fbaf087b0ef, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

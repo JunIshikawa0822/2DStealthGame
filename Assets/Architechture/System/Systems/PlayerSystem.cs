@@ -12,7 +12,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.playerHP = new Entity_HealthPoint(100, 100);
         //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
-        gameStat.playerStorage = gameStat.player.PlayerStorage;
+        gameStat.playerStorage = gameStat.player.Storage;
         gameStat.weaponStorages[0] = gameStat.player.PlayerWeaponStorage1;
         gameStat.weaponStorages[1] = gameStat.player.PlayerWeaponStorage2;
 

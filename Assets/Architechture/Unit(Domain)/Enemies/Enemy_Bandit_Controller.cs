@@ -24,6 +24,11 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     AGun _enemyGun;
     FOV _enemyFieldOfView;
 
+    [SerializeField]private NormalStorage _enemyStorage;
+    [SerializeField]private WeaponStorage _enemyWeaponStorage;
+    public override IStorage Storage {get => _enemyStorage;}
+    public override IStorage WeaponStorage {get => _enemyWeaponStorage;}
+
     //private FindOpponent _enemyFindView;
 
     private ReactiveProperty<Transform>_currentTarget;
@@ -56,9 +61,6 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             return;
         }
 
-        _enemyStorage = GetComponent<NormalStorage>();
-        _enemyWeaponStorage = GetComponent<WeaponStorage>();
-        
         _enemyFieldOfView = GetComponent<FOV>();
         //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
@@ -231,6 +233,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     {
         _disposablesByBattleAction.Clear();
 
+        if(_enemyWeaponStorage == null) return;
         //statusに応じたインターバルで周囲を探索する
         Observable.Interval(System.TimeSpan.FromSeconds(interval))
             .TakeWhile(_ => _currentBattleAction.Value == IBandit.BanditBattleAction.Attacking)
@@ -274,6 +277,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void Equip(AGun gun)
     {
+        Debug.Log("こんにちは！！！");
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
         _enemyGun = gun;

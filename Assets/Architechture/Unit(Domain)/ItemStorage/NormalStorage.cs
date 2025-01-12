@@ -15,10 +15,10 @@ public class NormalStorage : MonoBehaviour, IStorage
     {
         TestDataLoad(_testDataList, 10, 10);
 
-        foreach(IInventoryItem item in _itemList)
-        {
-            Debug.Log(item.Address + " , Width : " + item.Data.Width + " , Height : " + item.Data.Height);
-        }
+        // foreach(IInventoryItem item in _itemList)
+        // {
+        //     Debug.Log(item.Address + " , Width : " + item.Data.Width + " , Height : " + item.Data.Height);
+        // }
     }
 
     public void Add(IInventoryItem item)

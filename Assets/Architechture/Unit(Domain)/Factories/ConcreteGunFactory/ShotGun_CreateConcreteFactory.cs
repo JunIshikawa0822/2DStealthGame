@@ -37,10 +37,11 @@ public class ShotGun_CreateConcreteFactory : ICustomizeFactory
                 break;
         }
 
-        //gun.GunData = gunData;
-        gun.ShotgunInit(gunData.ShotVelocity, gunData.ShotInterval, gunData.SimulNum, gunData.SpreadAngle);
-        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
         gun.OnSetUp(objectPool);
+        gun.Init(gunData);
+        //gun.GunData = gunData;
+        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
+        
 
         return gun;
     }

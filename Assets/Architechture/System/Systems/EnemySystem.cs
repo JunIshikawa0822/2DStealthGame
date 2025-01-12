@@ -23,17 +23,13 @@ public class EnemySystem : ASystem, IOnUpdate
         #region 銃の割り当て
         Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
         //IGun gun = GameObject.Instantiate(gameStat.Pistol1);
-
-        //gun.Reload(new Entity_Magazine(10, 10));
-        //gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        
         #endregion
         
         enemy.OnSetUp(new Entity_HealthPoint(100, 100));
 
-        // Debug.Log(enemy.Storage.WeaponArray[0]);
-
-        IInventoryItem[] weaponDataArray = enemy.EnemyWeaponStorage.GetItems();
+        Debug.Log(enemy.WeaponStorage);
+        
+        IInventoryItem[] weaponDataArray = enemy.WeaponStorage.GetItems();
 
         if(weaponDataArray == null || weaponDataArray[0] == null)
         {
@@ -43,8 +39,9 @@ public class EnemySystem : ASystem, IOnUpdate
             return;
         }
 
-        enemy.Equip(gameStat.gunFacade.GetGunInstance(weaponDataArray[0].Data));
-        enemy.transform.SetParent(gameStat.enemyParent);
+        I_Data_Item weaponData = weaponDataArray[0].Data;
+
+        enemy.Equip(gameStat.gunFacade.GetGunInstance(weaponData));
     }
 #endregion
 }
