@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
-using UnityDebugSheet.Runtime.Core.Scripts;
+//using UnityDebugSheet.Runtime.Core.Scripts;
 
 public class Item_GUI : A_Item_GUI, IObject
 {
