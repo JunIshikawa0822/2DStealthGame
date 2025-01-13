@@ -118,20 +118,20 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             case IBandit.BanditStatus.Usual : 
                 _statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
             
-                StartSearchAround(0.5f); 
+                StartFindTarget(0.5f); 
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; 
                 _currentAction.Value = IBandit.BanditAction.Standing; 
                 break;
             case IBandit.BanditStatus.Warn : 
                 _statusText.text = $"<color=#{0xFF0000FF:X}>{_currentStatus.Value.ToString()}</color>";
 
-                StartSearchAround(0.2f);
+                StartFindTarget(0.2f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Attacking;
                 break;
             case IBandit.BanditStatus.Caution : 
                 _statusText.text = $"<color=#{0xFFFF00FF:X}>{_currentStatus.Value.ToString()}</color>";
 
-                StartSearchAround(0.35f);
+                StartFindTarget(0.35f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; break;
             default : break;
         }
@@ -183,21 +183,21 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     }
 
     //Statusが変化するたびに呼ばれる 
-    private void StartSearchAround(float interval)
+    private void StartFindTarget(float interval)
     {
         _disposablesByStatus.Clear();
 
         //float interval = GetSearchInterval(ref status);
 
-        //statusに応じたインターバルで周囲を探索する
+        //statusに応じたインターバルで視界内を探索する
         Observable.Interval(System.TimeSpan.FromSeconds(interval)).Subscribe(_ =>
             {
-                SearchAround();
+                FindTarget();
             })
             .AddTo(_disposablesByStatus, this);
     }
 
-    private void SearchAround()
+    private void FindTarget()
     {
         List<Transform> objectList = _enemyFieldOfView.FindTargets();
         _currentTarget.Value = FindNearestObject(objectList, this.transform);
