@@ -18,18 +18,16 @@ public class Gun_7_62mm_CreateConcreteFactory : IGunFactory
         if(data is Handgun_Data)
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(data.ShotVelocity, data.ShotInterval);
             newGun = handgun;
         }
         else
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(700, 0.5f);
             newGun = handgun;
         }
 
         A_Item_Data baseData = data as A_Item_Data;
-        newGun.OnSetUp(_objectPool, baseData.ItemName);
+        newGun.OnSetUp(_objectPool);
 
         return newGun;
     }

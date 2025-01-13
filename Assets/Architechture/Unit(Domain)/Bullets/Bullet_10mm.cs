@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Threading;
 using Unity.VisualScripting;
-public class Bullet_10mm : ABullet, IItem
+public class Bullet_10mm : ABullet, IObject
 {
     [SerializeField]
     float _lifeDistance;

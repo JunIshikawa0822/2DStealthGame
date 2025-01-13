@@ -24,7 +24,8 @@ public class InGameManager : MonoBehaviour
             new UISystem(),
             new EnemySystem(),
             new ItemSystem(),
-            new InventorySystem(),
+            //new InventorySystem(),
+            new TetrisInventorySystem()
         };
 
         _allUpdateSystemsList = new List<IOnUpdate>();

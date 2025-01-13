@@ -1,22 +1,24 @@
 using System.Diagnostics;
 using R3;
 using UnityEngine;
-public class Food : IItem
+public class Food : IObject
 {
     float _hpHealPoint;
     float _sanityHealPoint;
     float _useTime;
     string _foodName;
 
-    public string Name{get;set;}
+    public string Name{get => _foodName;}
 
-    public Food(Food_Data data)
+    public Food(I_Data_Item data)
     {
-        _hpHealPoint = data.hpHealPoint;
-        _sanityHealPoint = data.sanityHealPoint;
-        _useTime = data.useTime;
-        _foodName = data.ItemName;
-        Name = data.ItemName;
+        if(data is Data_Fixed_Food foodData)
+        {
+            _hpHealPoint = foodData.HPHealPoint;
+            _sanityHealPoint = foodData.SanityHealPoint;
+            _useTime = foodData.UseTime;
+            _foodName = data.ItemName;
+        }
     }
 
     public virtual void ItemUse()

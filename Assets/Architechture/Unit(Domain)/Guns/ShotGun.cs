@@ -2,13 +2,10 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
-public class Shotgun : AGun, IItem
+public class Shotgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------
-    private float _muzzleVelocity = 700f;
-    private float _shotInterval = 0.5f;
-
     private int _simulNum; 
     private float _spreadAngle;
     //----------------------------------------
@@ -16,7 +13,7 @@ public class Shotgun : AGun, IItem
     [SerializeField]
     private Transform _muzzlePosition;
     //private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool _objectPool;
+    //private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -27,28 +24,26 @@ public class Shotgun : AGun, IItem
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+    public override Entity_Magazine Magazine{get => _magazine;}
     //----------------------------------------
-    public string Name{get;set;}
-    public override void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
-        _objectPool = objectPool;
-
+        base.OnSetUp(objectPool);
         // _muzzleFlashRenderer = GetComponent<LineRenderer>();
         // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
-
-        Name = name;
     }
 
-    public void ShotgunInit(float velocity, float shotInterval, int simulNum, float spreadAngle)
+    public override void Init(I_Data_Gun data)
     {
-        _muzzleVelocity = velocity;
-        _shotInterval = shotInterval;
-        _simulNum = simulNum;
-        _spreadAngle = spreadAngle;
+        base.Init(data);
+
+        if(!(data is I_Data_Shotgun shotgunData))return;
+        _simulNum = shotgunData.SimulNum;
+        _spreadAngle = shotgunData.SpreadAngle;
     }
 
     public void OnUpdate()
@@ -176,15 +171,5 @@ public class Shotgun : AGun, IItem
     //         tokenSource.Dispose();
     //         tokenSource = null;
     //     }
-    // }
-
-    public override Entity_Magazine GetMagazine()
-    {
-        return _magazine;
-    }
-
-    // public override void ObjectActive(bool isActive)
-    // {
-    //     this.gameObject.SetActive(isActive);
     // }
 }

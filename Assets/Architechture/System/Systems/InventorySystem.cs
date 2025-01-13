@@ -36,16 +36,16 @@ public class InventorySystem : ASystem, IOnUpdate
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         
-        gameStat.inventoryList[0].itemInstantiateEvent += InstantiateGUI;
-        gameStat.inventoryList[1].itemInstantiateEvent += InstantiateGUI;
-        gameStat.inventoryList[2].itemInstantiateEvent += InstantiateGUI;
-        gameStat.inventoryList[3].itemInstantiateEvent += InstantiateGUI;
+        // gameStat.inventoryList[0].itemInstantiateEvent += InstantiateGUI;
+        // gameStat.inventoryList[1].itemInstantiateEvent += InstantiateGUI;
+        // gameStat.inventoryList[2].itemInstantiateEvent += InstantiateGUI;
+        // gameStat.inventoryList[3].itemInstantiateEvent += InstantiateGUI;
 
-        gameStat.inventoryList[2].onInsertEvent += EquipmentInsert;
-        gameStat.inventoryList[2].onRemoveEvent += EquipmentRemove;
+        // gameStat.inventoryList[2].onInsertEvent += EquipmentInsert;
+        // gameStat.inventoryList[2].onRemoveEvent += EquipmentRemove;
 
-        gameStat.inventoryList[3].onInsertEvent += EquipmentInsert;
-        gameStat.inventoryList[3].onRemoveEvent += EquipmentRemove;
+        // gameStat.inventoryList[3].onInsertEvent += EquipmentInsert;
+        // gameStat.inventoryList[3].onRemoveEvent += EquipmentRemove;
 
         InventoryPanelActive(gameStat.isInventoryPanelActive);
     }
@@ -65,11 +65,11 @@ public class InventorySystem : ASystem, IOnUpdate
         //Storageの中身をロード/アンロード
         if(isActive) 
         {
-            gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
-            gameStat.inventoryList[1].OpenInventory(gameStat.otherStorage);
+            // gameStat.inventoryList[0].OpenInventory(gameStat.playerStorage);
+            // gameStat.inventoryList[1].OpenInventory(gameStat.otherStorage);
 
-            gameStat.inventoryList[2].OpenInventory(gameStat.playerStorage);
-            gameStat.inventoryList[3].OpenInventory(gameStat.playerStorage);
+            // gameStat.inventoryList[2].OpenInventory(gameStat.playerStorage);
+            // gameStat.inventoryList[3].OpenInventory(gameStat.playerStorage);
         }
         else 
         {
@@ -84,8 +84,8 @@ public class InventorySystem : ASystem, IOnUpdate
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log(gameStat.playerStorage.WeaponArray);
-            Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ObjectData.ItemName)));
+            // Debug.Log(gameStat.playerStorage.WeaponArray);
+            // Debug.Log(string.Join(", ", gameStat.playerStorage.WeaponArray.Select(w => w.ObjectData.ItemName)));
         }
 
         if(_draggingObject != null)

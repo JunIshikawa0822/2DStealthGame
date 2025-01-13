@@ -1,96 +1,191 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerEquipInventory : MonoBehaviour
+public class PlayerEquipInventory : A_Inventory
 {
-    //private RectTransform container;
-    // [SerializeField]
-    // private RectTransform background;
-    private RectTransform inventoryRectTransform;
-    private Vector3[] _corners;
+    private RectTransform _rectTransform;
 
     [SerializeField]
-    private Image image;
+    private RectTransform _container;
+    [SerializeField]
+    private RectTransform _background;
+    private IStorage _openningStorage;
+    private IObjectPool _guiPool;
+    private A_Item_GUI _gui_Item;
 
-    private Item_GUI _item;
-    private AGun gun;
+    [Range(0, 1), SerializeField, Header("1, 2どちらにアクセスするか")]
+    private int _accessIndex;
 
-    
+    [SerializeField]
+    private float _cellSize;
+
+    private event Action<int, I_Data_Item> _onInsertEvent;
+    private event Action<int, I_Data_Item> _onRemoveEvent;
+
+    public override Action<int, I_Data_Item> InsertAction{get => _onInsertEvent; set => _onInsertEvent += value;}
+    public override Action<int, I_Data_Item> RemoveAction{get => _onRemoveEvent; set => _onRemoveEvent += value;}
     void Awake()
     {
-        inventoryRectTransform = this.GetComponent<RectTransform>();
-        _corners = new Vector3[4];
-        inventoryRectTransform.GetWorldCorners(_corners);
-
-        _item = null;
+        _rectTransform = GetComponent<RectTransform>();
     }
 
-    public bool CanPlaceItem(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
+    public override void Init(IObjectPool objectPool)
     {
-        if(item.ItemData is IGunData)return false;
-        if(item.ItemDirection != Item_GUI.ItemDir.Down)return false;
+        _guiPool = objectPool;
+    }
+
+    public override void OpenInventory(IStorage storage)
+    {
+        if(storage == null)
+        {
+            Debug.Log(this.gameObject.name + " :Storageを開けられません");
+            return;
+        }
+
+        _openningStorage = storage;
+
+        foreach(IInventoryItem item in storage.GetItems())
+        {
+            if(item == null)return;
+            LoadItem(item);
+        }
+    }
+
+    public override void CloseInventory()
+    {
+        if(_openningStorage == null)
+        {
+            Debug.Log("Storageを閉められません");
+            return;
+        }
+
+        for(int i = 0; i < _container.childCount; i++)
+        {
+            Destroy(_container.transform.GetChild(i).gameObject);
+        }
+
+        _openningStorage = null;
+    }
+    
+    private void LoadItem(IInventoryItem inventoryItem)
+    {
+        A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
+
+        if(gui == null)return;
+
+        gui.OnSetUp();
+        gui.Init(inventoryItem);
+
+        if(_gui_Item == null)
+        {
+            Vector3 newPosition = _container.position;
+
+            gui.Item.Address = new CellNumber(0, 0);
+            gui.Item.Direction = IInventoryItem.ItemDir.Down;
+
+            InsertItem(gui, gui.Item.Address, gui.Item.Direction);
+
+            gui.SetParent(_container);
+
+            gui.SetScale(new Vector3(1, 1, 1));
+
+            gui.SetPivot(IInventoryItem.ItemDir.Middle);
+            gui.SetPosition(newPosition);
+            gui.SetRotation(IInventoryItem.ItemDir.Middle);
+            gui.SetImageSize(_cellSize);
+        }
+    }
+
+    public override bool CanPlaceItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
+    {
+        //Debug.Log("検証開始");
+        bool canPlace = false;
+
+        if(direction != IInventoryItem.ItemDir.Down) return false;
+        //Debug.Log("向きは大丈夫");
+        if(_gui_Item != null)return false;
+        //Debug.Log("guiは大丈夫");    
+        if(insertGUI.Item.Data is I_Data_Gun)
+        {
+            if(origin.x == 0 && origin.y == 0)
+            {
+                canPlace = true;
+            }
+        }
+        return canPlace;
+    }
+
+    public override uint InsertItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
+    {
+        _gui_Item = insertGUI;
+        
+        insertGUI.Item.Address = origin;
+        insertGUI.Item.Direction = direction;
+
+        insertGUI.SetParent(_container);
+
+        insertGUI.SetScale(new Vector3(1, 1, 1));
+
+        insertGUI.SetPivot(IInventoryItem.ItemDir.Middle);
+        insertGUI.SetPosition(_container.transform.position);
+        insertGUI.SetRotation(IInventoryItem.ItemDir.Down);
+        insertGUI.SetImageSize(_cellSize);
+
+        _openningStorage.Add(insertGUI.Item);
+
+        _onInsertEvent?.Invoke(_accessIndex, insertGUI.Item.Data);
+        return 0;
+    }
+
+    public override void RemoveItem(CellNumber origin)
+    {
+        if(_gui_Item == null) return;
+        _openningStorage.Remove(_gui_Item.Item);
+
+        _gui_Item = null;
+
+        _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item.Data);
+    }
+
+    public override bool IsCollide(A_Item_GUI gui)
+    {
+        Vector3[] inventoryRect = new Vector3[4];
+        _rectTransform.GetWorldCorners(inventoryRect);
+
+        Vector3[] guiRect = new Vector3[4];
+        gui.RectTransform.GetWorldCorners(guiRect);
+
+        //重なっていない
+        if(guiRect[0].x >= inventoryRect[2].x 
+        || guiRect[2].x <= inventoryRect[0].x 
+        || guiRect[0].y >= inventoryRect[2].y 
+        || guiRect[2].y <= inventoryRect[0].y) return false;
+
+        float threshold = 0.4f;
+
+        //重なっているとき
+        float overlapX1 = Mathf.Max(guiRect[0].x, inventoryRect[0].x);
+        float overlapY1 = Mathf.Max(guiRect[0].y, inventoryRect[0].y);
+
+        float overlapX2 = Mathf.Max(guiRect[2].x, inventoryRect[2].x);
+        float overlapY2 = Mathf.Max(guiRect[2].y, inventoryRect[2].y);
+
+        float overlapWidth = overlapX1 * overlapX2;
+        float overlapHeight = overlapY1 * overlapY2;
+
+        float overlapArea = Mathf.Max(0, overlapWidth) * Mathf.Max(0, overlapHeight);
+        float guiArea = (guiRect[2].x - guiRect[0].x) * (guiRect[2].y - guiRect[0].y);
+
+        if(overlapArea < guiArea * threshold) return false;
+
         return true;
     }
 
-    public void DecreaseItemNum(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction, uint num)
+    public override CellNumber ScreenPosToCellNum(Vector2 pos)
     {
-        
+        return new CellNumber(0, 0);
     }
-
-
-    // public uint InsertItemToInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    // {
-    //     _item = item;
-
-    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
-    //     item.RectTransform.SetParent(inventoryRectTransform);
-    //     item.SetPivot(Item_GUI.ItemDir.Middle);
-    //     item.SetPosition(transform.position);
-    //     image.GetComponent<RectTransform>().position = transform.position;
-    //     item.SetRotation(direction);
-    //     Debug.Log("Equip!");
-    //     return 0;
-    // }
-
-    // public uint InsertItemToInventory(Item_GUI item, CellNumber cellNum, Item_GUI.ItemDir direction)
-    // {
-    //     _item = item;
-
-    //     item.SetBelongings(this, inventoryRectTransform.position, direction);
-    //     item.RectTransform.SetParent(inventoryRectTransform);
-    //     item.SetPivot(Item_GUI.ItemDir.Middle);
-    //     item.SetAnchorPosition(transform.position);
-    //     item.SetRotation(direction);
-    //     return 0;
-    // }
-
-    public void RemoveItemFromInventory(Item_GUI item, Vector3 originPos, Item_GUI.ItemDir direction)
-    {
-        _item = null;
-    }
-
-    public void RemoveItemFromInventory(CellNumber cellNum)
-    {
-        
-    }
-
-    public bool IsValid(Vector3 pos)
-    {
-        float min_x = _corners[0].x;
-        float max_x = _corners[2].x;
-        float min_y = _corners[0].y;
-        float max_y = _corners[2].y;
-
-        //image.transform.position = new Vector3(min_x, min_y, 0);
-
-        if(pos.x < max_x && pos.x > min_x && pos.y < max_y && pos.y > min_y)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
 }

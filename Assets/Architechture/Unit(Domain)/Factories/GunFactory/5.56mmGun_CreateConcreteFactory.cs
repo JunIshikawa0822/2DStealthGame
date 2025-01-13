@@ -12,7 +12,9 @@ public class Gun_5_56mm_CreateConcreteFactory : IGunFactory
         _handgun = handgun;
     }
 
-    public IItem ObjectInstantiate()
+
+
+    public IObject ObjectInstantiate()
     {
         return null;
     }
@@ -23,18 +25,17 @@ public class Gun_5_56mm_CreateConcreteFactory : IGunFactory
         if(data is Handgun_Data)
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(data.ShotVelocity, data.ShotInterval);
             newGun = handgun;
         }
         else
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(700, 0.5f);
             newGun = handgun;
         }
 
-        A_Item_Data baseData = data as A_Item_Data;
-        newGun.OnSetUp(_objectPool, baseData.ItemName);
+        //A_Item_Data baseData = data as A_Item_Data;
+        newGun.OnSetUp(_objectPool);
+        //newGun.Init(d)
 
         return newGun;
     }
