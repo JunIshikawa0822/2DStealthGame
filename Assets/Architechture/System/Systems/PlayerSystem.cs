@@ -72,7 +72,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         if(vector == Vector2.zero)return;
 
-        _player.Move(vector);
+        //_player.Move(vector);
     }
 
     private Vector2 RotateVec(Vector2 baseVec, float rotateAngle)

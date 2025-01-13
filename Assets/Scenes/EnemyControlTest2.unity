@@ -32810,6 +32810,11 @@ PrefabInstance:
       propertyPath: _playerMoveForce
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 5596895097108175491, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7944571613810100279, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_Enabled

@@ -219,7 +219,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void Move()
     {
-        //ランダムな移動
+        
     }
 
     public override void Rotate()
