@@ -2,24 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 public class GunFacade
 {
-    //Dictionary<int, GunCategory> _gunCategoriesDic;
-
-    private List<IGunFactory> _gunFactories;
-    private List<GunCategory> categories;
+    private List<ICustomizeFactory> _gunFactories;
+    private List<ICategory<AGun>> categories;
     private Transform _facadeTrans;
 
-    public GunFacade(List<IGunFactory> gunFactories, Transform facadeTrans)
+    public GunFacade(List<ICustomizeFactory> gunFactories, Transform facadeTrans)
     {
         _gunFactories = gunFactories;
         _facadeTrans = facadeTrans;
 
-        categories = new List<GunCategory>();
+        categories = new List<ICategory<AGun>>();
 
         AddCategory("Handgun", _gunFactories[0]);
         AddCategory("Shotgun", _gunFactories[1]);
     }
 
-    private void AddCategory(string name, IGunFactory gunFactory)
+    private void AddCategory(string name, ICustomizeFactory gunFactory)
     {
         GameObject parent = new GameObject(name);
         parent.transform.SetParent(_facadeTrans);
@@ -27,17 +25,17 @@ public class GunFacade
         categories.Add(new GunCategory(name, gunFactory, parent.transform));
     }
 
-    public AGun GetGunInstance(IGunData gunData)
+    public AGun GetGunInstance(I_Data_Item data)
     {
-        //Debug.Log("呼ばれた");
-
         AGun gun = null;
+        if(!(data is I_Data_Gun gunData))return null;
 
         switch(gunData)
         {
-            case Handgun_Data handgunData : gun = categories[0].GetInstance(gunData);break;
+            case I_Data_HandGun : gun = categories[0].GetInstance(data);break;
+            case I_Data_Shotgun : gun = categories[1].GetInstance(data);break;
 
-            case Shotgun_Data shotgunData : gun = categories[1].GetInstance(gunData);break;
+            default : return null;
         }
 
         gun.gameObject.SetActive(true);
@@ -47,10 +45,11 @@ public class GunFacade
     public void ReturnGunInstance(AGun gun)
     {
         gun.gameObject.SetActive(false);
-        switch(gun.GunData)
+
+        switch(gun.Data)
         {
-            case Handgun_Data handgunData: categories[0].ReturnToList(gun); break;
-            case Shotgun_Data shotgunData: categories[1].ReturnToList(gun); break;
+            case I_Data_HandGun : categories[0].Return(gun); break;
+            case I_Data_Shotgun : categories[1].Return(gun); break;
         }
     }
 }

@@ -5,8 +5,7 @@ using UnityEngine;
 public abstract class AEnemy : AEntity
 {
      //[HideInInspector]
-    protected Storage _enemyStorage;
-    public Storage Storage{get => _enemyStorage;}
+    public abstract IStorage WeaponStorage{get;}
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
         Transform nearestObject = null;
@@ -24,4 +23,10 @@ public abstract class AEnemy : AEntity
 
         return nearestObject;
     }
+    public abstract void Move();
+    public abstract void Rotate();
+    public abstract void Attack();
+    public abstract void Reload(AGun gun, Entity_Magazine magazine);
+    public abstract void Hide();
+    public abstract void Equip(AGun gun);
 }

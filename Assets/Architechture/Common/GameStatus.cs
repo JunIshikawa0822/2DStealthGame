@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using UniRx;
 using UnityEngine.UI;
 using Microsoft.Unity.VisualStudio.Editor;
 
@@ -13,9 +12,15 @@ public class GameStatus
     public Action onPlayerAttackEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
+    public Action onSelectGunChange;
 
+    #region 不使用
     public Action<int, ItemData> onEquipEvent;
     public Action<int> onUnEquipEvent;
+    #endregion
+
+    public Action<int, I_Data_Item> onPlayerEquipEvent;
+    public Action<int, I_Data_Item> onPlayerUnEquipEvent;
 
     [Header("Inputs")]
     public Vector2 moveDirection = Vector2.zero;
@@ -27,10 +32,8 @@ public class GameStatus
 
     [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;
-    [HideInInspector]public ReactiveCollection<AGun> playerGunsArray = new ReactiveCollection<AGun>(new AGun[2]);
-    [HideInInspector]public ReactiveProperty<int> selectingGunsArrayIndex = new ReactiveProperty<int>(0);
-
-    public ReactiveCollection<AGun> playerGunArray = new ReactiveCollection<AGun>(new AGun[2]);
+    [HideInInspector]public AGun[] playerGunsArray  = new AGun[2];
+    [HideInInspector]public int selectingGunsArrayIndex = 0;
 
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
@@ -44,15 +47,12 @@ public class GameStatus
     public Enemy_Bandit_Controller bandit;
 
     [Header("ItemData")]
-    public ScriptableObject[] itemDataArray;
-    
-    public Food_Data[] foodDataArray;
-    public Medicine_Data[] medicineDataArray;
 
-    public Handgun_Data[] handgunDataArray;
-    public Rifle_Data[] rifleDataArray;
-    public Shotgun_Data[] shotgunDataArray;
-    public SubMachinegun_Data[] subMachinegunDataArray;
+    public Data_Fixed_Food[] data_Fixed_Food_Array;
+    public Data_Fixed_Medicine[] data_Fixed_Medicine_Array;
+    public Data_Fixed_Handgun[] data_Fixed_Handgun_Array;
+    public Data_Fixed_Rifle[] data_Fixed_Rifle_Array;
+    public Data_Fixed_Shotgun[] data_Fixed_Shotgun_Array;
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
@@ -64,18 +64,28 @@ public class GameStatus
     public LineRenderer shotLineRenderer;
     public TextMeshProUGUI ammoText;
     public Slider playerHPSlider;
+    public Transform item_GUI_PoolTrans;
 
     [Header("UGUI")]
     public Canvas canvas;
     //public PlayerEquipInventory equipInventory1;
     //public PlayerEquipInventory equipInventory2; 
-
-    public List<AInventory> inventoryList = new List<AInventory>();
     //public Inventory inventory1;
     //public Inventory inventory2;
+
+    #region 不使用
+    public List<AInventory> inventoryList = new List<AInventory>();
     public GUI_Item gui_Item_Prefab;
-    public Storage playerStorage;
-    public Storage otherStorage = null;
+    #endregion
+
+    public List<A_Inventory> inventories = new List<A_Inventory>();
+    public Item_GUI item_GUI_Prefab;
+
+    //[HideInInspector]public Storage playerStorage;
+    //[HideInInspector]public Storage otherStorage = null;
+    [HideInInspector]public IStorage playerStorage = null;
+    [HideInInspector]public IStorage otherStorage = null;
+    [HideInInspector]public IStorage[] weaponStorages = new WeaponStorage[2];
 
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
@@ -88,10 +98,8 @@ public class GameStatus
     [Header("Facade")]
     public Transform gunInstanceParent;
 
-
     public ItemFacade itemFacade;
     public GunFacade gunFacade;
-    
 
     //public List<IGunFactory> gunFactoriesList;
 

@@ -16,27 +16,32 @@ public class EnemySystem : ASystem, IOnUpdate
         
     }
 
-#region やっつけ
+#region このままでいいのかな
     public void EnemyObjectInstantiate(Vector3 pos)
     {
         // Debug.Log("つくった");
         #region 銃の割り当て
         Enemy_Bandit_Controller enemy = GameObject.Instantiate(gameStat.bandit, pos, Quaternion.identity);
         //IGun gun = GameObject.Instantiate(gameStat.Pistol1);
-
-        //gun.Reload(new Entity_Magazine(10, 10));
-        //gun.OnSetUp(gameStat.bullet_10mm_ObjectPool);
-        
         #endregion
         
         enemy.OnSetUp(new Entity_HealthPoint(100, 100));
 
-        // Debug.Log(enemy.Storage.WeaponArray[0]);
+        Debug.Log(enemy.WeaponStorage);
+        
+        IInventoryItem[] weaponDataArray = enemy.WeaponStorage.GetItems();
 
-        IGunData gunData = enemy.Storage.TestWeaponData[0] as IGunData;
-        enemy.Equip(gameStat.gunFacade.GetGunInstance(gunData));
+        if(weaponDataArray == null || weaponDataArray[0] == null)
+        {
+            Debug.LogWarning("武器のデータを入れてください");
 
-        enemy.transform.SetParent(gameStat.enemyParent);
+            //武器のデータを入れる処理
+            return;
+        }
+
+        I_Data_Item weaponData = weaponDataArray[0].Data;
+
+        enemy.Equip(gameStat.gunFacade.GetGunInstance(weaponData));
     }
 #endregion
 }

@@ -9,24 +9,27 @@ public class Bullet_7_62mm_CreateConcreteFactory : IFactory
         _bullet = bullet;
     }
 
-    public IItem ObjectInstantiate()
+    public IObject ObjectInstantiate()
     {
         Bullet_7_62mm bulletInstance = GameObject.Instantiate(_bullet);
         //bulletInstance.OnSetUp();
         
-        return bulletInstance as IItem;
+        return bulletInstance as IObject;
     }
 
-    public IItem ObjectInstantiate(A_Item_Data data)
+    public IObject ObjectInstantiate(A_Item_Data data)
     {
         Bullet_7_62mm bulletInstance = GameObject.Instantiate(_bullet);
         //bulletInstance.OnSetUp();
         
-        return bulletInstance as IItem;
+        return bulletInstance as IObject;
     }
 
-    public Type GetFactoryType()
+    public IObject ObjectInstantiate(I_Data_Item data)
     {
-        return typeof(Bullet_7_62mm);
+        Bullet_7_62mm bulletInstance = GameObject.Instantiate(_bullet);
+        //bulletInstance.OnSetUp();
+        
+        return bulletInstance as IObject;
     }
 }

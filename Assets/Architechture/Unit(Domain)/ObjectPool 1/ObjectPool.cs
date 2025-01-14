@@ -69,7 +69,7 @@ public class MyObjectPool<T> : IObjectPool where T : APooledObject
         return nextInstance;
     }
 
-    public T ObjectInstantiate()
+    private T ObjectInstantiate()
     {
         T instance = _factory.ObjectInstantiate() as T;
         if(instance == null)return null;

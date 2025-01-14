@@ -22,8 +22,12 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private bool isFighting;
 
     AGun _enemyGun;
-
     FOV _enemyFieldOfView;
+
+    [SerializeField]private NormalStorage _enemyStorage;
+    [SerializeField]private WeaponStorage _enemyWeaponStorage;
+    public override IStorage Storage {get => _enemyStorage;}
+    public override IStorage WeaponStorage {get => _enemyWeaponStorage;}
 
     //private FindOpponent _enemyFindView;
 
@@ -57,7 +61,6 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             return;
         }
 
-        _enemyStorage = GetComponent<Storage>();
         _enemyFieldOfView = GetComponent<FOV>();
         //EntityMeshDisable();
         //Debug.Log(_entityRenderer);
@@ -214,12 +217,12 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     //     }
     // }
 
-    public void Move()
+    public override void Move()
     {
         //ランダムな移動
     }
 
-    public void Rotate()
+    public override void Rotate()
     {
         if(_currentTarget.Value == null)return;
         Quaternion targetRotation = Quaternion.LookRotation(_currentTarget.Value.position - _entityTransform.position);
@@ -230,12 +233,14 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     {
         _disposablesByBattleAction.Clear();
 
+        if(_enemyWeaponStorage == null) return;
+        if(_enemyGun == null)return;
         //statusに応じたインターバルで周囲を探索する
         Observable.Interval(System.TimeSpan.FromSeconds(interval))
             .TakeWhile(_ => _currentBattleAction.Value == IBandit.BanditBattleAction.Attacking)
             .Subscribe(_ =>
             {
-                if(_enemyGun.GetMagazine().MagazineRemaining > 0)
+                if(_enemyGun.Magazine.MagazineRemaining > 0)
                 {
                     Attack();
                 }
@@ -247,12 +252,12 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             .AddTo(_disposablesByBattleAction, this);
     }
 
-    public void Attack()
+    public override void Attack()
     {
         _enemyGun.Shot();
     }
 
-    public void Hide()
+    public override void Hide()
     {
        //攻撃された状態のとき一定間隔で
        //HPが一定以下になったら
@@ -261,7 +266,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
        //隠れる行動
     }
 
-    public void Reload(AGun gun, Entity_Magazine magazine)
+    public override void Reload(AGun gun, Entity_Magazine magazine)
     {
         //リロード
         if(_isEntityActionInterval)return;
@@ -271,8 +276,9 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, 2f, "リロード").Forget();
     }
 
-    public void Equip(AGun gun)
+    public override void Equip(AGun gun)
     {
+        Debug.Log("こんにちは！！！");
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
         _enemyGun = gun;

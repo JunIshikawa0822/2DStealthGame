@@ -3,19 +3,16 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class Handgun : AGun, IItem
+public class Handgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------
-    private float _muzzleVelocity = 700f;
-    private float _shotInterval = 0.5f;
-    private float _reloadInterval = 2f;
     //----------------------------------------
 
     [SerializeField]
     private Transform _muzzlePosition;
     //private LineRenderer _muzzleFlashRenderer;
-    private IObjectPool _objectPool;
+    //private IObjectPool _objectPool;
 
     //----------------------------------------
     private bool _isShotIntervalActive;
@@ -27,27 +24,27 @@ public class Handgun : AGun, IItem
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+
+    public override Entity_Magazine Magazine{get => _magazine;}
     //----------------------------------------
 
-    public override void OnSetUp(IObjectPool objectPool, string name)
+    public override void OnSetUp(IObjectPool objectPool)
     {
         //_bulletFactories = bulletFactories;
-        _objectPool = objectPool;
-
+        base.OnSetUp(objectPool);
         // _muzzleFlashRenderer = GetComponent<LineRenderer>();
         // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
-
-        Name = name;
-        ReloadTime = _reloadInterval;
     }
 
-    public void HandGunInit(float velocity, float shotInterval)
+    public override void Init(I_Data_Gun data)
     {
-        _muzzleVelocity = velocity;
-        _shotInterval = shotInterval;
+        base.Init(data);
+
+        if(!(data is I_Data_HandGun handgunData)) return;
+        
     }
 
     public void OnUpdate()
@@ -156,10 +153,5 @@ public class Handgun : AGun, IItem
         {
             action?.Invoke();
         }
-    }
-
-    public override Entity_Magazine GetMagazine()
-    {
-        return _magazine;
     }
 }

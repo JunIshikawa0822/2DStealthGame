@@ -74,15 +74,22 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnPlayerSelectingIndexChangeFromKey(InputAction.CallbackContext context)
     {
+        Debug.Log(context.control.name);
+        Debug.Log("選択前" + gameStat.selectingGunsArrayIndex);
+
         string pressedKey = context.control.name;
         if(int.TryParse(pressedKey, out int index))
         {
-            gameStat.selectingGunsArrayIndex.Value = index - 1;
+            gameStat.selectingGunsArrayIndex = index - 1;
         }
         else
         {
             Debug.Log($"{pressedKey}は無効なキー入力です");
         }
+
+        Debug.Log("選択後" + gameStat.selectingGunsArrayIndex);
+
+        gameStat.onSelectGunChange?.Invoke();
     }
 
     private void OnInventoryInput(InputAction.CallbackContext context)

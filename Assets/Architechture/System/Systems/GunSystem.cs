@@ -5,7 +5,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
 {
     //private IPlayer _player;
     List<IObjectPool> _objectPools;
-    List<IGunFactory> _gunFactoriesList;
+    List<ICustomizeFactory> _gunFactoriesList;
     //Dictionary<IGunData.CaliberTypes, IGunFactory> _gunFactoriesDic;
     public override void OnSetUp()
     {
@@ -31,7 +31,7 @@ public class GunSystem : ASystem, IOnFixedUpdate
             objectPool.PoolSetUp(20);
         }
 
-        _gunFactoriesList = new List<IGunFactory>
+        _gunFactoriesList = new List<ICustomizeFactory>
         {
             new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
             new ShotGun_CreateConcreteFactory(gameStat.shotgunPrefabs, _objectPools)

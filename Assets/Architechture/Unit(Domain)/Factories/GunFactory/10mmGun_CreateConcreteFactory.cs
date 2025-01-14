@@ -19,7 +19,6 @@ public class Gun_10mm_CreateConcreteFactory : IGunFactory
         if(data is Handgun_Data)
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(data.ShotVelocity, data.ShotInterval);
 
             handgun.Reload(new Entity_Magazine(data.MaxAmmoNum, 0));
             newGun = handgun;
@@ -27,14 +26,13 @@ public class Gun_10mm_CreateConcreteFactory : IGunFactory
         else
         {
             Handgun handgun = GameObject.Instantiate(_handgun);
-            handgun.HandGunInit(700, 0.5f);
 
             handgun.Reload(new Entity_Magazine(data.MaxAmmoNum, 0));
             newGun = handgun;
         }
 
         A_Item_Data baseData = data as A_Item_Data;
-        newGun.OnSetUp(_objectPool, baseData.ItemName);
+        newGun.OnSetUp(_objectPool);
         return newGun;
     }
 }

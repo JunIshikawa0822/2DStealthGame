@@ -17,22 +17,30 @@ public class PlayerController : AEntity
     //private Entity_HealthPoint _playerHP;
 
     public Transform equipPos;
+    public Transform subPos;
 
     [SerializeField] private float _playerMoveForce = 50;
 
-    private FOV _fieldOfView;
+    //private FOV _fieldOfView;
     private Animator _playerAnimator;
+
+    public override IStorage Storage{get => _playerStorage;}
+    public IStorage PlayerWeaponStorage1{get => _weaponStorage1;}
+    public IStorage PlayerWeaponStorage2{get => _weaponStorage2;}
+    [SerializeField] WeaponStorage _weaponStorage1;
+    [SerializeField] WeaponStorage _weaponStorage2;
+    [SerializeField] NormalStorage _playerStorage;
     //private AGun[] _playerGunsArray;
     //private int _selectingGunsArrayIndex;
     //private CompositeDisposable _disposablesByLifeCycle;
 
-    public Action<Storage> storageFindEvent;
-    public Action<Storage> leaveStorageEvent;
+    [HideInInspector]public Action<IStorage> storageFindEvent;
+    [HideInInspector]public Action<IStorage> leaveStorageEvent;
     public override void OnSetUp(Entity_HealthPoint playerHP)
     {
         base.OnSetUp(playerHP);
 
-        _fieldOfView = GetComponent<FOV>();
+        //_fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();
     }
 
@@ -104,6 +112,8 @@ public class PlayerController : AEntity
         gun.Shot();
 
         _playerAnimator.SetTrigger("Shot");
+
+        EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
     }
 
     public void Reload(AGun gun)
@@ -111,15 +121,20 @@ public class PlayerController : AEntity
         if(_isEntityActionInterval)return;
 
         if(gun == null)return;
-        uint max = gun.GunData.MaxAmmoNum;
-        uint current = gun.GunData.MaxAmmoNum;
+        if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
+        
+        uint max = gun.MaxAmmoNum;
+        uint current = gun.MaxAmmoNum;
+
+        Debug.Log(max + "," + current);
         Entity_Magazine magazine = new Entity_Magazine(max, current);
 
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
     }
 
-    public void Equip(AGun gun)
+    public void EquipMotion(AGun gun)
     {
+        Debug.Log("Euipment実行");
         if(gun == null)
         {
             _playerAnimator.SetInteger("Equip", 0);
@@ -127,15 +142,31 @@ public class PlayerController : AEntity
         else
         {
             Debug.Log("nullじゃない");
-            if(gun.GunData is Rifle_Data)_playerAnimator.SetInteger("Equip", 2);
-            else if(gun.GunData is Handgun_Data)_playerAnimator.SetInteger("Equip", 1);
+            if(gun.Data is I_Data_Rifle)_playerAnimator.SetInteger("Equip", 2);
+            else if(gun.Data is I_Data_HandGun)_playerAnimator.SetInteger("Equip", 1);
             else _playerAnimator.SetInteger("Equip", 2);
+
+            Debug.Log(equipPos);
+            gun.gameObject.SetActive(true);
+            gun.transform.SetParent(equipPos);
+            gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
         }
+    }
 
-        if(gun == null)return;
-
-        gun.transform.SetParent(equipPos);
-        gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
+    public void UnEquipMotion(AGun gun)
+    {
+        Debug.Log("UnEquip");
+        if(gun == null)
+        {
+            _playerAnimator.SetInteger("Equip", 0);
+            return;
+        }
+        else
+        {
+            gun.gameObject.SetActive(false);
+            gun.transform.SetParent(subPos);
+            gun.transform.SetPositionAndRotation(subPos.position, this.transform.rotation);
+        }
     }
 
     public override void OnDamage(float damage)
@@ -144,7 +175,7 @@ public class PlayerController : AEntity
 
         Debug.Log(_entityHP.CurrentHp);
 
-        if(_entityHP.CurrentHp <= 0)
+        if(IsEntityDead())
         {
             OnEntityDead();
         }
@@ -153,6 +184,8 @@ public class PlayerController : AEntity
     public override void OnEntityDead()
     {
         Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
+
+        base.OnEntityDead();
     }
 
     public void CancelAction(CancellationTokenSource tokenSource)
@@ -170,13 +203,25 @@ public class PlayerController : AEntity
 
     public void OnTriggerEnter(Collider collider)
     {
-        if(collider.gameObject.tag == "Storage")Debug.Log("Storage見つけた");
-        storageFindEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+        if(collider.gameObject.tag == "Storage")
+        {
+            storageFindEvent?.Invoke(collider.GetComponent<NormalStorage>());
+        }
+        else
+        {
+            //storageFindEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
+        }
     }
 
     public void OnTriggerExit(Collider collider)
     {
-        if(collider.gameObject.tag == "Storage")Debug.Log("Storageから離れた");
-        leaveStorageEvent?.Invoke(collider.gameObject.GetComponent<Storage>());
+        if(collider.gameObject.tag == "Storage")
+        {
+            leaveStorageEvent?.Invoke(collider.GetComponent<NormalStorage>());
+        }
+        else
+        {
+            //leaveStorageEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
+        }
     }
 }
