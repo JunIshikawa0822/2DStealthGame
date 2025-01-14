@@ -28592,8 +28592,8 @@ MonoBehaviour:
     cursorWorldPosition: {x: 0, y: 0, z: 0}
     cursorObject: {fileID: 985123735}
     cursorImage: {fileID: 393601897}
-    selectingGunsArrayIndex:
-      value: 0
+    playerGunsArray: []
+    selectingGunsArrayIndex: 1
     handgunPrefabs:
     - {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
     shotgunPrefabs:
@@ -34676,23 +34676,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5016923181861598370, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+    - target: {fileID: 4468884660953950574, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
-      propertyPath: _playerMoveForce
-      value: 20
+      propertyPath: m_LocalPosition.y
+      value: 2.18
       objectReference: {fileID: 0}
-    - target: {fileID: 7944571613810100279, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+    - target: {fileID: 4468884660953950574, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: m_LocalPosition.z
+      value: -0.46
       objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5104503251638018806, guid: 0502a9a29bee74094ace2fbaf087b0ef, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

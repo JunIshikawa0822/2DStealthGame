@@ -32,9 +32,11 @@ public class WeaponStorage : MonoBehaviour, IStorage
 
     public void Remove(IInventoryItem item)
     {
+        Debug.Log(_weaponArray[0] == item);
+
         int num = Array.IndexOf(_weaponArray, item);
 
-        if(num > 0)
+        if(num >= 0)
         {
             _weaponArray[0] = null;
         }

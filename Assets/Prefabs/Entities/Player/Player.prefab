@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1821103764290059869
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4468884660953950574}
+  m_Layer: 10
+  m_Name: subPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4468884660953950574
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821103764290059869}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 547463796572365423}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2554237825187590438
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,6 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0038a5f9930314fa1ab94e2c02a5296b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _testDataList: []
 --- !u!1 &3398514157598466947
 GameObject:
   m_ObjectHideFlags: 0
@@ -88,6 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0038a5f9930314fa1ab94e2c02a5296b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _testDataList: []
 --- !u!1 &3930723644710183628
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,7 +464,6 @@ GameObject:
   - component: {fileID: 7944571613810100279}
   - component: {fileID: 3825389683501906179}
   - component: {fileID: 5016923181861598370}
-  - component: {fileID: 5104503251638018806}
   - component: {fileID: 8656905598818628961}
   - component: {fileID: 2682329674959188862}
   - component: {fileID: 5596895097108175491}
@@ -463,6 +495,7 @@ Transform:
   - {fileID: 1758302053735934815}
   - {fileID: 3798856512314554231}
   - {fileID: 8662416706798486995}
+  - {fileID: 4468884660953950574}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6222592904637125861
@@ -556,27 +589,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _player_RotateSpeed: 500
   equipPos: {fileID: 176234815862013403}
-  _playerMoveForce: 35
+  subPos: {fileID: 4468884660953950574}
+  _playerMoveForce: 20
   _weaponStorage1: {fileID: 6430242846717665484}
   _weaponStorage2: {fileID: 1260924792362076988}
   _playerStorage: {fileID: 6557725310967243765}
---- !u!114 &5104503251638018806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8944434050612652416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91c2439d7ae3d4cb881cacbc69770e1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testDataArray: []
-  testWeaponDataArray:
-  - {fileID: 0}
-  - {fileID: 0}
-  test: 0
 --- !u!114 &8656905598818628961
 MonoBehaviour:
   m_ObjectHideFlags: 0

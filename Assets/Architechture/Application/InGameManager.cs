@@ -13,19 +13,27 @@ public class InGameManager : MonoBehaviour
     List<IOnFixedUpdate> _allFixedUpdateSystemsList;
 
     List<IOnLateUpdate> _allLateUpdateSystemList;
+
+    public void Init(List<ASystem> systems)
+    {
+        _allSystemsList = systems;
+    }
+
     void Awake()
     {
         _allSystemsList = new List<ASystem>
         {
             //new ShotSystem(),
-            new InputSystem(),
+            
             new GunSystem(),
             new PlayerSystem(),
             new UISystem(),
             new EnemySystem(),
             new ItemSystem(),
             //new InventorySystem(),
-            new TetrisInventorySystem()
+            new TetrisInventorySystem(),
+
+            new InputSystem()
         };
 
         _allUpdateSystemsList = new List<IOnUpdate>();

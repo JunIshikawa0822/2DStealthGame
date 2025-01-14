@@ -134,11 +134,13 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
     public void EquipmentInsert(int index, I_Data_Item data)
     {
+        Debug.Log("Systemもいれたといっている");
         gameStat.onPlayerEquipEvent?.Invoke(index, data);
     }
 
     public void EquipmentRemove(int index, I_Data_Item data)
     {
+        Debug.Log("Systemもぬいたといっている");
         gameStat.onPlayerUnEquipEvent?.Invoke(index, data);
     }
 

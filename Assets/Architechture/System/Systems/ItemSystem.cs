@@ -50,21 +50,6 @@ public class ItemSystem : ASystem, IOnUpdate
 
     public void OnUpdate()
     {
-        if(Input.GetKeyDown(KeyCode.O))
-        {
-            gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
-        }
-
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            gameStat.inventories[0].CloseInventory();
-        }
-
-        if(Input.GetKeyDown(KeyCode.N))
-        {
-            gameStat.itemFacade.CheckRef(100);
-        }
+        
     }
-
-
 }

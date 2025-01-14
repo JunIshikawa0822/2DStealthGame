@@ -21,6 +21,8 @@ public abstract class AEntity : MonoBehaviour
 
     public abstract IStorage Storage{get;}
 
+    public event Action onEntityDeadEvent;
+
     public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint)
     {
         _entityHP = entity_HealthPoint;
@@ -50,7 +52,7 @@ public abstract class AEntity : MonoBehaviour
     }
     public virtual void OnEntityDead()
     {
-        Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
+        onEntityDeadEvent?.Invoke();
     }
 
     public abstract void OnDamage(float damage);

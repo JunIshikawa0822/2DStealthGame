@@ -17,10 +17,11 @@ public class PlayerController : AEntity
     //private Entity_HealthPoint _playerHP;
 
     public Transform equipPos;
+    public Transform subPos;
 
     [SerializeField] private float _playerMoveForce = 50;
 
-    private FOV _fieldOfView;
+    //private FOV _fieldOfView;
     private Animator _playerAnimator;
 
     public override IStorage Storage{get => _playerStorage;}
@@ -39,7 +40,7 @@ public class PlayerController : AEntity
     {
         base.OnSetUp(playerHP);
 
-        _fieldOfView = GetComponent<FOV>();
+        //_fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();
     }
 
@@ -131,8 +132,9 @@ public class PlayerController : AEntity
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
     }
 
-    public void Equip(AGun gun)
+    public void EquipMotion(AGun gun)
     {
+        Debug.Log("Euipment実行");
         if(gun == null)
         {
             _playerAnimator.SetInteger("Equip", 0);
@@ -143,10 +145,28 @@ public class PlayerController : AEntity
             if(gun.Data is I_Data_Rifle)_playerAnimator.SetInteger("Equip", 2);
             else if(gun.Data is I_Data_HandGun)_playerAnimator.SetInteger("Equip", 1);
             else _playerAnimator.SetInteger("Equip", 2);
-        }
 
-        gun.transform.SetParent(equipPos);
-        gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
+            Debug.Log(equipPos);
+            gun.gameObject.SetActive(true);
+            gun.transform.SetParent(equipPos);
+            gun.transform.SetPositionAndRotation(equipPos.position, this.transform.rotation);
+        }
+    }
+
+    public void UnEquipMotion(AGun gun)
+    {
+        Debug.Log("UnEquip");
+        if(gun == null)
+        {
+            _playerAnimator.SetInteger("Equip", 0);
+            return;
+        }
+        else
+        {
+            gun.gameObject.SetActive(false);
+            gun.transform.SetParent(subPos);
+            gun.transform.SetPositionAndRotation(subPos.position, this.transform.rotation);
+        }
     }
 
     public override void OnDamage(float damage)
@@ -155,7 +175,7 @@ public class PlayerController : AEntity
 
         Debug.Log(_entityHP.CurrentHp);
 
-        if(_entityHP.CurrentHp <= 0)
+        if(IsEntityDead())
         {
             OnEntityDead();
         }
@@ -164,6 +184,8 @@ public class PlayerController : AEntity
     public override void OnEntityDead()
     {
         Debug.Log($"プレイヤー({this.gameObject.name})はやられた！");
+
+        base.OnEntityDead();
     }
 
     public void CancelAction(CancellationTokenSource tokenSource)

@@ -16,7 +16,7 @@ public class EnemySystem : ASystem, IOnUpdate
         
     }
 
-#region やっつけ
+#region このままでいいのかな
     public void EnemyObjectInstantiate(Vector3 pos)
     {
         // Debug.Log("つくった");

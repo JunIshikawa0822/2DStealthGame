@@ -136,6 +136,7 @@ public class PlayerEquipInventory : A_Inventory
 
         _openningStorage.Add(insertGUI.Item);
 
+        Debug.Log("入れた!!");
         _onInsertEvent?.Invoke(_accessIndex, insertGUI.Item.Data);
         return 0;
     }
@@ -145,9 +146,10 @@ public class PlayerEquipInventory : A_Inventory
         if(_gui_Item == null) return;
         _openningStorage.Remove(_gui_Item.Item);
 
-        _gui_Item = null;
-
+        Debug.Log(_onRemoveEvent.Target);
         _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item.Data);
+
+        _gui_Item = null;
     }
 
     public override bool IsCollide(A_Item_GUI gui)

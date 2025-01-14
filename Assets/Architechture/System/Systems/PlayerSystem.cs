@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
 using Unity.Entities.UniversalDelegates;
 public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 {
@@ -9,6 +8,9 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public override void OnSetUp()
     {
         _player = gameStat.player;
+        gameStat.playerGunsArray = new AGun[2];
+        gameStat.selectingGunsArrayIndex = 0;
+
         gameStat.playerHP = new Entity_HealthPoint(100, 100);
         //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
@@ -28,22 +30,19 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         gameStat.onPlayerAttackEvent += OnAttack;
         gameStat.onPlayerReloadEvent += OnReload;
+
         gameStat.onPlayerEquipEvent += OnEquipGun;
         gameStat.onPlayerUnEquipEvent += OnUnEquipGun;
 
-        SetEvent();
-    }
+        gameStat.onSelectGunChange += OnEquipChange;
 
-    public void SetEvent()
-    {
-        gameStat.playerGunsArray.ObserveReplace().Subscribe(x =>
-        {
-            OnEquip();
-        });
+        //SetEvent();
     }
 
     public void OnUpdate()
     {
+        // Debug.Log(gameStat.selectingGunsArrayIndex);
+
         if(gameStat.isInventoryPanelActive)
         {
 
@@ -86,32 +85,56 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnAttack()
     {
         if(gameStat.isInventoryPanelActive)return;
-        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
+        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
     public void OnReload()
     {
         if(gameStat.isInventoryPanelActive)return;
-        _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
+        _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
-    public void OnEquip()
+    public void OnEquipChange()
     {
-        _player.Equip(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value]);
+        Debug.LogWarning("Change");
+//        gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].gameObject.SetActive(true);
+
+        _player.EquipMotion(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        _player.UnEquipMotion(gameStat.playerGunsArray[1 - gameStat.selectingGunsArrayIndex]);
     }
 
     public void OnEquipGun(int index, I_Data_Item data)
     {
         if(data == null) return;
 
+        Debug.Log("Playerでもいれてる");
+
         AGun gun = gameStat.gunFacade.GetGunInstance(data);
+
+        Debug.Log(index);
+        Debug.Log(gameStat.selectingGunsArrayIndex);
+
         gameStat.playerGunsArray[index] = gun;
+
+        if(index == gameStat.selectingGunsArrayIndex)
+        {
+            _player.EquipMotion(gun);
+        }
     }
 
     public void OnUnEquipGun(int index, I_Data_Item data)
     {
+        Debug.Log("Playerでもぬいてる");
+
         gameStat.gunFacade.ReturnGunInstance(gameStat.playerGunsArray[index]);
         gameStat.playerGunsArray[index] = null;
+
+        Debug.Log(index);
+
+        if(index == gameStat.selectingGunsArrayIndex)
+        {
+            _player.UnEquipMotion(gameStat.playerGunsArray[index]);
+        }
     }
 
     public void OnFindStorage(IStorage storage)

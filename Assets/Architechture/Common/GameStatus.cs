@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using UniRx;
 using UnityEngine.UI;
 using Microsoft.Unity.VisualStudio.Editor;
 
@@ -13,6 +12,7 @@ public class GameStatus
     public Action onPlayerAttackEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
+    public Action onSelectGunChange;
 
     #region 不使用
     public Action<int, ItemData> onEquipEvent;
@@ -32,10 +32,8 @@ public class GameStatus
 
     [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;
-    [HideInInspector]public ReactiveCollection<AGun> playerGunsArray = new ReactiveCollection<AGun>(new AGun[2]);
-    [HideInInspector]public ReactiveProperty<int> selectingGunsArrayIndex = new ReactiveProperty<int>(0);
-
-    public ReactiveCollection<AGun> playerGunArray = new ReactiveCollection<AGun>(new AGun[2]);
+    [HideInInspector]public AGun[] playerGunsArray  = new AGun[2];
+    [HideInInspector]public int selectingGunsArrayIndex = 0;
 
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
@@ -72,12 +70,11 @@ public class GameStatus
     public Canvas canvas;
     //public PlayerEquipInventory equipInventory1;
     //public PlayerEquipInventory equipInventory2; 
-
-    public List<AInventory> inventoryList = new List<AInventory>();
     //public Inventory inventory1;
     //public Inventory inventory2;
 
     #region 不使用
+    public List<AInventory> inventoryList = new List<AInventory>();
     public GUI_Item gui_Item_Prefab;
     #endregion
 

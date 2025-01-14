@@ -1,11 +1,9 @@
 using System.Diagnostics;
 using UnityEngine;
 using System;
-using UniRx;
 using UnityEngine.UI;
 public class UISystem : ASystem, IOnUpdate
 {
-    CompositeDisposable _disposablesByGameCycle;
     public override void OnSetUp()
     {
         ToggleUI(gameStat.ammoText.gameObject, () => false);
@@ -15,17 +13,7 @@ public class UISystem : ASystem, IOnUpdate
         // gameStat.playerHPSlider.maxValue = gameStat.playerHP.MaxHp;
         // gameStat.playerHPSlider.value = gameStat.playerHP.MaxHp;
 
-        _disposablesByGameCycle = new CompositeDisposable();
-
-        SetEvent();
-    }
-
-    public void SetEvent()
-    {
-        gameStat.playerGunsArray.ObserveReplace().Subscribe(x =>
-            {
-                ToggleUI(gameStat.ammoText.gameObject, () => gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value] == null ? false : true);
-            });
+        //gameStat.onSelectGunChange += ToggleAmmoUI;
     }
 
     public void OnUpdate()
@@ -35,11 +23,19 @@ public class UISystem : ASystem, IOnUpdate
         if(gameStat.isInventoryPanelActive)return;
         gameStat.cursorImage.rectTransform.position = gameStat.cursorScreenPosition;
 
-        if(gameStat.ammoText.gameObject.activeSelf == false)return;
-        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value] != null)
+        if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)
         {
-            // UnityEngine.Debug.Log(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].GetMagazine());
-            gameStat.ammoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].Magazine.MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex.Value].Magazine.MagazineCapacity}";
+            if(gameStat.ammoText.gameObject.activeSelf == false)return;
+
+            ToggleUI(gameStat.ammoText.gameObject, () => false);
+        }
+        else
+        {
+            gameStat.ammoText.text = $"{gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].Magazine.MagazineRemaining} / {gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].Magazine.MagazineCapacity}";
+
+            if(gameStat.ammoText.gameObject.activeSelf == true)return;
+
+            ToggleUI(gameStat.ammoText.gameObject, () => true);
         }
     }
 
