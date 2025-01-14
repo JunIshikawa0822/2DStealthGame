@@ -3,7 +3,6 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using Microsoft.Unity.VisualStudio.Editor;
 
 [System.Serializable]
 public class GameStatus

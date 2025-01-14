@@ -7,7 +7,6 @@ using System.Threading;
 using UniRx;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.PackageManager;
 
 public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 {
