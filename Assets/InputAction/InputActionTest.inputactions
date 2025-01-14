@@ -40,6 +40,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerInventoryTest",
+                    "type": "Button",
+                    "id": "7e535d73-e624-4d18-a33c-f94a7b64ff46",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DashTest",
+                    "type": "Button",
+                    "id": "c838005d-de49-4b34-8f14-e7b6a6aaad11",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectingIndexChangeTest",
+                    "type": "Button",
+                    "id": "dfcc90db-5f94-471f-a3f4-aa1b1f3b36ca",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -139,6 +166,83 @@
                     "processors": "",
                     "groups": "",
                     "action": "PlayerReloadTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a9404f3f-6dfb-408a-a2cb-4a2e44263f67",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlayerInventoryTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "affa2790-1b17-43f6-b625-afa39bf530c9",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DashTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d1d50b17-7423-4534-9c79-84723f924104",
+                    "path": "<Keyboard>/rightShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DashTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "79e4ff9e-5eed-443a-80ec-a83bcd17f91f",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DashTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0063ee60-9670-4a6a-b9f1-09694299cde4",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7f4cb63c-6212-42e2-8bc5-8b0228063667",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "379e071e-c5dd-44e1-a589-e712aa1ddd81",
+                    "path": "<Keyboard>/#(1-9)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectingIndexChangeTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -3,47 +3,48 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
 
-public class HandGun : MonoBehaviour, IGun_10mm
+public class Handgun : AGun
 {
     //発射の内部的な処理に必要
     //----------------------------------------
+    //----------------------------------------
+
     [SerializeField]
-    private float _muzzleVelocity = 700f;
-    [SerializeField] 
     private Transform _muzzlePosition;
+    //private LineRenderer _muzzleFlashRenderer;
+    //private IObjectPool _objectPool;
 
-    private LineRenderer _muzzleFlashRenderer;
-
-    //もっと一般化していい奴ら↓
-    private IObjectPool<ABullet> _objectPool;
-    private IBulletFactories _bulletFactories;
-    private IFactory<ABullet> _bulletcaliberFactory;
     //----------------------------------------
     private bool _isShotIntervalActive;
     private bool _isJamming;
-    private CancellationTokenSource shotIntervalTokenSource;
-
+    private CancellationTokenSource _shotIntervalTokenSource;
+    private CancellationTokenSource _actionIntervalTokenSource;
     //----------------------------------------
 
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
+
+    public override Entity_Magazine Magazine{get => _magazine;}
     //----------------------------------------
 
-    public void OnSetUp(IBulletFactories bulletFactories, IObjectPool<ABullet> objectPool)
+    public override void OnSetUp(IObjectPool objectPool)
     {
-        _bulletFactories = bulletFactories;
-        _objectPool = objectPool;
-
-        _muzzleFlashRenderer = GetComponent<LineRenderer>();
-        _muzzleFlashRenderer.enabled = false;
-
-        //_shotOrbitRenderer.enabled = false;
+        //_bulletFactories = bulletFactories;
+        base.OnSetUp(objectPool);
+        // _muzzleFlashRenderer = GetComponent<LineRenderer>();
+        // _muzzleFlashRenderer.enabled = false;
 
         _isShotIntervalActive = false;
         _isJamming = false;
+    }
+
+    public override void Init(I_Data_Gun data)
+    {
+        base.Init(data);
+
+        if(!(data is I_Data_HandGun handgunData)) return;
         
-        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
     }
 
     public void OnUpdate()
@@ -51,7 +52,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
     }
 
-    public void Shot()
+    public override void Shot()
     {
         //マガジンがないor弾がないとそもそも撃てない
         if(_magazine == null || _magazine.MagazineRemaining < 1)
@@ -62,15 +63,10 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
         //射撃と射撃の間隔を制御
         if(_isShotIntervalActive)return;
-        shotIntervalTokenSource = new CancellationTokenSource();
-        Interval(_isShotIntervalActive,shotIntervalTokenSource.Token, 0.5f, "射撃クールダウン").Forget();
-
-        //BulletのFactoryをチェック
-        _bulletcaliberFactory = GetFactory_10mm<IBType_10mm>();
-        if(_bulletcaliberFactory == null)return;
-        
+        //_objectPoolの有無をチェック
+        if(_objectPool == null)return;
         //Poolからもってくる
-        ABullet bullet = _objectPool.GetFromPool(_bulletcaliberFactory) as ABullet;
+        ABullet bullet = _objectPool.GetFromPool() as ABullet;
 
         if(bullet == null)
         {
@@ -87,23 +83,29 @@ public class HandGun : MonoBehaviour, IGun_10mm
 
         //弾を消費する
         _magazine.ConsumeBullet();
+        _shotIntervalTokenSource = new CancellationTokenSource();
+        ShotInterval(_shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
 
-        if(_muzzleFlashRenderer == null) return;
-        shotIntervalTokenSource = new CancellationTokenSource();
+        // if(_muzzleFlashRenderer == null) return;
 
-        _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
+        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
+        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
+        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
         
         //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
-    public void Reload(Entity_Magazine magazine)
+    public override void Reload(Entity_Magazine magazine)
     {
+        //Debug.Log(this.gameObject.name + ":" + magazine);
+
+        //_actionIntervalTokenSource = new CancellationTokenSource();
+        //ActionInterval(null, _actionIntervalTokenSource.Token, _reloadInterval, "リロードクールダウン").Forget();
+
         _magazine = magazine;
     }
 
-    public void Jam()
+    public override void Jam()
     {
         _isJamming = true;
     }
@@ -113,10 +115,9 @@ public class HandGun : MonoBehaviour, IGun_10mm
         lineRenderer.enabled = !lineRenderer.enabled;
     }
 
-    public async UniTask Interval(bool flag, CancellationToken token, float time, string ActionName)
+    public async UniTask ShotInterval(CancellationToken token, float time, string ActionName)
     {
-        flag = true;
-
+        _isShotIntervalActive = true;
         try
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
@@ -130,7 +131,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
         }
         finally
         {
-            flag = false; // クールタイム終了（またはキャンセル)
+            _isShotIntervalActive = false; // クールタイム終了（またはキャンセル)
         }
     }
 
@@ -140,7 +141,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
         {
             // 指定されたクールタイム期間を待つ (キャンセル可能)
             //Debug.Log($"{ActionName} 開始");
-            action.Invoke();
+            action?.Invoke();
             await UniTask.Delay((int)(time * 1000), cancellationToken: token);
             //Debug.Log($"{ActionName} 終了");
         }
@@ -150,28 +151,7 @@ public class HandGun : MonoBehaviour, IGun_10mm
         }
         finally
         {
-            action.Invoke();
+            action?.Invoke();
         }
-    }
-
-    // public void CancelInterval(CancellationTokenSource tokenSource)
-    // {
-    //     if (tokenSource != null && !tokenSource.IsCancellationRequested)
-    //     {
-    //         tokenSource.Cancel();
-    //         tokenSource.Dispose();
-    //         tokenSource = null;
-    //     }
-    // }
-
-    public Entity_Magazine GetMagazine()
-    {
-        return _magazine;
-    }
-
-    public IFactory<ABullet> GetFactory_10mm<T>() where T : IBType_10mm
-    {
-        // ここで、T 型が IBType_10mm を継承していることが保証されています
-        return _bulletFactories.BulletFactory(typeof(T));
     }
 }

@@ -1,8 +1,7 @@
 using System;
-public interface IFactory<out T>
+using UnityEngine;
+public interface IFactory
 {
-    public T ObjectInstantiate();
-
-    public Type GetFactoryType();
+    public IObject ObjectInstantiate();
 }
 

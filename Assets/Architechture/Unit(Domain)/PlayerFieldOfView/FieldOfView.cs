@@ -45,6 +45,8 @@ public class FieldOfView : MonoBehaviour
     {
         while(true)
         {
+            if(this == null)return;
+            
             newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius);
 
             //newVisibleTargetを描画
@@ -70,7 +72,7 @@ public class FieldOfView : MonoBehaviour
         {
             AEntity entity = target.GetComponent<AEntity>();
 
-            entity.OnEntityMeshAble();
+            entity.EntityMeshAble();
         }
     }
 
@@ -95,7 +97,7 @@ public class FieldOfView : MonoBehaviour
             {
                 AEntity entity = oldTarget.GetComponent<AEntity>();
 
-                entity.OnEntityMeshDisable();
+                entity.EntityMeshDisable();
             }
         }
     }

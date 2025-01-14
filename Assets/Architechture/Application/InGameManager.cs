@@ -13,17 +13,19 @@ public class InGameManager : MonoBehaviour
     List<IOnFixedUpdate> _allFixedUpdateSystemsList;
 
     List<IOnLateUpdate> _allLateUpdateSystemList;
-    void Awake()
-    {
-        _allSystemsList = new List<ASystem>
-        {
-            //new ShotSystem(),
-            new InputSystem(),
-            new PlayerSystem(),
-            new GunSystem(),
-            new UISystem()
-        };
 
+    public void SetUp(List<ASystem> systems, SceneLoader[] sceneLoader, bool isCombatAllow, bool isInventoryAllow)
+    {
+        _allSystemsList = systems;
+        _gameStat.isCombatAllow = isCombatAllow;
+        _gameStat.isInventoryAllow = isInventoryAllow;
+        _gameStat.sceneLoader = sceneLoader;
+
+        Init();
+    }
+
+    public void Init()
+    {
         _allUpdateSystemsList = new List<IOnUpdate>();
         _allPreUpdateSystemsList = new List<IOnPreUpdate>();
         _allFixedUpdateSystemsList = new List<IOnFixedUpdate>();
@@ -36,9 +38,42 @@ public class InGameManager : MonoBehaviour
             if (system is IOnUpdate) _allUpdateSystemsList.Add(system as IOnUpdate);
             if (system is IOnPreUpdate) _allPreUpdateSystemsList.Add(system as IOnPreUpdate);
             if (system is IOnFixedUpdate) _allFixedUpdateSystemsList.Add(system as IOnFixedUpdate);
-            if(system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
+            if (system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
         }
     }
+
+    // void Awake()
+    // {
+    //     _allSystemsList = new List<ASystem>
+    //     {
+    //         //new ShotSystem(),
+            
+    //         new GunSystem(),
+    //         new PlayerSystem(),
+    //         new UISystem(),
+    //         new EnemySystem(),
+    //         new ItemSystem(),
+    //         //new InventorySystem(),
+    //         new TetrisInventorySystem(),
+
+    //         new InputSystem()
+    //     };
+
+    //     _allUpdateSystemsList = new List<IOnUpdate>();
+    //     _allPreUpdateSystemsList = new List<IOnPreUpdate>();
+    //     _allFixedUpdateSystemsList = new List<IOnFixedUpdate>();
+    //     _allLateUpdateSystemList = new List<IOnLateUpdate>();
+
+    //     foreach (ASystem system in _allSystemsList)
+    //     {
+    //         system.OnGameStatusInit(_gameStat);
+
+    //         if (system is IOnUpdate) _allUpdateSystemsList.Add(system as IOnUpdate);
+    //         if (system is IOnPreUpdate) _allPreUpdateSystemsList.Add(system as IOnPreUpdate);
+    //         if (system is IOnFixedUpdate) _allFixedUpdateSystemsList.Add(system as IOnFixedUpdate);
+    //         if (system is IOnLateUpdate) _allLateUpdateSystemList.Add(system as IOnLateUpdate);
+    //     }
+    // }
     // Start is called before the first frame update
     void Start()
     {

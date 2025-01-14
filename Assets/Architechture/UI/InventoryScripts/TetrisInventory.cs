@@ -4,231 +4,383 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TetrisInventory : MonoBehaviour
+public class TetrisInventory : A_Inventory
 {
+    private RectTransform _rectTransform;
     public Grid<CellObject> grid;
     [SerializeField]
-    private RectTransform container;
+    private RectTransform _container;
     [SerializeField]
     private RectTransform background;
-    public RectTransform inventoryRectTransform;
-    [HideInInspector]
-    public RectTransform test1;
 
     [SerializeField]
-    private float cellSize = 50;
+    private float _cellSize = 50;
     [SerializeField] 
-    private int gridWidth = 10;
+    private int _gridWidth = 10;
     [SerializeField]
-    private int gridHeight = 10;
+    private int _gridHeight = 10;
+
+    public RectTransform GetContainer(){return _container;}
+    private IObjectPool _guiPool;
+    //private ItemFacade _facade;
+    private IStorage _openningStorage;
+    public override Action<int, I_Data_Item> InsertAction{get; set;} 
+    public override Action<int, I_Data_Item> RemoveAction{get; set;}
 
     void Awake()
     {
-        inventoryRectTransform = this.GetComponent<RectTransform>();
-
         grid = new Grid<CellObject>
         (
-            gridWidth,
-            gridHeight,
-            cellSize,
+            _gridWidth,
+            _gridHeight,
+            _cellSize,
             (Grid<CellObject> grid, int cellPosition_x, int cellPosition_y) => new CellObject(cellPosition_x, cellPosition_y)
         );
 
-        BackGroundSetUp();
+        _rectTransform = GetComponent<RectTransform>();
     }
 
-    void Start()
+    public override void Init(IObjectPool objectPool)
     {
-    
+        _guiPool = objectPool;
     }
 
     void Update()
     {
-    
-    }
+        // if(Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     for(int x = 0; x < 10; x++)
+        //     {
+        //         for(int y = 0; y < 10; y++)
+        //         {
+        //             BackGroundDebug(grid.GetCellObject(new CellNumber(x, y)));
+        //         }
+        //     }
+        // }
 
-    void BackGroundSetUp()
-    {
-        background.sizeDelta = new Vector2(gridWidth, gridHeight) * cellSize;
-        background.GetComponent<GridLayoutGroup>().cellSize = new Vector2(cellSize, cellSize);
+        // if(Input.GetKeyDown(KeyCode.Q))
+        // {
+        //     for(int x = 0; x < 10; x++)
+        //     {
+        //         for(int y = 0; y < 10; y++)
+        //         {
+        //             BackGroundReset(grid.GetCellObject(new CellNumber(x, y)));
+        //         }
+        //     }
+        // }
     }
 
     void BackGroundDebug(CellObject cell)
     {
         int num = 0;
-        num = cell.position_y * 10 + cell.position_x;
+        num = (9 - cell.position_y) * 10 + cell.position_x;
+        Image image = background.GetChild(num).GetComponent<Image>();
 
-        if(cell.GetPlacedObject() != null)
+        // string cellNum = cell.Origin == null ? "null" : cell.Origin.ToString();
+        // string item = cell.GetItemInCell() == null ? "null" : "item";
+        // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
+        // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
+
+        if(cell.GuiInCell != null)
         {
-            background.GetChild(num).GetComponent<Image>().enabled = false;
+            image.enabled = false;
+        }
+        else if(cell.Origin != null)
+        {
+            //Debug.Log("2");
+            image.enabled = false;
         }
         else
         {
-            background.GetChild(num).GetComponent<Image>().enabled = true;
+            //Debug.Log("3");
+            image.enabled = true;
         }
     }
 
-    public bool CanPlaceItem(PlacedObject placedObject, Vector2Int originCellNum, Scriptable_UI_Item.ItemDir direction)
-    {   
-        //オブジェクトが占有するマス目を計算
-        List<Vector2Int> gridPositionList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-
-        bool canPlace = true;
-        int instanceID = 0;
-
-        for(int i = 0; i < gridPositionList.Count; i++)
-        {
-            Vector2Int gridPosition = gridPositionList[i];
-            CellObject cellObject = grid.GetGridObject(gridPosition.x, gridPosition.y);
-
-#region AreaCheck
-            bool isValidPosition = grid.IsValidCellNum(gridPosition);
-            if (!isValidPosition)
-            {
-                Debug.Log("枠外だよ");
-                canPlace = false;
-                break;
-            }
-#endregion
-#region IdentityCheck
-            //すべてのCellが同一のinstanceIDで埋まっているか確認
-            int cellobjectID = cellObject.GetPlacedObject() == null ? 0 : cellObject.GetPlacedObject().GetInstanceID();
-            if(i != 0)
-            {
-                if(instanceID != cellobjectID)
-                {
-                    Debug.Log("同一ではないよ");
-                    canPlace = false;
-                    break;
-                }
-                instanceID = cellobjectID;
-            }
-            else
-            {
-                instanceID = cellobjectID;
-            }         
-#endregion
-#region TypeAndStackableCheck
-            //すべてのCellが挿入したいPlacedObjectと同じタイプかつ空きがあるか確認
-            bool canInsert = cellObject.CanInsertToCellObject(placedObject);
-            if(!canInsert)
-            {
-                Debug.Log("空きがない/別タイプ");
-                canPlace = false;
-                break;
-            }
-#endregion
-        }
-
-        if (canPlace)
-        {
-            //Debug.Log("CanPlaceItem : true");
-            return true;
-        } 
-        else 
-        {
-            //Debug.Log("CanPlaceItem : false");
-            return false;
-        }
-    }
-    
-    public void InsertItemToInventory(Vector2Int originCellNum, PlacedObject placedObject, int insertObjectNum, Scriptable_UI_Item.ItemDir direction, out int remainNum)
+    void BackGroundReset(CellObject cell)
     {
-        remainNum = 0;
-        if(placedObject == null)return;
+        int num = 0;
+        num = (9 - cell.position_y) * 10 + cell.position_x;
+        Image image = background.GetChild(num).GetComponent<Image>();
 
-        List<Vector2Int> cellNumList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-        // Debug.Log(string.Join(",", cellNumList));
+        // string cellNum = cell.Origin == null ? "null" : cell.Origin.ToString();
+        // string item = cell.GetItemInCell() == null ? "null" : "item";
+        // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
+        // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
 
-        PlacedObject cashedPlacedObject = null;
-        int stackNumInCell = 0;
+        image.enabled = true;
+    }
 
-        foreach (Vector2Int cellNum in cellNumList)
+    public override void OpenInventory(IStorage storage)
+    {
+        if(storage == null)
         {
-            CellObject cellObject =  grid.GetGridObject(cellNum.x, cellNum.y);
+            Debug.Log("Storageを開けられません");
+            return;
+        }
 
-            //セルに入っているオブジェクトをキャッシュ
-            cashedPlacedObject = cellObject.GetPlacedObject();
-            //新しいのを入れる
-            cellObject.InsertToCellObject(placedObject);
-            //入れたい数
-            int stackNum = insertObjectNum/*placedObject.GetStackNum()*/;
+        _openningStorage = storage;
 
-            for(int i = 1; i <= stackNum; i++)
+        foreach(IInventoryItem item in storage.GetItems())
+        {
+            if(item == null)return;
+            LoadItem(item);
+        }
+    }
+
+    public override void CloseInventory()
+    {
+        if(_openningStorage == null)
+        {
+            Debug.Log("Storageを閉められません");
+            return;
+        }
+
+        for(int x = 0; x < 10; x++)
+        {
+            for(int y = 0; y < 10; y++)
             {
-                bool stackable = cellObject.GetStackability();
-                //insertNum = i;
-                
-                if(stackable)
+                // Debug.Log(grid);
+                grid.GetCellObject(new CellNumber(x, y)).Reset();
+            }
+        }
+
+        int n = _container.transform.childCount;
+
+        for(int i = 0; i < _container.childCount; i++)
+        {
+            Destroy(_container.transform.GetChild(i).gameObject);
+        }
+
+        _openningStorage = null;
+    }
+
+    private void LoadItem(IInventoryItem inventoryItem)
+    {
+        A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
+
+        if(gui == null)return; 
+
+        // Debug.Log(inventoryItem);
+
+        gui.OnSetUp();
+        gui.Init(inventoryItem);
+
+        List<CellNumber> cellNumsList = gui.GetOccupyCellList(inventoryItem.Address, inventoryItem.Direction);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+
+            if(cellNumsList[i] == inventoryItem.Address)
+            {
+                cellObject.Insert(gui);
+
+                Vector3 newPosition = grid.GetCellOriginAnchoredPosition(inventoryItem.Address);
+
+                gui.SetParent(_container);
+
+                gui.SetScale(new Vector3(1, 1, 1));
+
+                gui.SetPivot(inventoryItem.Direction);
+                gui.SetAnchorPosition(newPosition);
+                gui.SetRotation(inventoryItem.Direction);
+                gui.SetImageSize(_cellSize);
+            }
+
+            cellObject.Origin = inventoryItem.Address;
+        }
+    }
+
+    public override uint InsertItem(A_Item_GUI gui, CellNumber origin, IInventoryItem.ItemDir direction)
+    {
+        List<CellNumber> cellNumsList = gui.GetOccupyCellList(origin, direction);
+
+        uint overflow = 0;
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(cellNumsList[i]);
+            //originCellにStackしていく
+            if(cellNumsList[i] == origin)
+            {
+                A_Item_GUI guiInCell = cellObject.GuiInCell;
+
+                if(guiInCell == null)
                 {
-                    cellObject.SetStackNum();
-                    cellObject.SetStackability();
+                    cellObject.Insert(gui);
+
+                    Vector3 newPosition = grid.GetCellOriginAnchoredPosition(origin);
+
+                    gui.Item.Address = origin;
+                    gui.Item.Direction = direction;
+
+                    gui.SetParent(_container);
+
+                    gui.SetScale(new Vector3(1, 1, 1));
+                    
+                    gui.SetPivot(direction);
+                    gui.SetAnchorPosition(newPosition);
+                    gui.SetRotation(direction);
+                    gui.SetImageSize(_cellSize);
+
+                    _openningStorage.Add(gui.Item);
                 }
                 else
                 {
-                    remainNum = stackNum - i;
+                    _openningStorage.Remove(guiInCell.Item);
+
+                    overflow = cellObject.Stack(gui);
+
+                    guiInCell = cellObject.GuiInCell;
+                    _openningStorage.Add(guiInCell.Item);
+                }
+            }
+
+            cellObject.Origin = origin;
+        }
+
+        return overflow;
+    }
+
+    public override bool CanPlaceItem(A_Item_GUI gui, CellNumber originCellNum, IInventoryItem.ItemDir direction)
+    {
+        List<CellNumber> cellNumsList = gui.GetOccupyCellList(originCellNum, direction);
+
+        bool canPlace = true;
+
+        CellNumber cashedOriginCellNum = new CellNumber(0, 0);
+
+        for(int i = 0; i < cellNumsList.Count; i++)
+        {
+            CellNumber checkingCellNum = cellNumsList[i];
+
+            bool isValidPosition = grid.IsValidCellNum(checkingCellNum);
+
+            if (!isValidPosition)
+            {
+                canPlace = false;
+                break;
+            }
+            //そもそも枠外であればcellObjectをとってこれないので、上記で枠外かどうか確認してからcellObjectを取得
+
+            CellObject cellObject = grid.GetCellObject(checkingCellNum);
+            CellNumber cellOrigin = cellObject.Origin;
+
+            if(i == 0)
+            {
+                cashedOriginCellNum = cellOrigin;
+            }
+            else
+            {
+                //originCellが同じでないものがある＝はみ出しがある
+                if(cashedOriginCellNum != cellOrigin)
+                {
+                    canPlace = false;
                     break;
                 }
-            } 
-            stackNumInCell = cellObject.GetStackNum();
-        }
 
-        placedObject.SetBelonging(this, originCellNum, direction, container);
-        Vector2Int rotationAnchorCellNumOffset = placedObject.GetItemData().GetRotationOffset(direction);
-        // Debug.Log(rotationAnchorCellNumOffset);
-
-        Vector2 placedObjectAnchoredPosition = grid.GetCellOriginAnchoredPosition(originCellNum.x, originCellNum.y) + new Vector2(rotationAnchorCellNumOffset.x, rotationAnchorCellNumOffset.y) * cellSize;
-        test1.anchoredPosition = placedObjectAnchoredPosition;
-
-        placedObject.GetRectTransform().anchoredPosition = placedObjectAnchoredPosition;
-        placedObject.GetRectTransform().rotation = Quaternion.Euler(0, 0, placedObject.GetItemData().GetRotationAngle(direction));
-        placedObject.ImageSizeSet(cellSize);
-
-        //重ねている
-        if(cashedPlacedObject != null)
-        {
-            placedObject.StackNumInit(stackNumInCell);
-            cashedPlacedObject.OnDestroy();
-        }
-
-        foreach(CellObject cellNum in grid.gridArray)
-        {
-            BackGroundDebug(cellNum);
-        }
-    }
-
-    public void RemoveItemFromInventory(Vector2Int originCellNum, PlacedObject placedObject, Scriptable_UI_Item.ItemDir direction)
-    {
-        List<Vector2Int> removeCellNumList = placedObject.GetItemData().GetCellNumList(direction, originCellNum);
-        // Debug.Log("remove : " + string.Join(",", removeCellNumList));
-        foreach (Vector2Int cellNum in removeCellNumList)
-        {
-            CellObject cellObject = grid.GetGridObject(cellNum.x, cellNum.y);
-            cellObject.InsertToCellObject(null);
-            cellObject.SetStackNum();
-        }
-
-        foreach(CellObject cellNum in grid.gridArray)
-        {
-            BackGroundDebug(cellNum);
-        }
-    }
-
-    public void CheckCellObject()
-    {
-        List<Vector2Int> testlist = new List<Vector2Int>();
-
-        Debug.Log("チェック開始");
-        for(int i = 0; i < gridWidth; i++)
-        {
-            for(int j = 0; j < gridHeight; j++)
-            {
-                if(grid.GetGridObject(i, j).GetPlacedObject() == null) continue;
-                testlist.Add(new Vector2Int(i, j));  
+                cashedOriginCellNum = cellOrigin;
             }
         }
 
-        Debug.Log(string.Join("," , testlist));
-        Debug.Log("チェック終了");
+        if(cashedOriginCellNum != null)
+        {
+            CellObject originCell = grid.GetCellObject(cashedOriginCellNum);
+
+            if(originCell.IsStackable() == false)
+            {
+                Debug.Log("挿入先が満杯だよ!");
+                canPlace = false;
+            }
+
+            if(!originCell.CheckEquality(gui.Item))
+            {
+                canPlace = false;
+                Debug.Log("挿入先と入れたいアイテムの種類が根本的に違います");
+            }
+        }
+        
+        if(canPlace)
+        {
+            // Debug.Log("置けるよ！");
+            return true;
+        }
+        else
+        {
+            // Debug.Log("置けないよ！");
+            return false;
+        }
     }
+
+    public override void RemoveItem(CellNumber origin)
+    {
+        CellObject originCell = grid.GetCellObject(origin);
+        A_Item_GUI gui = originCell.GuiInCell;
+
+        IInventoryItem.ItemDir direction = gui.Item.Direction;
+        List<CellNumber> removeCellNumList = gui.GetOccupyCellList(origin, direction);
+
+        for(int i = 0; i < removeCellNumList.Count; i++)
+        {
+            CellObject cellObject =  grid.GetCellObject(removeCellNumList[i]);
+
+            cellObject.Reset();
+        }
+
+        _openningStorage.Remove(gui.Item);
+    }
+
+    public override CellNumber ScreenPosToCellNum(Vector2 pos)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_container, pos, null, out Vector2 convertPosition);
+        return grid.GetCellNum(convertPosition);
+    }
+
+    // public override bool IsValid(CellNumber cellNum)
+    // {
+    //     return grid.IsValidCellNum(cellNum);
+    // }
+
+    public override bool IsCollide(A_Item_GUI gui)
+    {
+        Vector3[] inventoryRect = new Vector3[4];
+        _rectTransform.GetWorldCorners(inventoryRect);
+
+        Vector3[] guiRect = new Vector3[4];
+        gui.RectTransform.GetWorldCorners(guiRect);
+
+        //重なっていない
+        if(guiRect[0].x >= inventoryRect[2].x 
+        || guiRect[2].x <= inventoryRect[0].x 
+        || guiRect[0].y >= inventoryRect[2].y 
+        || guiRect[2].y <= inventoryRect[0].y) return false;
+
+        float threshold = 0.4f;
+
+        //重なっているとき
+        float overlapX1 = Mathf.Max(guiRect[0].x, inventoryRect[0].x);
+        float overlapY1 = Mathf.Max(guiRect[0].y, inventoryRect[0].y);
+
+        float overlapX2 = Mathf.Max(guiRect[2].x, inventoryRect[2].x);
+        float overlapY2 = Mathf.Max(guiRect[2].y, inventoryRect[2].y);
+
+        float overlapWidth = overlapX1 * overlapX2;
+        float overlapHeight = overlapY1 * overlapY2;
+
+        float overlapArea = Mathf.Max(0, overlapWidth) * Mathf.Max(0, overlapHeight);
+        float guiArea = (guiRect[2].x - guiRect[0].x) * (guiRect[2].y - guiRect[0].y);
+
+        if(overlapArea < guiArea * threshold) return false;
+
+        return true;
+    }
+
+    // public override Vector3[] GetCorners()
+    // {
+    //     Vector3[] corners = new Vector3[4];
+    //     _rectTransform.GetWorldCorners(corners);
+
+    //     return corners;
+    // }
 }

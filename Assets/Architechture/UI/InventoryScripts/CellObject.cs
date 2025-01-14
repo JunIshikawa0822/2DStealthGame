@@ -1,99 +1,83 @@
+using Cysharp.Threading.Tasks;
+using Unity.Entities.UniversalDelegates;
+using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
+
 public class CellObject
-{
-    //private Vector3 cellObjectPosition;
-    //private Grid<CellObject> grid;
+{   
     public int position_x;
     public int position_y;
 
-    private PlacedObject placedObject;
+    public CellNumber Origin{get; set;}
+    private A_Item_GUI _item_GUI;
+    public A_Item_GUI GuiInCell{get => _item_GUI;}
+    //private uint _count;
 
-    private bool canStackOnCell;
-
-    //現在Stackされている数
-    private int stackNum;
-
-    //private bool isStackableOnCell;
-
-    public CellObject(/*Grid<CellObject> grid,*/ int x, int y) 
+    public CellObject(int x, int y) 
     {
         //this.grid = grid;
         position_x = x;
         position_y = y;
-        stackNum = 0;
-        SetStackability();
-        //cellObjectPosition = worldPosition;
     }
+    //cellがnull
+    //cellにAが入る　Aを入れられる
+    //cellにAが入る　Bを入れられる
+    //cellにAが入る　もう入らない
 
-    public PlacedObject GetPlacedObject()
+    //使う
+    public uint Stack(A_Item_GUI insertGUI)
     {
-        return placedObject;
-    }
+        uint overflow = 0;
+        uint add = _item_GUI.Item.StackingNum + insertGUI.Item.StackingNum;
 
-    public int GetStackNum()
-    {
-        return stackNum;
-    }
-
-    public bool CanInsertToCellObject(PlacedObject placedObject)
-    {
-        bool canInsert = false;
-
-        if(this.placedObject == null)
+        if(add > _item_GUI.Item.Data.StackableNum)
         {
-            canInsert = true;
+            overflow = add - _item_GUI.Item.Data.StackableNum;
+
+            _item_GUI.Item.StackingNum = _item_GUI.Item.Data.StackableNum;
+            insertGUI.Item.StackingNum = overflow;
+
+            insertGUI.SetStackText(insertGUI.Item.StackingNum);
         }
-        else if(this.placedObject.GetItemData() == placedObject.GetItemData())
+        else
         {
-            if(this.stackNum < placedObject.GetItemData().stackableNum)
-            {
-                canInsert = true;
-            }  
-        }   
-        return canInsert;
-    }
+            _item_GUI.Item.StackingNum += insertGUI.Item.StackingNum;
 
-    public void SetStackability()
-    {
-        if(this.placedObject == null)
-        {
-            canStackOnCell = true;
-            return;
+            insertGUI.OnDestroy();
         }
 
-        int canStackNum = this.placedObject.GetItemData().stackableNum;
+        _item_GUI.SetStackText(_item_GUI.Item.StackingNum);
 
-        if(canStackNum > 0)
-        {
-            if(this.stackNum < canStackNum)
-            {
-                canStackOnCell = true;
-                return;
-            }
-        }
-
-        canStackOnCell = false;
+        return overflow;
     }
 
-    public bool GetStackability()
+    //使う
+    public void Insert(A_Item_GUI insertGUI)
     {
-        return canStackOnCell;
+        _item_GUI = insertGUI;
+
+        _item_GUI.SetStackText(_item_GUI.Item.StackingNum);
     }
 
-    public void InsertToCellObject(PlacedObject placedObject)
+    //使う
+    public bool IsStackable()
     {
-        this.placedObject = placedObject;
+        if(_item_GUI == null)return true;
+        return _item_GUI.Item.StackingNum < _item_GUI.Item.Data.StackableNum;
     }
 
-    public void SetStackNum()
+    //使う
+    public void Reset()
     {
-        if(this.placedObject == null)
-        {
-            stackNum = 0;
-            return;
-        }
+        _item_GUI = null;
+        Origin = null;
+    }
 
-        if(this.canStackOnCell == false) return;
+    //使う
+    public bool CheckEquality(IInventoryItem inventoryItem)
+    {
+        if(_item_GUI == null)return true;
 
-        stackNum = stackNum + 1;
+        return _item_GUI.Item.Data.Equals(inventoryItem.Data);
     }
 }

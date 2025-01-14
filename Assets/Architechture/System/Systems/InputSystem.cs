@@ -20,10 +20,14 @@ public class InputSystem : ASystem, IOnPreUpdate
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
+        _gameInputs.PlayerActionTest.PlayerInventoryTest.started += OnInventoryInput;
+        _gameInputs.PlayerActionTest.DashTest.started += OnDashInput;
+
+        _gameInputs.PlayerActionTest.SelectingIndexChangeTest.started += OnPlayerSelectingIndexChangeFromKey;
 
         _gameInputs.Enable();
 
-        Cursor.visible = false;
+        //Cursor.visible = false;
     }
 
     public void OnPreUpdate()
@@ -46,7 +50,14 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnMoveInput(InputAction.CallbackContext context)
     {
-       gameStat.moveDirection = context.ReadValue<Vector2>();
+        gameStat.moveDirection = context.ReadValue<Vector2>() * 0.8f;
+    }
+
+    private void OnDashInput(InputAction.CallbackContext context)
+    {
+        gameStat.moveDirection = (gameStat.moveDirection * 2).normalized;
+
+        Debug.Log("押している");
     }
 
     private void OnAttackInput(InputAction.CallbackContext context)
@@ -59,6 +70,32 @@ public class InputSystem : ASystem, IOnPreUpdate
     {
         //Debug.Log("Reload");
         gameStat.onPlayerReloadEvent?.Invoke();
+    }
+
+    private void OnPlayerSelectingIndexChangeFromKey(InputAction.CallbackContext context)
+    {
+        Debug.Log(context.control.name);
+        Debug.Log("選択前" + gameStat.selectingGunsArrayIndex);
+
+        string pressedKey = context.control.name;
+        if(int.TryParse(pressedKey, out int index))
+        {
+            gameStat.selectingGunsArrayIndex = index - 1;
+        }
+        else
+        {
+            Debug.Log($"{pressedKey}は無効なキー入力です");
+        }
+
+        Debug.Log("選択後" + gameStat.selectingGunsArrayIndex);
+
+        gameStat.onSelectGunChange?.Invoke();
+    }
+
+    private void OnInventoryInput(InputAction.CallbackContext context)
+    {
+        gameStat.onInventoryActiveEvent?.Invoke();
+        Cursor.visible = gameStat.isInventoryPanelActive;
     }
 
     private Vector3 ConvertScreenToWorldPoint(Vector2 screenPos)
