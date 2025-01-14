@@ -20,6 +20,7 @@ public class Storage : MonoBehaviour
 
     void Awake()
     {
+        
     }
 
     void Start()
@@ -29,7 +30,6 @@ public class Storage : MonoBehaviour
             TestData();
         }
     }
-
     public void AddItem(ItemData data)
     {
         _storageList.Add(data);
@@ -38,7 +38,6 @@ public class Storage : MonoBehaviour
     {
         _storageList.Remove(data);
     }
-
     public void AddWeapon(ItemData data, int index)
     {
         _weaponArray[index] = data;
