@@ -7,13 +7,16 @@ public class MeshChangable : MonoBehaviour
 {
     protected MeshRenderer _entityRenderer;
     protected MeshRenderer[] _entityChildrenMeshsArray;
+    void Awake()
+    {
+        _entityRenderer = GetComponent<MeshRenderer>();
+        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>(); 
+    }
 
     void Start()
     {
-        _entityRenderer = GetComponent<MeshRenderer>();
+        
         Debug.Log(_entityRenderer);
-
-        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>(); 
         EntityMeshDisable();
     }
 
@@ -31,7 +34,7 @@ public class MeshChangable : MonoBehaviour
     public void EntityMeshAble()
     {
         Debug.Log("ついた");
-        Debug.Log(this.gameObject.name + "," + _entityRenderer);
+        Debug.Log(_entityRenderer == null);
         _entityRenderer.enabled = true;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
