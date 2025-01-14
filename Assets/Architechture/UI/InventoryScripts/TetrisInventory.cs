@@ -249,6 +249,11 @@ public class TetrisInventory : A_Inventory
 
         bool canPlace = true;
 
+        if(_openningStorage == null)
+        {
+            return false;;
+        }
+
         CellNumber cashedOriginCellNum = new CellNumber(0, 0);
 
         for(int i = 0; i < cellNumsList.Count; i++)

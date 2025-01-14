@@ -11,7 +11,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.playerGunsArray = new AGun[2];
         gameStat.selectingGunsArrayIndex = 0;
 
-        gameStat.playerHP = new Entity_HealthPoint(500, 500);
+        gameStat.playerHP = new Entity_HealthPoint(100, 100);
         //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
         gameStat.playerStorage = gameStat.player.Storage;

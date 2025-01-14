@@ -49,7 +49,9 @@ public class PlayerController : AEntity
     {
         //Debug.Log("移動");
         //移動
-        _entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
+
+        _entityRigidbody.velocity = new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce;
+        //_entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
     }
 
     public void Rotate(Vector3 mouseWorldPosition)
