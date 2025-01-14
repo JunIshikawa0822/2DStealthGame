@@ -18,7 +18,7 @@ public class UISystem : ASystem, IOnUpdate
 
     public void OnUpdate()
     {
-        //gameStat.playerHPSlider.value = gameStat.playerHP.CurrentHp;
+        gameStat.playerHPSlider.value = gameStat.playerHP.CurrentHp;
 
         if(gameStat.isInventoryPanelActive)return;
         gameStat.cursorImage.rectTransform.position = gameStat.cursorScreenPosition;
