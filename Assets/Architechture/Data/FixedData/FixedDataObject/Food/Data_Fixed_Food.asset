@@ -16,7 +16,7 @@ MonoBehaviour:
   _itemDiscription: Test Data of Fixed Data Food
   _itemImage: {fileID: -476280721, guid: b00f4581993094288b15364bb8345c51, type: 3}
   _widthInGUI: 1
-  _heightInGUI: 1
+  _heightInGUI: 2
   _stackableNum: 5
   _itemID: 222
   _itemPrice: 120

@@ -7,6 +7,7 @@ using System.Threading;
 using UniRx;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.PackageManager;
 
 public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 {
@@ -21,7 +22,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     private bool isFighting;
 
-    AGun _enemyGun;
+    //AGun _enemyGun;
     FOV _enemyFieldOfView;
 
     [SerializeField]private NormalStorage _enemyStorage;
@@ -40,6 +41,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private CompositeDisposable _disposablesByAction;
     private CompositeDisposable _disposablesByBattleAction;
     private CompositeDisposable _disposablesByLifeCycle;
+
+    //public Action<AGun> onEnemyDeadEvent;
 
     //いずれはEnemyも生成した側で初期化することだけ留意
     void Start()
@@ -106,8 +109,10 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         //targetを見つけている時は常にtargetの方を向く
         Observable.EveryUpdate().Subscribe(_ => 
             {
-                Rotate();     
-                _statusText.transform.LookAt(Camera.main.transform.position);
+                Rotate(); 
+
+                if(_currentTarget.Value == null)return;    
+                _statusText.transform.LookAt(_currentTarget.Value.position);
             }).AddTo(_disposablesByLifeCycle, this);
     }
 
@@ -166,15 +171,21 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     {
         if(targetTransform != null) 
         {
-            _currentStatus.Value = IBandit.BanditStatus.Warn; 
+            _currentStatus.Value = IBandit.BanditStatus.Warn;
+            _enemyFieldOfView.ViewRadius = 40f;
+            _enemyFieldOfView.ViewAngle = 85;
         }
         else if(_currentStatus.Value == IBandit.BanditStatus.Warn)
         {
-            EntityActionInterval(() => _currentStatus.Value = IBandit.BanditStatus.Caution, _actionCancellationTokenSource.Token, 2f, "警戒中").Forget();
+            EntityActionInterval(() => _currentStatus.Value = IBandit.BanditStatus.Caution, _actionCancellationTokenSource.Token, 10f, "警戒中").Forget();
+            _enemyFieldOfView.ViewRadius = 30f;
+            _enemyFieldOfView.ViewAngle = 70;
         }
         else if(_currentStatus.Value == IBandit.BanditStatus.Caution)
         {
-            EntityActionInterval(() => _currentStatus.Value = IBandit.BanditStatus.Usual, _actionCancellationTokenSource.Token, 2f, "警戒解除").Forget();
+            EntityActionInterval(() => _currentStatus.Value = IBandit.BanditStatus.Usual, _actionCancellationTokenSource.Token, 10f, "警戒解除").Forget();
+            _enemyFieldOfView.ViewRadius = 25f;
+            _enemyFieldOfView.ViewAngle = 60;
         }
         else
         {
@@ -278,7 +289,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void Equip(AGun gun)
     {
-        Debug.Log("こんにちは！！！");
+        //Debug.Log("こんにちは！！！");
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
         _enemyGun = gun;
@@ -287,6 +298,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     public override void OnDamage(float damage)
     {
         _entityHP.EntityDamage(damage);
+
+        _currentStatus.Value = IBandit.BanditStatus.Warn;
 
         if(IsEntityDead())
         {
@@ -311,5 +324,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
         this.gameObject.SetActive(false);
         Debug.Log($"{this.gameObject.name}はやられた！");
+
+        //onEnemyDeadEvent?.Invoke(_enemyGun);
+        base.OnEntityDead();
     }   
 }

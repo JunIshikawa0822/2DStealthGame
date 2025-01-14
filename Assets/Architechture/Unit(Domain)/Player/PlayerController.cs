@@ -8,6 +8,7 @@ using UniRx;
 using UnityEngine.Rendering;
 using Unity.Entities.UniversalDelegates;
 using UnityEngine.InputSystem;
+using Unity.VisualScripting;
 
 public class PlayerController : AEntity
 {
@@ -35,7 +36,7 @@ public class PlayerController : AEntity
     //private CompositeDisposable _disposablesByLifeCycle;
 
     [HideInInspector]public Action<IStorage> storageFindEvent;
-    [HideInInspector]public Action<IStorage> leaveStorageEvent;
+    [HideInInspector]public Action leaveStorageEvent;
     public override void OnSetUp(Entity_HealthPoint playerHP)
     {
         base.OnSetUp(playerHP);
@@ -104,6 +105,16 @@ public class PlayerController : AEntity
 
         //     Debug.Log(string.Join(",", isList));
         // }
+
+        Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
+        if(collides.Length > 0)
+        {
+            storageFindEvent?.Invoke(collides[0].GetComponent<NormalStorage>());
+        }
+        else
+        {
+            leaveStorageEvent?.Invoke();
+        }
     }
 
     public void Attack(AGun gun)
@@ -201,10 +212,12 @@ public class PlayerController : AEntity
         }
     }
 
-    public void OnTriggerEnter(Collider collider)
+    private void OnTriggerEnter(Collider collider)
     {
+        Debug.Log("Storage見つけた");
         if(collider.gameObject.tag == "Storage")
         {
+            Debug.Log("Storage見つけた");
             storageFindEvent?.Invoke(collider.GetComponent<NormalStorage>());
         }
         else
@@ -213,11 +226,12 @@ public class PlayerController : AEntity
         }
     }
 
-    public void OnTriggerExit(Collider collider)
+    private void OnTriggerExit(Collider collider)
     {
         if(collider.gameObject.tag == "Storage")
         {
-            leaveStorageEvent?.Invoke(collider.GetComponent<NormalStorage>());
+            Debug.Log("Storage離れた");
+            //leaveStorageEvent?.Invoke(collider.GetComponent<NormalStorage>());
         }
         else
         {

@@ -11,7 +11,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.playerGunsArray = new AGun[2];
         gameStat.selectingGunsArrayIndex = 0;
 
-        gameStat.playerHP = new Entity_HealthPoint(100, 100);
+        gameStat.playerHP = new Entity_HealthPoint(500, 500);
         //gameStat.observablePlayerHP = new ReactiveProperty<float>(gameStat.playerHP.CurrentHp);
 
         gameStat.playerStorage = gameStat.player.Storage;
@@ -85,12 +85,16 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public void OnAttack()
     {
         if(gameStat.isInventoryPanelActive)return;
+        if(gameStat.isCombatAllow == false)return; 
+        
         _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
     public void OnReload()
     {
         if(gameStat.isInventoryPanelActive)return;
+        if(gameStat.isCombatAllow == false)return;
+        
         _player.Reload(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
     }
 
@@ -142,7 +146,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         gameStat.otherStorage = storage;
     }
 
-    public void OnExitStorage(IStorage storage)
+    public void OnExitStorage()
     {
         gameStat.otherStorage = null;
     }

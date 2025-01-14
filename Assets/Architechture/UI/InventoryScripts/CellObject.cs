@@ -84,6 +84,8 @@ public class CellObject
     public void Insert(A_Item_GUI insertGUI)
     {
         _item_GUI = insertGUI;
+
+        _item_GUI.SetStackText(_item_GUI.Item.StackingNum);
     }
 
     //使う

@@ -8,6 +8,11 @@ using Microsoft.Unity.VisualStudio.Editor;
 [System.Serializable]
 public class GameStatus
 {
+    [Header("Environment")]
+    [HideInInspector] public bool isCombatAllow = true;
+    [HideInInspector] public bool isInventoryAllow = true;
+    [HideInInspector] public bool isPlayerMovementAllow = true;
+
     [Header("PlayerActions")]
     public Action onPlayerAttackEvent;
     public Action onPlayerReloadEvent;
@@ -39,7 +44,7 @@ public class GameStatus
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
     public Shotgun[] shotgunPrefabs;
-
+    
     [Header("Player")]
     public PlayerController player;
 
@@ -93,6 +98,7 @@ public class GameStatus
 #region  即席
     [Header("Enemy")]
     public Transform enemyParent;
+    public List<AEnemy> enemyObjects;
 #endregion
 
     [Header("Facade")]

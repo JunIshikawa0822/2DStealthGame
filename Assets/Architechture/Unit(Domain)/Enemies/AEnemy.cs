@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class AEnemy : AEntity
 {
-     //[HideInInspector]
+    public Action<AGun> onEnemyDeadEvent;
+    protected AGun _enemyGun;
     public abstract IStorage WeaponStorage{get;}
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
@@ -29,4 +31,9 @@ public abstract class AEnemy : AEntity
     public abstract void Reload(AGun gun, Entity_Magazine magazine);
     public abstract void Hide();
     public abstract void Equip(AGun gun);
+    public override void OnEntityDead()
+    {
+        onEnemyDeadEvent?.Invoke(_enemyGun);
+        base.OnEntityDead();
+    }
 }

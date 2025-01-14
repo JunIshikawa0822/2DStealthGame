@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class MyObjectPool<T> : IObjectPool where T : APooledObject
+public class ObjectPool<T> : IObjectPool where T : APooledObject
 {
     private Stack<APooledObject> _pool;
     private GameObject _parent;
     private Transform _transform;
     private IFactory _factory;
 
-    public MyObjectPool(Transform poolTransform, IFactory factory)
+    public ObjectPool(Transform poolTransform, IFactory factory)
     {
         _pool = new Stack<APooledObject>();
         _parent = new GameObject(typeof(T).Name);

@@ -7,8 +7,8 @@ using Unity.Entities.UniversalDelegates;
 
 public class FOV : MonoBehaviour
 {
-    [SerializeField]float viewRadius;
-    [Range(0, 360), SerializeField]float viewAngle;
+    [SerializeField]float _viewRadius;
+    [Range(0, 360), SerializeField]float _viewAngle;
     [SerializeField] LayerMask targetMask;
     [SerializeField] LayerMask obstacleMask;
 
@@ -27,6 +27,9 @@ public class FOV : MonoBehaviour
     private Mesh _viewMesh;
 
     private CancellationTokenSource _cts;
+
+    public float ViewRadius {get => _viewRadius; set => _viewRadius = value;}
+    public float ViewAngle {get => _viewAngle; set => _viewAngle = value;}
 
     void Start()
     {
@@ -56,7 +59,7 @@ public class FOV : MonoBehaviour
 
     public List<Transform> FindTargets()
     {
-        return FindVisibleTargets(viewAngle, viewRadius);
+        return FindVisibleTargets(_viewAngle, _viewRadius);
     }
 
     public void DrawTargets()
@@ -79,7 +82,7 @@ public class FOV : MonoBehaviour
     {
         while(!token.IsCancellationRequested)
         {
-            _newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius);
+            _newVisibleTargets = FindVisibleTargets(_viewAngle, _viewRadius);
             DrawTargets();
             _oldVisibleTargets = _newVisibleTargets;
 
@@ -91,7 +94,7 @@ public class FOV : MonoBehaviour
     {
         if(_viewMesh == null)return;
         if(isDrawFieldOfView == false)return;
-        DrawFieldOfView(viewAngle, viewRadius, _viewMesh);
+        DrawFieldOfView(_viewAngle, _viewRadius, _viewMesh);
         //DrawFieldOfView(roundViewAngle1, roundViewRadius1, viewRoundMesh);
     }
 

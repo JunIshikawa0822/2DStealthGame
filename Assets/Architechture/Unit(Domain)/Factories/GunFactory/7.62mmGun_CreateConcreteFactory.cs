@@ -4,8 +4,8 @@ using UnityEngine;
 public class Gun_7_62mm_CreateConcreteFactory : IGunFactory
 {
     private Handgun _handgun;
-    private MyObjectPool<Bullet_7_62mm> _objectPool;
-    public Gun_7_62mm_CreateConcreteFactory(MyObjectPool<Bullet_7_62mm> objectPool, Handgun handgun)
+    private ObjectPool<Bullet_7_62mm> _objectPool;
+    public Gun_7_62mm_CreateConcreteFactory(ObjectPool<Bullet_7_62mm> objectPool, Handgun handgun)
     {
         _objectPool = objectPool;
 

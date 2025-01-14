@@ -14,9 +14,9 @@ public class GunSystem : ASystem, IOnFixedUpdate
         IFactory bullet_5_56mm_Fac = new Bullet_5_56mm_CreateConcreteFactory(gameStat.bullet_5_56mm);
         IFactory bullet_7_62mm_Fac = new Bullet_7_62mm_CreateConcreteFactory(gameStat.bullet_7_62mm);
     
-        MyObjectPool<Bullet_10mm> bullet_10mm_Objp = new MyObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, bullet_10mm_Fac);
-        MyObjectPool<Bullet_5_56mm> bullet_5_56mm_Objp = new MyObjectPool<Bullet_5_56mm>(gameStat.bulletObjectPoolTrans, bullet_5_56mm_Fac);
-        MyObjectPool<Bullet_7_62mm> bullet_7_62mm_Objp = new MyObjectPool<Bullet_7_62mm>(gameStat.bulletObjectPoolTrans,  bullet_7_62mm_Fac);
+        ObjectPool<Bullet_10mm> bullet_10mm_Objp = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, bullet_10mm_Fac);
+        ObjectPool<Bullet_5_56mm> bullet_5_56mm_Objp = new ObjectPool<Bullet_5_56mm>(gameStat.bulletObjectPoolTrans, bullet_5_56mm_Fac);
+        ObjectPool<Bullet_7_62mm> bullet_7_62mm_Objp = new ObjectPool<Bullet_7_62mm>(gameStat.bulletObjectPoolTrans,  bullet_7_62mm_Fac);
 
         _objectPools = new List<IObjectPool>()
         {

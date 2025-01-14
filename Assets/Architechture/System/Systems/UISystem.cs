@@ -7,11 +7,11 @@ public class UISystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         ToggleUI(gameStat.ammoText.gameObject, () => false);
-//        ToggleUI(gameStat.playerHPSlider.gameObject, () => true);
+        ToggleUI(gameStat.playerHPSlider.gameObject, () => true);
 
         //PlayerHPの初期化
-        // gameStat.playerHPSlider.maxValue = gameStat.playerHP.MaxHp;
-        // gameStat.playerHPSlider.value = gameStat.playerHP.MaxHp;
+        gameStat.playerHPSlider.maxValue = gameStat.playerHP.MaxHp;
+        gameStat.playerHPSlider.value = gameStat.playerHP.MaxHp;
 
         //gameStat.onSelectGunChange += ToggleAmmoUI;
     }
