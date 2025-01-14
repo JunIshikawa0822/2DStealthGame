@@ -14,11 +14,12 @@ public class InGameManager : MonoBehaviour
 
     List<IOnLateUpdate> _allLateUpdateSystemList;
 
-    public void SetUp(List<ASystem> systems, bool isCombatAllow, bool isInventoryAllow)
+    public void SetUp(List<ASystem> systems, SceneLoader[] sceneLoader, bool isCombatAllow, bool isInventoryAllow)
     {
         _allSystemsList = systems;
         _gameStat.isCombatAllow = isCombatAllow;
         _gameStat.isInventoryAllow = isInventoryAllow;
+        _gameStat.sceneLoader = sceneLoader;
 
         Init();
     }

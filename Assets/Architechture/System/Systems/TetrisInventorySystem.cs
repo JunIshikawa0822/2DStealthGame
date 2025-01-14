@@ -127,9 +127,9 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         return offsetVec;
     }
 
-    public void ItemUse(GUI_Item item)
+    public void ItemUse(Item_GUI gui)
     {
-        Debug.Log(item.Data.ObjectData.ItemName + "を使った");
+        Debug.Log(gui.Item.Data.ItemName + "を使った");
     }
 
     public void EquipmentInsert(int index, I_Data_Item data)

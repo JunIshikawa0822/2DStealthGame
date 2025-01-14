@@ -81,7 +81,7 @@ public class TetrisInventory : A_Inventory
         // Debug.Log($"({cell.position_x},{cell.position_y})のOriginは{cellNum}です!!!");
         // Debug.Log($"({cell.position_x},{cell.position_y})には{item}が入っています!!!");
 
-        if(cell.GUIInCell != null)
+        if(cell.GuiInCell != null)
         {
             image.enabled = false;
         }

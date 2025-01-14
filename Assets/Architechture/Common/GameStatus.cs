@@ -13,16 +13,14 @@ public class GameStatus
     [HideInInspector] public bool isInventoryAllow = true;
     [HideInInspector] public bool isPlayerMovementAllow = true;
 
+    [HideInInspector] public SceneLoader[] sceneLoader;
+
     [Header("PlayerActions")]
     public Action onPlayerAttackEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
     public Action onSelectGunChange;
 
-    #region 不使用
-    public Action<int, ItemData> onEquipEvent;
-    public Action<int> onUnEquipEvent;
-    #endregion
 
     public Action<int, I_Data_Item> onPlayerEquipEvent;
     public Action<int, I_Data_Item> onPlayerUnEquipEvent;
@@ -77,11 +75,6 @@ public class GameStatus
     //public PlayerEquipInventory equipInventory2; 
     //public Inventory inventory1;
     //public Inventory inventory2;
-
-    #region 不使用
-    public List<AInventory> inventoryList = new List<AInventory>();
-    public GUI_Item gui_Item_Prefab;
-    #endregion
 
     public List<A_Inventory> inventories = new List<A_Inventory>();
     public Item_GUI item_GUI_Prefab;
