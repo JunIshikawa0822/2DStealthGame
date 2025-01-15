@@ -5,7 +5,7 @@ public class ObservableArray<T>
 
     public event Action<int, T> OnValueChanged;
     public event Action ValueChangeEvent;
-    public event Action<T> OnArrayCleared;
+    public event Action OnArrayCleared;
 
     public ObservableArray(int size)
     {
@@ -29,6 +29,8 @@ public class ObservableArray<T>
         {
             _array[i] = default(T);
         }
+
+        OnArrayCleared?.Invoke();
     }
 
     public void Clear(int index, int length)
@@ -37,6 +39,8 @@ public class ObservableArray<T>
         {
             _array[i] = default(T);
         }
+
+        OnArrayCleared?.Invoke();
     }
 
     public int Length => _array.Length;
