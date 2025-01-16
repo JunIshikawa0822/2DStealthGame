@@ -21,6 +21,8 @@ public class PlayerRayMarching : MonoBehaviour
             Mathf.Abs(rayPoint.z - objectPos.y) - CubeSize / 2
         );
 
+        Debug.Log(d);
+        
         return Mathf.Max(d.x, Mathf.Max(d.y, d.z));
     }
 
@@ -40,6 +42,7 @@ public class PlayerRayMarching : MonoBehaviour
             foreach(Transform gameObject in gameObjects)
             {
                 float distanceToSphere = DistanceToSphere(rayOrigin + rayDirection * distanceTraveled, gameObject.position);
+                Debug.Log(distanceToSphere);
 
                 if(distanceToSphere < min)
                 {
