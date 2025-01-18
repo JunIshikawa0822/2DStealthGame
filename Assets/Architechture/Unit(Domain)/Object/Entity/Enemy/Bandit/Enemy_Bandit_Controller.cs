@@ -46,7 +46,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     //いずれはEnemyも生成した側で初期化することだけ留意
     void Start()
     {
-        
+        OnSetUp(new Entity_HealthPoint(100, 100));
     }
 
     public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)

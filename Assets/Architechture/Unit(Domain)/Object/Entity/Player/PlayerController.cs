@@ -17,6 +17,8 @@ public class PlayerController : AEntity
 
     //private Entity_HealthPoint _playerHP;
 
+    private AGun[] _playerGunArray;
+
     public Transform equipPos;
     public Transform subPos;
 
@@ -43,6 +45,7 @@ public class PlayerController : AEntity
 
         //_fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();
+        _playerGunArray = new AGun[2];
     }
 
     public void Move(Vector2 inputDirection)
@@ -136,6 +139,24 @@ public class PlayerController : AEntity
         if(gun == null)return;
         if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
         
+        uint max = gun.MaxAmmoNum;
+        uint current = gun.MaxAmmoNum;
+
+        Debug.Log(max + "," + current);
+        Entity_Magazine magazine = new Entity_Magazine(max, current);
+
+        EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
+    }
+
+    public void Reload(int gunIndex)
+    {
+        if(_isEntityActionInterval)return;
+
+        AGun gun = _playerGunArray[gunIndex];
+
+        if(gun == null) return;
+        if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
+
         uint max = gun.MaxAmmoNum;
         uint current = gun.MaxAmmoNum;
 
