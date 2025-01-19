@@ -264,7 +264,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void Attack()
     {
-        _enemyGun.Shot();
+        _enemyGun.TriggerOn();
     }
 
     public override void Hide()

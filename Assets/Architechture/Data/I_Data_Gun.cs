@@ -18,4 +18,5 @@ public interface I_Data_Gun : I_Data_Item
     public uint MaxAmmoNum{get;}
 
     public float ReloadTime{get;}
+    public bool IsAuto{get;}
 }

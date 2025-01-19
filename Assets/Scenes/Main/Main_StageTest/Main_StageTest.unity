@@ -41143,11 +41143,15 @@ MonoBehaviour:
     - {fileID: 4137975846648653191, guid: d21ce7b3b07f84da3834d1066d985115, type: 3}
     shotgunPrefabs:
     - {fileID: 4637144361313728936, guid: ca71673b6174c4fcfbb77292923163fb, type: 3}
+    riflePrefabs:
+    - {fileID: 4569925681728989563, guid: ffbe36a6e27b54ed784bfbbeae2fa8a4, type: 3}
     player: {fileID: 38237714}
     bandit: {fileID: 5773702129760587681, guid: c8c454c7eb1544cd7a1579ac81a40a87,
       type: 3}
-    data_Fixed_Food_Array: []
-    data_Fixed_Medicine_Array: []
+    data_Fixed_Food_Array:
+    - {fileID: 11400000, guid: 7299653d684374f9f81d7e33258de838, type: 2}
+    data_Fixed_Medicine_Array:
+    - {fileID: 11400000, guid: 0106b3622e4df433e9874c4d5308e61a, type: 2}
     data_Fixed_Handgun_Array: []
     data_Fixed_Rifle_Array: []
     data_Fixed_Shotgun_Array: []

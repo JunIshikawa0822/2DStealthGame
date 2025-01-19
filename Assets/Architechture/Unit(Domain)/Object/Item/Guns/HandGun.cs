@@ -39,7 +39,6 @@ public class Handgun : AGun
         base.Init(data);
 
         if(!(data is I_Data_HandGun handgunData)) return;
-        
     }
 
     public void OnUpdate()
@@ -47,9 +46,25 @@ public class Handgun : AGun
 
     }
 
+    public override void TriggerOn()
+    {
+        Shot();
+    }
+
+    public override void Shooting()
+    {
+        if(_gun_Data.IsAuto == false) return;
+        Shot();
+    }
+
+    public override void TriggerOff()
+    {
+        Debug.Log("連射不可");
+    }
+
     public override void Shot()
     {
-        //マガジンがないor弾がないとそもそも撃てない
+                //マガジンがないor弾がないとそもそも撃てない
         if(_magazine == null || _magazine.MagazineRemaining < 1)
         {
             Debug.Log("弾、ないよ");
@@ -81,25 +96,12 @@ public class Handgun : AGun
         _shotIntervalTokenSource = new CancellationTokenSource();
 
         _isShotIntervalActive = true;
-        //ShotInterval(_shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
+        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
 
-        // if(_muzzleFlashRenderer == null) return;
-
-        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
-        
-        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
     }
 
     public override void Reload(Entity_Magazine magazine)
     {
-        //Debug.Log(this.gameObject.name + ":" + magazine);
-
-        //_actionIntervalTokenSource = new CancellationTokenSource();
-        //ActionInterval(null, _actionIntervalTokenSource.Token, _reloadInterval, "リロードクールダウン").Forget();
-
         _magazine = magazine;
     }
 

@@ -40,7 +40,7 @@ public class ShotGun_CreateConcreteFactory : ICustomizeFactory
         gun.OnSetUp(objectPool);
         gun.Init(gunData);
         //gun.GunData = gunData;
-        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
+        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, gunData.MaxAmmoNum));
         
 
         return gun;

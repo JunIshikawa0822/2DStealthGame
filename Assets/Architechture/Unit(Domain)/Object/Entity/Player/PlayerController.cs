@@ -88,28 +88,7 @@ public class PlayerController : AEntity
 
     void Update()
     {
-
         equipPos.SetPositionAndRotation(equipPos.position, this.transform.rotation);
-        // if(Input.GetKeyDown(KeyCode.J))
-        // {
-        //     List<string> isList = new List<string>();
-        //     foreach(AGun gun in _playerGunsArray)
-        //     {
-        //         if(gun == null)
-        //         {
-        //             isList.Add("入っていない");
-        //         }
-        //         else
-        //         {
-        //             isList.Add("入っている");
-        //         }
-        //     }
-
-        //     //Debug.Log("1" + _playerGun1.Name);
-        //     //Debug.Log("2" + _playerGun2.Name);
-
-        //     Debug.Log(string.Join(",", isList));
-        // }
 
         Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
         if(collides.Length > 0)
@@ -122,14 +101,24 @@ public class PlayerController : AEntity
         }
     }
 
-    public void Attack(AGun gun)
+    public void AttackStart(AGun gun)
     {
         if(gun == null)return;
-        gun.Shot();
+        gun.TriggerOn();
 
         _playerAnimator.SetTrigger("Shot");
 
         EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
+    }
+
+    public void Attaking(AGun gun)
+    {
+
+    }
+
+    public void AttackEnd(AGun gun)
+    {
+
     }
 
     public void Reload(AGun gun)

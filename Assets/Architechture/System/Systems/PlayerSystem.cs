@@ -28,7 +28,10 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.storageFindEvent += OnFindStorage;
         _player.leaveStorageEvent += OnExitStorage;
 
-        gameStat.onPlayerAttackEvent += OnAttack;
+        gameStat.onPlayerAttackStartEvent += OnAttackStart;
+        gameStat.onPlayerAttackingEvent += OnAttack;
+        gameStat.onPlayerAttackEndEvent += OnAttackEnd;
+
         gameStat.onPlayerReloadEvent += OnReload;
 
         gameStat.onPlayerEquipEvent += OnEquipGun;
@@ -82,12 +85,24 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         return new Vector2(x,z);
     }
 
-    public void OnAttack()
+    public void OnAttackStart()
     {
         if(gameStat.isInventoryPanelActive)return;
         if(gameStat.isCombatAllow == false)return; 
         
-        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        _player.AttackStart(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+
+        Debug.Log("AttackStart");
+    }
+
+    public void OnAttack()
+    {
+        Debug.Log("Attack");
+    }
+
+    public void OnAttackEnd()
+    {
+        Debug.Log("AttackEnd");
     }
 
     public void OnReload()

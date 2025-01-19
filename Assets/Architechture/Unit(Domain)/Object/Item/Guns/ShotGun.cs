@@ -46,6 +46,22 @@ public class Shotgun : AGun
 
     }
 
+    public override void TriggerOn()
+    {
+        Shot();
+    }
+
+    public override void Shooting()
+    {
+        if(_gun_Data.IsAuto == false) return;
+        Shot();
+    }
+
+    public override void TriggerOff()
+    {
+        Debug.Log("連射不可");
+    }
+
     public override void Shot()
     {
         //マガジンがないor弾がないとそもそも撃てない
@@ -59,6 +75,7 @@ public class Shotgun : AGun
         if(_isShotIntervalActive)return;
         //_objectPoolの有無をチェック
         if(_objectPool == null)return;
+        //Poolからもってくる
 
         Quaternion centerAngle = _muzzlePosition.rotation;
 
@@ -68,20 +85,15 @@ public class Shotgun : AGun
             ABullet bullet = _objectPool.GetFromPool() as ABullet;
 
             if(bullet == null)
-            {
-                Debug.Log("キャスト無理ぃ");
-                return;
-            }
-
             if (bullet.gameObject == null)return;
 
-            float angleOffset = -_spreadAngle / 2 + (_spreadAngle / (_simulNum - 1)) * i;
+            float angleOffset = -_spreadAngle / 2 + _spreadAngle / (_simulNum - 1) * i;
 
-            Debug.Log(angleOffset);
             Quaternion bulletRotation = centerAngle * Quaternion.Euler(0, angleOffset, 0);
 
             //発射
             Debug.Log("発射");
+            
             bullet.Init(_muzzlePosition.position);
             bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, bulletRotation);
             bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
@@ -89,19 +101,10 @@ public class Shotgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
-        
         _shotIntervalTokenSource = new CancellationTokenSource();
 
         _isShotIntervalActive = true;
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
-
-        // if(_muzzleFlashRenderer == null) return;
-
-        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
-        
-        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
+        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
     }
 
     public override void Reload(Entity_Magazine magazine)

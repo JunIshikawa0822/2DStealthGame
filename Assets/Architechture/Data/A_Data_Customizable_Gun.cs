@@ -11,12 +11,15 @@ public abstract class A_Data_Customizable_Gun : A_Data_Customizable, I_Data_Gun
     [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
+    [SerializeField] bool _isAuto;
 
     public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
     public virtual float ShotInterval{get => _shotInterval;}
     public virtual float ShotVelocity{get => _muzzleVelocity;}
     public virtual uint MaxAmmoNum{get => _maxAmmoNum;}
     public virtual float ReloadTime{get => _reloadTime;}
+    public virtual bool IsAuto{get => _isAuto;}
+    
 
     public override bool Equals(I_Data_Item data)
     {

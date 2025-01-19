@@ -15,7 +15,7 @@ public abstract class AGun : MonoBehaviour, IObject
     protected string _gunName;
     protected float _reloadTime;
     protected IObjectPool _objectPool;
-    private I_Data_Gun _gun_Data;
+    protected I_Data_Gun _gun_Data;
 
     [SerializeField]
     protected Transform _muzzlePosition;
@@ -47,6 +47,10 @@ public abstract class AGun : MonoBehaviour, IObject
     }
     //public abstract void OnUpdate();
     public abstract void Reload(Entity_Magazine magazine);
+    public abstract void TriggerOn();
+    public abstract void Shooting();
+    public abstract void TriggerOff();
+
     public abstract void Shot();
     public abstract void Jam();
     public abstract UniTask IntervalWait(Action action, CancellationToken token, float time, string ActionName);

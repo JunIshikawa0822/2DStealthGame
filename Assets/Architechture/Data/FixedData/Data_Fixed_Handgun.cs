@@ -20,6 +20,7 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
     [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
+    [SerializeField] bool _isAuto;
 
     #region  銃基本機能
     public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
@@ -27,6 +28,7 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
     public virtual float ShotVelocity{get => _muzzleVelocity;}
     public virtual uint MaxAmmoNum{get => _maxAmmoNum;}
     public virtual float ReloadTime{get => _reloadTime;}
+    public virtual bool IsAuto{get => _isAuto;}
     #endregion
 
     #region GUI基本機能

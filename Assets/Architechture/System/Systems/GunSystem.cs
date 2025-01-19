@@ -34,7 +34,8 @@ public class GunSystem : ASystem, IOnFixedUpdate
         _gunFactoriesList = new List<ICustomizeFactory>
         {
             new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
-            new ShotGun_CreateConcreteFactory(gameStat.shotgunPrefabs, _objectPools)
+            new ShotGun_CreateConcreteFactory(gameStat.shotgunPrefabs, _objectPools),
+            new Rifle_CreateConcreteFactory(gameStat.riflePrefabs, _objectPools)
         };
 
         gameStat.gunFacade = new GunFacade(_gunFactoriesList, gameStat.gunInstanceParent);

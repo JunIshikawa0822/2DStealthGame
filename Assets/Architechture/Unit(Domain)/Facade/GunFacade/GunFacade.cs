@@ -15,6 +15,7 @@ public class GunFacade
 
         AddCategory("Handgun", _gunFactories[0]);
         AddCategory("Shotgun", _gunFactories[1]);
+        AddCategory("Rifle", _gunFactories[2]);
     }
 
     private void AddCategory(string name, ICustomizeFactory gunFactory)
@@ -34,6 +35,7 @@ public class GunFacade
         {
             case I_Data_HandGun : gun = categories[0].GetInstance(data);break;
             case I_Data_Shotgun : gun = categories[1].GetInstance(data);break;
+            case I_Data_Rifle : gun = categories[2].GetInstance(data);break;
 
             default : return null;
         }
@@ -50,6 +52,7 @@ public class GunFacade
         {
             case I_Data_HandGun : categories[0].Return(gun); break;
             case I_Data_Shotgun : categories[1].Return(gun); break;
+            case I_Data_Rifle : categories[2].Return(gun); break;
         }
     }
 }

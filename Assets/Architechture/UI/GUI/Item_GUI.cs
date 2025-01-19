@@ -62,6 +62,7 @@ public class Item_GUI : A_Item_GUI, IObject
         switch (itemDirection) 
         {
             default:
+            break;
             case IInventoryItem.ItemDir.Down : 
                 SetRotation(Quaternion.Euler(0, 0, 0));
                 break;
@@ -89,6 +90,7 @@ public class Item_GUI : A_Item_GUI, IObject
     {
         _stackNumText.text = stackNum.ToString();
     }
+
     public override void SetPivot(IInventoryItem.ItemDir direction)
     {
         switch(direction)

@@ -21,6 +21,7 @@ public class Data_Fixed_Shotgun : A_Data_Fixed<Data_Fixed_Shotgun>, I_Data_Shotg
     [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
+    [SerializeField] bool _isAuto;
 
     [Header("ショットガンのデータ")]
     [SerializeField] int _simulNum;
@@ -43,6 +44,7 @@ public class Data_Fixed_Shotgun : A_Data_Fixed<Data_Fixed_Shotgun>, I_Data_Shotg
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}
     public int ItemID{get => _itemID;}
+    public virtual bool IsAuto{get => _isAuto;}
     #endregion
 
     #region カスタマイズかそうでないかで機能が変わるやつら

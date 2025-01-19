@@ -11,11 +11,12 @@ public class GameStatus
     [HideInInspector] public bool isCombatAllow = true;
     [HideInInspector] public bool isInventoryAllow = true;
     [HideInInspector] public bool isPlayerMovementAllow = true;
-
     [HideInInspector] public SceneLoader[] sceneLoader;
 
     [Header("PlayerActions")]
-    public Action onPlayerAttackEvent;
+    public Action onPlayerAttackStartEvent;
+    public Action onPlayerAttackingEvent;
+    public Action onPlayerAttackEndEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
     public Action onSelectGunChange;
@@ -30,7 +31,7 @@ public class GameStatus
     public Vector3 cursorWorldPosition = Vector3.zero;
     //public bool onAttack = false;
     public GameObject cursorObject;
-    public UnityEngine.UI.Image cursorImage;
+    public Image cursorImage;
 
     [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;
@@ -41,6 +42,7 @@ public class GameStatus
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
     public Shotgun[] shotgunPrefabs;
+    public Rifle[] riflePrefabs;
     
     [Header("Player")]
     public PlayerController player;

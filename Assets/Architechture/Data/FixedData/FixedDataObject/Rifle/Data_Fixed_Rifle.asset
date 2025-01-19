@@ -22,6 +22,7 @@ MonoBehaviour:
   _itemPrice: 50000
   _muzzleVelocity: 1000
   _shotInterval: 0.1
-  _caliberType: 0
+  _caliberType: 2
   _maxAmmoNum: 30
   _reloadTime: 5
+  _isAuto: 1

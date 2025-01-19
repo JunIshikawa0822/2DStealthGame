@@ -18,7 +18,10 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerMoveTest.performed += OnMoveInput;
         _gameInputs.PlayerActionTest.PlayerMoveTest.canceled += OnMoveInput;
 
-        _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackInput;
+        _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackStartInput;
+        _gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackingInput;
+        _gameInputs.PlayerActionTest.PlayerAttackTest.canceled += OnAttackEndInput;
+
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
         _gameInputs.PlayerActionTest.PlayerInventoryTest.started += OnInventoryInput;
         
@@ -61,10 +64,21 @@ public class InputSystem : ASystem, IOnPreUpdate
         Debug.Log("押している");
     }
 
-    private void OnAttackInput(InputAction.CallbackContext context)
+    private void OnAttackStartInput(InputAction.CallbackContext context)
     {
         //Debug.Log("click");
-        gameStat.onPlayerAttackEvent?.Invoke();
+        gameStat.onPlayerAttackStartEvent?.Invoke();
+    }
+
+    private void OnAttackingInput(InputAction.CallbackContext context)
+    {
+        //Debug.Log("click");
+        gameStat.onPlayerAttackingEvent?.Invoke();
+    }
+
+    private void OnAttackEndInput(InputAction.CallbackContext context)
+    {
+        gameStat.onPlayerAttackEndEvent?.Invoke();
     }
 
     private void OnReloadInput(InputAction.CallbackContext context)
