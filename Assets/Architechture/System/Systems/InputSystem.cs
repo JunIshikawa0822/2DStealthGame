@@ -72,7 +72,6 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private void OnAttackingInput(InputAction.CallbackContext context)
     {
-        //Debug.Log("click");
         gameStat.onPlayerAttackingEvent?.Invoke();
     }
 

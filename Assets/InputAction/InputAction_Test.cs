@@ -171,7 +171,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""6b25270a-e3dc-4fd5-af83-34cec5246f54"",
                     ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": ""Press(behavior=2)"",
+                    ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PlayerAttackTest"",

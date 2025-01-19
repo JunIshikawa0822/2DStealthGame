@@ -108,17 +108,19 @@ public class PlayerController : AEntity
 
         _playerAnimator.SetTrigger("Shot");
 
-        EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
+        //EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
     }
 
     public void Attaking(AGun gun)
     {
-
+        if(gun == null)return;
+        gun.Shooting();
     }
 
     public void AttackEnd(AGun gun)
     {
-
+        if(gun == null)return;
+        gun.TriggerOff();
     }
 
     public void Reload(AGun gun)

@@ -21,7 +21,6 @@ public class GameStatus
     public Action onInventoryActiveEvent;
     public Action onSelectGunChange;
 
-
     public Action<int, I_Data_Item> onPlayerEquipEvent;
     public Action<int, I_Data_Item> onPlayerUnEquipEvent;
 

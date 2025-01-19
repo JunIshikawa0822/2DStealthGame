@@ -97,11 +97,13 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnAttack()
     {
-        Debug.Log("Attack");
+        _player.Attaking(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        Debug.Log("Attacking");
     }
 
     public void OnAttackEnd()
     {
+        _player.AttackEnd(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
         Debug.Log("AttackEnd");
     }
 

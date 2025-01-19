@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using UniRx;
 
 public class Rifle : AGun
 {
@@ -15,6 +16,7 @@ public class Rifle : AGun
     private CancellationTokenSource _shotIntervalTokenSource;
     private CancellationTokenSource _actionIntervalTokenSource;
     //----------------------------------------
+    private CompositeDisposable _shotDisposable;
 
     //銃に必要な処理
     //----------------------------------------
@@ -32,6 +34,8 @@ public class Rifle : AGun
 
         _isShotIntervalActive = false;
         _isJamming = false;
+
+        _shotDisposable = new CompositeDisposable();
     }
 
     public override void Init(I_Data_Gun data)
@@ -49,23 +53,35 @@ public class Rifle : AGun
 
     public override void TriggerOn()
     {
+        //射撃と射撃の間隔を制御
+        if(_isShotIntervalActive)return;
+
         Shot();
+
+        _isShotIntervalActive = true;
+        _shotIntervalTokenSource = new CancellationTokenSource();
+        
+        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
+
     }
 
     public override void Shooting()
     {
         if(_gun_Data.IsAuto == false) return;
-        Shot();
+
+        Observable.Interval(System.TimeSpan.FromSeconds(_gun_Data.ShotInterval))
+            .Subscribe(_ => Shot())
+            .AddTo(_shotDisposable); // 射撃用のDisposableに追加
     }
 
     public override void TriggerOff()
     {
-        Debug.Log("連射不可");
+        _shotDisposable.Clear();
     }
 
     public override void Shot()
     {
-                //マガジンがないor弾がないとそもそも撃てない
+        //マガジンがないor弾がないとそもそも撃てない
         if(_magazine == null || _magazine.MagazineRemaining < 1)
         {
             Debug.Log("弾、ないよ");
@@ -73,7 +89,7 @@ public class Rifle : AGun
         }
 
         //射撃と射撃の間隔を制御
-        if(_isShotIntervalActive)return;
+        //if(_isShotIntervalActive)return;
         //_objectPoolの有無をチェック
         if(_objectPool == null)return;
         //Poolからもってくる
@@ -93,11 +109,10 @@ public class Rifle : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
-        _shotIntervalTokenSource = new CancellationTokenSource();
+        //_shotIntervalTokenSource = new CancellationTokenSource();
 
         _isShotIntervalActive = true;
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
-
+        //IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
     }
 
     public override void Reload(Entity_Magazine magazine)
