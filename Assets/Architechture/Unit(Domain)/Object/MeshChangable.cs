@@ -34,7 +34,7 @@ public class MeshChangable : MonoBehaviour
     public void EntityMeshAble()
     {
         // Debug.Log("ついた");
-        Debug.Log(_entityRenderer == null);
+        //Debug.Log(_entityRenderer == null);
         _entityRenderer.enabled = true;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)

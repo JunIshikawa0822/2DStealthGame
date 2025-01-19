@@ -53,6 +53,8 @@ public class Rifle : AGun
 
     public override void TriggerOn()
     {
+        Debug.Log("撃ってる");
+        Debug.Log(_isShotIntervalActive);
         //射撃と射撃の間隔を制御
         if(_isShotIntervalActive)return;
 
@@ -60,16 +62,15 @@ public class Rifle : AGun
 
         _isShotIntervalActive = true;
         _shotIntervalTokenSource = new CancellationTokenSource();
-        
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
 
+        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
     }
 
     public override void Shooting()
     {
         if(_gun_Data.IsAuto == false) return;
 
-        Observable.Interval(System.TimeSpan.FromSeconds(_gun_Data.ShotInterval))
+        Observable.Interval(System.TimeSpan.FromSeconds(_shotInterval))
             .Subscribe(_ => Shot())
             .AddTo(_shotDisposable); // 射撃用のDisposableに追加
     }
@@ -111,7 +112,7 @@ public class Rifle : AGun
         _magazine.ConsumeBullet();
         //_shotIntervalTokenSource = new CancellationTokenSource();
 
-        _isShotIntervalActive = true;
+        //_isShotIntervalActive = true;
         //IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
     }
 

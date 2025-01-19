@@ -30,6 +30,8 @@ public class Shotgun : AGun
 
         _isShotIntervalActive = false;
         _isJamming = false;
+
+        _shotDisposable = new CompositeDisposable();
     }
 
     public override void Init(I_Data_Gun data)
@@ -63,7 +65,7 @@ public class Shotgun : AGun
     {
         if(_gun_Data.IsAuto == false) return;
 
-        Observable.Interval(System.TimeSpan.FromSeconds(_gun_Data.ShotInterval))
+        Observable.Interval(System.TimeSpan.FromSeconds(_shotInterval))
             .Subscribe(_ => Shot())
             .AddTo(_shotDisposable); // 射撃用のDisposableに追加
     }
@@ -110,7 +112,7 @@ public class Shotgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
-        _isShotIntervalActive = true;
+        //_isShotIntervalActive = true;
     }
 
     public override void Reload(Entity_Magazine magazine)

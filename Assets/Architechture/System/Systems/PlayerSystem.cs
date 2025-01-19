@@ -44,7 +44,35 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnUpdate()
     {
-        // Debug.Log(gameStat.selectingGunsArrayIndex);
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("は？");
+
+            List<string> normalStorage = new List<string>();
+            List<string> weaponStorage1 = new List<string>();
+            List<string> weaponStorage2 = new List<string>();
+
+            foreach(IInventoryItem item in gameStat.player.Storage.GetItems())
+            {
+                normalStorage.Add(item.Data.GetType().ToString());
+            }
+
+            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage1.GetItems())
+            {
+                if(item == null)break;
+                weaponStorage1.Add(item.Data.GetType().ToString());
+            }
+
+            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage2.GetItems())
+            {
+                if(item == null)break;
+                weaponStorage2.Add(item.Data.GetType().ToString());
+            }
+
+            Debug.Log("PlayerNormalStorage : " + string.Join(",", normalStorage));
+            Debug.Log("WeaponStorage1 : " + string.Join(",", weaponStorage1));
+            Debug.Log("WeaponStorage2 : " + string.Join(",", weaponStorage2));
+        }
 
         if(gameStat.isInventoryPanelActive)
         {

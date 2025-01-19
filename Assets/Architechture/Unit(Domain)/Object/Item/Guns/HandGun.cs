@@ -63,7 +63,7 @@ public class Handgun : AGun
     {
         if(_gun_Data.IsAuto == false) return;
 
-        Observable.Interval(System.TimeSpan.FromSeconds(_gun_Data.ShotInterval))
+        Observable.Interval(System.TimeSpan.FromSeconds(_shotInterval))
             .Subscribe(_ => Shot())
             .AddTo(_shotDisposable); // 射撃用のDisposableに追加
     }
