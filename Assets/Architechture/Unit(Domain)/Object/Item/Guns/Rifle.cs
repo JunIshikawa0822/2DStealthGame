@@ -87,7 +87,6 @@ public class Rifle : AGun
 
         if (bullet.gameObject == null)return;
         //発射
-        Debug.Log("発射");
         bullet.Init(_muzzlePosition.position);
         bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, _muzzlePosition.rotation);
         bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
