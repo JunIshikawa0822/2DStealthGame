@@ -59,6 +59,9 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     {
         gameStat.isInventoryPanelActive = !gameStat.isInventoryPanelActive;
         InventoryPanelActive(gameStat.isInventoryPanelActive);
+
+        //if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)return;
+//        Debug.Log(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].Magazine.MagazineRemaining);
     }
 
     private void InventoryPanelActive(bool isActive)

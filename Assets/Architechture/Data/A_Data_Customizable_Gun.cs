@@ -8,12 +8,12 @@ public abstract class A_Data_Customizable_Gun : A_Data_Customizable, I_Data_Gun
     [Header("銃の基本データ")]
     [SerializeField] float _muzzleVelocity;
     [SerializeField] float _shotInterval;
-    [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
+    [SerializeField] IBulletType.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
     [SerializeField] bool _isAuto;
 
-    public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
+    public IBulletType.CaliberTypes CaliberType{get => _caliberType;}
     public virtual float ShotInterval{get => _shotInterval;}
     public virtual float ShotVelocity{get => _muzzleVelocity;}
     public virtual uint MaxAmmoNum{get => _maxAmmoNum;}

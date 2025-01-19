@@ -12,7 +12,6 @@ public class Shotgun : AGun
     //----------------------------------------
     //private LineRenderer _muzzleFlashRenderer;
     //private IObjectPool _objectPool;
-
     //----------------------------------------
     private CancellationTokenSource _shotIntervalTokenSource;
     //----------------------------------------
@@ -56,7 +55,7 @@ public class Shotgun : AGun
 
         _isShotIntervalActive = true;
         _shotIntervalTokenSource = new CancellationTokenSource();
-        
+
         IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
     }
 
@@ -111,10 +110,7 @@ public class Shotgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
-        //_shotIntervalTokenSource = new CancellationTokenSource();
-
         _isShotIntervalActive = true;
-        //IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
     }
 
     public override void Reload(Entity_Magazine magazine)

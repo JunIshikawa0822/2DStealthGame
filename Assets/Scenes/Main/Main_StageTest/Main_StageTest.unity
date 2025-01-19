@@ -8317,6 +8317,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f2f3989cf16e84db4a0c07c8b6d56626, type: 2}
   - {fileID: 11400000, guid: f2f3989cf16e84db4a0c07c8b6d56626, type: 2}
   - {fileID: 11400000, guid: f2f3989cf16e84db4a0c07c8b6d56626, type: 2}
+  _stackNumberList: 0100000001000000010000000100000001000000
 --- !u!65 &137356516
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8720,6 +8721,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
   - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
   - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
+  _stackNumberList: 0100000001000000010000000100000001000000
 --- !u!65 &147263258
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10212,6 +10214,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0106b3622e4df433e9874c4d5308e61a, type: 2}
   - {fileID: 11400000, guid: 0106b3622e4df433e9874c4d5308e61a, type: 2}
   - {fileID: 11400000, guid: 0106b3622e4df433e9874c4d5308e61a, type: 2}
+  _stackNumberList: 0800000004000000020000000600000003000000
 --- !u!65 &229306566
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13935,6 +13938,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _testDataList: []
+  _stackNumberList: 
 --- !u!65 &468474542
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -24985,6 +24989,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _testDataList: []
+  _stackNumberList: 
 --- !u!65 &666609510
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -32913,6 +32918,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 393570dbd8b504c1f992182bc528e512, type: 2}
   - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
   - {fileID: 11400000, guid: 393570dbd8b504c1f992182bc528e512, type: 2}
+  _stackNumberList: 
 --- !u!1001 &1093974765
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39617,6 +39623,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1480134150}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e9770cbe7b93043d6a7322dc793c0e73,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1480134153}
   m_SourcePrefab: {fileID: 100100000, guid: e9770cbe7b93043d6a7322dc793c0e73, type: 3}
 --- !u!4 &1480134145 stripped
 Transform:
@@ -39663,6 +39673,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1480134153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480134146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ff2852db6bd4c1abb401f7255f4726, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _testDataList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _stackNumberList: 00000000000000000000000000000000
 --- !u!1001 &1495473800
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40761,7 +40789,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.2532199, z: -0, w: 0.9674088}
   m_LocalPosition: {x: -78.76, y: 0.2, z: -64.609985}
-  m_LocalScale: {x: -3.8800004, y: 0.79, z: 0.46000004}
+  m_LocalScale: {x: 4, y: 0.79, z: 0.46000004}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2071014985}
@@ -51192,6 +51220,52 @@ PrefabInstance:
         type: 3}
       propertyPath: _playerMoveForce
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _testDataList.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _testDataList.Array.data[5]
+      value: 
+      objectReference: {fileID: 11400000, guid: 5b0b5229dc2544e8eaddbb2e7fb9149a,
+        type: 2}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[0]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[1]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[2]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[3]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[4]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[5]
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}

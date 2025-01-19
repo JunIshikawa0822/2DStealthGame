@@ -18,7 +18,7 @@ public class Data_Fixed_Shotgun : A_Data_Fixed<Data_Fixed_Shotgun>, I_Data_Shotg
     [Header("銃の基本データ")]
     [SerializeField] float _muzzleVelocity;
     [SerializeField] float _shotInterval;
-    [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
+    [SerializeField] IBulletType.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
     [SerializeField] bool _isAuto;
@@ -28,7 +28,7 @@ public class Data_Fixed_Shotgun : A_Data_Fixed<Data_Fixed_Shotgun>, I_Data_Shotg
     [SerializeField] float _spreadAngle;
 
     #region  銃基本機能
-    public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
+    public IBulletType.CaliberTypes CaliberType{get => _caliberType;}
     public virtual float ShotInterval{get => _shotInterval;}
     public virtual float ShotVelocity{get => _muzzleVelocity;}
     public virtual uint MaxAmmoNum{get => _maxAmmoNum;}

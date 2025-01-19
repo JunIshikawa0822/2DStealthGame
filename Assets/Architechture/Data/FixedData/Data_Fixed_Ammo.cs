@@ -1,8 +1,8 @@
-using UnityEngine;
 using System;
-
-[CreateAssetMenu(fileName = "Data_Fixed_Handgun", menuName = "ScriptableObject/ItemData/Fixed/UnConsumable/Fixed_Handgun", order = 0)]
-public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandGun
+using Unity.Entities.UniversalDelegates;
+using UnityEngine;
+[CreateAssetMenu(fileName = "Data_Fixed_Ammo", menuName = "ScriptableObject/ItemData/Fixed/Consumable/Fixed_Ammo", order = 0)]
+public class Data_Fixed_Ammo: A_Data_Fixed<Data_Fixed_Ammo>, I_Data_Ammo
 {
     [Header("GUIの情報")]
     [SerializeField]private string _itemName;
@@ -14,21 +14,11 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
     [SerializeField]private int _itemID;
     [SerializeField]private int _itemPrice;
 
-    [Header("銃の基本データ")]
-    [SerializeField] float _muzzleVelocity;
-    [SerializeField] float _shotInterval;
-    [SerializeField] IBulletType.CaliberTypes _caliberType;
-    [SerializeField] uint _maxAmmoNum;
-    [SerializeField] float _reloadTime;
-    [SerializeField] bool _isAuto;
+    [Header("弾の情報")]
+    [SerializeField]private IBulletType.CaliberTypes _caliberTypes;
 
-    #region  銃基本機能
-    public IBulletType.CaliberTypes CaliberType{get => _caliberType;}
-    public virtual float ShotInterval{get => _shotInterval;}
-    public virtual float ShotVelocity{get => _muzzleVelocity;}
-    public virtual uint MaxAmmoNum{get => _maxAmmoNum;}
-    public virtual float ReloadTime{get => _reloadTime;}
-    public virtual bool IsAuto{get => _isAuto;}
+    #region  弾基本機能
+    public IBulletType.CaliberTypes CaliberType{get => _caliberTypes;}
     #endregion
 
     #region GUI基本機能
@@ -42,7 +32,7 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
     public int ItemID{get => _itemID;}
     #endregion
 
-    #region カスタマイズかそうでないかで機能が変わるやつら
+    #region カスタマイズかそうでないかで機能が変わるやつ
     public int Price {get => _itemPrice;}
     public float UseTime{get => 0;}
     public bool IsClickUse{get => false;}
@@ -87,12 +77,6 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
             hashCode.Add(_stackableNum);
             hashCode.Add(_itemID);
             hashCode.Add(_itemPrice);
-
-            hashCode.Add(_muzzleVelocity);
-            hashCode.Add(_shotInterval);
-            hashCode.Add(_caliberType);
-            hashCode.Add(_maxAmmoNum);
-            hashCode.Add(_reloadTime);
 
             return hashCode.ToHashCode();
         }

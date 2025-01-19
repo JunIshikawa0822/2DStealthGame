@@ -125,15 +125,22 @@ public class PlayerController : AEntity
 
     public void Reload(AGun gun)
     {
+        Debug.Log("リロード");
         if(_isEntityActionInterval)return;
 
         if(gun == null)return;
         if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
-        
-        uint max = gun.MaxAmmoNum;
-        uint current = gun.MaxAmmoNum;
 
-        Debug.Log(max + "," + current);
+        IInventoryItem ammoItem = _playerStorage.FindItem<I_Data_Ammo>((I_Data_Ammo ammo) => ammo.CaliberType == gun.Data.CaliberType);
+        
+        // Debug.Log("アモ検索 : " + (ammoItem == null));
+        if(ammoItem == null) return;
+
+        Debug.Log("リロードしている");
+        uint max = gun.MaxAmmoNum;
+        uint current = ammoItem.StackingNum >= gun.MaxAmmoNum ? gun.MaxAmmoNum : ammoItem.StackingNum;
+
+        ammoItem.StackingNum -= current;
         Entity_Magazine magazine = new Entity_Magazine(max, current);
 
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
@@ -147,6 +154,7 @@ public class PlayerController : AEntity
 
         if(gun == null) return;
         if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
+
 
         uint max = gun.MaxAmmoNum;
         uint current = gun.MaxAmmoNum;

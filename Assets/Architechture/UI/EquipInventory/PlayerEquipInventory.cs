@@ -86,7 +86,7 @@ public class PlayerEquipInventory : A_Inventory
             gui.Item.Address = new CellNumber(0, 0);
             gui.Item.Direction = IInventoryItem.ItemDir.Down;
 
-            InsertItem(gui, gui.Item.Address, gui.Item.Direction);
+            //InsertItem(gui, gui.Item.Address, gui.Item.Direction);
 
             gui.SetParent(_container);
 
