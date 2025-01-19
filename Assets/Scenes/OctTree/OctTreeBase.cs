@@ -132,7 +132,7 @@ public class OctTreeBase : MonoBehaviour
         //するとa ^ (1/3) = bとなる
         int baseNum = (int)Mathf.Pow(cellNum, 1f/3f);
 
-        Debug.Log(baseNum);
+        //Debug.Log(baseNum);
 
         // XY平面
         for (int i = 0; i <= baseNum; i++)
@@ -142,9 +142,9 @@ public class OctTreeBase : MonoBehaviour
                 Gizmos.color = new Color(1f, 0, 0, 0.5f);
                 
                 Vector3 fromOffset = (transform.right * (_cellWidth * i)) + (transform.forward * _cellDepth * j);
-                Debug.Log("fromOffset : " + fromOffset);
+                //Debug.Log("fromOffset : " + fromOffset);
                 Vector3 toOffset = transform.up * (_cellHeight * baseNum);
-                Debug.Log("toOffset : " + toOffset);
+                //Debug.Log("toOffset : " + toOffset);
 
                 Vector3 from = this.transform.position + fromOffset;
                 //Debug.Log("from : " + from);
