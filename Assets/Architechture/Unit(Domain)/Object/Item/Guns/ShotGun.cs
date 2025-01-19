@@ -45,7 +45,7 @@ public class Shotgun : AGun
 
     public void OnUpdate()
     {
-
+        
     }
 
     public override void TriggerOn()
@@ -95,7 +95,7 @@ public class Shotgun : AGun
             //Poolからもってくる
             ABullet bullet = _objectPool.GetFromPool() as ABullet;
 
-            if(bullet == null)
+            if(bullet == null) return;
             if (bullet.gameObject == null)return;
 
             float angleOffset = -_spreadAngle / 2 + _spreadAngle / (_simulNum - 1) * i;

@@ -1,8 +1,7 @@
-// Each #kernel tells which function to compile; you can have many kernels
+//エントリポイントの指定
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
+//書き込みができるテクスチャデータらしい
 RWTexture2D<float4> Result;
 
 // 定数バッファの定義
@@ -16,128 +15,128 @@ RWTexture2D<float4> Result;
 #define THREADS_Y 8
 
 // オブジェクトデータ構造
-struct ObjectData {
+struct ObjectData 
+{
     float3 position; // オブジェクトの位置
-    float3 size;     // サイズ (半径や寸法)
+    float3 size;    // サイズ (半径や寸法)
     int type;        // オブジェクトタイプ
 };
 
 // 入力バッファ
 StructuredBuffer<ObjectData> objects; // オブジェクトのリスト
-uint objectCount; 
+uint objectCount;
 
 RWTexture2D<float4> result;
 
-// カメラパラメータ
-cbuffer CameraParams {
-    float4x4 cameraToWorld; // カメラ座標系からワールド座標系への変換
-    float4x4 projectionInv; // 逆投影行列
-    float3 cameraPosition;  // カメラの位置
-    float maxDistance;      // 最大レイ距離
-};
+// // カメラパラメータ
+// cbuffer CameraParams {
+//     float4x4 cameraToWorld; // カメラ座標系からワールド座標系への変換
+//     float4x4 projectionInv; // 逆投影行列
+//     float3 cameraPosition;  // カメラの位置
+//     float maxDistance;      // 最大レイ距離
+// };
 
-// 距離関数 (Signed Distance Function)
-float SDF_Sphere(float3 p, float radius) {
-    return length(p) - radius;
-}
+float maxDistance;
+float threshold;
+int rayMarchStep;
 
-float SDF_Box(float3 p, float3 size) {
-    float3 d = abs(p) - size;
-    return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
-}
-
-float SDF_Rect(float3 p, float3 size) {
-    return max(max(abs(p.x) - size.x, abs(p.y) - size.y), abs(p.z) - size.z);
-}
-
-float SDF_Capsule(float3 p, float3 a, float3 b, float radius) {
-    float3 pa = p - a;
-    float3 ba = b - a;
-    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-    return length(pa - ba * h) - radius;
-}
-
-// シーン全体の距離関数
-float SceneSDF(float3 p) 
+// 距離関数 (Signed Distance Function)らしい
+//vec には　レイの座標とオブジェクトの座標の差をとったベクトル情報が入る
+float SDF_Sphere(float3 vec, float radius)
 {
-    float d = maxDistance;
+    return length(vec) - radius;
+}
 
-    for (int i = 0; i < objectCount; i++) 
+// //軸に並行なAABB 立方体
+// float SDF_Box(float3 pos, float3 size) {
+//     float3 dist = abs(pos) - size;
+//     return min(max(dist.x, max(dist.y, dist.z)), 0.0) + length(max(dist, 0.0));
+// }
+
+// //軸に並行な直方体 
+// float SDF_Rect(float3 pos, float3 size) 
+// {
+//     return max(max(abs(pos.x) - size.x, abs(pos.y) - size.y), abs(pos.z) - size.z);
+// }
+
+// float SDF_Capsule(float3 p, float3 a, float3 b, float radius) {
+//     float3 pa = p - a;
+//     float3 ba = b - a;
+//     float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+//     return length(pa - ba * h) - radius;
+// }
+
+// シーンに存在するオブジェクト全てと比較し、一番短い距離を返す
+//当たり判定が欲しいので、大事なのはインデックス 距離は一応持っておく
+float SceneSDF(float3 rayPos, out int hitObjectIndex)
+{
+    float minDist = maxDistance;
+
+    for (int i = 0; i < objectCount; i++)
     {
         ObjectData obj = objects[i];
-        float dist = maxDistance;
+        float nowDist = maxDistance;
 
-        if (obj.type == OBJECT_TYPE_SPHERE) 
+        if (obj.type == OBJECT_TYPE_SPHERE)
         {
-            dist = SDF_Sphere(p - obj.position, obj.size.x);
-        } 
-        else if (obj.type == OBJECT_TYPE_BOX) 
-        {
-            dist = SDF_Box(p - obj.position, obj.size);
-        } 
-        else if (obj.type == OBJECT_TYPE_RECT) 
-        {
-            dist = SDF_Rect(p - obj.position, obj.size);
-        } 
-        else if (obj.type == OBJECT_TYPE_CAPSULE) 
-        {
-            float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
-            float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
-            dist = SDF_Capsule(p, a, b, obj.size.x);
+            nowDist = SDF_Sphere(rayPos - obj.position, obj.size.x);
         }
+        // else if (obj.type == OBJECT_TYPE_BOX) 
+        // {
+        //     dist = SDF_Box(p - obj.position, obj.size);
+        // } 
+        // else if (obj.type == OBJECT_TYPE_RECT) 
+        // {
+        //     dist = SDF_Rect(p - obj.position, obj.size);
+        // } 
+        // else if (obj.type == OBJECT_TYPE_CAPSULE) 
+        // {
+        //     float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
+        //     float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
+        //     dist = SDF_Capsule(p, a, b, obj.size.x);
+        // }
 
-        d = min(d, dist);
+        //minDist = min(minDist, nowDist);
+
+        if(nowDist < minDist)
+        {
+            minDist = nowDist;
+            hitObjectIndex = i;
+        }
     }
-    return d;
+
+    return minDist;
 }
 
 // レイマーチング
-float RayMarch(float3 origin, float3 direction) 
+//全てのオブジェクトに対して比較することを256回繰り返す
+float RayMarch(float3 originPos, float3 directionVec, out int hitObjectIndex)
 {
     float distance = 0.0;
-    for (int i = 0; i < 256; i++) {
-        float3 pos = origin + direction * distance;
-        float d = SceneSDF(pos);
-        if (d < 0.001) 
+    hitObjectIndex = -1;
+
+    for (int i = 0; i < rayMarchStep; i++) 
+    {
+        float3 pos = originPos + directionVec * distance;
+        float minDist = SceneSDF(pos, hitObjectIndex);
+
+        if (minDist < threshold)
         { // ヒット判定
             return distance;
         }
-        distance += d;
+        distance += minDist;
+
         if (distance > maxDistance) {
             break;
         }
     }
+
     return -1.0; // ヒットなし
 }
 
 // メインカーネル
 [numthreads(THREADS_X, THREADS_Y, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID) 
+void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    uint width, height;
-    uint2 dim = result.GetDimensions(width, height);
-    if (id.x >= dim.x || id.y >= dim.y) {
-        return;
-    }
-
-    // UV座標の計算
-    float2 uv = (float2(id.xy) / dim.xy) * 2.0 - 1.0;
-    uv.y *= -1.0;
-
-    // レイ方向の計算
-    float4 clipPos = float4(uv, 0, 1);
-    float4 viewPos = mul(projectionInv, clipPos);
-    viewPos /= viewPos.w;
-    float3 rayDir = normalize(mul((float3x3)cameraToWorld, viewPos.xyz));
-
-    // レイマーチングの実行
-    float t = RayMarch(cameraPosition, rayDir);
-
-    // 結果の格納
-    if (t > 0.0) {
-        float3 hitPos = cameraPosition + rayDir * t;
-        result[id.xy] = float4(hitPos, 1.0);
-    } else {
-        result[id.xy] = float4(0, 0, 0, 1); // 背景
-    }
+    
 }
