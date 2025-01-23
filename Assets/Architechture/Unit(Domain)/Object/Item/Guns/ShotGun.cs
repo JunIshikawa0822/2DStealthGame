@@ -130,7 +130,7 @@ public class Shotgun : AGun
     {
         lineRenderer.enabled = !lineRenderer.enabled;
     }
-    public override async UniTask IntervalWait(Action action, CancellationToken token, float time, string ActionName)
+    public override async UniTask IntervalWait(Action action, CancellationToken token, float time, string actionName)
     {
         try
         {
@@ -138,7 +138,7 @@ public class Shotgun : AGun
         }
         catch
         {
-            Debug.Log($"{ActionName} がキャンセルされました");
+            Debug.Log($"{actionName} がキャンセルされました");
         }
         finally
         {

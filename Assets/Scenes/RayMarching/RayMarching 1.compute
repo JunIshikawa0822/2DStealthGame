@@ -7,10 +7,6 @@
 #define OBJECT_TYPE_RECT 2
 #define OBJECT_TYPE_CAPSULE 3
 
-// グループサイズ
-#define THREADS_X 10
-#define THREADS_Y 1
-
 // オブジェクトデータ構造
 struct ObjectData
 {
@@ -24,21 +20,12 @@ struct ObjectData
 //RWTexture2D<float4> Result;
 RWStructuredBuffer<int> _outputBuffer : register(u0);//データ渡し必要
 StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
-
-RWStructuredBuffer<float3> _debugBuffer : register(u1);
-RWStructuredBuffer<int> _debugBuffer2 : register(u2);
-RWStructuredBuffer<float> _debugBuffer3 : register(u3);
-RWStructuredBuffer<float> _debugBuffer4 : register(u4);
-
-RWStructuredBuffer<float> _debugBuffer5 : register(u5);
-RWStructuredBuffer<int> _debugBuffer6 : register(u6);
+int _objectCount;
+int _rayCount;
 
 float _maxDistance; //固定 //データ渡し必要
 float _threshold; //固定 //データ渡し必要
-int _rayCount; //固定 //データ渡し必要
-float _viewAngle; //固定
 
-int _objectCount; //可変
 float3 _originPos; //可変
 float3 _forwardVec; //可変
 
@@ -70,12 +57,10 @@ float SDF_Sphere(float3 vec, float radius)
 
 // シーンに存在するオブジェクト全てと比較し、一番短い距離を返す
 //当たり判定が欲しいので、大事なのはインデックス 距離は一応持っておく
-float SceneSDF(float3 rayPos,
-    RWStructuredBuffer<float> debugBuffer,
-    RWStructuredBuffer<int> debugBuffer2,
-    int i, int j)
+float SceneSDF(float3 rayPos, out int nearestIndex)
 {
     float minDist = _maxDistance;
+    nearestIndex = -1;
     
     for (int k = 0; k < _objectCount; k++)
     {
@@ -85,9 +70,6 @@ float SceneSDF(float3 rayPos,
         if (obj.type == OBJECT_TYPE_SPHERE)
         {
             nowDist = SDF_Sphere(rayPos - obj.position, obj.size.x);
-
-            debugBuffer2[i * (10 + 20) * j * _objectCount + k] = k;
-            debugBuffer[i * (10 + 20) * j * _objectCount + k] = nowDist;
         }
         //i * (20 * 10) + j * 10 + k;
         // else if (obj.type == OBJECT_TYPE_BOX) 
@@ -110,6 +92,7 @@ float SceneSDF(float3 rayPos,
         if(nowDist < minDist)
         {
             minDist = nowDist;
+            nearestIndex = k;
         }
     }
     
@@ -118,40 +101,19 @@ float SceneSDF(float3 rayPos,
 
 // レイマーチング
 //全てのオブジェクトに対して比較することを256回繰り返す
-float RayMarch(
-    float3 originPos, float3 directionVec, out float minimumDist,
-    RWStructuredBuffer<float3> debugBuffer, int i,
-    RWStructuredBuffer<float> debugBuffer1,
-    RWStructuredBuffer<float> debugBuffer2,
-    out int tryNumer
-    )
+int RayMarch(float3 originPos, float3 directionVec)
 {
     float distance = 0.0;
-    //hitObjectIndex = -1;
-    //hitPos = originPos;
-    minimumDist = 10000;
-    int num = 0;
-    
+
     for (int j = 0; j < 20; j++)
     {
-        tryNumer = i;
+        int nearestIndex = -1;
         float3 pos = originPos + directionVec * distance;
-        float minDist = SceneSDF(pos, _debugBuffer5, _debugBuffer6, i, j);
-
-        debugBuffer[20 * i + j] = pos;
-        debugBuffer1[20 * i + j] = minDist;
-        debugBuffer2[20 * i + j] = distance;
-
-        if (minDist < minimumDist)
-        {
-            minimumDist = minDist;
-        }
+        float minDist = SceneSDF(pos, nearestIndex);
     
         if (minDist < _threshold)
         { // ヒット判定
-            //hitPos = pos;
-            //hitObjectIndex = nearIndex;
-            return distance;
+            return nearestIndex;
         }
     
         if (distance > _maxDistance)
@@ -162,7 +124,7 @@ float RayMarch(
         distance += minDist;
     }
     
-    return _maxDistance; // ヒットなし
+    return -1; // ヒットなし
 }
 
 float3 rotate(float3 vec, float3 rotateBaseAxis, float angle)
@@ -216,28 +178,19 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     int rayIndex = id.x;
     if (rayIndex >= _rayCount) return;
 
-    float3 hitPos = _originPos;
-    //int threadNum = THREADS_X * THREADS_Y;
-    float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1));
-    float halfAngle = radians(_viewAngle) / 2;
+    // float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1));
+    // float halfAngle = radians(_viewAngle) / 2;
     
-    float3 rayAngle = -halfAngle + betweenAngle * rayIndex;
-    float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));
+    //float3 rayAngle = -halfAngle + betweenAngle * rayIndex;
+    //float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));
 
-    int hitObjectIndex = -1;
-    int minDist = 5000;
-    int tryNumber = 0;
-    float hitDistance = RayMarch(_originPos, rayDir, minDist,
-        _debugBuffer, rayIndex,
-        _debugBuffer3,
-        _debugBuffer4,
-        tryNumber);
+    int hitIndex = RayMarch(_originPos, _forwardVec);
 
     // 結果の処理
-    _outputBuffer[rayIndex] = hitObjectIndex;
+    _outputBuffer[rayIndex] = hitIndex;
     
     //debugBuffer[rayIndex] = originPos + rayDir * maxDistance;
-    _debugBuffer2[rayIndex] = tryNumber;
+    //_debugBuffer2[rayIndex] = tryNumber;
 }
 
 
