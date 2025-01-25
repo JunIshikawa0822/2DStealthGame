@@ -32,9 +32,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     // private GraphicsBuffer _debugBuffer;
     // private Vector3[] _debugResultArray;
     //
-    private int _debugBuffer2ID;
-    private GraphicsBuffer _debugBuffer2;
-    private float[] _debugResultArray2;
+    // private int _debugBuffer2ID;
+    // private GraphicsBuffer _debugBuffer2;
+    // private float[] _debugResultArray2;
     //
     // private int _debugBuffer3ID;
     // private GraphicsBuffer _debugBuffer3;
@@ -48,9 +48,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     // private GraphicsBuffer _debugBuffer5;
     // private Vector3[] _debugResultArray5;
     // //
-    // private int _debugBuffer6ID;
-    // private GraphicsBuffer _debugBuffer6;
-    // private Vector3[] _debugResultArray6;
+    private int _debugBuffer6ID;
+    private GraphicsBuffer _debugBuffer6;
+    private Vector3[] _debugResultArray6;
     //
     // private int _debugBuffer7ID;
     // private GraphicsBuffer _debugBuffer7;
@@ -98,10 +98,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _rayMarchingComputeShader.SetBuffer(0, _debugBufferID, _debugBuffer);
         // _debugResultArray = new Vector3[1];
         
-        _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
-        _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
-        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
-        _debugResultArray2 = new float[20];
+        // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
+        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
+        // _debugResultArray2 = new float[20];
         //
         // _debugBuffer3ID = Shader.PropertyToID("_debugBuffer3");
         // _debugBuffer3 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
@@ -118,10 +118,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer5ID, _debugBuffer5);
         // _debugResultArray5 = new Vector3[20];
         //
-        // _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
-        // _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float) * 3);
-        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
-        // _debugResultArray6 = new Vector3[20];
+        _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
+        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
+        _debugResultArray6 = new Vector3[20];
         //
         // _debugBuffer7ID = Shader.PropertyToID("_debugBuffer7");
         // _debugBuffer7 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
@@ -157,8 +157,6 @@ public class PlayerRayMarching1 : MonoBehaviour
                 type = 0, // タイプを 0, 1, 2 のどれかに設定
                 padding = Vector3.zero //16バイト境界の調整
             };
-            
-            //Debug.Log($"{objectDataArray[i].position} , {objectDataArray[i].size}, {objectDataArray[i].type}, {objectDataArray[i].padding}");
         }
         
         //オブジェクトの情報を受け渡すためのBufferをつくる
@@ -169,7 +167,6 @@ public class PlayerRayMarching1 : MonoBehaviour
         _rayMarchingComputeShader.SetBuffer(_kernelIndex, _objectBufferID, _objectBuffer);
         
         //可変データをセット
-        // Debug.Log(this.transform.position);
         _rayMarchingComputeShader.SetVector(_originPosID, this.transform.position);
         
         _rayMarchingComputeShader.SetVector(_forwardVecID, this.transform.forward);
@@ -218,7 +215,7 @@ public class PlayerRayMarching1 : MonoBehaviour
         // for (int i = 0; i < 20; i++)
         // {
         //     Debug.Log($"ステップ {i}で originPosは{_debugResultArray6[i]}");
-        //     Debug.Log($"ステップ {i}で thresHoldは{_debugResultArray2[i]}");
+        //     Debug.Log($"ステップ {i}で thresholdは{_debugResultArray2[i]}");
         //     Debug.Log($"ステップ {i}で、レイの位置は{_debugResultArray5[i]}");
         //     
         //     // for (int j = 0; j < 8; j++)
@@ -251,5 +248,6 @@ public class PlayerRayMarching1 : MonoBehaviour
     {
         _outputBuffer.Dispose();
         _objectBuffer.Dispose();
+        _debugBuffer6.Dispose();
     }
 }
