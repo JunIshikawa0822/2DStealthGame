@@ -20,6 +20,7 @@ struct ObjectData
 //RWTexture2D<float4> Result;
 RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
 StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
+RWStructuredBuffer<float3> _positionBuffer : register(u1);
 
 RWStructuredBuffer<float3> _debugBuffer6 : register(u6);
 
@@ -104,13 +105,18 @@ float SceneSDF(float3 rayPos, out int nearestIndex)
 
 // レイマーチング
 //全てのオブジェクトに対して比較することを256回繰り返す
-int RayMarch(float3 originPos, float3 directionVec)
+int RayMarch(float3 originPos, float3 directionVec, out float3 hitPos)
 {
     float distance = 0.0;
+    hitPos = originPos + directionVec * _maxDistance;
+    
     for (int j = 0; j < 20; j++)
     {
+        //このコードがあるとなぜか動く
         _debugBuffer6[j] = originPos;
 
+        //なぜ？
+        //なぜ？
         int nearestIndex = -1;
         float3 pos = originPos + directionVec * distance;
         float minDist = SceneSDF(pos, nearestIndex);
@@ -118,7 +124,7 @@ int RayMarch(float3 originPos, float3 directionVec)
         if (minDist < _threshold)
         {
             // ヒット判定
-            //hitPos = pos;
+            hitPos = pos;
             return nearestIndex;
         }
 
@@ -194,7 +200,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     //float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));
 
     float3 hitPos = float3(0, 0, 0);
-    int hitIndex = RayMarch(_originPos, _forwardVec);
+    int hitIndex = RayMarch(_originPos, _forwardVec, hitPos);
     // 結果の処理
+    _positionBuffer[rayIndex] = hitPos;
     _outputBuffer[rayIndex] = hitIndex;
 }

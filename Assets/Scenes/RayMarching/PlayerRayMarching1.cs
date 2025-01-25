@@ -28,9 +28,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     //public List<Transform> oldTargets = new List<Transform>();
     //public List<Transform> newTargets = new List<Transform>();
     
-    // private int _debugBufferID;
-    // private GraphicsBuffer _debugBuffer;
-    // private Vector3[] _debugResultArray;
+    private int _positionBufferID;
+    private GraphicsBuffer _positionBuffer;
+    private Vector3[] _positionResultArray;
     //
     // private int _debugBuffer2ID;
     // private GraphicsBuffer _debugBuffer2;
@@ -93,10 +93,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         _rayMarchingComputeShader.SetFloat(thresholdID, _thresholdValue);
         _rayMarchingComputeShader.SetInt(rayCountID, _rayCount);
         
-        // _debugBufferID = Shader.PropertyToID("_debugBuffer");
-        // _debugBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
-        // _rayMarchingComputeShader.SetBuffer(0, _debugBufferID, _debugBuffer);
-        // _debugResultArray = new Vector3[1];
+        _positionBufferID = Shader.PropertyToID("_positionBuffer");
+        _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(0, _positionBufferID, _positionBuffer);
+        _positionResultArray = new Vector3[1];
         
         // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
         // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
@@ -187,7 +187,7 @@ public class PlayerRayMarching1 : MonoBehaviour
             Debug.Log(resultArray[i]);
         }
         
-        //_debugBuffer.GetData((_debugResultArray));
+        _positionBuffer.GetData((_positionResultArray));
         // _debugBuffer2.GetData((_debugResultArray2));
         // _debugBuffer3.GetData((_debugResultArray3));
         // // _debugBuffer4.GetData((_debugResultArray4));
@@ -238,10 +238,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // XZ平面
         // for (int i = 0; i < _rayCount; i++)
         // {
-        // Vector3 from = this.transform.position;
+        Vector3 from = this.transform.position;
         // // Debug.Log(_debugResultArray[i]);
-        // Vector3 to = _debugResultArray[0];
-        // Gizmos.DrawLine(from, to);
+        Vector3 to = _positionResultArray[0];
+        Gizmos.DrawLine(from, to);
         // }
     }
     private void OnDestroy()
