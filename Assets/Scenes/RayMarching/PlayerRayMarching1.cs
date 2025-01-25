@@ -3,6 +3,7 @@ using UnityEngine;
 //using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 
 public class PlayerRayMarching1 : MonoBehaviour
 {
@@ -50,11 +51,11 @@ public class PlayerRayMarching1 : MonoBehaviour
     // //
     private int _debugBuffer6ID;
     private GraphicsBuffer _debugBuffer6;
-    private Vector3[] _debugResultArray6;
+    private float[] _debugResultArray6;
     //
-    private int _debugBuffer7ID;
-    private GraphicsBuffer _debugBuffer7;
-    private Vector3[] _debugResultArray7;
+    // private int _debugBuffer7ID;
+    // private GraphicsBuffer _debugBuffer7;
+    // private Vector3[] _debugResultArray7;
     //
     // private int _debugBuffer8ID;
     // private GraphicsBuffer _debugBuffer8;
@@ -101,9 +102,9 @@ public class PlayerRayMarching1 : MonoBehaviour
         _rayMarchingComputeShader.SetInt(rayCountID, _rayCount);
         
         _positionBufferID = Shader.PropertyToID("_positionBuffer");
-        _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
-        _rayMarchingComputeShader.SetBuffer(0, _positionBufferID, _positionBuffer);
         _positionResultArray = new Vector3[1];
+        _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _positionResultArray.Length, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(0, _positionBufferID, _positionBuffer);
         
         // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
         // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
@@ -126,8 +127,8 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _debugResultArray5 = new Vector3[20];
         //
         _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
-        _debugResultArray6 = new Vector3[20];
-        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray6.Length, sizeof(float) * 3);
+        _debugResultArray6 = new float[1];
+        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray6.Length, sizeof(float));
         _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
         
         // _debugBuffer7ID = Shader.PropertyToID("_debugBuffer7");
@@ -199,7 +200,7 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _debugBuffer3.GetData((_debugResultArray3));
         // // _debugBuffer4.GetData((_debugResultArray4));
         // _debugBuffer5.GetData((_debugResultArray5));
-        // _debugBuffer6.GetData((_debugResultArray6));
+        _debugBuffer6.GetData((_debugResultArray6));
         // _debugBuffer7.GetData((_debugResultArray7));
         //_debugBuffer8.GetData((_debugResultArray8));
         
@@ -255,6 +256,6 @@ public class PlayerRayMarching1 : MonoBehaviour
     {
         _outputBuffer.Dispose();
         _objectBuffer.Dispose();
-        _debugBuffer6.Dispose();
+        //_debugBuffer6.Dispose();
     }
 }

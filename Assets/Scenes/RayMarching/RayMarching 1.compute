@@ -25,9 +25,9 @@ struct ObjectData
 
 //書き込みができるテクスチャデータらしい
 //RWTexture2D<float4> Result;
-//RWStructuredBuffer<float3> _debugBuffer6 : register(u6);
+//RWStructuredBuffer<float3> _debugBuffer6 : register(u1);
 //RWStructuredBuffer<float3> _debugBuffer7 : register(u7);
-RWStructuredBuffer<float3> _positionBuffer : register(u1);//ここに問題
+//RWStructuredBuffer<float3> _positionBuffer : register(u1);//ここに問題
 RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
 StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
 
@@ -116,6 +116,8 @@ int RayMarch(float3 originPos, float3 directionVec, out float3 hitPos)
 {
     float distance = 0.0;
     hitPos = originPos + directionVec * _maxDistance;
+    //hitPos = 0.01f;
+    int nearest = -1;
     
     for (int j = 0; j < 20; j++)
     {
@@ -127,18 +129,18 @@ int RayMarch(float3 originPos, float3 directionVec, out float3 hitPos)
         {
             // ヒット判定
             hitPos = pos;
-            return nearestIndex;
+            nearest = nearestIndex;
         }
 
         if (distance > _maxDistance)
         {
             break;
         }
-
+        
         distance += minDist;
     }
 
-    return -1; // ヒットなし
+    return nearest; // ヒットなし
 }
 
 float3 rotate(float3 vec, float3 rotateBaseAxis, float angle)
@@ -194,7 +196,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // _debugBuffer[0] = _originPos;
     // _debugBuffer[1] = _forwardVec;
-
+    // float debug = _maxDistance;
+    
     // float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1));
     // float halfAngle = radians(_viewAngle) / 2;
 
@@ -204,6 +207,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     float3 hitPos = float3(0, 0, 0);
     int hitIndex = RayMarch(_originPos, _forwardVec, hitPos);
     // 結果の処理
-    _positionBuffer[rayIndex] = hitPos;
+    //_positionBuffer[rayIndex] = hitPos;
+    //_debugBuffer6[rayIndex] = hitPos;
     _outputBuffer[rayIndex] = hitIndex;
+    
 }
