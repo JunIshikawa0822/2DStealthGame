@@ -16,13 +16,20 @@ struct ObjectData
     float3 padding;
 };
 
+// struct DebugData
+// {
+//     int a;
+//     float b;
+//     uint c;
+// };
+
 //書き込みができるテクスチャデータらしい
 //RWTexture2D<float4> Result;
+//RWStructuredBuffer<float3> _debugBuffer6 : register(u6);
+//RWStructuredBuffer<float3> _debugBuffer7 : register(u7);
+RWStructuredBuffer<float3> _positionBuffer : register(u1);//ここに問題
 RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
 StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
-RWStructuredBuffer<float3> _positionBuffer : register(u1);
-
-RWStructuredBuffer<float3> _debugBuffer6 : register(u6);
 
 int _objectCount;
 int _rayCount;
@@ -112,12 +119,7 @@ int RayMarch(float3 originPos, float3 directionVec, out float3 hitPos)
     
     for (int j = 0; j < 20; j++)
     {
-        //このコードがあるとなぜか動く
-        _debugBuffer6[j] = originPos;
-
-        //なぜ？
-        //なぜ？
-        int nearestIndex = -1;
+        int nearestIndex = -2;
         float3 pos = originPos + directionVec * distance;
         float minDist = SceneSDF(pos, nearestIndex);
         

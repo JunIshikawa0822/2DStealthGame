@@ -314,7 +314,7 @@ MonoBehaviour:
   _rayMarchingComputeShader: {fileID: 7200000, guid: 2cbae872cfd7e4e60835d96443534816,
     type: 3}
   _rayCount: 1
-  _thresHoldValue: 0.01
+  _thresholdValue: 0.01
   _maxDistance: 60
   objectArray:
   - {fileID: 408145678}
@@ -324,7 +324,6 @@ MonoBehaviour:
   - {fileID: 2104636824}
   - {fileID: 2050423716}
   - {fileID: 2110426066}
-  - {fileID: 1229889723}
 --- !u!1 &363151192
 GameObject:
   m_ObjectHideFlags: 0

@@ -52,9 +52,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     private GraphicsBuffer _debugBuffer6;
     private Vector3[] _debugResultArray6;
     //
-    // private int _debugBuffer7ID;
-    // private GraphicsBuffer _debugBuffer7;
-    // private Vector3[] _debugResultArray7;
+    private int _debugBuffer7ID;
+    private GraphicsBuffer _debugBuffer7;
+    private Vector3[] _debugResultArray7;
     //
     // private int _debugBuffer8ID;
     // private GraphicsBuffer _debugBuffer8;
@@ -66,6 +66,13 @@ public class PlayerRayMarching1 : MonoBehaviour
         public float size; //4バイト
         public int type; //4バイト
         public Vector3 padding; //12バイト 16バイトの境界にあわせて整理
+    }
+
+    struct DebugData
+    {
+        private int a;
+        private float b;
+        private uint c;
     }
 
     void Start()
@@ -119,10 +126,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _debugResultArray5 = new Vector3[20];
         //
         _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
-        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float) * 3);
-        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
         _debugResultArray6 = new Vector3[20];
-        //
+        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray6.Length, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
+        
         // _debugBuffer7ID = Shader.PropertyToID("_debugBuffer7");
         // _debugBuffer7 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer7ID, _debugBuffer7);
