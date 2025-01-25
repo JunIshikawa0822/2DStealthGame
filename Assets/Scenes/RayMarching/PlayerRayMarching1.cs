@@ -28,37 +28,37 @@ public class PlayerRayMarching1 : MonoBehaviour
     //public List<Transform> oldTargets = new List<Transform>();
     //public List<Transform> newTargets = new List<Transform>();
     
-    private int _debugBufferID;
-    private GraphicsBuffer _debugBuffer;
-    private Vector3[] _debugResultArray;
+    // private int _debugBufferID;
+    // private GraphicsBuffer _debugBuffer;
+    // private Vector3[] _debugResultArray;
     //
     private int _debugBuffer2ID;
     private GraphicsBuffer _debugBuffer2;
     private float[] _debugResultArray2;
     //
-    private int _debugBuffer3ID;
-    private GraphicsBuffer _debugBuffer3;
-    private float[] _debugResultArray3;
+    // private int _debugBuffer3ID;
+    // private GraphicsBuffer _debugBuffer3;
+    // private float[] _debugResultArray3;
+    // //
+    // private int _debugBuffer4ID;
+    // private GraphicsBuffer _debugBuffer4;
+    // private GameObjectData[] _debugResultArray4;
+    // //
+    // private int _debugBuffer5ID;
+    // private GraphicsBuffer _debugBuffer5;
+    // private Vector3[] _debugResultArray5;
+    // //
+    // private int _debugBuffer6ID;
+    // private GraphicsBuffer _debugBuffer6;
+    // private Vector3[] _debugResultArray6;
     //
-    private int _debugBuffer4ID;
-    private GraphicsBuffer _debugBuffer4;
-    private GameObjectData[] _debugResultArray4;
+    // private int _debugBuffer7ID;
+    // private GraphicsBuffer _debugBuffer7;
+    // private Vector3[] _debugResultArray7;
     //
-    private int _debugBuffer5ID;
-    private GraphicsBuffer _debugBuffer5;
-    private Vector3[] _debugResultArray5;
-    //
-    private int _debugBuffer6ID;
-    private GraphicsBuffer _debugBuffer6;
-    private Vector3[] _debugResultArray6;
-    
-    private int _debugBuffer7ID;
-    private GraphicsBuffer _debugBuffer7;
-    private Vector3[] _debugResultArray7;
-    
-    private int _debugBuffer8ID;
-    private GraphicsBuffer _debugBuffer8;
-    private Vector3[] _debugResultArray8;
+    // private int _debugBuffer8ID;
+    // private GraphicsBuffer _debugBuffer8;
+    // private Vector3[] _debugResultArray8;
 
     struct GameObjectData
     {
@@ -93,16 +93,16 @@ public class PlayerRayMarching1 : MonoBehaviour
         _rayMarchingComputeShader.SetFloat(thresholdID, _thresholdValue);
         _rayMarchingComputeShader.SetInt(rayCountID, _rayCount);
         
-        _debugBufferID = Shader.PropertyToID("_debugBuffer");
-        _debugBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
-        _rayMarchingComputeShader.SetBuffer(0, _debugBufferID, _debugBuffer);
-        _debugResultArray = new Vector3[1];
+        // _debugBufferID = Shader.PropertyToID("_debugBuffer");
+        // _debugBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBufferID, _debugBuffer);
+        // _debugResultArray = new Vector3[1];
         
-        // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
-        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
-        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
-        // _debugResultArray2 = new float[20];
-        // //
+        _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
+        _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
+        _debugResultArray2 = new float[20];
+        //
         // _debugBuffer3ID = Shader.PropertyToID("_debugBuffer3");
         // _debugBuffer3 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer3ID, _debugBuffer3);
@@ -136,7 +136,7 @@ public class PlayerRayMarching1 : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("くぎり始め");
+        // Debug.Log("くぎり始め");
         // gameObjectBufferがすでに存在する場合は解放
         if (_objectBuffer != null)
         {

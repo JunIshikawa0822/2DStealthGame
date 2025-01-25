@@ -11,18 +11,18 @@
 struct ObjectData
 {
     float3 position; // オブジェクトの位置
-    float size;    // サイズ (半径や寸法)
-    int type;        // オブジェクトタイプ
+    float size; // サイズ (半径や寸法)
+    int type; // オブジェクトタイプ
     float3 padding;
 };
 
 //書き込みができるテクスチャデータらしい
 //RWTexture2D<float4> Result;
-RWStructuredBuffer<int> _outputBuffer : register(u0);//データ渡し必要
+RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
 StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
 
 // RWStructuredBuffer<float3> _debugBuffer : register(u1);
-// RWStructuredBuffer<float> _debugBuffer2 : register(u2);
+RWStructuredBuffer<float> _debugBuffer2 : register(u2);
 // RWStructuredBuffer<float> _debugBuffer3 : register(u3);
 //
 // RWStructuredBuffer<ObjectData> _debugBuffer4 : register(u4);
@@ -73,7 +73,7 @@ float SceneSDF(float3 rayPos, out int nearestIndex, int j)
 {
     float minDist = _maxDistance;
     nearestIndex = -1;
-    
+
     for (int k = 0; k < _objectCount; k++)
     {
         ObjectData obj = _objectsBuffer[k];
@@ -104,13 +104,13 @@ float SceneSDF(float3 rayPos, out int nearestIndex, int j)
 
         //minDist = min(minDist, nowDist);
 
-        if(nowDist < minDist)
+        if (nowDist < minDist)
         {
             minDist = nowDist;
             nearestIndex = k;
         }
     }
-    
+
     return minDist;
 }
 
@@ -124,23 +124,24 @@ int RayMarch(float3 originPos, float3 directionVec)
     for (int j = 0; j < 20; j++)
     {
         // _debugBuffer6[j] = originPos;
-        // _debugBuffer2[j] = _threshold;
-        
+        _debugBuffer2[j] = -0.05f;
+
         int nearestIndex = -1;
-        
+
         float3 pos = originPos + directionVec * distance;
         float minDist = SceneSDF(pos, nearestIndex, j);
-        
+
         // _debugBuffer3[j] = minDist;
         // _debugBuffer5[j] = pos;
-        
-    
+
+
         if (minDist < _threshold)
-        { // ヒット判定
+        {
+            // ヒット判定
             //hitPos = pos;
             return nearestIndex;
         }
-    
+
         if (distance > _maxDistance)
         {
             break;
@@ -148,7 +149,7 @@ int RayMarch(float3 originPos, float3 directionVec)
 
         distance += minDist;
     }
-    
+
     return -1; // ヒットなし
 }
 
@@ -208,7 +209,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1));
     // float halfAngle = radians(_viewAngle) / 2;
-    
+
     //float3 rayAngle = -halfAngle + betweenAngle * rayIndex;
     //float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));
     //_debugBuffer7[0] = _forwardVec;
@@ -228,9 +229,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // {
     //     _debugBuffer3[j] = _objectsBuffer[j].position;
     // }
-    
+
     //debugBuffer[rayIndex] = originPos + rayDir * maxDistance;
     //_debugBuffer2[rayIndex] = tryNumber;
 }
-
-
