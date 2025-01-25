@@ -9,7 +9,7 @@ public class PlayerRayMarching1 : MonoBehaviour
     [SerializeField] private ComputeShader _rayMarchingComputeShader;
     [SerializeField] private int _rayCount = 1;
     // [SerializeField, Range(0, 360)] private float _rayAngle = 90f;
-    [SerializeField] private float _thresHoldValue = 0.01f;
+    [SerializeField] private float _thresholdValue = 0.01f;
     [SerializeField] private float _maxDistance = 30;
     
     private int _kernelIndex;
@@ -28,29 +28,37 @@ public class PlayerRayMarching1 : MonoBehaviour
     //public List<Transform> oldTargets = new List<Transform>();
     //public List<Transform> newTargets = new List<Transform>();
     
-    // private int _debugBufferID;
-    // private GraphicsBuffer _debugBuffer;
-    // private Vector3[] _debugResultArray;
+    private int _debugBufferID;
+    private GraphicsBuffer _debugBuffer;
+    private Vector3[] _debugResultArray;
     //
-    // private int _debugBuffer2ID;
-    // private GraphicsBuffer _debugBuffer2;
-    // private int[] _debugResultArray2;
+    private int _debugBuffer2ID;
+    private GraphicsBuffer _debugBuffer2;
+    private float[] _debugResultArray2;
     //
-    // private int _debugBuffer3ID;
-    // private GraphicsBuffer _debugBuffer3;
-    // private float[] _debugResultArray3;
+    private int _debugBuffer3ID;
+    private GraphicsBuffer _debugBuffer3;
+    private float[] _debugResultArray3;
     //
-    // private int _debugBuffer4ID;
-    // private GraphicsBuffer _debugBuffer4;
-    // private float[] _debugResultArray4;
+    private int _debugBuffer4ID;
+    private GraphicsBuffer _debugBuffer4;
+    private GameObjectData[] _debugResultArray4;
     //
-    // private int _debugBuffer5ID;
-    // private GraphicsBuffer _debugBuffer5;
-    // private float[] _debugResultArray5;
+    private int _debugBuffer5ID;
+    private GraphicsBuffer _debugBuffer5;
+    private Vector3[] _debugResultArray5;
     //
-    // private int _debugBuffer6ID;
-    // private GraphicsBuffer _debugBuffer6;
-    // private int[] _debugResultArray6;
+    private int _debugBuffer6ID;
+    private GraphicsBuffer _debugBuffer6;
+    private Vector3[] _debugResultArray6;
+    
+    private int _debugBuffer7ID;
+    private GraphicsBuffer _debugBuffer7;
+    private Vector3[] _debugResultArray7;
+    
+    private int _debugBuffer8ID;
+    private GraphicsBuffer _debugBuffer8;
+    private Vector3[] _debugResultArray8;
 
     struct GameObjectData
     {
@@ -76,14 +84,54 @@ public class PlayerRayMarching1 : MonoBehaviour
 
         int objectCountID = Shader.PropertyToID("_objectCount");
         int maxDistanceID = Shader.PropertyToID("_maxDistance");
-        int thresHoldID = Shader.PropertyToID("_thresHold");
+        int thresholdID = Shader.PropertyToID("_threshold");
         int rayCountID = Shader.PropertyToID("_rayCount");
 
         _rayMarchingComputeShader.SetBuffer(0, _outputBufferID, _outputBuffer);
         
         _rayMarchingComputeShader.SetFloat(maxDistanceID, _maxDistance);
-        _rayMarchingComputeShader.SetFloat(thresHoldID, _thresHoldValue);
+        _rayMarchingComputeShader.SetFloat(thresholdID, _thresholdValue);
         _rayMarchingComputeShader.SetInt(rayCountID, _rayCount);
+        
+        _debugBufferID = Shader.PropertyToID("_debugBuffer");
+        _debugBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(0, _debugBufferID, _debugBuffer);
+        _debugResultArray = new Vector3[1];
+        
+        // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
+        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
+        // _debugResultArray2 = new float[20];
+        // //
+        // _debugBuffer3ID = Shader.PropertyToID("_debugBuffer3");
+        // _debugBuffer3 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer3ID, _debugBuffer3);
+        // _debugResultArray3 = new float[20];
+        //
+        // _debugBuffer4ID = Shader.PropertyToID("_debugBuffer4");
+        // _debugBuffer4 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 8, 32);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer4ID, _debugBuffer4);
+        // _debugResultArray4 = new GameObjectData[8];
+        //
+        // _debugBuffer5ID = Shader.PropertyToID("_debugBuffer5");
+        // _debugBuffer5 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer5ID, _debugBuffer5);
+        // _debugResultArray5 = new Vector3[20];
+        //
+        // _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
+        // _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
+        // _debugResultArray6 = new Vector3[20];
+        //
+        // _debugBuffer7ID = Shader.PropertyToID("_debugBuffer7");
+        // _debugBuffer7 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer7ID, _debugBuffer7);
+        // _debugResultArray7 = new Vector3[1];
+        
+        // _debugBuffer8ID = Shader.PropertyToID("_debugBuffer8");
+        // _debugBuffer8 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer8ID, _debugBuffer8);
+        // _debugResultArray8 = new Vector3[1];
     }
 
     void Update()
@@ -97,6 +145,7 @@ public class PlayerRayMarching1 : MonoBehaviour
 
         //ゲームオブジェクト情報を渡すための変換
         int objectLength = objectArray.Length;
+        // Debug.Log(objectLength);
 
         GameObjectData[] objectDataArray = new GameObjectData[objectLength];
         for (int i = 0; i < objectLength; i++)
@@ -108,8 +157,10 @@ public class PlayerRayMarching1 : MonoBehaviour
                 type = 0, // タイプを 0, 1, 2 のどれかに設定
                 padding = Vector3.zero //16バイト境界の調整
             };
+            
+            //Debug.Log($"{objectDataArray[i].position} , {objectDataArray[i].size}, {objectDataArray[i].type}, {objectDataArray[i].padding}");
         }
-
+        
         //オブジェクトの情報を受け渡すためのBufferをつくる
         _objectBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, objectLength, _objectDataSize);
         //データをBufferに入れる
@@ -118,7 +169,9 @@ public class PlayerRayMarching1 : MonoBehaviour
         _rayMarchingComputeShader.SetBuffer(_kernelIndex, _objectBufferID, _objectBuffer);
         
         //可変データをセット
+        // Debug.Log(this.transform.position);
         _rayMarchingComputeShader.SetVector(_originPosID, this.transform.position);
+        
         _rayMarchingComputeShader.SetVector(_forwardVecID, this.transform.forward);
         _rayMarchingComputeShader.SetInt(_objectCountID, objectLength);
         //実行
@@ -137,7 +190,45 @@ public class PlayerRayMarching1 : MonoBehaviour
             Debug.Log(resultArray[i]);
         }
         
-        Debug.Log("くぎり終わり");
+        //_debugBuffer.GetData((_debugResultArray));
+        // _debugBuffer2.GetData((_debugResultArray2));
+        // _debugBuffer3.GetData((_debugResultArray3));
+        // // _debugBuffer4.GetData((_debugResultArray4));
+        // _debugBuffer5.GetData((_debugResultArray5));
+        // _debugBuffer6.GetData((_debugResultArray6));
+        // _debugBuffer7.GetData((_debugResultArray7));
+        //_debugBuffer8.GetData((_debugResultArray8));
+        
+        // for (int i = 0; i < objectLength; i++)
+        // {
+        //     GameObjectData obj = _debugResultArray4[i];
+        //     Debug.Log($"データとして読まれているオブジェクトは{obj.position}, {obj.size}, {obj.type}, {obj.padding}");
+        //     
+        // }
+        //
+        // for (int i = 0; i < objectLength; i++)
+        // {
+        //     Debug.Log($"データとして読まれているオブジェクトの位置は{_debugResultArray3[i]}");
+        // }
+        //
+        // Debug.Log(_debugResultArray7[0]);
+        // //Debug.Log(_debugResultArray8[0]);
+        //
+        // Debug.Log($"originPos : {_debugResultArray[0]}, forwardVec : {_debugResultArray[1]}");
+        // for (int i = 0; i < 20; i++)
+        // {
+        //     Debug.Log($"ステップ {i}で originPosは{_debugResultArray6[i]}");
+        //     Debug.Log($"ステップ {i}で thresHoldは{_debugResultArray2[i]}");
+        //     Debug.Log($"ステップ {i}で、レイの位置は{_debugResultArray5[i]}");
+        //     
+        //     // for (int j = 0; j < 8; j++)
+        //     // {
+        //     //     Debug.Log($"ステップ {i}で、{_debugResultArray[20 * i + j]}にいるオブジェクトと比較");
+        //     //     Debug.Log($"そのオブジェクトとの距離は{_debugResultArray2[20 * i + j]}");
+        //     // }
+        //     Debug.Log($"ステップ {i}で、もっとも短い距離は{_debugResultArray3[i]}");
+        // }
+        // Debug.Log("くぎり終わり");
     }
 
     void OnDrawGizmos()
@@ -150,10 +241,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // XZ平面
         // for (int i = 0; i < _rayCount; i++)
         // {
-        //     Vector3 from = this.transform.position;
-        //     // Debug.Log(_debugResultArray[i]);
-        //     Vector3 to = _debugResultArray[i];
-        //     Gizmos.DrawLine(from, to);
+        // Vector3 from = this.transform.position;
+        // // Debug.Log(_debugResultArray[i]);
+        // Vector3 to = _debugResultArray[0];
+        // Gizmos.DrawLine(from, to);
         // }
     }
     private void OnDestroy()

@@ -134,7 +134,6 @@ GameObject:
   - component: {fileID: 183117823}
   - component: {fileID: 183117822}
   - component: {fileID: 183117821}
-  - component: {fileID: 183117824}
   - component: {fileID: 183117825}
   - component: {fileID: 183117826}
   - component: {fileID: 183117827}
@@ -213,33 +212,6 @@ Transform:
   - {fileID: 1605636914}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &183117824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 183117819}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09cc211d8d3e94b0b9afed11c48fd2fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _rayMarchingComputeShader: {fileID: 7200000, guid: 2cbae872cfd7e4e60835d96443534816,
-    type: 3}
-  _rayCount: 10
-  _rayAngle: 90
-  _thresHoldValue: 0.01
-  _radius: 30
-  objectArray:
-  - {fileID: 408145678}
-  - {fileID: 631157604}
-  - {fileID: 1748536860}
-  - {fileID: 1090853365}
-  - {fileID: 2104636824}
-  - {fileID: 2050423716}
-  - {fileID: 2110426066}
-  - {fileID: 1229889723}
 --- !u!114 &183117825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1353,7 +1325,7 @@ Transform:
   m_GameObject: {fileID: 1748536860}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.81, y: 0, z: 8.61}
+  m_LocalPosition: {x: -0.28, y: 0, z: 1.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

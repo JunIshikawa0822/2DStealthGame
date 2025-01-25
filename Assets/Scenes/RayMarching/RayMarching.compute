@@ -15,7 +15,7 @@
 struct ObjectData
 {
     float3 position; // オブジェクトの位置
-    float3 size;    // サイズ (半径や寸法)
+    float size;    // サイズ (半径や寸法)
     int type;        // オブジェクトタイプ
     float3 padding;
 };

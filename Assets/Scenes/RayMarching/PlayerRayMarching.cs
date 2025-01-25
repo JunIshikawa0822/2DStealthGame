@@ -84,7 +84,7 @@ public class PlayerRayMarching : MonoBehaviour
 
         int objectCountID = Shader.PropertyToID("_objectCount");
         int maxDistanceID = Shader.PropertyToID("_maxDistance");
-        int thresHoldID = Shader.PropertyToID("_thresHold");
+        int thresHoldID = Shader.PropertyToID("_threshold");
         int rayCountID = Shader.PropertyToID("_rayCount");
         int viewAngleID = Shader.PropertyToID("_viewAngle");
 
