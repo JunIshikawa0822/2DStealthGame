@@ -9,7 +9,7 @@ public class PlayerRayMarching1 : MonoBehaviour
 {
     [SerializeField] private ComputeShader _rayMarchingComputeShader;
     [SerializeField] private int _rayCount = 1;
-    // [SerializeField, Range(0, 360)] private float _rayAngle = 90f;
+    [SerializeField, Range(0, 360)] private float _rayAngle = 90f;
     [SerializeField] private float _thresholdValue = 0.01f;
     [SerializeField] private float _maxDistance = 30;
     
@@ -35,8 +35,8 @@ public class PlayerRayMarching1 : MonoBehaviour
     //
     // private int _debugBuffer2ID;
     // private GraphicsBuffer _debugBuffer2;
-    // private float[] _debugResultArray2;
-    //
+    // private int[] _debugResultArray2;
+    // //
     // private int _debugBuffer3ID;
     // private GraphicsBuffer _debugBuffer3;
     // private float[] _debugResultArray3;
@@ -49,9 +49,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     // private GraphicsBuffer _debugBuffer5;
     // private Vector3[] _debugResultArray5;
     // //
-    private int _debugBuffer6ID;
-    private GraphicsBuffer _debugBuffer6;
-    private float[] _debugResultArray6;
+    // private int _debugBuffer6ID;
+    // private GraphicsBuffer _debugBuffer6;
+    // private Vector3[] _debugResultArray6;
     //
     // private int _debugBuffer7ID;
     // private GraphicsBuffer _debugBuffer7;
@@ -69,13 +69,6 @@ public class PlayerRayMarching1 : MonoBehaviour
         public Vector3 padding; //12バイト 16バイトの境界にあわせて整理
     }
 
-    struct DebugData
-    {
-        private int a;
-        private float b;
-        private uint c;
-    }
-
     void Start()
     {
         _kernelIndex = _rayMarchingComputeShader.FindKernel("CSMain");
@@ -88,33 +81,35 @@ public class PlayerRayMarching1 : MonoBehaviour
         _originPosID = Shader.PropertyToID("_originPos");
         _objectCountID = Shader.PropertyToID("_objectCount");
         
-        _objectDataSize = 32;
-
-        int objectCountID = Shader.PropertyToID("_objectCount");
+        _objectDataSize = sizeof(float) * 3 + sizeof(float) + sizeof(int) + sizeof(float) * 3;
+        
         int maxDistanceID = Shader.PropertyToID("_maxDistance");
         int thresholdID = Shader.PropertyToID("_threshold");
         int rayCountID = Shader.PropertyToID("_rayCount");
+        int viewAngleID = Shader.PropertyToID("_viewAngle");
 
         _rayMarchingComputeShader.SetBuffer(0, _outputBufferID, _outputBuffer);
         
         _rayMarchingComputeShader.SetFloat(maxDistanceID, _maxDistance);
         _rayMarchingComputeShader.SetFloat(thresholdID, _thresholdValue);
         _rayMarchingComputeShader.SetInt(rayCountID, _rayCount);
+        _rayMarchingComputeShader.SetFloat(viewAngleID, _rayAngle);
         
         _positionBufferID = Shader.PropertyToID("_positionBuffer");
-        _positionResultArray = new Vector3[1];
+        _positionResultArray = new Vector3[_rayCount];
         _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _positionResultArray.Length, sizeof(float) * 3);
         _rayMarchingComputeShader.SetBuffer(0, _positionBufferID, _positionBuffer);
         
         // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
-        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        // _debugResultArray2 = new int[_rayCount];
+        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray2.Length, sizeof(int));
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
-        // _debugResultArray2 = new float[20];
         //
+        // //
         // _debugBuffer3ID = Shader.PropertyToID("_debugBuffer3");
-        // _debugBuffer3 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 20, sizeof(float));
+        // _debugResultArray3 = new float[_rayCount];
+        // _debugBuffer3 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray3.Length, sizeof(float));
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer3ID, _debugBuffer3);
-        // _debugResultArray3 = new float[20];
         //
         // _debugBuffer4ID = Shader.PropertyToID("_debugBuffer4");
         // _debugBuffer4 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 8, 32);
@@ -126,10 +121,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer5ID, _debugBuffer5);
         // _debugResultArray5 = new Vector3[20];
         //
-        _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
-        _debugResultArray6 = new float[1];
-        _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray6.Length, sizeof(float));
-        _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
+        // _debugBuffer6ID = Shader.PropertyToID("_debugBuffer6");
+        // _debugResultArray6 = new Vector3[_rayCount];
+        // _debugBuffer6 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray6.Length, sizeof(float) * 3);
+        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer6ID, _debugBuffer6);
         
         // _debugBuffer7ID = Shader.PropertyToID("_debugBuffer7");
         // _debugBuffer7 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
@@ -173,14 +168,13 @@ public class PlayerRayMarching1 : MonoBehaviour
         _objectBuffer.SetData(objectDataArray);
         //Bufferをセット
         _rayMarchingComputeShader.SetBuffer(_kernelIndex, _objectBufferID, _objectBuffer);
-        
         //可変データをセット
         _rayMarchingComputeShader.SetVector(_originPosID, this.transform.position);
         
         _rayMarchingComputeShader.SetVector(_forwardVecID, this.transform.forward);
         _rayMarchingComputeShader.SetInt(_objectCountID, objectLength);
         //実行
-        _rayMarchingComputeShader.Dispatch(_kernelIndex, 1, 1, 1);
+        _rayMarchingComputeShader.Dispatch(_kernelIndex, 16, 1, 1);
         
         int[] resultArray = new int[_rayCount];
         _outputBuffer.GetData((resultArray));
@@ -190,19 +184,30 @@ public class PlayerRayMarching1 : MonoBehaviour
         int[] uniqueArray = new int[uniqueHashSet.Count];
         uniqueHashSet.CopyTo(uniqueArray);
 
-        for (int i = 0; i < resultArray.Length; i++)
-        {
-            Debug.Log(resultArray[i]);
-        }
+        List<int> debugResult = new List<int>(uniqueArray);
+        
+        // for (int i = 0; i < uniqueArray.Length; i++)
+        // {
+        //     //debugResult.Add(uniqueArray[i]);
+        //     Debug.Log(string.Join("," , uniqueArray[i]));
+        // }
+        
+        Debug.Log($"このフレームで、({string.Join(", ", debugResult)})とぶつかっている");
         
         _positionBuffer.GetData((_positionResultArray));
         // _debugBuffer2.GetData((_debugResultArray2));
         // _debugBuffer3.GetData((_debugResultArray3));
-        // // _debugBuffer4.GetData((_debugResultArray4));
-        // _debugBuffer5.GetData((_debugResultArray5));
-        _debugBuffer6.GetData((_debugResultArray6));
+        // // // _debugBuffer4.GetData((_debugResultArray4));
+        // // _debugBuffer5.GetData((_debugResultArray5));
+        // _debugBuffer6.GetData((_debugResultArray6));
         // _debugBuffer7.GetData((_debugResultArray7));
         //_debugBuffer8.GetData((_debugResultArray8));
+        // for (int i = 0; i < _rayCount; i++)
+        // {
+        //     // Debug.Log($"レイ {i}で angleは{_debugResultArray3[i]}");
+        //     // Debug.Log($"レイ {i}で rayDirは{_debugResultArray6[i]}");
+        //     Debug.Log($"レイ {i}で idは{_debugResultArray2[i]}");
+        // }
         
         // for (int i = 0; i < objectLength; i++)
         // {
@@ -238,24 +243,25 @@ public class PlayerRayMarching1 : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-        
-        // XZ平面
-        // for (int i = 0; i < _rayCount; i++)
+        // if (!Application.isPlaying)
         // {
-        Vector3 from = this.transform.position;
-        // // Debug.Log(_debugResultArray[i]);
-        Vector3 to = _positionResultArray[0];
-        Gizmos.DrawLine(from, to);
+        //     return;
         // }
+        //
+        // // XZ平面
+        for (int i = 0; i < _rayCount; i++)
+        {
+            Vector3 from = this.transform.position;
+            //Debug.Log(_positionResultArray[i]);
+            Vector3 to = _positionResultArray[i];
+            Gizmos.DrawLine(from, to);
+        }
     }
     private void OnDestroy()
     {
         _outputBuffer.Dispose();
         _objectBuffer.Dispose();
         //_debugBuffer6.Dispose();
+        _positionBuffer.Dispose();
     }
 }

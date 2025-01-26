@@ -313,9 +313,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rayMarchingComputeShader: {fileID: 7200000, guid: 2cbae872cfd7e4e60835d96443534816,
     type: 3}
-  _rayCount: 1
+  _rayCount: 1000
+  _rayAngle: 90
   _thresholdValue: 0.01
-  _maxDistance: 60
+  _maxDistance: 30
   objectArray:
   - {fileID: 408145678}
   - {fileID: 631157604}
@@ -324,6 +325,7 @@ MonoBehaviour:
   - {fileID: 2104636824}
   - {fileID: 2050423716}
   - {fileID: 2110426066}
+  - {fileID: 1229889723}
 --- !u!1 &363151192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1324,7 +1326,7 @@ Transform:
   m_GameObject: {fileID: 1748536860}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.28, y: 0, z: 1.06}
+  m_LocalPosition: {x: -0.28, y: 0, z: 11.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
