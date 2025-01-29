@@ -25,7 +25,7 @@ public class OctTreeBase : MonoBehaviour
     /// <summary>
     /// 何分割するか（ルートは含めない）
     /// </summary>
-    [SerializeField] int _dimentionLevel;
+    [SerializeField] int _dimensionLevel;
 
     //[SerializeField]Transform referenceTransform;
     Vector3 referencePos;
@@ -34,24 +34,24 @@ public class OctTreeBase : MonoBehaviour
     {
         referencePos = this.transform.position;
 
-        Debug.Log(Convert.ToString(BitSeparateFor3D(5), 2));
-        Debug.Log(Convert.ToString(BitSeparateFor3D(3)<<1, 2));
-        Debug.Log(Convert.ToString(BitSeparateFor3D(4)<<2, 2));
+        // Debug.Log(Convert.ToString(BitSeparateFor3D(5), 2));
+        // Debug.Log(Convert.ToString(BitSeparateFor3D(3)<<1, 2));
+        // Debug.Log(Convert.ToString(BitSeparateFor3D(4)<<2, 2));
 
-        int cellNum = (int)Mathf.Pow(8, _dimentionLevel);
-        Debug.Log("cellNum : " + cellNum);
+        //int cellNum = (int)Mathf.Pow(8, _dimentionLevel);
+        //Debug.Log("cellNum : " + cellNum);
         //#region 単位距離の計算 いらないね...
         //ルート空間における一辺あたりのマスの数を計算
         //一辺をb、マスの総数をaとすると a = b ^ 3なので両辺に1/3をかける
         //するとa ^ (1/3) = bとなる
-        float baseNum = Mathf.Pow(cellNum, 1f / 3f);
-        Debug.Log("baseNum : " + baseNum);
+        //float baseNum = Mathf.Pow(cellNum, 1f / 3f);
+        //Debug.Log("baseNum : " + baseNum);
     }
 
     public int PosToMortonNumber(Vector3 objectPosition)
     {
         //全てのマスの総数を計算
-        int cellNum = (int)Mathf.Pow(8, _dimentionLevel);
+        int cellNum = (int)Mathf.Pow(8, _dimensionLevel);
 
         #region 単位距離の計算 いらないね...
         //ルート空間における一辺あたりのマスの数を計算
@@ -65,13 +65,13 @@ public class OctTreeBase : MonoBehaviour
         float depth = _cellDepth * baseNum;
         #endregion
 
-        //cellNum個に分割された空間のx軸方向に何番目かを示しています。（indexなので0番始まりな点に注意）
+        //cellNum個に分割された空間のx軸方向に何番目かを示しているよ。（indexなので0番始まりな点に注意）
         int numX = (int)((objectPosition.x - referencePos.x) / _cellWidth);
 
-        //cellNum個に分割された空間のy軸方向に何番目かを示しています。（indexなので0番始まりな点に注意）
+        //cellNum個に分割された空間のy軸方向に何番目かを示しているよ。（indexなので0番始まりな点に注意）
         int numY = (int)((objectPosition.y - referencePos.y) / _cellHeight);
 
-        //cellNum個に分割された空間のz軸方向に何番目かを示しています。（indexなので0番始まりな点に注意）
+        //cellNum個に分割された空間のz軸方向に何番目かを示しているよ。（indexなので0番始まりな点に注意）
         int numZ = (int)((objectPosition.z - referencePos.z) / _cellDepth);
 
         if(numX < 0 || numY < 0 || numZ < 0)
@@ -126,7 +126,7 @@ public class OctTreeBase : MonoBehaviour
         }
 
         //全てのマスの総数を計算
-        int cellNum = (int)Mathf.Pow(8, _dimentionLevel);
+        int cellNum = (int)Mathf.Pow(8, _dimensionLevel);
         //ルート空間における一辺あたりのマスの数を計算
         //一辺をb、マスの総数をaとすると a = b ^ 3なので両辺に1/3をかける
         //するとa ^ (1/3) = bとなる

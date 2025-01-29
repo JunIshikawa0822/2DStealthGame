@@ -16,7 +16,7 @@ public class MeshChangable : MonoBehaviour
     void Start()
     {
         
-        Debug.Log(_entityRenderer);
+        // Debug.Log(_entityRenderer);
         EntityMeshDisable();
     }
 

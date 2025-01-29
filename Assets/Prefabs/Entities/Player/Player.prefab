@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1821103764290059869}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2.18, z: -0.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -451,6 +451,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0106b3622e4df433e9874c4d5308e61a, type: 2}
   - {fileID: 11400000, guid: 393570dbd8b504c1f992182bc528e512, type: 2}
   - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
+  - {fileID: 11400000, guid: a82c1323ed6b54abdaa50daa222f6fe8, type: 2}
+  _stackNumberList: 050000000100000004000000010000000100000050000000
 --- !u!1 &8944434050612652416
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,6 +470,7 @@ GameObject:
   - component: {fileID: 2682329674959188862}
   - component: {fileID: 5596895097108175491}
   - component: {fileID: 536182271178330940}
+  - component: {fileID: 2694714416478363216}
   m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
@@ -573,7 +576,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &5016923181861598370
 MonoBehaviour:
@@ -590,7 +593,7 @@ MonoBehaviour:
   _player_RotateSpeed: 500
   equipPos: {fileID: 176234815862013403}
   subPos: {fileID: 4468884660953950574}
-  _playerMoveForce: 20
+  _playerMoveForce: 3
   _weaponStorage1: {fileID: 6430242846717665484}
   _weaponStorage2: {fileID: 1260924792362076988}
   _playerStorage: {fileID: 6557725310967243765}
@@ -606,8 +609,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewRadius: 60
-  viewAngle: 74
+  _viewRadius: 40
+  _viewAngle: 60
   targetMask:
     serializedVersion: 2
     m_Bits: 2176
@@ -632,11 +635,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewRadius: 60
-  viewAngle: 360
+  _viewRadius: 40
+  _viewAngle: 360
   targetMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2176
   obstacleMask:
     serializedVersion: 2
     m_Bits: 768
@@ -690,6 +693,24 @@ CapsuleCollider:
   m_Height: 3.7204683
   m_Direction: 1
   m_Center: {x: 0, y: 1.3602341, z: 0}
+--- !u!114 &2694714416478363216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8944434050612652416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0381799287642443d8575cabb84316e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _camera: {fileID: 0}
+  testObjects:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &800739394484129151
 PrefabInstance:
   m_ObjectHideFlags: 0

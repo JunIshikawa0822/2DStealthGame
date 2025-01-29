@@ -280,13 +280,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 183117819}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _viewRadius: 30
-  _viewAngle: 90
+  _viewAngle: 120
   targetMask:
     serializedVersion: 2
     m_Bits: 128
@@ -313,8 +313,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rayMarchingComputeShader: {fileID: 7200000, guid: 2cbae872cfd7e4e60835d96443534816,
     type: 3}
-  _rayCount: 1000
-  _rayAngle: 90
+  _rayCount: 120
+  _rayAngle: 120
   _thresholdValue: 0.01
   _maxDistance: 30
   objectArray:
@@ -1242,7 +1242,7 @@ Transform:
   m_GameObject: {fileID: 1605636913}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.483, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
