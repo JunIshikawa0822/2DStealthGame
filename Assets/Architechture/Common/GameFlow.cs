@@ -24,6 +24,7 @@ public class GameFlowManager :MonoBehaviour
         systems.Add(new ItemSystem());
         systems.Add(new PlayerSystem());
         systems.Add(new SceneManageSystem());
+        systems.Add(new CollisionRenderSystem());
 
         if(_isUIActiveAllow)systems.Add(new UISystem());
         if(_isInventoryAllow) systems.Add(new TetrisInventorySystem());

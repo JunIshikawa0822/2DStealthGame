@@ -95,8 +95,11 @@ namespace JunUtilities
 
             //cellNum個に分割された空間のz軸方向に何番目かを示しているよ。（indexなので0番始まりな点に注意）
             int numZ = (int)((objectPosition.z - basePosition.z) / cellSize.z);
+            
+            // Debug.Log($"{objectPosition.x - basePosition.x}, {objectPosition.y - basePosition.y}, {objectPosition.z - basePosition.z}");
+            // Debug.Log($"{numX}, {numY}, {numZ}");
 
-            if(numX < 0 || numY < 0 || numZ < 0)
+            if(numX < 0 || numY < 0 || numZ < 0 || objectPosition.x < basePosition.x || objectPosition.y < basePosition.y || objectPosition.z < basePosition.z)
             {
                 return -1;
             }

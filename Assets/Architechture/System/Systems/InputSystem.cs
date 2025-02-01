@@ -36,6 +36,7 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     public void OnPreUpdate()
     {
+        // Debug.Log(_gameInputs);
         _cursorScreenPosition = _gameInputs.PlayerActionTest.CursorPosition.ReadValue<Vector2>();
 
         if(IsCursorRayHit(_cursorScreenPosition, out _rayCastHit))
@@ -119,14 +120,14 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     private Vector3 ConvertScreenToWorldPoint(Vector2 screenPos)
     {
-        return Camera.main.ScreenToWorldPoint(screenPos);
+        return gameStat.camera.ScreenToWorldPoint(screenPos);
     }
 
     private bool IsCursorRayHit(Vector2 screenPos, out RaycastHit raycastHit)
     {
         bool isRayhit = false;
 
-        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+        Ray ray = gameStat.camera.ScreenPointToRay(screenPos);
         if(Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, _mouseHitLayer))
         {
             isRayhit = true;

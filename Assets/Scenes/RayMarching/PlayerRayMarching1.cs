@@ -182,7 +182,7 @@ public class PlayerRayMarching1 : MonoBehaviour
 
     // void OnDrawGizmos()
     // {
-    //     //
+    //     if(Application.isPlaying == false) return;
     //     // // XZ平面
     //     for (int i = 0; i < _rayCount; i++)
     //     {

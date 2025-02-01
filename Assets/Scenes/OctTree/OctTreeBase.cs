@@ -3,32 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using JunUtilities;
 
 
 public class OctTreeBase : MonoBehaviour
 {
-    /// <summary>
-    /// 一番小さい空間のWidth（x軸）（何分割かはどうでもよい）
-    /// </summary>
+    /// <summary>一番小さい空間のWidth（x軸）（何分割かはどうでもよい）</summary>
     [SerializeField] float _cellWidth;
 
-    /// <summary>
-    /// 一番小さい空間のHeight(y軸）（何分割かはどうでもよい）
-    /// </summary>
+    /// <summary>一番小さい空間のHeight(y軸）（何分割かはどうでもよい）</summary>
     [SerializeField] float _cellHeight;
 
-    /// <summary>
-    /// 一番小さい空間のDepth(z軸）（何分割かはどうでもよい）
-    /// </summary>
+    /// <summary>一番小さい空間のDepth(z軸）（何分割かはどうでもよい）</summary>
     [SerializeField] float _cellDepth;
 
-    /// <summary>
-    /// 何分割するか（ルートは含めない）
-    /// </summary>
+    /// <summary>何分割するか（ルートは含めない）</summary>
     [SerializeField] int _dimensionLevel;
-
-    //[SerializeField]Transform referenceTransform;
+    
     Vector3 referencePos;
+
+    [SerializeField] private Transform[] _testObjects;
 
     void Start()
     {
@@ -46,6 +40,15 @@ public class OctTreeBase : MonoBehaviour
         //するとa ^ (1/3) = bとなる
         //float baseNum = Mathf.Pow(cellNum, 1f / 3f);
         //Debug.Log("baseNum : " + baseNum);
+    }
+
+    private void Update()
+    {
+        // if(_testObjects.Length < 1) return;
+        // for (int i = 0; i < _testObjects.Length; i++)
+        // {
+        //     Debug.Log($"{_testObjects[i]}は、モートン番号 : {PosToMortonNumber(_testObjects[i].position)}です");
+        // }
     }
 
     public int PosToMortonNumber(Vector3 objectPosition)
@@ -120,10 +123,10 @@ public class OctTreeBase : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!Application.isPlaying)
-        {
-            return;
-        }
+        // if (!Application.isPlaying)
+        // {
+        //     return;
+        // }
 
         //全てのマスの総数を計算
         int cellNum = (int)Mathf.Pow(8, _dimensionLevel);
