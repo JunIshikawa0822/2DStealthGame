@@ -5,88 +5,33 @@ using UnityEngine;
 using JunUtilities;
 public class MortonTest : MonoBehaviour
 {
-    [SerializeField] Camera _camera;
-    List<Vector3> _cameraCorners = new List<Vector3>();
-
-    private float _rotationX;
-    private float _rotationY;
-    private float _rotationZ;
-
-    [SerializeField] private Transform[] _testObjects;
     // <summary> 一番小さい空間のWidth(x軸）（何分割かはどうでもよい）</summary>
-    [SerializeField] float _cellWidth;
+    float _cellWidth = 20;
     // <summary> 一番小さい空間のHeight(y軸）（何分割かはどうでもよい）</summary>
-    [SerializeField] float _cellHeight;
+    float _cellHeight = 20;
     // <summary> 一番小さい空間のDepth(z軸）（何分割かはどうでもよい）</summary>
-    [SerializeField] float _cellDepth;
+    float _cellDepth = 20;
     // <summary> 何分割するか（ルート空間は含めない）</summary>
-    [SerializeField] int _dimensionLevel;
-    [SerializeField] private Transform[] _objectsTrans;
+    int _dimensionLevel;
     // <summary> モートン空間の基準点 </summary>
     [SerializeField] private Transform _baseTrans;
     //[SerializeField]Transform referenceTransform;
     private Vector3 _referencePos;
     private Vector3 _cellSize;
-
-    private List<Transform> _oldTargetList = new List<Transform>();
-    private List<Transform> _newTargetList = new List<Transform>();
-
+    
     private Bounds _bounds;
     void Start()
     {
         _bounds = new Bounds();
-        // _referencePos = _baseTrans.position;
-        // _cellSize = new Vector3(_cellWidth, _cellHeight, _cellDepth);
-        // _rotationX = _camera.transform.rotation.eulerAngles.x;
-        // _rotationY = _camera.transform.rotation.eulerAngles.y;
-        // _rotationZ = _camera.transform.rotation.eulerAngles.z;
+        _referencePos = _baseTrans.position;
     }
-    void Update()
+
+    public void Init(Vector3 cellSize, int dimensionLevel)
     {
-        // _cameraCorners.Clear();
-        // Vector3[] nearCorners = JunCamera.CalculateFrustumCorners(_camera, _camera.nearClipPlane);
-        // // for (int i = 0; i < nearCorners.Length; i++)
-        // // {
-        // //     Debug.Log($"{i} は{nearCorners[i]}");
-        // // }
-        // //カメラのnearCornersそれぞれから、カメラの向いている方向にベクトルを伸ばす
-        // //地面(y座標が0)と交わる点までベクトルを伸ばし、その点がfarCorners
-        // //Debug.Log($"{i} は{nearCorners.Length}");
-        // for (int i = 0; i < nearCorners.Length; i++)
-        // {
-        //     Vector3 direction = Vector3.forward;
-        //     //x軸に合わせて45度回転
-        //     direction = JunMath.RotateAround(direction, new Vector3(_rotationX, _rotationY, _rotationZ));
-        //     //startをS、directionをD、目的の位置をVとすると
-        //     //Vx = Sx + tDx, Vy = Sy + tDy, Vz = Sz + tDz
-        //     //Vy = n = 0なので、n = Sy + tDy つまり t = (n - Sy) / Dy
-        //     float t = (float)(0 - nearCorners[i].y) / (float)direction.y; //directionVecの倍率を求める
-        //     
-        //     _cameraCorners.Add(nearCorners[i]);
-        //     _cameraCorners.Add(new Vector3(nearCorners[i].x + t * direction.x, 0, nearCorners[i].z + t * direction.z));
-        // }
-        // //全てのカメラの頂点からAABBを作成
-        // Bounds bound = GetBounds(_cameraCorners.ToArray());//ここまではOK
-        // //カメラが捉えているモートン空間を取り出す
-        // int[] cameraMortonCodes = GetMortonCodesFromAABB(bound, _cellSize);
-        // //Debug.Log(string.Join(",", cameraMortonCodes));
-        //
-        // if(_objectsTrans.Length < 1)return;
-        // Debug.Log(_objectsTrans.Length);
-        //
-        // foreach (Transform objTrans in _objectsTrans)
-        // {
-        //     int objectMortonCode = JunMath.PosToMortonNumber(objTrans.position, _baseTrans.position, _dimensionLevel, _cellSize);
-        //
-        //     if (Array.IndexOf(cameraMortonCodes, objectMortonCode) != -1)
-        //     {
-        //         _newTargetList.Add(objTrans);
-        //     }
-        // }
-        //
-        // DisplayVisibleTargets(_newTargetList);
-        // UnDisplayInvisibleTargets(_newTargetList, _oldTargetList);
-        // _oldTargetList = _newTargetList;
+        _cellWidth = cellSize.x;
+        _cellHeight = cellSize.y;
+        _cellDepth = cellSize.z;
+        _dimensionLevel = dimensionLevel;
     }
 
     public void SetBounds(Bounds bounds)
@@ -96,9 +41,69 @@ public class MortonTest : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        if(Application.isPlaying == false)return;
-        Gizmos.color = Color.green; // 緑色で描画
-        Gizmos.DrawWireCube(_bounds.center, _bounds.size);
+        if (Application.isPlaying)
+        {
+            Gizmos.color = Color.green; // 緑色で描画
+            Gizmos.DrawWireCube(_bounds.center, _bounds.size);
+        }
+        
+        int cellNum = (int)Mathf.Pow(8, _dimensionLevel);
+        //ルート空間における一辺あたりのマスの数を計算
+        //一辺をb、マスの総数をaとすると a = b ^ 3なので両辺に1/3をかける
+        //するとa ^ (1/3) = bとなる
+        int baseNum = (int)Mathf.Pow(cellNum, 1f/3f);
+        // XY平面
+        for (int i = 0; i <= baseNum; i++)
+        {
+            for (int j = 0; j <= baseNum; j++)
+            {
+                Gizmos.color = new Color(1f, 0, 0, 0.5f);
+                
+                Vector3 fromOffset = (Vector3.right * (_cellWidth * i)) + (Vector3.forward * _cellDepth * j);
+                //Debug.Log("fromOffset : " + fromOffset);
+                Vector3 toOffset = Vector3.up * (_cellHeight * baseNum);
+                //Debug.Log("toOffset : " + toOffset);
+
+                Vector3 from = _referencePos + fromOffset;
+                //Debug.Log("from : " + from);
+                Vector3 to = from + toOffset;
+                //Debug.Log("to : " + to);
+                
+                Gizmos.DrawLine(from, to);
+            }
+        }
+        // YZ平面
+        for (int i = 0; i <= baseNum; i++)
+        {
+            for (int j = 0; j <= baseNum; j++)
+            {
+                Gizmos.color = new Color(1f, 0, 0, 0.5f);
+                
+                Vector3 fromOffset = (Vector3.up * (_cellHeight * i)) + (Vector3.forward * _cellDepth * j);
+                Vector3 toOffset = Vector3.right * (_cellWidth * baseNum);
+
+                Vector3 from = _referencePos + fromOffset;
+                Vector3 to = from + toOffset;
+                
+                Gizmos.DrawLine(from, to);
+            }
+        }
+        // XZ平面
+        for (int i = 0; i <= baseNum; i++)
+        {
+            for (int j = 0; j <= baseNum; j++)
+            {
+                Gizmos.color = new Color(1f, 0, 0, 0.5f);
+                
+                Vector3 fromOffset = (Vector3.right * (_cellWidth * i)) + (Vector3.up * _cellHeight * j);
+                Vector3 toOffset = Vector3.forward * (_cellDepth * baseNum);
+
+                Vector3 from = _referencePos + fromOffset;
+                Vector3 to = from + toOffset;
+                
+                Gizmos.DrawLine(from, to);
+            }
+        }
     }
 
     private Bounds GetBounds(Vector3[] points)

@@ -29,9 +29,12 @@ public class GameStatus
     [HideInInspector]public Vector2 moveDirection = Vector2.zero;
     [HideInInspector]public Vector2 cursorScreenPosition = Vector2.zero;
     [HideInInspector]public Vector3 cursorWorldPosition = Vector3.zero;
+    [HideInInspector]public Vector2 cursorAlignShotPosition = Vector2.zero;
     //public bool onAttack = false;
-    public GameObject cursorObject;
+    public Transform cursorObject;
     public Image cursorImage;
+
+    [SerializeField] public LayerMask mouseLayHitlayer = 1 << 6;
 
     [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;

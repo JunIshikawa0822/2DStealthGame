@@ -11,8 +11,7 @@ public class InputSystem : ASystem, IOnPreUpdate
     public override void OnSetUp()
     {
         _gameInputs = new InputAction_Test();
-        _mouseHitLayer = 1 << 6;
-
+        _mouseHitLayer = gameStat.mouseLayHitlayer;
         // Actionイベント登録
         _gameInputs.PlayerActionTest.PlayerMoveTest.started += OnMoveInput;
         _gameInputs.PlayerActionTest.PlayerMoveTest.performed += OnMoveInput;
@@ -46,6 +45,13 @@ public class InputSystem : ASystem, IOnPreUpdate
 
         if(_cursorScreenPosition != null) gameStat.cursorScreenPosition = _cursorScreenPosition;
         if(_cursorWorldPosition != null) gameStat.cursorWorldPosition = _cursorWorldPosition;
+        
+        gameStat.cursorAlignShotPosition = RectTransformUtility.WorldToScreenPoint 
+        (
+            gameStat.camera, 
+            new Vector3(_cursorWorldPosition.x, gameStat.player.equipPos.transform.position.y, _cursorWorldPosition.z)
+        );
+        //Debug.Log(gameStat.testObject.position);
     }
     
     private void OnDestroy()

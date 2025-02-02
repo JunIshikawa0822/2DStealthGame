@@ -25,9 +25,12 @@ public class PlayerRayMarching1 : MonoBehaviour
     private GraphicsBuffer _objectBuffer;
     
     private int _objectDataSize;
-    public GameObject[] objectArray;
-    //public List<Transform> oldTargets = new List<Transform>();
-    //public List<Transform> newTargets = new List<Transform>();
+    private Transform[] _targetTransforms;
+    public Transform targetParent;
+    
+    private int _obstacleDataSize;
+    private MeshRenderer[] _obstacleMeshs;
+    public Transform obstacleParent;
     
     private int _positionBufferID;
     private GraphicsBuffer _positionBuffer;
@@ -40,9 +43,9 @@ public class PlayerRayMarching1 : MonoBehaviour
     struct GameObjectData
     {
         public Vector3 position; //12バイト
-        public float size; //4バイト
+        public Vector3 size; //4バイト
         public int type; //4バイト
-        public Vector3 padding; //12バイト 16バイトの境界にあわせて整理
+        public float padding; //12バイト 16バイトの境界にあわせて整理
     }
 
     void Start()
@@ -76,10 +79,30 @@ public class PlayerRayMarching1 : MonoBehaviour
         _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _positionResultArray.Length, sizeof(float) * 3);
         _rayMarchingComputeShader.SetBuffer(0, _positionBufferID, _positionBuffer);
         
-        // _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
-        // _debugResultArray2 = new int[_rayCount];
-        // _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _debugResultArray2.Length, sizeof(int));
-        // _rayMarchingComputeShader.SetBuffer(0, _debugBuffer2ID, _debugBuffer2);
+        _targetTransforms = targetParent.GetComponentsInChildren<Transform>();
+        _obstacleMeshs = obstacleParent.GetComponentsInChildren<MeshRenderer>();
+
+        for (int i = 0; i < _obstacleMeshs.Length; i++)
+        {
+            Vector3 min = _obstacleMeshs[i].bounds.min;
+            Vector3 max = _obstacleMeshs[i].bounds.max;
+            
+            int resolution = 64; // 解像度（数値を増やすと精度向上）
+            Vector3 cellSize = (max - min) / resolution;
+
+            for (int x = 0; x < resolution; x++)
+            {
+                for (int y = 0; y < resolution; y++)
+                {
+                    for (int z = 0; z < resolution; z++)
+                    {
+                        // Vector3 cellCenter = min + new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) * cellSize;
+                        // float sdfValue = ComputeSDF(cellCenter, mesh);
+                        // sdfGrid[x, y, z] = sdfValue;
+                    }
+                }
+            }
+        }
     }
 
     void Update()
@@ -92,7 +115,7 @@ public class PlayerRayMarching1 : MonoBehaviour
         }
 
         //ゲームオブジェクト情報を渡すための変換
-        int objectLength = objectArray.Length;
+        int objectLength = _targetTransforms.Length;
         // Debug.Log(objectLength);
 
         GameObjectData[] objectDataArray = new GameObjectData[objectLength];
@@ -100,10 +123,10 @@ public class PlayerRayMarching1 : MonoBehaviour
         {
             objectDataArray[i] = new GameObjectData
             {
-                position = objectArray[i].transform.position,
-                size = 0.5f,
+                position = _targetTransforms[i].position,
+                size = new Vector3(0.5f, 0.5f, 0.5f),
                 type = 0, // タイプを 0, 1, 2 のどれかに設定
-                padding = Vector3.zero //16バイト境界の調整
+                padding = 0 //16バイト境界の調整
             };
         }
         
@@ -180,18 +203,18 @@ public class PlayerRayMarching1 : MonoBehaviour
         // Debug.Log("くぎり終わり");
     }
 
-    // void OnDrawGizmos()
-    // {
-    //     if(Application.isPlaying == false) return;
-    //     // // XZ平面
-    //     for (int i = 0; i < _rayCount; i++)
-    //     {
-    //         Vector3 from = this.transform.position;
-    //         //Debug.Log(_positionResultArray[i]);
-    //         Vector3 to = _positionResultArray[i];
-    //         Gizmos.DrawLine(from, to);
-    //     }
-    // }
+    void OnDrawGizmos()
+    {
+        // if(Application.isPlaying == false) return;
+        // // // XZ平面
+        // for (int i = 0; i < _rayCount; i++)
+        // {
+        //     Vector3 from = this.transform.position;
+        //     //Debug.Log(_positionResultArray[i]);
+        //     Vector3 to = _positionResultArray[i];
+        //     Gizmos.DrawLine(from, to);
+        // }
+    }
     private void OnDestroy()
     {
         _outputBuffer.Dispose();

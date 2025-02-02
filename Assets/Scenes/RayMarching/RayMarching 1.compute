@@ -10,12 +10,19 @@
 #define THREADS_X 10
 
 // オブジェクトデータ構造
+// struct ObjectData
+// {
+//     float3 position; // オブジェクトの位置
+//     float size; // サイズ (半径や寸法)
+//     int type; // オブジェクトタイプ
+//     float3 padding;
+// };
 struct ObjectData
 {
     float3 position; // オブジェクトの位置
-    float size; // サイズ (半径や寸法)
+    float3 size; // サイズ (半径や寸法)
     int type; // オブジェクトタイプ
-    float3 padding;
+    float padding; // パディング
 };
 //書き込みができるテクスチャデータらしい
 //RWTexture2D<float4> Result;
@@ -43,24 +50,24 @@ float SDF_Sphere(float3 vec, float radius)
     return abs(length(vec) - radius);
 }
 
-// //軸に並行なAABB 立方体
-// float SDF_Box(float3 pos, float3 size) {
-//     float3 dist = abs(pos) - size;
-//     return min(max(dist.x, max(dist.y, dist.z)), 0.0) + length(max(dist, 0.0));
-// }
+//軸に並行なAABB 立方体
+float SDF_Box(float3 pos, float3 size) {
+    float3 dist = abs(pos) - size;
+    return min(max(dist.x, max(dist.y, dist.z)), 0.0) + length(max(dist, 0.0));
+}
 
-// //軸に並行な直方体 
-// float SDF_Rect(float3 pos, float3 size) 
-// {
-//     return max(max(abs(pos.x) - size.x, abs(pos.y) - size.y), abs(pos.z) - size.z);
-// }
+//軸に並行な直方体 
+float SDF_Rect(float3 pos, float3 size) 
+{
+    return max(max(abs(pos.x) - size.x, abs(pos.y) - size.y), abs(pos.z) - size.z);
+}
 
-// float SDF_Capsule(float3 p, float3 a, float3 b, float radius) {
-//     float3 pa = p - a;
-//     float3 ba = b - a;
-//     float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-//     return length(pa - ba * h) - radius;
-// }
+float SDF_Capsule(float3 p, float3 a, float3 b, float radius) {
+    float3 pa = p - a;
+    float3 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return abs(length(pa - ba * h) - radius);
+}
 
 // シーンに存在するオブジェクト全てと比較し、一番短い距離を返す
 //当たり判定が欲しいので、大事なのはインデックス 距離は一応持っておく
@@ -79,20 +86,20 @@ float SceneSDF(float3 rayPos, out int nearestIndex)
             nowDist = SDF_Sphere(rayPos - obj.position, obj.size.x);
         }
         //i * (20 * 10) + j * 10 + k;
-        // else if (obj.type == OBJECT_TYPE_BOX) 
-        // {
-        //     dist = SDF_Box(p - obj.position, obj.size);
-        // } 
-        // else if (obj.type == OBJECT_TYPE_RECT) 
-        // {
-        //     dist = SDF_Rect(p - obj.position, obj.size);
-        // } 
-        // else if (obj.type == OBJECT_TYPE_CAPSULE) 
-        // {
-        //     float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
-        //     float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
-        //     dist = SDF_Capsule(p, a, b, obj.size.x);
-        // }
+        else if (obj.type == OBJECT_TYPE_BOX) 
+        {
+            nowDist = SDF_Box(rayPos - obj.position, obj.size);
+        } 
+        else if (obj.type == OBJECT_TYPE_RECT) 
+        {
+            nowDist = SDF_Rect(rayPos - obj.position, obj.size);
+        } 
+        else if (obj.type == OBJECT_TYPE_CAPSULE) 
+        {
+            float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
+            float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
+            nowDist = SDF_Capsule(rayPos, a, b, obj.size.x);
+        }
 
         //minDist = min(minDist, nowDist);
 

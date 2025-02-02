@@ -21,7 +21,7 @@ public class UISystem : ASystem, IOnUpdate
         gameStat.playerHPSlider.value = gameStat.playerHP.CurrentHp;
 
         if(gameStat.isInventoryPanelActive)return;
-        gameStat.cursorImage.rectTransform.position = gameStat.cursorScreenPosition;
+        gameStat.cursorImage.rectTransform.position = gameStat.cursorAlignShotPosition;
 
         if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)
         {

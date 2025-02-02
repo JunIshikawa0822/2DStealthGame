@@ -30,16 +30,12 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         _targetObjectArray = gameStat.targetParent.transform.GetComponentsInChildren<MeshChangable>();
         
         _mortonTest = gameStat.player.GetComponent<MortonTest>();
-        _testObjectsArray = gameStat.testObject.transform.GetComponentsInChildren<Transform>();
+        _mortonTest.Init(_cellSize, gameStat.dimensionLevel);
+        //_testObjectsArray = gameStat.testObject.transform.GetComponentsInChildren<Transform>();
     }
     public void OnUpdate()
     {
-        // int objectMortonCode = JunMath.PosToMortonNumber(
-        //     gameStat.player.transform.position, 
-        //     gameStat.mortonSpaceBaseTrans.position, 
-        //     gameStat.dimensionLevel, 
-        //     _cellSize);
-        // Debug.Log(objectMortonCode);
+        //モートン空間とオブジェクトの引き渡し部分
         _cameraCorners.Clear();
         Vector3[] nearCorners = JunCamera.CalculateFrustumCorners(gameStat.camera, gameStat.camera.nearClipPlane);
         for (int i = 0; i < nearCorners.Length; i++)
@@ -60,7 +56,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         Debug.Log($"{string.Join(",", cameraMortonCodes)}");
         //Debug.Log($"{_targetObjectArray.Length}");
         if(_targetObjectArray.Length < 1)return;
-        //Debug.Log("動いている");
+        Debug.Log("動いている");
         List<MeshChangable>newTargetList = new List<MeshChangable>();
         
         foreach (MeshChangable objTrans in _targetObjectArray)
@@ -136,7 +132,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
                     // Debug.Log(num);
                     Vector3 pos = bound.min + new Vector3(i * cellSize.x, j * cellSize.y, k * cellSize.z);
                     // Debug.Log(num);
-                    _testObjectsArray[num].position = pos;
+                    //_testObjectsArray[num].position = pos;
                     int mortonNum = JunMath.PosToMortonNumber(pos, _referencePos, gameStat.dimensionLevel, cellSize);
                     intersectMortonSpaces[num] = mortonNum;
                 }
