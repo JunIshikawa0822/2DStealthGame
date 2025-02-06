@@ -9124,7 +9124,7 @@ Transform:
   m_GameObject: {fileID: 165118306}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: 9.729968, y: 14.342113, z: -1529.6001}
+  m_LocalPosition: {x: -39.400066, y: 14.342091, z: -3349.4001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34213,7 +34213,7 @@ Transform:
   m_GameObject: {fileID: 1141584801}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: 9.729968, y: 14.342113, z: -1529.6001}
+  m_LocalPosition: {x: -39.400066, y: 14.342091, z: -3349.4001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -42202,8 +42202,12 @@ MonoBehaviour:
     moveDirection: {x: 0, y: 0}
     cursorScreenPosition: {x: 0, y: 0}
     cursorWorldPosition: {x: 0, y: 0, z: 0}
+    cursorAlignShotPosition: {x: 0, y: 0}
     cursorObject: {fileID: 985123735}
     cursorImage: {fileID: 393601897}
+    mouseLayHitlayer:
+      serializedVersion: 2
+      m_Bits: 64
     playerGunsArray: []
     selectingGunsArrayIndex: 1
     handgunPrefabs:
@@ -51870,7 +51874,7 @@ Transform:
   m_GameObject: {fileID: 2076361588}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.1, y: 0, z: -1527.2}
+  m_LocalPosition: {x: -34.7, y: 0, z: -3354.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52862,7 +52866,7 @@ PrefabInstance:
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 19.73
+      value: -29.4
       objectReference: {fileID: 0}
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -52872,7 +52876,7 @@ PrefabInstance:
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1519.6
+      value: -3339.4
       objectReference: {fileID: 0}
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -53055,7 +53059,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3514247124795816322}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5556e562021046748013a15decd892b, type: 3}
   m_Name: 
@@ -53066,7 +53070,8 @@ MonoBehaviour:
   _rayAngle: 60
   _thresholdValue: 0.01
   _maxDistance: 30
-  objectArray: []
+  targetParent: {fileID: 1818613857}
+  obstacleParent: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -53088,7 +53093,7 @@ SceneRoots:
   - {fileID: 1763851586}
   - {fileID: 977521272}
   - {fileID: 231256457}
-  - {fileID: 2076361589}
   - {fileID: 1804046151}
   - {fileID: 1641309042}
   - {fileID: 1818613857}
+  - {fileID: 2076361589}

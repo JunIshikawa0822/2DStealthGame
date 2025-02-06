@@ -153,7 +153,7 @@ public class MortonTest : MonoBehaviour
                     int num = i * (separateY * separateZ) + j * separateZ + k;
                     // Debug.Log(num);
                     Vector3 pos = bound.min + new Vector3(i * cellSize.x, j * cellSize.y, k * cellSize.z);
-                    int mortonNum = JunMath.PosToMortonNumber(pos, _referencePos, _dimensionLevel, cellSize);
+                    int mortonNum = JunGeometry.PosToMortonNumber(pos, _referencePos, _dimensionLevel, cellSize);
                     intersectMortonSpaces[num] = mortonNum;
                 }
             }

@@ -41,7 +41,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         for (int i = 0; i < nearCorners.Length; i++)
         {
             Vector3 direction = Vector3.forward;
-            direction = JunMath.RotateAround(direction, _rotateEulerAngle);
+            direction = JunGeometry.RotateAround(direction, _rotateEulerAngle);
             float t = (float)(0 - nearCorners[i].y) / (float)direction.y;
             
             _cameraCorners.Add(nearCorners[i]);
@@ -61,7 +61,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         
         foreach (MeshChangable objTrans in _targetObjectArray)
         {
-            int objectMortonCode = JunMath.PosToMortonNumber(
+            int objectMortonCode = JunGeometry.PosToMortonNumber(
                 objTrans.transform.position, 
                 gameStat.mortonSpaceBaseTrans.position, 
                 gameStat.dimensionLevel, 
@@ -133,7 +133,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
                     Vector3 pos = bound.min + new Vector3(i * cellSize.x, j * cellSize.y, k * cellSize.z);
                     // Debug.Log(num);
                     //_testObjectsArray[num].position = pos;
-                    int mortonNum = JunMath.PosToMortonNumber(pos, _referencePos, gameStat.dimensionLevel, cellSize);
+                    int mortonNum = JunGeometry.PosToMortonNumber(pos, _referencePos, gameStat.dimensionLevel, cellSize);
                     intersectMortonSpaces[num] = mortonNum;
                 }
             }
