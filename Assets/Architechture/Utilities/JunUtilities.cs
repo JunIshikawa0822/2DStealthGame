@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using UnityEngine;
 using Unity.Mathematics;
@@ -10,6 +11,21 @@ using Vector4 = UnityEngine.Vector4;
 
 namespace JunUtilities
 {
+    /// <summary>
+    /// 拡張クラスたち
+    /// </summary>
+    public static class JunExpandUnityClass
+    {
+        /// <param name="GetComponentInChildren (Unity)"> 親含めコンポーネントを取得</param>
+        /// <param name="GetChildrenComponent (Jun)">　親を含めずに取得</param>
+        public static T[] GetChildrenComponent<T>(Transform transform) where T : Component
+        {
+            return
+                transform.GetComponentsInChildren<T>(true)
+                    .Where(item => item.transform != transform)
+                    .ToArray();
+        }
+    }
     public static class JunGeometry
     {
         #region Vector関係
@@ -142,269 +158,6 @@ namespace JunUtilities
             return s;
         }
         #endregion
-        #region Box3D Dynamic Tree(データ管理構造) (悩み中)
-
-        public static class DynamicTree3D
-        {
-            private static TreeNode3D root; // ルートノード
-            private static int nodeCount; // ノードの数
-            
-            static DynamicTree3D()
-            {
-                root = null;
-                nodeCount = 0;
-            }
-            
-            // 最適な親ノードを見つけるメソッド
-            private static TreeNode3D FindBestFitNode(TreeNode3D node, AABB_3D aabb)
-            {
-                // AABBが交差するノードを見つける
-                if (node.Left == null && node.Right == null) return node;
-
-                float leftCost = GetExpansionCost(node.Left.Bounds, aabb);
-                float rightCost = GetExpansionCost(node.Right.Bounds, aabb);
-
-                TreeNode3D lowerCostNode = (leftCost < rightCost) ? node.Left : node.Right;
-                TreeNode3D higherCostNode = (lowerCostNode == node.Left) ? node.Right : node.Left;
-
-                //コストが小さい方が交差せず、コストが大きい方と交差している可能性はあるか？
-                //chatGPTは「ある」と言っているが信じがたい
-                //一応両方試すか
-                //再帰的に探そう
-                if (lowerCostNode.Bounds.Intersects(aabb))
-                {
-                    return FindBestFitNode(lowerCostNode, aabb);
-                }
-                else if(higherCostNode.Bounds.Intersects(aabb))
-                {
-                    return FindBestFitNode(higherCostNode, aabb);
-                }
-                //両方ともと交差しないとき、
-                return node; // 交差しない場合、親ノードを返す
-                
-                float GetExpansionCost(AABB_3D baseAABB, AABB_3D insertAABB)
-                {
-                    AABB_3D expand = new AABB_3D(baseAABB);
-                    expand.Merge(insertAABB);
-                    return expand.Volume() - baseAABB.Volume();
-                }
-            }
-
-            public static void Insert(AABB_3D aabb, int objectId)
-            {
-                TreeNode3D newNode = new TreeNode3D { Bounds = aabb, ObjectId = objectId };
-                nodeCount++;
-                
-                if (root == null)
-                {
-                    root = newNode;
-                    return;
-                }
-                else
-                {
-                    //aabbを入れるべきノード
-                    TreeNode3D fitNode = FindBestFitNode(root, aabb);
-                    //toNodeを一段階下げて、parentNodeを作成
-                    //  a             a　となるために b + new の部分を作って入れる
-                    //b   c      b+new   c
-                    //         b    new    
-                    TreeNode3D newParentNode = new TreeNode3D { Bounds = new AABB_3D(fitNode.Bounds)};
-                    TreeNode3D oldParent = fitNode.Parent;
-                    //ステージ空間を分割するなら座標の方がいいか
-                    if (ShouldPlaceLeft(fitNode.Bounds, newNode.Bounds))
-                    {
-                        newParentNode.Right = fitNode;
-                        newParentNode.Left = newNode;
-                    }
-                    else
-                    {
-                        newParentNode.Right = newNode;
-                        newParentNode.Left = fitNode;
-                    }
-                    
-                    newParentNode.Bounds.Merge(newParentNode.Right.Bounds);
-                    newParentNode.Bounds.Merge(newParentNode.Left.Bounds);
-                    
-                    newParentNode.Parent = oldParent;
-                    fitNode.Parent = newParentNode;
-                    newNode.Parent = newParentNode;
-                    
-                    if (oldParent == null)
-                    {
-                        root = newParentNode;
-                    }
-                    else
-                    {
-                        if (fitNode == oldParent.Left)
-                        {
-                            oldParent.Left = newParentNode;
-                        }
-                        else
-                        {
-                            oldParent.Right = newParentNode; 
-                        }
-                        
-                        RecalculateBounds(oldParent);
-                    }
-                }
-                
-                bool ShouldPlaceLeft(AABB_3D fitBounds, AABB_3D newBounds)
-                {
-                    return fitBounds.Center.x + fitBounds.Center.y + fitBounds.Center.z > 
-                           newBounds.Center.x + newBounds.Center.y + newBounds.Center.z;
-                }
-                
-                void RecalculateBounds(TreeNode3D node)
-                {
-                    //親を遡ってAABBを更新する
-                    //再帰でもいいかな？と思うけど、大量のオブジェクトが配置される場合、反復の方が安全か
-                    while (node != null)
-                    {
-                        // 左右の子が両方存在する場合のみ更新
-                        if (node.Left != null && node.Right != null)
-                        {
-                            node.Bounds = new AABB_3D(node.Left.Bounds);
-                            node.Bounds.Merge(node.Right.Bounds);
-                        }
-
-                        // 親ノードに移動
-                        node = node.Parent;
-                    }
-                }
-            }
-        }
-        
-        #endregion
-
-        #region 空間内に存在するオブジェクトを長軸と中央値で分割しよう
-
-        public static class AABB3DTree
-        {
-            public static TreeNode3D rootNode;
-
-            public static void BuildTree(List<Bounds> objects)
-            {
-                rootNode = BuildNode(objects);
-            }
-
-            public static void BuildTree(List<AABB_3D> objects)
-            {
-                rootNode = BuildNode(objects);
-            }
-
-            private static TreeNode3D BuildNode(List<Bounds> objects)
-            {
-                if (objects.Count == 0) return null;
-                if (objects.Count == 1) return new TreeNode3D(objects[0]);
-                
-                //1.全体を囲うようなAABBを作成するよ
-                //とりあえず元となるAABB_3Dを作成
-                //AABB_3Dはstructなので、うっかり空のコンストラクタで初期化すると、MinもMaxも0になってしまい、問題が起きるかも
-                //例)Min(0, 0, 0), Max(0, 0, 0)と、Min(4, 4, 4), Max(6, 6, 6)をMergeすると、本来はMin(4, 4, 4), Max(6, 6, 6)になってほしいが
-                //Min(0, 0, 0), Max(6, 6, 6)が出来上がってダルい
-                AABB_3D combineAllBounds = new AABB_3D(objects[0].min, objects[0].max);
-                //全部結合する
-                foreach (Bounds obj in objects)
-                {
-                    combineAllBounds = combineAllBounds.Merge(obj);
-                }
-                
-                //2. 一番でかいBoundingBoxにおける一番長い辺を探す
-                Vector3 size = combineAllBounds.Max - combineAllBounds.Min;
-                int longestAxis = 0;
-                if (size.x >= size.y && size.x >= size.z) longestAxis = 0;
-                if (size.y >= size.x && size.y >= size.z) longestAxis = 1; // y軸が最長
-                else longestAxis = 2; // z軸が最長
-                
-                //3. 一番長い辺における中央値で比較してオブジェクトをソート
-                objects.Sort((a, b) => a.center[longestAxis].CompareTo(b.center[longestAxis]));
-                int midIndex = objects.Count / 2;
-                
-                //4. オブジェクトを左右に分ける　ステージにおける静的オブジェクトの分布にばらつきががあっても数で分けるので大丈夫
-                List<Bounds> leftObjects = objects.GetRange(0, midIndex);
-                List<Bounds> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
-                
-                //5. ノードを作って入れる
-                //この層のノードを作成　値渡しなので代入して大丈夫
-                TreeNode3D node = new TreeNode3D { Bounds = combineAllBounds};
-                node.Left = BuildNode(leftObjects);
-                node.Right = BuildNode(rightObjects);
-                
-                if (node.Left != null) node.Left.Parent = node;
-                if (node.Right != null) node.Right.Parent = node;
-                
-                return node;
-            }
-            private static TreeNode3D BuildNode(List<AABB_3D> objects)
-            {
-                if (objects.Count == 0) return null;
-                if (objects.Count == 1) return new TreeNode3D(objects[0]);
-                
-                AABB_3D combineAllBounds = new AABB_3D(objects[0].Min, objects[0].Max);
-                //全部結合する
-                foreach (AABB_3D obj in objects)
-                {
-                    combineAllBounds = combineAllBounds.Merge(obj);
-                }
-                
-                //2. 一番でかいBoundingBoxにおける一番長い辺を探す
-                Vector3 size = combineAllBounds.Max - combineAllBounds.Min;
-                int longestAxis = 0;
-                if (size.x >= size.y && size.x >= size.z) longestAxis = 0;
-                if (size.y >= size.x && size.y >= size.z) longestAxis = 1; // y軸が最長
-                else longestAxis = 2; // z軸が最長
-                
-                //3. 一番長い辺における中央値で比較してオブジェクトをソート
-                objects.Sort((a, b) => a.Center[longestAxis].CompareTo(b.Center[longestAxis]));
-                int midIndex = objects.Count / 2;
-                
-                //4. オブジェクトを左右に分ける　ステージにおける静的オブジェクトの分布にばらつきががあっても数で分けるので大丈夫
-                List<AABB_3D> leftObjects = objects.GetRange(0, midIndex);
-                List<AABB_3D> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
-                
-                //5. ノードを作って入れる
-                //この層のノードを作成　値渡しなので代入して大丈夫
-                TreeNode3D node = new TreeNode3D { Bounds = combineAllBounds};
-                node.Left = BuildNode(leftObjects);
-                node.Right = BuildNode(rightObjects);
-                
-                if (node.Left != null) node.Left.Parent = node;
-                if (node.Right != null) node.Right.Parent = node;
-                
-                return node;
-            }
-            ///<summary> ///frustramBoundsと交差する全てのBoundsをリストにして返す ///</summary>
-            public static List<AABB_3D> GetIntersectAABB3D(AABB_3D frustumBounds)
-            {
-                List<AABB_3D> result = new List<AABB_3D>();
-                IntersectAABB3DSearch(rootNode, frustumBounds, result);
-                return result;
-            }
-            ///<summary> ///frustramBoundsと交差する全てのBoundsをさがしてくる ///</summary>
-            private static void IntersectAABB3DSearch(TreeNode3D node, AABB_3D frustumBounds, List<AABB_3D> result)
-            {
-                if (node == null) return;
-
-                // AABB が視錐台の境界と交差しているか？
-                if (node.Bounds.Intersects(frustumBounds))
-                {
-                    // リーフノードならリストに追加
-                    if (node.Left == null && node.Right == null)
-                    {
-                        result.Add(node.Bounds);
-                    }
-                    else
-                    {
-                        // 再帰的に探索
-                        IntersectAABB3DSearch(node.Left, frustumBounds, result);
-                        IntersectAABB3DSearch(node.Right, frustumBounds, result);
-                    }
-                }
-            }
-        }
-        
-        #endregion
-
         #region 頂点を完全にカバーするBoundsを作成
         public static Bounds GetBoundsFromVertices(List<Vector3> points)
         {
@@ -431,8 +184,8 @@ namespace JunUtilities
             bounds.SetMinMax(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
             return bounds;
         }
-        //頂点を完全にカバーするAABB_3Dを作成
-        public static AABB_3D GetAABB3DFromVertices(List<Vector3> points)
+        //頂点を完全にカバーするAABB3Dを作成
+        public static AABB3D GetAABB3DFromVertices(List<Vector3> points)
         {
             float minX = points[0].x;
             float minY = points[0].y;
@@ -453,171 +206,15 @@ namespace JunUtilities
                 if(points[i].z > maxZ) maxZ = points[i].z;
             }
         
-            AABB_3D aabb = new AABB_3D(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
+            AABB3D aabb = new AABB3D(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
             return aabb;
         }
         #endregion
     }
-    
-    public class TreeNode3D
-    {
-        public AABB_3D Bounds; // ノードのバウンディングボックス
-        public int ObjectId; // 物体のID（リーフノードの場合）
-        public TreeNode3D Left; // 左の子ノード
-        public TreeNode3D Right; // 右の子ノード
-        public TreeNode3D Parent; //親のノード
-        
-        public TreeNode3D()
-        {
-            Left = null;
-            Right = null;
-            Parent = null;
-            ObjectId = -1; // -1はリーフノードでないことを示す
-        }
-
-        public TreeNode3D(AABB_3D aabb)
-        {
-            Bounds = aabb;
-            Left = null;
-            Right = null;
-            Parent = null;
-            ObjectId = -1;
-        }
-
-        public TreeNode3D(Bounds bounds)
-        {
-            Bounds = new AABB_3D(bounds.min, bounds.max);
-            Left = null;
-            Right = null;
-            Parent = null;
-            ObjectId = -1;
-        }
-    }
-    public struct AABB_3D
-    {
-        public Vector3 Min; // AABBの最小点
-        public Vector3 Max; // AABBの最大点
-        public Vector3 Center => (Min + Max) / 2.0f;
-
-        public AABB_3D(Bounds bounds)
-        {
-            Min = bounds.min;
-            Max = bounds.max;
-        }
-
-        public AABB_3D(Vector3 min, Vector3 max)
-        {
-            Min = min;
-            Max = max;
-        }
-
-        public AABB_3D(AABB_3D aabb)
-        {
-            Min = aabb.Min;
-            Max = aabb.Max;
-        }
-
-        // AABBが他のAABBと交差するかをチェック
-        public bool Intersects(AABB_3D other)
-        {
-            return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
-                   (Min.y <= other.Max.y && Max.y >= other.Min.y) &&
-                   (Min.z <= other.Max.z && Max.z >= other.Min.z);
-        }
-
-        // AABBを拡張する（比較してAABBを合体
-        public AABB_3D Merge(AABB_3D other)
-        {
-            Vector3 newMin = new Vector3(
-                Math.Min(Min.x, other.Min.x), 
-                Math.Min(Min.y, other.Min.y), 
-                Math.Min(Min.z, other.Min.z)
-                );
-            
-            Vector3 newMax = new Vector3(
-                Math.Max(Max.x, other.Max.x), 
-                Math.Max(Max.y, other.Max.y), 
-                Math.Max(Max.z, other.Max.z)
-                );
-            
-            return new AABB_3D(newMin, newMax);
-        }
-        
-        public AABB_3D Merge(Bounds other)
-        {
-            Vector3 newMin = new Vector3(
-                Math.Min(Min.x, other.min.x), 
-                Math.Min(Min.y, other.min.y), 
-                Math.Min(Min.z, other.min.z)
-            );
-            
-            Vector3 newMax = new Vector3(
-                Math.Max(Max.x, other.max.x), 
-                Math.Max(Max.y, other.max.y), 
-                Math.Max(Max.z, other.max.z)
-            );
-            
-            return new AABB_3D(newMin, newMax);
-        }
-        
-        // AABBのサイズを取得する
-        public Vector3 Size()
-        {
-            return Max - Min;
-        }
-
-        public float Volume()
-        {
-            return (Max.x - Min.x) * (Max.y - Min.y) * (Max.z - Min.z);
-        }
-    }
-    public class TreeNode2D
-    {
-        public AABB_2D Bounds; // ノードのバウンディングボックス
-        public int ObjectId; // 物体のID（リーフノードの場合）
-        public TreeNode3D Left; // 左の子ノード
-        public TreeNode3D Right; // 右の子ノード
-
-        public TreeNode2D()
-        {
-            Left = null;
-            Right = null;
-            ObjectId = -1; // -1はリーフノードでないことを示す
-        }
-    }
-    public struct AABB_2D
-    {
-        public Vector2 Min; // AABBの最小点
-        public Vector2 Max; // AABBの最大点
-
-        public AABB_2D(Vector2 min, Vector2 max)
-        {
-            Min = min;
-            Max = max;
-        }
-
-        // AABBが他のAABBと交差するかをチェック
-        public bool Intersects(AABB other)
-        {
-            return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
-                   (Min.y <= other.Max.y && Max.y >= other.Min.y);
-        }
-
-        // AABBを拡張する
-        public void Extend(AABB other)
-        {
-            Min = new Vector2(Math.Min(Min.x, other.Min.x), Math.Min(Min.x, other.Min.x));
-            Max = new Vector2(Math.Max(Max.x, other.Max.x), Math.Max(Max.x, other.Max.x));
-        }
-
-        public Vector2 Size()
-        {
-            return Max - Min;
-        }
-    }
-
     public static class JunCamera
     {
+        /// <param name="camera"> 基準となるカメラ</param>
+        /// <param name="clipPlane">　カメラからの距離　nearなのかfarかで変えましょう</param>
         public static Vector3[] CalculateFrustumCorners(Camera camera, float clipPlane)
         {
             bool cameraType = camera.orthographic;
@@ -641,6 +238,387 @@ namespace JunUtilities
             }
             
             return corners;
+        }
+    }
+    public class DynamicTree3D
+    {
+        private TreeNode3D _root; // ルートノード
+        private int _nodeCount; // ノードの数
+        public int NodeCount
+        {
+            get => _nodeCount;
+        }
+        
+        public DynamicTree3D()
+        {
+            _root = null;
+            _nodeCount = 0;
+        }
+        
+        // 最適な親ノードを見つけるメソッド
+        private TreeNode3D FindBestFitNode(TreeNode3D node, AABB3D aabb)
+        {
+            // AABBが交差するノードを見つける
+            if (node.Left == null && node.Right == null) return node;
+
+            float leftCost = GetExpansionCost(node.Left.Bounds, aabb);
+            float rightCost = GetExpansionCost(node.Right.Bounds, aabb);
+
+            TreeNode3D lowerCostNode = (leftCost < rightCost) ? node.Left : node.Right;
+            TreeNode3D higherCostNode = (lowerCostNode == node.Left) ? node.Right : node.Left;
+
+            //コストが小さい方が交差せず、コストが大きい方と交差している可能性はあるか？
+            //chatGPTは「ある」と言っているが信じがたい
+            //一応両方試すか
+            //再帰的に探そう
+            if (lowerCostNode.Bounds.Intersects(aabb))
+            {
+                return FindBestFitNode(lowerCostNode, aabb);
+            }
+            else if(higherCostNode.Bounds.Intersects(aabb))
+            {
+                return FindBestFitNode(higherCostNode, aabb);
+            }
+            //両方ともと交差しないとき、
+            return node; // 交差しない場合、親ノードを返す
+            
+            float GetExpansionCost(AABB3D baseAABB, AABB3D insertAABB)
+            {
+                AABB3D expand = new AABB3D(baseAABB);
+                expand.Merge(insertAABB);
+                return expand.Volume() - baseAABB.Volume();
+            }
+        }
+
+        public void Insert(AABB3D aabb, int objectId)
+        {
+            TreeNode3D newNode = new TreeNode3D { Bounds = aabb};
+            _nodeCount++;
+            
+            if (_root == null)
+            {
+                _root = newNode;
+                return;
+            }
+            else
+            {
+                //aabbを入れるべきノード
+                TreeNode3D fitNode = FindBestFitNode(_root, aabb);
+                //toNodeを一段階下げて、parentNodeを作成
+                //  a             a　となるために b + new の部分を作って入れる
+                //b   c      b+new   c
+                //         b    new    
+                TreeNode3D newParentNode = new TreeNode3D { Bounds = new AABB3D(fitNode.Bounds)};
+                TreeNode3D oldParent = fitNode.Parent;
+                //ステージ空間を分割するなら座標の方がいいか
+                if (ShouldPlaceLeft(fitNode.Bounds, newNode.Bounds))
+                {
+                    newParentNode.Right = fitNode;
+                    newParentNode.Left = newNode;
+                }
+                else
+                {
+                    newParentNode.Right = newNode;
+                    newParentNode.Left = fitNode;
+                }
+                
+                newParentNode.Bounds.Merge(newParentNode.Right.Bounds);
+                newParentNode.Bounds.Merge(newParentNode.Left.Bounds);
+                
+                newParentNode.Parent = oldParent;
+                fitNode.Parent = newParentNode;
+                newNode.Parent = newParentNode;
+                
+                if (oldParent == null)
+                {
+                    _root = newParentNode;
+                }
+                else
+                {
+                    if (fitNode == oldParent.Left)
+                    {
+                        oldParent.Left = newParentNode;
+                    }
+                    else
+                    {
+                        oldParent.Right = newParentNode; 
+                    }
+                    
+                    RecalculateBounds(oldParent);
+                }
+            }
+            
+            bool ShouldPlaceLeft(AABB3D fitBounds, AABB3D newBounds)
+            {
+                return fitBounds.Center.x + fitBounds.Center.y + fitBounds.Center.z > 
+                       newBounds.Center.x + newBounds.Center.y + newBounds.Center.z;
+            }
+            
+            void RecalculateBounds(TreeNode3D node)
+            {
+                //親を遡ってAABBを更新する
+                //再帰でもいいかな？と思うけど、大量のオブジェクトが配置される場合、反復の方が安全か
+                while (node != null)
+                {
+                    // 左右の子が両方存在する場合のみ更新
+                    if (node.Left != null && node.Right != null)
+                    {
+                        node.Bounds = new AABB3D(node.Left.Bounds);
+                        node.Bounds.Merge(node.Right.Bounds);
+                    }
+
+                    // 親ノードに移動
+                    node = node.Parent;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 静的オブジェクトの管理に適したTree 動的な追加は考慮されない
+    /// </summary>
+    public class AABB3DTree
+    {
+        public TreeNode3D rootNode;
+
+        public void BuildTree(List<(AABB3D bounds, Transform transform)> objects)
+        {
+            rootNode = BuildNode(objects);
+        }
+
+        private TreeNode3D BuildNode(List<(AABB3D bounds, Transform transform)> objects)
+        {
+            if (objects.Count == 0) return null;
+            // 単一要素ならリーフノードを作成
+            if (objects.Count == 1)
+            {
+                return new TreeNode3D { Bounds = objects[0].bounds, Transform = objects[0].transform };
+            }
+            Debug.Log("ノード作成");
+            //1.全てくっつける
+            AABB3D combineAllBounds = new AABB3D(objects[0].bounds);
+            //全部結合する
+            foreach ((AABB3D bounds, Transform transform) obj in objects)
+            {
+                combineAllBounds = combineAllBounds.Merge(obj.bounds);
+            }
+            
+            //2. 一番でかいBoundingBoxにおける一番長い辺を探す
+            Vector3 size = combineAllBounds.Max - combineAllBounds.Min;
+            int longestAxis = 0;
+            if (size.x >= size.y && size.x >= size.z) longestAxis = 0;
+            if (size.y >= size.x && size.y >= size.z) longestAxis = 1; // y軸が最長
+            else longestAxis = 2; // z軸が最長
+            
+            Debug.Log(longestAxis);
+            Debug.Log($"ソート前 : {string.Join(",", objects.Select(item => item.transform.name))}");
+            //3. 長い辺（軸）にそってソート
+            objects.Sort((a, b) => a.bounds.Center[longestAxis].CompareTo(b.bounds.Center[longestAxis]));
+            
+            Debug.Log($"ソート後 : {string.Join(",", objects.Select(item => item.transform.name))}");
+
+            //4. 分割してリスト再作成
+            int midIndex = objects.Count / 2;
+            List<(AABB3D bounds, Transform transform)> leftObjects = objects.GetRange(0, midIndex);
+            List<(AABB3D bounds, Transform transform)> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
+            
+            //5. ノードを作る
+            TreeNode3D node = new TreeNode3D { Bounds = combineAllBounds};
+            //再帰
+            Debug.Log("左ノード");
+            node.Left = BuildNode(leftObjects);
+            Debug.Log("右ノード");
+            node.Right = BuildNode(rightObjects);
+            
+            if (node.Left != null) node.Left.Parent = node;
+            if (node.Right != null) node.Right.Parent = node;
+
+            return node;
+        }
+        
+        ///<summary> ///frustramBoundsと交差する全てのBoundsとそのTransformをリストにして返す ///</summary>
+        public List<(AABB3D bounds, Transform transform)> GetIntersectAABB3D(AABB3D frustumBounds)
+        {
+            List<(AABB3D bounds, Transform transform)> result = new List<(AABB3D bounds, Transform transform)>();
+            IntersectAABB3DSearch(rootNode, frustumBounds, result);
+            return result;
+        }
+
+        ///<summary> ///frustramBoundsと交差する全てのBoundsをさがしてくる ///</summary>
+        private void IntersectAABB3DSearch(TreeNode3D node, AABB3D frustumBounds, List<(AABB3D bounds, Transform transform)> result)
+        {
+            if (node == null) return;
+
+            // AABB が視錐台の境界と交差しているか？
+            if (node.Bounds.Intersects(frustumBounds))
+            {
+                // リーフノードならリストに追加
+                if (node.Left == null && node.Right == null)
+                {
+                    result.Add((node.Bounds, node.Transform));
+                }
+                else
+                {
+                    // 再帰的に探索
+                    IntersectAABB3DSearch(node.Left, frustumBounds, result);
+                    IntersectAABB3DSearch(node.Right, frustumBounds, result);
+                }
+            }
+        }
+    }
+    
+    public class TreeNode3D
+    {
+        public AABB3D Bounds; // ノードのバウンディングボックス
+        public TreeNode3D Left; // 左の子ノード
+        public TreeNode3D Right; // 右の子ノード
+        public TreeNode3D Parent; //親のノード
+        public Transform Transform;
+        
+        public TreeNode3D()
+        {
+            Left = null;
+            Right = null;
+            Parent = null;
+        }
+
+        public TreeNode3D(AABB3D aabb)
+        {
+            Bounds = new AABB3D(aabb.Min, aabb.Max);
+            Left = null;
+            Right = null;
+            Parent = null;
+        }
+
+        public TreeNode3D(Bounds bounds)
+        {
+            Bounds = new AABB3D(bounds.min, bounds.max);
+            Left = null;
+            Right = null;
+            Parent = null;
+            //ObjectId = -1;
+        }
+    }
+    public struct AABB3D
+    {
+        public Vector3 Min; // AABBの最小点
+        public Vector3 Max; // AABBの最大点
+        public Vector3 Center => (Min + Max) / 2.0f;
+
+        public AABB3D(Bounds bounds)
+        {
+            Min = bounds.min;
+            Max = bounds.max;
+        }
+
+        public AABB3D(Vector3 min, Vector3 max)
+        {
+            Min = min;
+            Max = max;
+        }
+
+        public AABB3D(AABB3D aabb)
+        {
+            Min = aabb.Min;
+            Max = aabb.Max;
+        }
+
+        // AABBが他のAABBと交差するかをチェック
+        public bool Intersects(AABB3D other)
+        {
+            return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
+                   (Min.y <= other.Max.y && Max.y >= other.Min.y) &&
+                   (Min.z <= other.Max.z && Max.z >= other.Min.z);
+        }
+
+        // AABBを拡張する（比較してAABBを合体
+        public AABB3D Merge(AABB3D other)
+        {
+            Vector3 newMin = new Vector3(
+                Math.Min(Min.x, other.Min.x), 
+                Math.Min(Min.y, other.Min.y), 
+                Math.Min(Min.z, other.Min.z)
+                );
+            
+            Vector3 newMax = new Vector3(
+                Math.Max(Max.x, other.Max.x), 
+                Math.Max(Max.y, other.Max.y), 
+                Math.Max(Max.z, other.Max.z)
+                );
+            
+            return new AABB3D(newMin, newMax);
+        }
+        
+        public AABB3D Merge(Bounds other)
+        {
+            Vector3 newMin = new Vector3(
+                Math.Min(Min.x, other.min.x), 
+                Math.Min(Min.y, other.min.y), 
+                Math.Min(Min.z, other.min.z)
+            );
+            
+            Vector3 newMax = new Vector3(
+                Math.Max(Max.x, other.max.x), 
+                Math.Max(Max.y, other.max.y), 
+                Math.Max(Max.z, other.max.z)
+            );
+            
+            return new AABB3D(newMin, newMax);
+        }
+        
+        // AABBのサイズを取得する
+        public Vector3 Size()
+        {
+            return Max - Min;
+        }
+
+        public float Volume()
+        {
+            return (Max.x - Min.x) * (Max.y - Min.y) * (Max.z - Min.z);
+        }
+    }
+    public class TreeNode2D
+    {
+        public AABB2D Bounds; // ノードのバウンディングボックス
+        public int ObjectId; // 物体のID（リーフノードの場合）
+        public TreeNode3D Left; // 左の子ノード
+        public TreeNode3D Right; // 右の子ノード
+
+        public TreeNode2D()
+        {
+            Left = null;
+            Right = null;
+            ObjectId = -1; // -1はリーフノードでないことを示す
+        }
+    }
+    public struct AABB2D
+    {
+        public Vector2 Min; // AABBの最小点
+        public Vector2 Max; // AABBの最大点
+
+        public AABB2D(Vector2 min, Vector2 max)
+        {
+            Min = min;
+            Max = max;
+        }
+
+        // AABBが他のAABBと交差するかをチェック
+        public bool Intersects(AABB other)
+        {
+            return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
+                   (Min.y <= other.Max.y && Max.y >= other.Min.y);
+        }
+
+        // AABBを拡張する
+        public void Extend(AABB other)
+        {
+            Min = new Vector2(Math.Min(Min.x, other.Min.x), Math.Min(Min.x, other.Min.x));
+            Max = new Vector2(Math.Max(Max.x, other.Max.x), Math.Max(Max.x, other.Max.x));
+        }
+
+        public Vector2 Size()
+        {
+            return Max - Min;
         }
     }
 }
