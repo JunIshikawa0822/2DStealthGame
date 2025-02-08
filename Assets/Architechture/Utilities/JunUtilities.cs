@@ -394,7 +394,7 @@ namespace JunUtilities
             {
                 return new TreeNode3D { Bounds = objects[0].bounds, Transform = objects[0].transform };
             }
-            Debug.Log("ノード作成");
+            //Debug.Log("ノード作成");
             //1.全てくっつける
             AABB3D combineAllBounds = new AABB3D(objects[0].bounds);
             //全部結合する
@@ -410,12 +410,12 @@ namespace JunUtilities
             if (size.y >= size.x && size.y >= size.z) longestAxis = 1; // y軸が最長
             else longestAxis = 2; // z軸が最長
             
-            Debug.Log(longestAxis);
-            Debug.Log($"ソート前 : {string.Join(",", objects.Select(item => item.transform.name))}");
+            //Debug.Log(longestAxis);
+            //Debug.Log($"ソート前 : {string.Join(",", objects.Select(item => item.transform.name))}");
             //3. 長い辺（軸）にそってソート
             objects.Sort((a, b) => a.bounds.Center[longestAxis].CompareTo(b.bounds.Center[longestAxis]));
             
-            Debug.Log($"ソート後 : {string.Join(",", objects.Select(item => item.transform.name))}");
+            //Debug.Log($"ソート後 : {string.Join(",", objects.Select(item => item.transform.name))}");
 
             //4. 分割してリスト再作成
             int midIndex = objects.Count / 2;
@@ -425,9 +425,9 @@ namespace JunUtilities
             //5. ノードを作る
             TreeNode3D node = new TreeNode3D { Bounds = combineAllBounds};
             //再帰
-            Debug.Log("左ノード");
+            //Debug.Log("左ノード");
             node.Left = BuildNode(leftObjects);
-            Debug.Log("右ノード");
+            //Debug.Log("右ノード");
             node.Right = BuildNode(rightObjects);
             
             if (node.Left != null) node.Left.Parent = node;

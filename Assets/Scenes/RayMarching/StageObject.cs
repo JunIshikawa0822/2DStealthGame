@@ -27,7 +27,7 @@ public class StageObject : MonoBehaviour
         {
             objectList.Add((new AABB3D(boundsArray[i].bounds), transformsArray[i]));
         }
-
+        
         _stageObjectTree = new AABB3DTree();
         _stageObjectTree.BuildTree(objectList);
     }
@@ -39,9 +39,8 @@ public class StageObject : MonoBehaviour
         //AABBが交差しているオブジェクトを探そう
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
         //オブジェクトが回転している可能性があるので、さらにここから判定を入れる
-        List<(AABB3D bounds, Transform transform)> intersects = _stageObjectTree.GetIntersectAABB3D(playerAABB3D);
-        Debug.Log(string.Join((","), intersects.Select(item => item.transform.name)));
-        
+        List<(AABB3D bounds, Transform transform)> intersectObjects = _stageObjectTree.GetIntersectAABB3D(playerAABB3D);
+        Debug.Log(string.Join((","), intersectObjects.Select(item => item.transform.name)));
         
     }
 }
