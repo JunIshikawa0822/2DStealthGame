@@ -5,7 +5,7 @@ using System;
 
 public class Data_Fixed_Shotgun : A_Data_Fixed<Data_Fixed_Shotgun>, I_Data_Shotgun
 {
-        [Header("GUIの情報")]
+    [Header("GUIの情報")]
     [SerializeField]private string _itemName;
     [SerializeField]private string _itemDiscription;
     [SerializeField]private Sprite _itemImage;

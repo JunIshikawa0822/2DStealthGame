@@ -26,9 +26,46 @@ namespace JunUtilities
                     .ToArray();
         }
     }
+
+    public static class JunMath
+    {
+        public static (double x1, double x2, double x3) CubicSolver(float a, float b, float c, float d)
+        {
+            float p = (3 * a * c - b * b) / (3 * a * a);
+            float q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+            //解のの判別式
+            float D = (-4 * a * c * c * c) + (-27 * a * a * d * d) + (b * b * c * c) + (18 * a * b * c * d) + (-4 * b * b * b * d);
+            if (D < 0)
+            {
+                // 実数解1つ + 複素数解2つ
+                double answer1 = Math.Cbrt(-q / 2 + Math.Sqrt(D));
+                double answer2 = Math.Cbrt(-q / 2 - Math.Sqrt(D));
+                double answer3 = answer1 + answer2 - b / (3 * a);
+                return (answer1, answer2, answer3);
+            }
+            else if (D == 0)
+            {
+                // 実数解2つ (1つが重解)
+                double answer1 = Math.Cbrt(-q / 2);
+                double answer2 = 2 * answer1 - b / (3 * a);
+                double answer3 = -answer1 - b / (3 * a);
+                return (answer1, answer2, answer3);
+            }
+            else
+            {
+                // 実数解3つ
+                double theta = Math.Acos(-q / 2 / Math.Sqrt(-(p / 3) * (p / 3) * (p / 3)));
+                double r = 2 * Math.Sqrt(-p / 3);
+                double answer1 = r * Math.Cos(theta / 3) - b / (3 * a);
+                double answer2 = r * Math.Cos((theta + 2 * Math.PI) / 3) - b / (3 * a);
+                double answer3 = r * Math.Cos((theta + 4 * Math.PI) / 3) - b / (3 * a);
+                return (answer1, answer2, answer3);
+            }
+        }
+    }
     public static class JunGeometry
     {
-        #region Vector関係
+        #region ・Vector関係
         public static Vector3 RotateAround(Vector3 vector, Vector3 rotateEulerAngles)
         {
             vector = RotateVector(vector, Vector3.right, -rotateEulerAngles.x);
@@ -89,7 +126,7 @@ namespace JunUtilities
         }
 
         #endregion
-        #region OctTree（モートン空間）
+        #region ・OctTree（モートン空間）
         public static int PosToMortonNumber(Vector3 objectPosition, Vector3 basePosition, int dimensionLevel, Vector3 cellSize)
         {
             //全てのマスの総数を計算
@@ -158,7 +195,7 @@ namespace JunUtilities
             return s;
         }
         #endregion
-        #region 頂点を完全にカバーするBoundsを作成
+        #region ・頂点を完全にカバーするBoundsを作成
         public static Bounds GetBoundsFromVertices(List<Vector3> points)
         {
             float minX = points[0].x;
@@ -208,6 +245,164 @@ namespace JunUtilities
         
             AABB3D aabb = new AABB3D(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
             return aabb;
+        }
+        #endregion
+        #region　・共分散（分散）を求める
+        /// <summary>
+        /// 共分散（分散）を求める <br/>
+        /// 同じ要素を二つ入れると分散になる
+        /// </summary>
+        public static float CoVariance(float[] values1, float[] values2)
+        {
+            if (values1.Length != values2.Length) return 0;
+            float avarage1 = values1.Average();
+            float avarage2 = values2.Average();
+            float covariance = 0f;
+
+            for (int i = 0; i < values1.Length; i++)
+            {
+                covariance += (values1[i] - avarage1) * (values2[i] - avarage2);
+            }
+            //今回は普通に母集団共分散（分散）、不偏共分散にしたい場合はvalues1.Length-1で割る方がいい
+            return covariance / values1.Length;
+        }
+        #endregion
+
+        #region　・主成分分析
+        /// <summary>
+        /// 固有ベクトルを導出する
+        /// </summary>
+        /// <param name="points">固有ベクトルを求めたい点群</param>
+        /// <param name="number">第n主成分まで求める</param>
+        /// <returns></returns>
+        public static Vector3[] GetEigenVectors(Vector3[] points, int number)
+        {
+            float[] xArray = new float[points.Length];
+            float[] yArray = new float[points.Length];
+            float[] zArray = new float[points.Length];
+            
+            for (int i = 0; i < points.Length; i++)
+            {
+                xArray[i] = points[i].x;
+                yArray[i] = points[i].y;
+                zArray[i] = points[i].z;
+            }
+
+            Vector3 centroid = new Vector3(xArray.Average(), yArray.Average(), zArray.Average());
+
+            //標準化（値から平均を引き、標準偏差で割る）
+            for (int i = 0; i < points.Length; i++)
+            {
+                xArray[i] = (xArray[i] - centroid.x) / Mathf.Sqrt(CoVariance(xArray, xArray));
+                yArray[i] = (yArray[i] - centroid.y) / Mathf.Sqrt(CoVariance(yArray, yArray));
+                zArray[i] = (zArray[i] - centroid.z) / Mathf.Sqrt(CoVariance(zArray, zArray));
+            }
+
+            float a1 = CoVariance(xArray, xArray);
+            float a2 = CoVariance(xArray, yArray);
+            float a3 = CoVariance(xArray, zArray);
+            float n1 = CoVariance(xArray, yArray);
+            float n2 = CoVariance(xArray, zArray);
+            float n3 = CoVariance(yArray, zArray);
+
+            float a = -1;
+            float b = a1 + a2 + a3;
+            float c = a1 * a2 + a2 * a3 + a3 * a1;
+            float d = a1 * a2 * a3 + 2 * (n1 * n2 * n3) - a1 * n3 * n3 - a2 * n2 * n2 - a3 * n1 * n1;
+            
+            //covarianceMatrix - λE　= 0となるλを探すため、行列の行列式を解く
+            //分散共分散行列の全ての値は負にならないため、3つの異なる実数か、重解をもつ。複素数にはならない。
+            (double lambda1, double lambda2, double lambda3) = JunMath.CubicSolver(a, b, c, d);
+            
+            float[,] matrix = new float[,] { { a1, n1, n2 }, {n1, a2, n3}, {n2, n3, a3} };
+
+            float[] vec1 = CalculateEigenVector(matrix, (float)lambda1);
+            float[] vec2 = CalculateEigenVector(matrix, (float)lambda2);
+            float[] vec3 = CalculateEigenVector(matrix, (float)lambda3);
+            
+            return  new Vector3[]
+            {
+                new Vector3(vec1[0], vec1[1], vec1[2]),
+                new Vector3(vec2[0], vec2[1], vec2[2]),
+                new Vector3(vec3[0], vec3[1], vec3[2])
+            };
+        }
+
+        public static float[] CalculateEigenVector(float[,] matrix, float lambda)
+        {
+            //[ x1 - λ, y1, z1 ]
+            //[ x2, y2 - λ, z2 ]
+            //[ x3, y3, z3 - λ ]　こういうmatrix
+            int matrixSize = matrix.GetLength(0);
+            
+            for (int i = 0; i < matrixSize; i++)
+            {
+                for (int j = 0; j < matrixSize; j++)
+                {
+                    matrix[i, j] -= lambda; // A - λI
+                }
+            }
+
+            for (int i = 0; i < matrixSize; i++)
+            {
+                float max = Math.Abs(matrix[i, i]);
+                int maxRow = i;
+                
+                //x, y,　zについて最大を探す
+                for (int k = i + 1; k < matrixSize; k++)
+                {
+                    if (Math.Abs(matrix[k, i]) > max)
+                    {
+                        max = Math.Abs(matrix[k, i]);
+                        maxRow = k;
+                    }
+                }
+                
+                //現在確認中の行（xなら1行、yなら2、zなら3）をそれぞれ入れ替える
+                for (int j = 0; j < matrixSize; j++)
+                {
+                    (matrix[i, j], matrix[maxRow, j]) = (matrix[maxRow, j], matrix[i, j]);
+                }
+                
+                //0にかぎりなく近いのであればcontinue いるかな〜?
+                if (Math.Abs(matrix[i, i]) < 1e-10) continue;
+                
+                //ここからいよいよ各要素を割っていくぞ
+                for (int k = i + 1; k < matrixSize; k++) // 自分より下の行を処理
+                {
+                    float factor = matrix[k, i] / matrix[i, i]; // ピボットを基準にその行を何で割るかを計算
+                    
+                    for (int j = i; j < matrixSize; j++)
+                    {
+                        matrix[k, j] -= factor * matrix[i, j]; // ピボット行を使って下の行のxyzすべてを割る
+                    }
+                }
+            }
+            
+            float[] eigenVector = new float[matrixSize];
+            
+            // ゼロ空間の基底を見つける
+            for (int i = matrixSize - 1; i >= 0; i--)
+            {
+                float sum = 0;
+                for (int j = i + 1; j < matrixSize; j++)
+                {
+                    sum += matrix[i, j] * eigenVector[j];
+                }
+                eigenVector[i] = (matrix[i, matrixSize - 1] - sum) / matrix[i, i];
+            }
+
+            //正規化
+            float norm = (float)Math.Sqrt(eigenVector.Sum(v => v * v));
+            if (norm > 0)
+            {
+                for (int i = 0; i < matrixSize; i++)
+                {
+                    eigenVector[i] /= norm;
+                }
+            }
+
+            return eigenVector;
         }
         #endregion
     }
@@ -435,7 +630,6 @@ namespace JunUtilities
 
             return node;
         }
-        
         ///<summary> ///frustramBoundsと交差する全てのBoundsとそのTransformをリストにして返す ///</summary>
         public List<(AABB3D bounds, Transform transform)> GetIntersectAABB3D(AABB3D frustumBounds)
         {
