@@ -12,6 +12,9 @@ public class StageObject : MonoBehaviour
     private MeshRenderer _playerMeshRenderer;
 
     private AABB3DTree _stageObjectTree;
+
+    public Transform obbTest;
+    private Vector3[] _obbTestPoints = new Vector3[8];
     private void Start()
     {
         _playerMeshRenderer = player.GetComponent<MeshRenderer>();
@@ -20,8 +23,8 @@ public class StageObject : MonoBehaviour
         MeshRenderer[] boundsArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
         Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
         
-        Debug.Log($"Boundsのリスト　{string.Join((","), boundsArray.Select(item => item.transform.name))}");
-        Debug.Log($"Transformのリスト {string.Join((","), transformsArray.Select(item => item.transform.name))}");
+        // Debug.Log($"Boundsのリスト　{string.Join((","), boundsArray.Select(item => item.transform.name))}");
+        //Debug.Log($"Transformのリスト {string.Join((","), transformsArray.Select(item => item.transform.name))}");
 
         for (int i = 0; i < boundsArray.Length; i++)
         {
@@ -30,6 +33,13 @@ public class StageObject : MonoBehaviour
         
         _stageObjectTree = new AABB3DTree();
         _stageObjectTree.BuildTree(objectList);
+        
+        OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
+        _obbTestPoints = obbtest.Vertices;
+        Debug.Log(obbtest.Center);
+        Debug.Log($"{obbtest.Axis[0]},と {obbtest.Axis[1]}, と{obbtest.Axis[2]}");
+        
+        // Debug.Log($"分散 : {JunGeometry.CoVariance(new float[]{1, 2, 3}, new float[]{1, 2, 3})}");
     }
 
     private void Update()
@@ -40,7 +50,28 @@ public class StageObject : MonoBehaviour
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
         //オブジェクトが回転している可能性があるので、さらにここから判定を入れる
         List<(AABB3D bounds, Transform transform)> intersectObjects = _stageObjectTree.GetIntersectAABB3D(playerAABB3D);
-        Debug.Log(string.Join((","), intersectObjects.Select(item => item.transform.name)));
+        // Debug.Log(string.Join((","), intersectObjects.Select(item => item.transform.name)));
         
+    }
+
+    public void OnDrawGizmos()
+    {
+        if(!Application.isPlaying)return;
+        Gizmos.color = Color.green;
+        int[,] edges = {
+            {0, 1}, {1, 3}, {3, 2}, {2, 0}, // 底面
+            {4, 5}, {5, 7}, {7, 6}, {6, 4}, // 上面
+            {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
+        };
+    
+        // foreach (Vector3 point in _obbTestPoints)
+        // {
+        //     Debug.Log(point);
+        // }
+    
+        for (int i = 0; i < edges.GetLength(0); i++)
+        {
+            Gizmos.DrawLine(_obbTestPoints[edges[i, 0]], _obbTestPoints[edges[i, 1]]);
+        }
     }
 }

@@ -154,7 +154,7 @@ public class PlayerRayMarching1 : MonoBehaviour
 
         List<int> debugResult = new List<int>(uniqueArray);
         
-        Debug.Log($"このフレームで、({string.Join(", ", debugResult)})とぶつかっている");
+        // Debug.Log($"このフレームで、({string.Join(", ", debugResult)})とぶつかっている");
         
         _positionBuffer.GetData((_positionResultArray));
         // _debugBuffer2.GetData((_debugResultArray2));
@@ -205,15 +205,15 @@ public class PlayerRayMarching1 : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        // if(Application.isPlaying == false) return;
-        // // // XZ平面
-        // for (int i = 0; i < _rayCount; i++)
-        // {
-        //     Vector3 from = this.transform.position;
-        //     //Debug.Log(_positionResultArray[i]);
-        //     Vector3 to = _positionResultArray[i];
-        //     Gizmos.DrawLine(from, to);
-        // }
+        if(Application.isPlaying == false) return;
+        // // XZ平面
+        for (int i = 0; i < _rayCount; i++)
+        {
+            Vector3 from = this.transform.position;
+            //Debug.Log(_positionResultArray[i]);
+            Vector3 to = _positionResultArray[i];
+            Gizmos.DrawLine(from, to);
+        }
     }
     private void OnDestroy()
     {

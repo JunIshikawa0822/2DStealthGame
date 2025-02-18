@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using Matrix4x4 = UnityEngine.Matrix4x4;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -29,37 +30,62 @@ namespace JunUtilities
 
     public static class JunMath
     {
-        public static (double x1, double x2, double x3) CubicSolver(float a, float b, float c, float d)
+        /// <summary>
+        /// ベクトルの内積
+        /// </summary>
+        public static float VectorDot(Vector3 a, Vector3 b)
         {
-            float p = (3 * a * c - b * b) / (3 * a * a);
-            float q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-            //解のの判別式
-            float D = (-4 * a * c * c * c) + (-27 * a * a * d * d) + (b * b * c * c) + (18 * a * b * c * d) + (-4 * b * b * b * d);
-            if (D < 0)
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
+        public static double[] CubicSolver(float a, float b, float c, float d)
+        {
+            // 計算の精度向上のため、doubleに変換
+            double A = a, B = b, C = c, D = d;
+            // 抑制化した3次方程式: t^3 + p*t + q = 0, x = t - B/(3A)
+            double p = (3 * A * C - B * B) / (3 * A * A);
+            double q = (2 * B * B * B - 9 * A * B * C + 27 * A * A * D) / (27 * A * A * A);
+    
+            // 判別式 Δ = (q/2)^2 + (p/3)^3
+            double Delta = Math.Pow(q / 2.0, 2) + Math.Pow(p / 3.0, 3);
+            double offset = B / (3 * A); // x = t - offset
+
+            if (Delta > 1e-10)
             {
-                // 実数解1つ + 複素数解2つ
-                double answer1 = Math.Cbrt(-q / 2 + Math.Sqrt(D));
-                double answer2 = Math.Cbrt(-q / 2 - Math.Sqrt(D));
-                double answer3 = answer1 + answer2 - b / (3 * a);
-                return (answer1, answer2, answer3);
+                // Δ > 0 の場合: 実数解は1つ
+                double sqrtDelta = Math.Sqrt(Delta);
+                double u = Math.Cbrt(-q / 2.0 + sqrtDelta);
+                double v = Math.Cbrt(-q / 2.0 - sqrtDelta);
+                double t = u + v;
+                double realSolution = t - offset;
+                // 実数解1つと、複素解はdoubleでは扱えないため、NaNで返す
+                return new double[] { realSolution, double.NaN, double.NaN };
             }
-            else if (D == 0)
+            else if (Math.Abs(Delta) < 1e-10)
             {
-                // 実数解2つ (1つが重解)
-                double answer1 = Math.Cbrt(-q / 2);
-                double answer2 = 2 * answer1 - b / (3 * a);
-                double answer3 = -answer1 - b / (3 * a);
-                return (answer1, answer2, answer3);
+                // Δ = 0 の場合: 重解を含む実数解（2重根または3重根）
+                double u = Math.Cbrt(-q / 2.0);
+                double t1 = 2 * u;   // 単根
+                double t2 = -u;      // 重根（2重解の場合）
+                double x1 = t1 - offset;
+                double x2 = t2 - offset;
+                return new double[] { x1, x2, x2 }; // 重根は同じ値を返す
             }
-            else
+            else // Delta < 0 の場合
             {
-                // 実数解3つ
-                double theta = Math.Acos(-q / 2 / Math.Sqrt(-(p / 3) * (p / 3) * (p / 3)));
-                double r = 2 * Math.Sqrt(-p / 3);
-                double answer1 = r * Math.Cos(theta / 3) - b / (3 * a);
-                double answer2 = r * Math.Cos((theta + 2 * Math.PI) / 3) - b / (3 * a);
-                double answer3 = r * Math.Cos((theta + 4 * Math.PI) / 3) - b / (3 * a);
-                return (answer1, answer2, answer3);
+                // 3つの異なる実数解が得られる
+                double r = 2 * Math.Sqrt(-p / 3.0);
+                // cosθ = (-q/2) / sqrt[(-p/3)^3]
+                double cosTheta = -q / (2 * Math.Sqrt(Math.Pow(-p / 3.0, 3)));
+                // 数値誤差対策として、[-1, 1]にクランプ
+                cosTheta = Math.Max(-1, Math.Min(1, cosTheta));
+                double theta = Math.Acos(cosTheta);
+                double t1 = r * Math.Cos(theta / 3.0);
+                double t2 = r * Math.Cos((theta + 2 * Math.PI) / 3.0);
+                double t3 = r * Math.Cos((theta + 4 * Math.PI) / 3.0);
+                double x1 = t1 - offset;
+                double x2 = t2 - offset;
+                double x3 = t3 - offset;
+                return new double[] { x1, x2, x3 };
             }
         }
     }
@@ -261,22 +287,35 @@ namespace JunUtilities
 
             for (int i = 0; i < values1.Length; i++)
             {
-                covariance += (values1[i] - avarage1) * (values2[i] - avarage2);
+                covariance += ((values1[i] - avarage1) * (values2[i] - avarage2));
             }
             //今回は普通に母集団共分散（分散）、不偏共分散にしたい場合はvalues1.Length-1で割る方がいい
             return covariance / values1.Length;
         }
         #endregion
+        #region ・重心を求める
+
+        public static Vector3 Centroid(Vector3[] points)
+        {
+            Vector3 sum = Vector3.zero;
+            foreach (Vector3 point in points)
+                sum += point;
+            
+            return sum / (float)points.Length;
+        }
+
+        #endregion
 
         #region　・主成分分析
         /// <summary>
         /// 固有ベクトルを導出する
+        /// （いまは第3主成分までしかもとまらないのでもうすこし汎用的にすることも視野に入れよう）
         /// </summary>
         /// <param name="points">固有ベクトルを求めたい点群</param>
-        /// <param name="number">第n主成分まで求める</param>
         /// <returns></returns>
-        public static Vector3[] GetEigenVectors(Vector3[] points, int number)
+        public static (Vector3[] eigenVector, float[] eigenValues) CalculateEigens(Vector3[] points)
         {
+            // Debug.Log(string.Join(",", points));
             float[] xArray = new float[points.Length];
             float[] yArray = new float[points.Length];
             float[] zArray = new float[points.Length];
@@ -287,9 +326,9 @@ namespace JunUtilities
                 yArray[i] = points[i].y;
                 zArray[i] = points[i].z;
             }
-
+            
             Vector3 centroid = new Vector3(xArray.Average(), yArray.Average(), zArray.Average());
-
+            
             //標準化（値から平均を引き、標準偏差で割る）
             for (int i = 0; i < points.Length; i++)
             {
@@ -299,61 +338,107 @@ namespace JunUtilities
             }
 
             float a1 = CoVariance(xArray, xArray);
-            float a2 = CoVariance(xArray, yArray);
-            float a3 = CoVariance(xArray, zArray);
+            float a2 = CoVariance(yArray, yArray);
+            float a3 = CoVariance(zArray, zArray);
             float n1 = CoVariance(xArray, yArray);
             float n2 = CoVariance(xArray, zArray);
             float n3 = CoVariance(yArray, zArray);
 
             float a = -1;
             float b = a1 + a2 + a3;
-            float c = a1 * a2 + a2 * a3 + a3 * a1;
+            float c = -(a1 * a2 + a2 * a3 + a3 * a1 - n2 * n2 - n3 * n3 - n1 * n1);
             float d = a1 * a2 * a3 + 2 * (n1 * n2 * n3) - a1 * n3 * n3 - a2 * n2 * n2 - a3 * n1 * n1;
             
             //covarianceMatrix - λE　= 0となるλを探すため、行列の行列式を解く
             //分散共分散行列の全ての値は負にならないため、3つの異なる実数か、重解をもつ。複素数にはならない。
-            (double lambda1, double lambda2, double lambda3) = JunMath.CubicSolver(a, b, c, d);
+            double[] ans = JunMath.CubicSolver(a, b, c, d);
             
-            float[,] matrix = new float[,] { { a1, n1, n2 }, {n1, a2, n3}, {n2, n3, a3} };
+            //固有値を大きい順にソート
+            double[] sortedAns = ans.OrderByDescending(value => value).ToArray();
+            Debug.Log($"sortedAns {string.Join(",", sortedAns)}");
+            
+            //分散共分散行列
+            double[,] matrix = new double[,] { { a1, n1, n2 }, {n1, a2, n3}, {n2, n3, a3} };
+            
+            Debug.Log($"分散共分散行列1");
+            PrintMatrix(matrix);
 
-            float[] vec1 = CalculateEigenVector(matrix, (float)lambda1);
-            float[] vec2 = CalculateEigenVector(matrix, (float)lambda2);
-            float[] vec3 = CalculateEigenVector(matrix, (float)lambda3);
+            double[] vec1 = CalculateEigenVector(matrix, sortedAns[0]);
             
-            return  new Vector3[]
-            {
-                new Vector3(vec1[0], vec1[1], vec1[2]),
-                new Vector3(vec2[0], vec2[1], vec2[2]),
-                new Vector3(vec3[0], vec3[1], vec3[2])
-            };
+            Debug.Log($"分散共分散行列2");
+            PrintMatrix(matrix);
+            double[] vec2 = CalculateEigenVector(matrix, sortedAns[1]);
+            
+            Debug.Log($"分散共分散行列3");
+            PrintMatrix(matrix);
+            double[] vec3 = CalculateEigenVector(matrix, sortedAns[2]);
+            
+            // Debug.Log($"vec1 {vec1[0]}, {vec1[1]}, {vec1[2]}");
+            // Debug.Log($"vec2 {vec2[0]}, {vec2[1]}, {vec2[2]}");
+            // Debug.Log($"vec3 {vec3[0]}, {vec3[1]}, {vec3[2]}");
+
+            return  (
+                new Vector3[]
+                {
+                    new Vector3((float)vec1[0], (float)vec1[1], (float)vec1[2]),
+                    new Vector3((float)vec2[0], (float)vec2[1], (float)vec2[2]),
+                    new Vector3((float)vec3[0], (float)vec3[1], (float)vec3[2])
+                }, 
+                new float[]
+                {
+                    (float)sortedAns[0],
+                    (float)sortedAns[1],
+                    (float)sortedAns[2]
+                });
         }
-
-        public static float[] CalculateEigenVector(float[,] matrix, float lambda)
+        
+        static void PrintMatrix(double[,] matrix)
+        {
+            int rowCount = matrix.GetLength(0);
+            int colCount = matrix.GetLength(1);
+            
+            Debug.Log($"{matrix[0, 0]}, {matrix[0, 1]}, {matrix[0, 2]} \n " +
+                      $"{matrix[1, 0]}, {matrix[1, 1]}, {matrix[1, 2]} \n" +
+                      $"{matrix[2, 0]}, {matrix[2, 1]}, {matrix[2, 2]}");
+        }
+        
+        /// <summary>
+        /// 固有値と行列から固有ベクトルを計算する
+        /// </summary>
+        /// <param name="matrix">固有ベクトルを求めたい行列</param>
+        /// <param name="lambda">固有値</param>
+        /// <returns></returns>
+        public static double[] CalculateEigenVector(double[,] matrix, double lambda)
         {
             //[ x1 - λ, y1, z1 ]
             //[ x2, y2 - λ, z2 ]
             //[ x3, y3, z3 - λ ]　こういうmatrix
             int matrixSize = matrix.GetLength(0);
             
+            double[,] baseMatrix = (double[,])matrix.Clone();
+            
+            // Debug.Log($"変形する前");
+            //PrintMatrix(baseMatrix);
+            
             for (int i = 0; i < matrixSize; i++)
             {
                 for (int j = 0; j < matrixSize; j++)
                 {
-                    matrix[i, j] -= lambda; // A - λI
+                    if(i == j)baseMatrix[i, j] -= lambda; // A - λIをする
                 }
             }
 
             for (int i = 0; i < matrixSize; i++)
             {
-                float max = Math.Abs(matrix[i, i]);
+                double max = Math.Abs(baseMatrix[i, i]);
                 int maxRow = i;
                 
                 //x, y,　zについて最大を探す
                 for (int k = i + 1; k < matrixSize; k++)
                 {
-                    if (Math.Abs(matrix[k, i]) > max)
+                    if (Math.Abs(baseMatrix[k, i]) > max)
                     {
-                        max = Math.Abs(matrix[k, i]);
+                        max = Math.Abs(baseMatrix[k, i]);
                         maxRow = k;
                     }
                 }
@@ -361,40 +446,61 @@ namespace JunUtilities
                 //現在確認中の行（xなら1行、yなら2、zなら3）をそれぞれ入れ替える
                 for (int j = 0; j < matrixSize; j++)
                 {
-                    (matrix[i, j], matrix[maxRow, j]) = (matrix[maxRow, j], matrix[i, j]);
+                    (baseMatrix[i, j], baseMatrix[maxRow, j]) = (baseMatrix[maxRow, j], baseMatrix[i, j]);
                 }
                 
                 //0にかぎりなく近いのであればcontinue いるかな〜?
-                if (Math.Abs(matrix[i, i]) < 1e-10) continue;
+                if (Math.Abs(baseMatrix[i, i]) < 1e-10) continue;
                 
-                //ここからいよいよ各要素を割っていくぞ
-                for (int k = i + 1; k < matrixSize; k++) // 自分より下の行を処理
+                //ピボットを1にする（スカラー倍）
+                double pivotValue = baseMatrix[i, i];
+                if (pivotValue != 0)
                 {
-                    float factor = matrix[k, i] / matrix[i, i]; // ピボットを基準にその行を何で割るかを計算
-                    
-                    for (int j = i; j < matrixSize; j++)
+                    for (int j = 0; j < matrixSize; j++)
                     {
-                        matrix[k, j] -= factor * matrix[i, j]; // ピボット行を使って下の行のxyzすべてを割る
+                        baseMatrix[i, j] /= pivotValue;
+                    }
+                }
+
+                //下の行を0にする（行の加減算）
+                for (int k = i + 1; k < matrixSize; k++)
+                {
+                    double factor = baseMatrix[k, i];
+                    for (int j = 0; j < matrixSize; j++)
+                    {
+                        baseMatrix[k, j] -= factor * baseMatrix[i, j];
                     }
                 }
             }
             
-            float[] eigenVector = new float[matrixSize];
+            // Debug.Log($"変形できたよ");
+            //PrintMatrix(baseMatrix);
             
-            // ゼロ空間の基底を見つける
+            double[] eigenVector = new double[matrixSize];
+            
+            // 後退代入（バックサブスティテューション）
             for (int i = matrixSize - 1; i >= 0; i--)
             {
-                float sum = 0;
+                double sum = 0;
                 for (int j = i + 1; j < matrixSize; j++)
                 {
-                    sum += matrix[i, j] * eigenVector[j];
+                    sum += baseMatrix[i, j] * eigenVector[j];
                 }
-                eigenVector[i] = (matrix[i, matrixSize - 1] - sum) / matrix[i, i];
-            }
 
-            //正規化
-            float norm = (float)Math.Sqrt(eigenVector.Sum(v => v * v));
-            if (norm > 0)
+                // 対角成分が 0 の場合は自由変数
+                if (Math.Abs(baseMatrix[i, i]) < 1e-10)
+                {
+                    eigenVector[i] = 1; // 自由変数を仮に1にする
+                }
+                else
+                {
+                    eigenVector[i] = -sum / baseMatrix[i, i];
+                }
+            }
+            
+            // ベクトルを正規化しようね〜
+            double norm = Math.Sqrt(eigenVector.Sum(v => v * v));
+            if (norm > 1e-10)
             {
                 for (int i = 0; i < matrixSize; i++)
                 {
@@ -403,6 +509,130 @@ namespace JunUtilities
             }
 
             return eigenVector;
+        }
+        private static float[,] GetEigenVectors(float[,] matrix)
+        {
+            // 固有ベクトルのための行列を正規化
+            float[,] eigenVectors = new float[3,3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (i == j)
+                    {
+                        eigenVectors[i,j] = 1f;
+                    }
+                    else
+                    {
+                        eigenVectors[i,j] = 0;
+                    }
+                }
+            }
+
+            int limit = 100;
+            int count = 0;
+            int p, q;
+            while (true)
+            {
+                count++;
+
+                if (count >= limit)
+                {
+                    Debug.Log("somothing was wrong.");
+                    break;
+                }
+
+                float max = GetMaxValue(matrix, out p, out q);
+                if (max <= 0.0001f)
+                {
+                    break;
+                }
+
+                float app = matrix[p, p];
+                float apq = matrix[p, q];
+                float aqq = matrix[q, q];
+
+                float alpha = (app - aqq) / 2f;
+                float beta = -apq;
+                float gamma = Mathf.Abs(alpha) / Mathf.Sqrt(alpha * alpha + beta * beta);
+
+                float sin = Mathf.Sqrt((1f - gamma) / 2f);
+                float cos = Mathf.Sqrt((1f + gamma) / 2f);
+
+                if (alpha * beta < 0)
+                {
+                    sin = -sin;
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    float temp = cos * matrix[p, i] - sin * matrix[q, i];
+                    matrix[q, i] = sin * matrix[p, i] + cos * matrix[q, i];
+                    matrix[p, i] = temp;
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    matrix[i, p] = matrix[p, i];
+                    matrix[i, q] = matrix[q, i];
+                }
+
+                matrix[p, p] = cos * cos * app + sin * sin * aqq - 2 * sin * cos * apq;
+                matrix[p, q] = sin * cos * (app - aqq) + (cos * cos - sin * sin) * apq;
+                matrix[q, p] = sin * cos * (app - aqq) + (cos * cos - sin * sin) * apq;
+                matrix[q, q] = sin * sin * app + cos * cos * aqq + 2 * sin * cos * apq;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    float temp = cos * eigenVectors[i, p] - sin * eigenVectors[i, q];
+                    eigenVectors[i, + q] = sin * eigenVectors[i, p] + cos * eigenVectors[i, q];
+                    eigenVectors[i, + p] = temp;
+                }
+            }
+
+            return eigenVectors;
+            
+            float GetMaxValue(float[,] matrix, out int p, out int q)
+            {
+                p = 0;
+                q = 0;
+
+                int rank = matrix.Rank;
+
+                float max = float.MinValue;
+
+                for (int i = 0; i < rank; i++)
+                {
+                    int len = matrix.GetLength(i);
+
+                    for (int j = 0; j < len; j++)
+                    {
+                        // 対角成分は評価しない
+                        if (i == j)
+                        {
+                            continue;
+                        }
+
+                        float absmax = Mathf.Abs(matrix[i, j]);
+                        if (max <= absmax)
+                        {
+                            max = absmax;
+                            p = i;
+                            q = j;
+                        }
+                    }
+                }
+
+                if (p > q)
+                {
+                    int temp = p;
+                    p = q;
+                    q = temp;
+                }
+
+                return max;
+            }
         }
         #endregion
     }
@@ -660,7 +890,6 @@ namespace JunUtilities
             }
         }
     }
-    
     public class TreeNode3D
     {
         public AABB3D Bounds; // ノードのバウンディングボックス
@@ -771,48 +1000,86 @@ namespace JunUtilities
             return (Max.x - Min.x) * (Max.y - Min.y) * (Max.z - Min.z);
         }
     }
-    public class TreeNode2D
+
+    public class OBB
     {
-        public AABB2D Bounds; // ノードのバウンディングボックス
-        public int ObjectId; // 物体のID（リーフノードの場合）
-        public TreeNode3D Left; // 左の子ノード
-        public TreeNode3D Right; // 右の子ノード
+        public Vector3 Center{get;}
+        //public Vector3 Edges{get;}
+        public Vector3[] Axis {get;}
+        public Vector3[] Vertices { get; }
 
-        public TreeNode2D()
+        public OBB(Transform transform, Vector3[] points)
         {
-            Left = null;
-            Right = null;
-            ObjectId = -1; // -1はリーフノードでないことを示す
-        }
-    }
-    public struct AABB2D
-    {
-        public Vector2 Min; // AABBの最小点
-        public Vector2 Max; // AABBの最大点
-
-        public AABB2D(Vector2 min, Vector2 max)
-        {
-            Min = min;
-            Max = max;
-        }
-
-        // AABBが他のAABBと交差するかをチェック
-        public bool Intersects(AABB other)
-        {
-            return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
-                   (Min.y <= other.Max.y && Max.y >= other.Min.y);
-        }
-
-        // AABBを拡張する
-        public void Extend(AABB other)
-        {
-            Min = new Vector2(Math.Min(Min.x, other.Min.x), Math.Min(Min.x, other.Min.x));
-            Max = new Vector2(Math.Max(Max.x, other.Max.x), Math.Max(Max.x, other.Max.x));
+            Vector3 center = JunGeometry.Centroid(points);
+            (Vector3[] eigenVectors, float[] eigenValues) = JunGeometry.CalculateEigens(points);
+            (Vector3 min, Vector3 max) = CalculateSize(center, eigenVectors, points);
+            
+            Vector3 center1 = (eigenVectors[0] * (min[0] + max[0])) * 0.5f;
+            Vector3 center2 = (eigenVectors[1] * (min[1] + max[1])) * 0.5f;
+            Vector3 center3 = (eigenVectors[2] * (min[2] + max[2])) * 0.5f;
+            
+            Debug.Log($"固有ベクトル {eigenVectors[0]}, 固有値 {eigenValues[0]}");
+            Debug.Log($"固有ベクトル {eigenVectors[1]}, 固有値 {eigenValues[1]}");
+            Debug.Log($"固有ベクトル {eigenVectors[2]}, 固有値 {eigenValues[2]}");
+            
+            Vector3 edge1 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[0] * (max[0] - min[0]));
+            Vector3 edge2 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[1] * (max[1] - min[1]));
+            Vector3 edge3 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[2] * (max[2] - min[2]));
+            
+            Axis = new Vector3[] { edge1, edge2, edge3 };
+            Center = transform.localToWorldMatrix.MultiplyPoint(center1 + center2 + center3);
+            Vertices = CalculateVertices(Center, Axis);
+            //Debug.Log($"このオブジェクトの重心 : {center}");
         }
 
-        public Vector2 Size()
+        private (Vector3 min, Vector3 max) CalculateSize(Vector3 center, Vector3[] axes, Vector3[] points)
         {
-            return Max - Min;
+            //Vector3 size = Vector3.zero;
+
+            Vector3 minPos = Vector3.zero;
+            Vector3 maxPos = Vector3.zero;
+
+            for (int i = 0; i < axes.Length; i++)
+            {
+                float min = float.MaxValue;
+                float max = float.MinValue;
+
+                foreach (Vector3 point in points)
+                {
+                    //固有ベクトル　＝　軸に各点を投影し、大きさを比べる
+                    //主成分分析でも同じ考え方だったね
+                    float projection = Vector3.Dot(point - center, axes[i]);
+                    min = Mathf.Min(min, projection);
+                    max = Mathf.Max(max, projection);
+                }
+
+                //size[i] = max - min; // 各軸のサイズを格納
+                minPos[i] = min;
+                maxPos[i] = max;
+            }
+
+            return (minPos, maxPos);
+        }
+
+        private Vector3[] CalculateVertices(Vector3 center, Vector3[] axis)
+        {
+            Vector3 halfSizeX = axis[0] * 0.5f; // X軸方向の半分のサイズ
+            Vector3 halfSizeY = axis[1] * 0.5f; // Y軸方向の半分のサイズ
+            Vector3 halfSizeZ = axis[2] * 0.5f; // Z軸方向の半分のサイズ
+
+            Vector3[] vertices = new Vector3[8];
+
+            // 各頂点を計算
+            vertices[0] = center - halfSizeX - halfSizeY - halfSizeZ; // (-X, -Y, -Z)
+            vertices[1] = center + halfSizeX - halfSizeY - halfSizeZ; // (+X, -Y, -Z)
+            vertices[2] = center - halfSizeX + halfSizeY - halfSizeZ; // (-X, +Y, -Z)
+            vertices[3] = center + halfSizeX + halfSizeY - halfSizeZ; // (+X, +Y, -Z)
+            vertices[4] = center - halfSizeX - halfSizeY + halfSizeZ; // (-X, -Y, +Z)
+            vertices[5] = center + halfSizeX - halfSizeY + halfSizeZ; // (+X, -Y, +Z)
+            vertices[6] = center - halfSizeX + halfSizeY + halfSizeZ; // (-X, +Y, +Z)
+            vertices[7] = center + halfSizeX + halfSizeY + halfSizeZ; // (+X, +Y, +Z)
+
+            return vertices;
         }
     }
 }
