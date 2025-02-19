@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using TreeEditor;
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.VisualScripting;
@@ -39,6 +40,7 @@ namespace JunUtilities
         }
         public static double[] CubicSolver(float a, float b, float c, float d)
         {
+            //3次方程式の解を求めるよ
             // 計算の精度向上のため、doubleに変換
             double A = a, B = b, C = c, D = d;
             // 抑制化した3次方程式: t^3 + p*t + q = 0, x = t - B/(3A)
@@ -536,7 +538,7 @@ namespace JunUtilities
                     sum += baseMatrix[i, j] * eigenVector[j];
                 }
 
-                // 対角成分が0に近ければ、自由変数と見なし、既に設定した値をそのまま利用する
+                // 対角成分が0に近ければ、自由変数と見なしてスルー
                 if (Math.Abs(baseMatrix[i, i]) < 1e-10)
                 {
                     hasFreeVariable = true;
@@ -582,168 +584,6 @@ namespace JunUtilities
 
             return eigenVector;
         }
-        public static (Vector3[] eigenVectors, float[] eigenValues) CalculateEigens(Vector3[] points, int maxIterations = 100, double tol = 1e-10)
-        {
-            float[] xArray = new float[points.Length];
-            float[] yArray = new float[points.Length];
-            float[] zArray = new float[points.Length];
-
-            for (int i = 0; i < points.Length; i++)
-            {
-                xArray[i] = points[i].x;
-                yArray[i] = points[i].y;
-                zArray[i] = points[i].z;
-            }
-
-            Vector3 centroid = new Vector3(xArray.Average(), yArray.Average(), zArray.Average());
-
-            //標準化（値から平均を引き、標準偏差で割る）
-            for (int i = 0; i < points.Length; i++)
-            {
-                xArray[i] = (xArray[i] - centroid.x) / Mathf.Sqrt(CoVariance(xArray, xArray));
-                yArray[i] = (yArray[i] - centroid.y) / Mathf.Sqrt(CoVariance(yArray, yArray));
-                zArray[i] = (zArray[i] - centroid.z) / Mathf.Sqrt(CoVariance(zArray, zArray));
-            }
-
-            float a1 = CoVariance(xArray, xArray);
-            float a2 = CoVariance(yArray, yArray);
-            float a3 = CoVariance(zArray, zArray);
-            float n1 = CoVariance(xArray, yArray);
-            float n2 = CoVariance(xArray, zArray);
-            float n3 = CoVariance(yArray, zArray);
-            
-            double[,] A = new double[,] { { a1, n1, n2 }, { n1, a2, n3 }, { n2, n3, a3 } };
-            
-            int n = A.GetLength(0);
-            double[] eigenValues = new double[n];
-            double[,] eigenVectors = new double[n, n];
-
-            // 初期化
-            for (int i = 0; i < n; i++)
-            {
-                eigenValues[i] = A[i, i];
-                eigenVectors[i, i] = 1.0;
-            }
-
-            for (int iter = 0; iter < maxIterations; iter++)
-            {
-                // 最大オフ対角成分の位置を見つける
-                int k = 0, l = 1;
-                double maxOffDiag = 0.0;
-
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = i + 1; j < n; j++)
-                    {
-                        if (Math.Abs(A[i, j]) > Math.Abs(maxOffDiag))
-                        {
-                            maxOffDiag = A[i, j];
-                            k = i;
-                            l = j;
-                        }
-                    }
-                }
-
-                // オフ対角成分が十分小さい場合、収束とみなす
-                if (Math.Abs(maxOffDiag) < tol)
-                    break;
-
-                // ヤコビ回転の角度を計算
-                double phi;
-                if (A[l, l] == A[k, k])
-                {
-                    phi = Math.PI / 4;
-                }
-                else
-                {
-                    phi = 0.5 * Math.Atan2(2 * A[k, l], A[l, l] - A[k, k]);
-                }
-
-                double c = Math.Cos(phi);
-                double s = Math.Sin(phi);
-
-                // ヤコビ回転を適用
-                double[,] R = new double[n, n];
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        R[i, j] = (i == j) ? 1.0 : 0.0; // 単位行列の作成
-                    }
-                }
-
-                R[k, k] = c;
-                R[l, l] = c;
-                R[k, l] = s;
-                R[l, k] = -s;
-
-                // 行列の更新
-                double[,] A_new = new double[n, n];
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        A_new[i, j] = 0.0;
-                        for (int m = 0; m < n; m++)
-                        {
-                            A_new[i, j] += R[m, i] * A[m, j];
-                        }
-                    }
-                }
-
-                double[,] A_updated = new double[n, n];
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        A_updated[i, j] = 0.0;
-                        for (int m = 0; m < n; m++)
-                        {
-                            A_updated[i, j] += A_new[i, m] * R[m, j];
-                        }
-                    }
-                }
-
-                // 更新後の行列をAに戻す
-                A = A_updated;
-
-                // 固有ベクトルの更新
-                double[,] eigenvectors_updated = new double[n, n];
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        eigenvectors_updated[i, j] = 0.0;
-                        for (int m = 0; m < n; m++)
-                        {
-                            eigenvectors_updated[i, j] += eigenVectors[i, m] * R[m, j];
-                        }
-                    }
-                }
-                eigenVectors = eigenvectors_updated;
-
-                // 固有値の更新
-                for (int i = 0; i < n; i++)
-                {
-                    eigenValues[i] = A[i, i];
-                }
-            }
-
-            return (new Vector3[]
-                {
-                    new Vector3((float)eigenVectors[0, 0], (float)eigenVectors[0, 1], (float)eigenVectors[0, 2]),
-                    new Vector3((float)eigenVectors[1, 0], (float)eigenVectors[1, 1], (float)eigenVectors[1, 2]),
-                    new Vector3((float)eigenVectors[2, 0], (float)eigenVectors[2, 1], (float)eigenVectors[2, 2]),
-                },
-                new float[]
-                {
-                    (float)eigenValues[0],
-                    (float)eigenValues[1],
-                    (float)eigenValues[2]
-                });
-            // return (eigenvectors, eigenvalues);
-        }
-        
         #endregion
 
         #region　グラムシュミットの正規直交法
@@ -805,7 +645,6 @@ namespace JunUtilities
         }
         #endregion
     }
-
     public static class JunCamera
     {
         /// <param name="camera"> 基準となるカメラ</param>
@@ -975,24 +814,29 @@ namespace JunUtilities
     {
         public TreeNode3D rootNode;
 
-        public void BuildTree(List<(AABB3D bounds, Transform transform)> objects)
+        public void BuildTree(List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objects)
         {
             rootNode = BuildNode(objects);
         }
 
-        private TreeNode3D BuildNode(List<(AABB3D bounds, Transform transform)> objects)
+        private TreeNode3D BuildNode(List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objects)
         {
             if (objects.Count == 0) return null;
             // 単一要素ならリーフノードを作成
             if (objects.Count == 1)
             {
-                return new TreeNode3D { Bounds = objects[0].bounds, Transform = objects[0].transform };
+                return new TreeNode3D
+                {
+                    Bounds = objects[0].bounds, 
+                    OrientedBounds = objects[0].orientedBounds, 
+                    Transform = objects[0].transform
+                };
             }
             //Debug.Log("ノード作成");
             //1.全てくっつける
             AABB3D combineAllBounds = new AABB3D(objects[0].bounds);
             //全部結合する
-            foreach ((AABB3D bounds, Transform transform) obj in objects)
+            foreach ((AABB3D bounds, OBB orientedBounds, Transform transform) obj in objects)
             {
                 combineAllBounds = combineAllBounds.Merge(obj.bounds);
             }
@@ -1013,8 +857,8 @@ namespace JunUtilities
 
             //4. 分割してリスト再作成
             int midIndex = objects.Count / 2;
-            List<(AABB3D bounds, Transform transform)> leftObjects = objects.GetRange(0, midIndex);
-            List<(AABB3D bounds, Transform transform)> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
+            List<(AABB3D bounds, OBB orientedBounds, Transform transform)> leftObjects = objects.GetRange(0, midIndex);
+            List<(AABB3D bounds, OBB orientedBounds, Transform transform)> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
             
             //5. ノードを作る
             TreeNode3D node = new TreeNode3D { Bounds = combineAllBounds};
@@ -1030,15 +874,45 @@ namespace JunUtilities
             return node;
         }
         ///<summary> ///frustramBoundsと交差する全てのBoundsとそのTransformをリストにして返す ///</summary>
-        public List<(AABB3D bounds, Transform transform)> GetIntersectAABB3D(AABB3D frustumBounds)
+        public List<(AABB3D bounds, OBB orientedBounds, Transform transform)> GetIntersectAABB3D(AABB3D frustumBounds)
         {
-            List<(AABB3D bounds, Transform transform)> result = new List<(AABB3D bounds, Transform transform)>();
+            List<(AABB3D bounds, OBB orientedBounds, Transform transform)> result = new List<(AABB3D bounds, OBB orientedBounds, Transform transform)>();
             IntersectAABB3DSearch(rootNode, frustumBounds, result);
             return result;
         }
 
+        public List<TreeNode3D> GetIntersectNode(AABB3D frustumBounds)
+        {
+            return IntersectNodeSearch(rootNode, frustumBounds);
+        }
+
+        private List<TreeNode3D> IntersectNodeSearch(TreeNode3D node, AABB3D frustumBounds)
+        {
+            List<TreeNode3D> intersectedNodes = new List<TreeNode3D>();
+
+            if (node == null) return intersectedNodes;
+
+            // AABB が視錐台の境界と交差しているか？
+            if (node.Bounds.Intersects(frustumBounds))
+            {
+                // リーフノードならこのノードをリストに追加
+                if (node.Left == null && node.Right == null)
+                {
+                    intersectedNodes.Add(node); // Nodeそのものを追加
+                }
+                else
+                {
+                    // 左右の子ノードを再帰的に探索
+                    intersectedNodes.AddRange(IntersectNodeSearch(node.Left, frustumBounds));
+                    intersectedNodes.AddRange(IntersectNodeSearch(node.Right, frustumBounds));
+                }
+            }
+
+            return intersectedNodes; // 交差したノードのリストを返す
+        }
+
         ///<summary> ///frustramBoundsと交差する全てのBoundsをさがしてくる ///</summary>
-        private void IntersectAABB3DSearch(TreeNode3D node, AABB3D frustumBounds, List<(AABB3D bounds, Transform transform)> result)
+        private void IntersectAABB3DSearch(TreeNode3D node, AABB3D frustumBounds, List<(AABB3D bounds, OBB orientedBounds, Transform transform)> result)
         {
             if (node == null) return;
 
@@ -1048,7 +922,7 @@ namespace JunUtilities
                 // リーフノードならリストに追加
                 if (node.Left == null && node.Right == null)
                 {
-                    result.Add((node.Bounds, node.Transform));
+                    result.Add((node.Bounds, node.OrientedBounds, node.Transform));
                 }
                 else
                 {
@@ -1061,7 +935,8 @@ namespace JunUtilities
     }
     public class TreeNode3D
     {
-        public AABB3D Bounds; // ノードのバウンディングボックス
+        public AABB3D Bounds; //ノードのバウンディングボックス
+        public OBB OrientedBounds; //OrientedBoundingBoxだよん
         public TreeNode3D Left; // 左の子ノード
         public TreeNode3D Right; // 右の子ノード
         public TreeNode3D Parent; //親のノード
@@ -1180,10 +1055,6 @@ namespace JunUtilities
         {
             (Vector3[] eigenVectors, float[] eigenValues) = JunGeometry.CalculateEigens(points);
             
-            Debug.Log($"固有ベクトル {eigenVectors[0]}, 固有値 {eigenValues[0]}");
-            Debug.Log($"固有ベクトル {eigenVectors[1]}, 固有値 {eigenValues[1]}");
-            Debug.Log($"固有ベクトル {eigenVectors[2]}, 固有値 {eigenValues[2]}");
-            
             //Vector3[] axis = JunGeometry.GramSchmidt(eigenVectors);
             (Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points); 
             
@@ -1198,7 +1069,7 @@ namespace JunUtilities
             Axis = axis;
             Center = transform.localToWorldMatrix.MultiplyPoint(origin);
             Vertices = CalculateVertices(Center, Axis);
-            Debug.Log($"このオブジェクトの重心 : {Center}");
+            // Debug.Log($"このオブジェクトの重心 : {Center}");
         }
 
         private (Vector3 min, Vector3 max) CalculateSize(Vector3[] axis, Vector3[] points)

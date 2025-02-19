@@ -20,23 +20,28 @@ public class StageObject : MonoBehaviour
     {
         _playerMeshRenderer = player.GetComponent<MeshRenderer>();
         
-        List<(AABB3D bounds, Transform transform)> objectList = new List<(AABB3D bounds, Transform transform)>();
-        MeshRenderer[] boundsArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
+        List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objectList = new List<(AABB3D bounds, OBB orientedBounds, Transform transform)>();
+        MeshRenderer[] meshesArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
+        MeshFilter[] meshFiltersArray = JunExpandUnityClass.GetChildrenComponent<MeshFilter>(staticObjectParent);
         Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
         
         // Debug.Log($"Boundsのリスト　{string.Join((","), boundsArray.Select(item => item.transform.name))}");
         //Debug.Log($"Transformのリスト {string.Join((","), transformsArray.Select(item => item.transform.name))}");
 
-        for (int i = 0; i < boundsArray.Length; i++)
+        for (int i = 0; i < meshesArray.Length; i++)
         {
-            objectList.Add((new AABB3D(boundsArray[i].bounds), transformsArray[i]));
+            objectList.Add((
+                new AABB3D(meshesArray[i].bounds), 
+                new OBB(transformsArray[i], meshFiltersArray[i].mesh.vertices),
+                transformsArray[i]
+                ));
         }
         
         _stageObjectTree = new AABB3DTree();
         _stageObjectTree.BuildTree(objectList);
         
-        OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
-        _obbTestPoints = obbtest.Vertices;
+        // OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
+        // _obbTestPoints = obbtest.Vertices;
     }
 
     private void Update()
@@ -46,8 +51,20 @@ public class StageObject : MonoBehaviour
         //AABBが交差しているオブジェクトを探そう
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
         //オブジェクトが回転している可能性があるので、さらにここから判定を入れる
-        List<(AABB3D bounds, Transform transform)> intersectObjects = _stageObjectTree.GetIntersectAABB3D(playerAABB3D);
+        // List<(AABB3D bounds, OBB orientedBounds, Transform transform)> intersectObjects = _stageObjectTree.GetIntersectAABB3D(playerAABB3D);
         // Debug.Log(string.Join((","), intersectObjects.Select(item => item.transform.name)));
+        List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(playerAABB3D);
+        // Debug.Log(intersectNodes.Count);
+        Debug.Log(
+            string.Join((","), 
+                intersectNodes
+                    .Where(item => item != null && item.Transform != null)
+                    .Select(item => item.Transform)));
+        Debug.Log(
+            string.Join((","), 
+                intersectNodes
+                    .Where(item => item != null && item.OrientedBounds != null)
+                    .Select(item => item.OrientedBounds.Center)));
         
     }
 
