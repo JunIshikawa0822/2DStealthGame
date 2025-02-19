@@ -19,10 +19,10 @@
 // };
 struct ObjectData
 {
-    float3 position; // オブジェクトの位置
-    float3 size; // サイズ (半径や寸法)
-    int type; // オブジェクトタイプ
-    float padding; // パディング
+    float3 position; // オブジェクトの位置 12
+    float3 size; // サイズ (半径や寸法) 12
+    int type; // オブジェクトタイプ 4
+    float padding; // パディング 4
 };
 //書き込みができるテクスチャデータらしい
 //RWTexture2D<float4> Result;

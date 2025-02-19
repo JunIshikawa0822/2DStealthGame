@@ -1,0 +1,220 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// 定数バッファの定義
+#define OBJECT_TYPE_SPHERE 0
+#define OBJECT_TYPE_OBB 1
+
+// #define OBJECT_TYPE_BOX 2
+// #define OBJECT_TYPE_RECT 3
+// #define OBJECT_TYPE_CAPSULE 4
+
+struct Object
+{
+    int type; //オブジェクトのタイプ 4
+    float3 center;//オブジェクトの中心 12
+    float3 axisX;//オブジェクトのX方向の大きさと向き 12
+    float3 axisY;//オブジェクトのY方向の大きさと向き 12
+    float3 axisZ;//オブジェクトのZ方向の大きさと向き 12
+    float3 padding;//16バイト境界の調整 12
+};
+
+//当たり判定を取るオブジェクトの情報を毎回もらうバッファ
+StructuredBuffer<Object> _objectsBuffer : register(t0);
+//レイが当たった位置をレイごとに保存しておくバッファ
+RWStructuredBuffer<float3> _positionBuffer : register(u1);
+//レイが当たったオブジェクトのインデックスをレイごとに保存しておくバッファ
+RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
+
+//固定の変数たち
+float _maxDistance; //固定 初期化のみでOK 暗い時は見えづらいとかもやっていいかもだけど...
+float _threshold; //固定 この値より距離が小さいときは当たっていることにする
+float _rayCount; //全体で何本のレイを発射するか
+float _viewAngle; //視野角
+
+//可変の変数たち
+int _objectCount; //可変 C#側からマイフレーム渡してもらおう
+float3 _forwardVec; //可変 RayMarchingを行うオブジェクトがどっちを向いているか
+float3 _originPos; //可変 RayMarchingを行うオブジェクトの位置
+
+float SDF_Sphere(float3 rayPoint, float3 sphereCenter, float radius)
+{
+    return abs(length(sphereCenter - rayPoint) - radius);
+}
+
+float SDF_OBB(float3 rayPoint, float3 obbCenter, float3 axisX, float3 axisY, float3 axisZ)
+{
+    // OBBのハーフサイズ（各軸の長さの半分）
+    float3 halfSize = float3(length(axisX), length(axisY), length(axisZ)) * 0.5;
+
+    // OBBのローカル座標系に変換
+    // centerとの差を各軸に対して射影した大きさがlocalP
+    float3 localP = float3(
+        dot(obbCenter - rayPoint, normalize(axisX)),
+        dot(obbCenter - rayPoint, normalize(axisY)),
+        dot(obbCenter - rayPoint, normalize(axisZ))
+    );
+
+    // OBBの境界を超えた部分だけを計算
+    float3 dist = abs(localP) - halfSize;
+    return length(max(dist, 0.0)); // OBB の外側の距離を返す
+}
+
+float SceneSDF(float3 rayPos, out int nearestIndex)
+{
+    float minDist = _maxDistance;
+    nearestIndex = -1;
+
+    for (int i = 0; i < _objectCount; i++)
+    {
+        Object obj = _objectsBuffer[i];
+        float nowDist = _maxDistance;
+        
+        if (obj.type == OBJECT_TYPE_SPHERE)
+        {
+            nowDist = SDF_Sphere(rayPos, obj.center, obj.axisX[0] * 0.5f);
+        }
+        else if (obj.type == OBJECT_TYPE_OBB)
+        {
+            nowDist = SDF_OBB(rayPos, obj.center, obj.axisX, obj.axisY, obj.axisZ);
+        }
+        //i * (20 * 10) + j * 10 + k;
+        // else if (obj.type == OBJECT_TYPE_BOX) 
+        // {
+        //     nowDist = SDF_Box(rayPos - obj.position, obj.size);
+        // } 
+        // else if (obj.type == OBJECT_TYPE_RECT) 
+        // {
+        //     nowDist = SDF_Rect(rayPos - obj.position, obj.size);
+        // } 
+        // else if (obj.type == OBJECT_TYPE_CAPSULE) 
+        // {
+        //     float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
+        //     float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
+        //     nowDist = SDF_Capsule(rayPos, a, b, obj.size.x);
+        // }
+
+        //minDist = min(minDist, nowDist);
+
+        if (nowDist < minDist)
+        {
+            minDist = nowDist;
+            nearestIndex = i;
+        }
+    }
+
+    return minDist;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="rayOriginPos">レイの発射元</param>
+/// <param name="directionVec">レイの発射方向</param>
+/// <param name="hitPos">当たったオブジェクトの位置を確認（デバッグ用）</param>
+int RayMarch(float3 rayOriginPos, float3 directionVec, out float3 hitPos)
+{
+    float distance = 0.0;
+    hitPos = rayOriginPos + directionVec * _maxDistance;
+    //hitPos = 0.01f;
+    int nearest = -1;
+
+    //20は一定回数でレイマーチングを終了させるためのもの
+    for (int j = 0; j < 20; j++)
+    {
+        int nearestIndex = -1;
+        //レイのワールド空間
+        float3 rayPos = rayOriginPos + directionVec * distance;
+        //全てのオブジェクトに対して距離計算　もっとも近いオブジェクトのインデックスを返す
+        float minDist = SceneSDF(rayPos, nearestIndex);
+
+        if (distance > _maxDistance)
+        {
+            break;
+        }
+        
+        if (minDist < _threshold)
+        {
+            // ヒット判定
+            //当たっているなら、もっとも近いオブジェクトのインデックスを返す
+            hitPos = rayPos;
+            nearest = nearestIndex;
+        }
+
+        distance += minDist;
+    }
+
+    //当たっているオブジェクトがあるならこの値は更新されるが、そうでないなら-1
+    return nearest;
+}
+
+//レイをたくさん発射するために回転させられるようにしましょう
+float3 rotate(float3 vec, float3 rotateBaseAxis, float angle)
+{
+    float cosTheta = cos(angle);
+    float sinTheta = sin(angle);
+
+    //念のため正規化
+    float3 axis = normalize(rotateBaseAxis);
+    // 回転行列を計算
+    //ロドリゲスの回転公式
+    //回転軸方向の単位ベクトル(axis)をnとすると
+    float3x3 rotationMatrix = float3x3
+    (
+        //nx^2 * (1 - cosθ) + cosθ
+        axis.x * axis.x * (1 - cosTheta) + cosTheta,
+
+        //nx * ny * (1 - cosθ) - xz * sinθ
+        axis.x * axis.y * (1 - cosTheta) - axis.z * sinTheta,
+
+        //nx * nz * (1 - cosθ) + ny * sinθ
+        axis.x * axis.z * (1 - cosTheta) + axis.y * sinTheta,
+
+        //nx * ny * (1 - cosθ) + nz * sinθ
+        axis.x * axis.y * (1 - cosTheta) + axis.z * sinTheta,
+
+        //ny^2 * (1 - cosθ) + cosθ
+        axis.y * axis.y * (1 - cosTheta) + cosTheta,
+
+        //ny * nz * (1 - cosθ) - nx * sinθ
+        axis.y * axis.z * (1 - cosTheta) - axis.x * sinTheta,
+
+        //nx * nz * (1 - cosθ) * ny * sinθ
+        axis.x * axis.z * (1 - cosTheta) - axis.y * sinTheta,
+
+        //ny * nz * (1 - cosθ) * nx * sinθ
+        axis.y * axis.z * (1 - cosTheta) + axis.x * sinTheta,
+
+        //nz^2 * (1 - cosθ) * cosθ
+        axis.z * axis.z * (1 - cosTheta) + cosTheta
+    );
+    // 入力ベクトルを回転行列で変換
+    return mul(rotationMatrix, vec);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 GroupThreadID : SV_GroupThreadID, uint3 GroupID : SV_GroupID)
+{
+    // グループ内スレッドID このスレッドグループがが全体で何個目か
+    int threadId = GroupThreadID.x + GroupThreadID.y * 8;
+
+    // グループIDを元に一意なIDを計算 グループの中でいくつか
+    int uniqueID = GroupID.x * (8 * 8) + threadId;
+
+    //全体で何番目のレイかを判断
+    int rayIndex = uniqueID;
+
+    if (rayIndex >= _rayCount) return;
+
+    float halfAngle = radians(_viewAngle) / 2;//真ん中 視野角が90であれば45
+    float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1)); //レイとレイの間隔を示す角度
+    float rayAngle = -halfAngle + betweenAngle * rayIndex; // 真ん中を基準に左から右に扇型にレイを展開する
+    float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));//正面のベクトルをy軸に沿って回転
+
+    float3 hitPos = float3(0, 0, 0);
+    //レイを発射する始点と見ている向きにレイマーチング
+    int hitIndex = RayMarch(_originPos, rayDir, hitPos);
+
+    _positionBuffer[rayIndex] = hitPos;
+    _outputBuffer[rayIndex] = hitIndex;
+}

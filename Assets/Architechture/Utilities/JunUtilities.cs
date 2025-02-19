@@ -13,9 +13,6 @@ using Vector4 = UnityEngine.Vector4;
 
 namespace JunUtilities
 {
-    /// <summary>
-    /// 拡張クラスたち
-    /// </summary>
     public static class JunExpandUnityClass
     {
         /// <param name="GetComponentInChildren (Unity)"> 親含めコンポーネントを取得</param>
@@ -27,8 +24,18 @@ namespace JunUtilities
                     .Where(item => item.transform != transform)
                     .ToArray();
         }
-    }
 
+        /// <summary>
+        /// 任意の配列を被りなしにして返す
+        /// </summary>
+        public static T[] ConvertToUniqueArray<T>(T[] array)
+        {
+            HashSet<T> uniqueHashSet = new HashSet<T>(array);
+            T[] uniqueArray = new T[uniqueHashSet.Count];
+            uniqueHashSet.CopyTo(uniqueArray);
+            return uniqueArray;
+        }
+    }
     public static class JunMath
     {
         /// <summary>
@@ -91,7 +98,6 @@ namespace JunUtilities
             }
         }
     }
-
     public static class JunGeometry
     {
         #region ・Vector関係
@@ -231,9 +237,39 @@ namespace JunUtilities
             return s;
         }
 
+        /// <summary>
+        /// AABB3Dが交差しているモートン空間を調べる
+        /// </summary>
+        public static int[] GetMortonCodesFromAABB(AABB3D bounds, Vector3 mortonBasePos, int dimensionLevel, Vector3 cellSize)
+        {
+            int separateX = Mathf.FloorToInt((bounds.Max.x - bounds.Min.x) / cellSize.x);
+            int separateY = Mathf.FloorToInt((bounds.Max.y - bounds.Min.y) / cellSize.y);
+            int separateZ = Mathf.FloorToInt((bounds.Max.z - bounds.Min.z) / cellSize.z);
+        
+            int[] intersectMortonSpaces = new int[separateX * separateY * separateZ];
+            //Debug.Log($"{separateX}, {separateY}, {separateZ}");
+            //Debug.Log(intersectMortonSpaces);
+        
+            for (int i = 0; i < separateX; i++)
+            {
+                for (int j = 0; j < separateY; j++)
+                {
+                    for (int k = 0; k < separateZ; k++)
+                    {
+                        int num = i * (separateY * separateZ) + j * separateZ + k;
+                        // Debug.Log(num);
+                        Vector3 pos = bounds.Min + new Vector3(i * cellSize.x, j * cellSize.y, k * cellSize.z);
+                        int mortonNum = JunGeometry.PosToMortonNumber(pos, mortonBasePos, dimensionLevel, cellSize);
+                        intersectMortonSpaces[num] = mortonNum;
+                    }
+                }
+            }
+        
+            return JunExpandUnityClass.ConvertToUniqueArray(intersectMortonSpaces);
+        }
+
         #endregion
         #region ・頂点を完全にカバーするBoundsを作成
-
         public static Bounds GetBoundsFromVertices(List<Vector3> points)
         {
             float minX = points[0].x;
@@ -322,7 +358,6 @@ namespace JunUtilities
         }
 
         #endregion
-
         #region　・主成分分析
 
         /// <summary>
@@ -585,7 +620,6 @@ namespace JunUtilities
             return eigenVector;
         }
         #endregion
-
         #region　グラムシュミットの正規直交法
         public static Vector3[] GramSchmidt(Vector3[] vectors)
         {
@@ -1044,11 +1078,11 @@ namespace JunUtilities
             return (Max.x - Min.x) * (Max.y - Min.y) * (Max.z - Min.z);
         }
     }
-
     public class OBB
     {
         public Vector3 Center{get;}
         public Vector3[] Axis {get;}
+        public Vector3[] Size {get;}
         public Vector3[] Vertices {get;}
 
         public OBB(Transform transform, Vector3[] points)
@@ -1069,6 +1103,7 @@ namespace JunUtilities
             Axis = axis;
             Center = transform.localToWorldMatrix.MultiplyPoint(origin);
             Vertices = CalculateVertices(Center, Axis);
+            Size = new Vector3[]{axis[0] * 0.5f, axis[1] * 0.5f, axis[2] * 0.5f};
             // Debug.Log($"このオブジェクトの重心 : {Center}");
         }
 
@@ -1087,7 +1122,7 @@ namespace JunUtilities
                 {
                     //固有ベクトル　＝　軸に各点を投影し、大きさを比べる
                     //主成分分析でも同じ考え方だったね
-                    float projection = Vector3.Dot(point - center, axis[i]);
+                    float projection = JunMath.VectorDot(point - center, axis[i]);
                     min = Mathf.Min(min, projection);
                     max = Mathf.Max(max, projection);
                 }

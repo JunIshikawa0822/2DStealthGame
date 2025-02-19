@@ -25,7 +25,7 @@ public class MortonTest : MonoBehaviour
         _bounds = new Bounds();
         _referencePos = _baseTrans.position;
     }
-
+    
     public void Init(Vector3 cellSize, int dimensionLevel)
     {
         _cellWidth = cellSize.x;
