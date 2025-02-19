@@ -36,7 +36,7 @@ public class StageObject : MonoBehaviour
         _stageObjectTree.BuildTree(objectList);
         
         OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
-        
+        _obbTestPoints = obbtest.Vertices;
     }
 
     private void Update()
@@ -55,7 +55,7 @@ public class StageObject : MonoBehaviour
     {
         if(!Application.isPlaying)return;
         
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.blue;
         // foreach (Vector3 point in vecs)
         // {
         //     Gizmos.DrawLine(point, point * 20);

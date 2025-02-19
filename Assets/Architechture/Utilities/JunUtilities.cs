@@ -395,7 +395,7 @@ namespace JunUtilities
             {
                 isTripleEigenvalue = true;
             }
-
+            
             if (isTripleEigenvalue)
             {
                 return (new Vector3[] { Vector3.right, Vector3.up, Vector3.forward },
@@ -424,25 +424,19 @@ namespace JunUtilities
                 return (new Vector3[] { v1, v2, v3 },
                     new float[] { (float)sortedAns[0], (float)sortedAns[1], (float)sortedAns[2] });
             }
-            //分散共分散行列
             
-            double[] vec1 = CalculateEigenVector(matrix, sortedAns[0]);
-            double[] vec2 = CalculateEigenVector(matrix, sortedAns[1]);
-            double[] vec3 = CalculateEigenVector(matrix, sortedAns[2]);
+            //固有値が重解でない
+            Vector3[] eigenVectors = new Vector3[3];
+            float[] eigenValues = new float[3];
+            for (int i = 0; i < sortedAns.Length; i++)
+            {
+                double[] vec = CalculateEigenVector(matrix, sortedAns[i]);
+                
+                eigenVectors[i] = new Vector3((float)vec[0], (float)vec[1], (float)vec[2]);
+                eigenValues[i] = (float)sortedAns[i];
+            }
 
-            return (
-                new Vector3[]
-                {
-                    new Vector3((float)vec1[0], (float)vec1[1], (float)vec1[2]),
-                    new Vector3((float)vec2[0], (float)vec2[1], (float)vec2[2]),
-                    new Vector3((float)vec3[0], (float)vec3[1], (float)vec3[2])
-                },
-                new float[]
-                {
-                    (float)sortedAns[0],
-                    (float)sortedAns[1],
-                    (float)sortedAns[2]
-                });
+            return (eigenVectors, eigenValues);
         }
 
         static void PrintMatrix(double[,] matrix)
@@ -1184,7 +1178,6 @@ namespace JunUtilities
 
         public OBB(Transform transform, Vector3[] points)
         {
-            Vector3 center = JunGeometry.Centroid(points);
             (Vector3[] eigenVectors, float[] eigenValues) = JunGeometry.CalculateEigens(points);
             
             Debug.Log($"固有ベクトル {eigenVectors[0]}, 固有値 {eigenValues[0]}");
@@ -1192,30 +1185,29 @@ namespace JunUtilities
             Debug.Log($"固有ベクトル {eigenVectors[2]}, 固有値 {eigenValues[2]}");
             
             //Vector3[] axis = JunGeometry.GramSchmidt(eigenVectors);
-            (Vector3 min, Vector3 max) = CalculateSize(center, eigenVectors, points);
+            (Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points); 
             
-            Vector3 center1 = (eigenVectors[0] * (min[0] + max[0])) * 0.5f;
-            Vector3 center2 = (eigenVectors[1] * (min[1] + max[1])) * 0.5f;
-            Vector3 center3 = (eigenVectors[2] * (min[2] + max[2])) * 0.5f;
-            
-            Vector3 edge1 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[0] * (max[0] - min[0]));
-            Vector3 edge2 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[1] * (max[1] - min[1]));
-            Vector3 edge3 = transform.localToWorldMatrix.MultiplyVector(eigenVectors[2] * (max[2] - min[2]));
-            
-            Axis = new Vector3[] { edge1, edge2, edge3 };
-            Center = transform.localToWorldMatrix.MultiplyPoint(center1 + center2 + center3);
+            Vector3 origin = Vector3.zero;
+            Vector3[] axis = new Vector3[3];
+            for (int i = 0; i < 3; i++)
+            {
+                origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
+                axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
+            }
+
+            Axis = axis;
+            Center = transform.localToWorldMatrix.MultiplyPoint(origin);
             Vertices = CalculateVertices(Center, Axis);
             Debug.Log($"このオブジェクトの重心 : {Center}");
         }
 
-        private (Vector3 min, Vector3 max) CalculateSize(Vector3 center, Vector3[] axes, Vector3[] points)
+        private (Vector3 min, Vector3 max) CalculateSize(Vector3[] axis, Vector3[] points)
         {
-            //Vector3 size = Vector3.zero;
-
+            Vector3 center = JunGeometry.Centroid(points);
             Vector3 minPos = Vector3.zero;
             Vector3 maxPos = Vector3.zero;
 
-            for (int i = 0; i < axes.Length; i++)
+            for (int i = 0; i < axis.Length; i++)
             {
                 float min = float.MaxValue;
                 float max = float.MinValue;
@@ -1224,7 +1216,7 @@ namespace JunUtilities
                 {
                     //固有ベクトル　＝　軸に各点を投影し、大きさを比べる
                     //主成分分析でも同じ考え方だったね
-                    float projection = Vector3.Dot(point - center, axes[i]);
+                    float projection = Vector3.Dot(point - center, axis[i]);
                     min = Mathf.Min(min, projection);
                     max = Mathf.Max(max, projection);
                 }
