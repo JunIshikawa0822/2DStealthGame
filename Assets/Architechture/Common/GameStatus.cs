@@ -11,26 +11,30 @@ public class GameStatus
     [HideInInspector] public bool isCombatAllow = true;
     [HideInInspector] public bool isInventoryAllow = true;
     [HideInInspector] public bool isPlayerMovementAllow = true;
-
     [HideInInspector] public SceneLoader[] sceneLoader;
+    [SerializeField] public Camera camera;
 
     [Header("PlayerActions")]
-    public Action onPlayerAttackEvent;
+    public Action onPlayerAttackStartEvent;
+    public Action onPlayerAttackingEvent;
+    public Action onPlayerAttackEndEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
     public Action onSelectGunChange;
-
 
     public Action<int, I_Data_Item> onPlayerEquipEvent;
     public Action<int, I_Data_Item> onPlayerUnEquipEvent;
 
     [Header("Inputs")]
-    public Vector2 moveDirection = Vector2.zero;
-    public Vector2 cursorScreenPosition = Vector2.zero;
-    public Vector3 cursorWorldPosition = Vector3.zero;
+    [HideInInspector]public Vector2 moveDirection = Vector2.zero;
+    [HideInInspector]public Vector2 cursorScreenPosition = Vector2.zero;
+    [HideInInspector]public Vector3 cursorWorldPosition = Vector3.zero;
+    [HideInInspector]public Vector2 cursorAlignShotPosition = Vector2.zero;
     //public bool onAttack = false;
-    public GameObject cursorObject;
-    public UnityEngine.UI.Image cursorImage;
+    public Transform cursorObject;
+    public Image cursorImage;
+
+    [SerializeField] public LayerMask mouseLayHitlayer = 1 << 6;
 
     [Header("PlayerInfo")]
     [HideInInspector]public Entity_HealthPoint playerHP;
@@ -41,6 +45,7 @@ public class GameStatus
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
     public Shotgun[] shotgunPrefabs;
+    public Rifle[] riflePrefabs;
     
     [Header("Player")]
     public PlayerController player;
@@ -100,5 +105,13 @@ public class GameStatus
     public GunFacade gunFacade;
 
     //public List<IGunFactory> gunFactoriesList;
+    [Header("MortonSpace")]
+    [SerializeField] public float cellWidth;
+    [SerializeField] public float cellHeight;
+    [SerializeField] public float cellDepth;
+    [SerializeField] public int dimensionLevel;
+    [SerializeField] public Transform mortonSpaceBaseTrans;
+    [SerializeField] public Transform targetParent;
 
+    [SerializeField] public Transform testObject;
 }

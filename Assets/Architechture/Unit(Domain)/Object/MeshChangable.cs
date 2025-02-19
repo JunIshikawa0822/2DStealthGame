@@ -16,13 +16,13 @@ public class MeshChangable : MonoBehaviour
     void Start()
     {
         
-        Debug.Log(_entityRenderer);
+        // Debug.Log(_entityRenderer);
         EntityMeshDisable();
     }
 
     public void EntityMeshDisable()
     {
-        Debug.Log("消えた");
+        //Debug.Log("消えた");
         _entityRenderer.enabled = false;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
@@ -33,8 +33,8 @@ public class MeshChangable : MonoBehaviour
 
     public void EntityMeshAble()
     {
-        Debug.Log("ついた");
-        Debug.Log(_entityRenderer == null);
+        // Debug.Log("ついた");
+        //Debug.Log(_entityRenderer == null);
         _entityRenderer.enabled = true;
 
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)

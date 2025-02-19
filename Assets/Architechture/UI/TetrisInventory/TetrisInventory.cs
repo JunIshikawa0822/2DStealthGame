@@ -124,6 +124,13 @@ public class TetrisInventory : A_Inventory
         foreach(IInventoryItem item in storage.GetItems())
         {
             if(item == null)return;
+            
+            if(item.StackingNum <= 0)
+            {
+                storage.Remove(item);
+                return;
+            }
+
             LoadItem(item);
         }
     }

@@ -5,6 +5,7 @@ public class EnemySystem : ASystem, IOnUpdate
 {
     public override void OnSetUp()
     {
+        if(gameStat.enemyObjects.Count < 1) return;
         foreach(AEnemy enemy in gameStat.enemyObjects)
         {
             enemy.OnSetUp(new Entity_HealthPoint(100, 100));
@@ -33,4 +34,6 @@ public class EnemySystem : ASystem, IOnUpdate
 
         enemy.Equip(gameStat.gunFacade.GetGunInstance(weaponData));
     }
+    
+    
 }

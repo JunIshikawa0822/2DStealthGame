@@ -28,7 +28,10 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.storageFindEvent += OnFindStorage;
         _player.leaveStorageEvent += OnExitStorage;
 
-        gameStat.onPlayerAttackEvent += OnAttack;
+        gameStat.onPlayerAttackStartEvent += OnAttackStart;
+        gameStat.onPlayerAttackingEvent += OnAttack;
+        gameStat.onPlayerAttackEndEvent += OnAttackEnd;
+
         gameStat.onPlayerReloadEvent += OnReload;
 
         gameStat.onPlayerEquipEvent += OnEquipGun;
@@ -41,7 +44,35 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnUpdate()
     {
-        // Debug.Log(gameStat.selectingGunsArrayIndex);
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("は？");
+
+            List<string> normalStorage = new List<string>();
+            List<string> weaponStorage1 = new List<string>();
+            List<string> weaponStorage2 = new List<string>();
+
+            foreach(IInventoryItem item in gameStat.player.Storage.GetItems())
+            {
+                normalStorage.Add(item.Data.GetType().ToString());
+            }
+
+            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage1.GetItems())
+            {
+                if(item == null)break;
+                weaponStorage1.Add(item.Data.GetType().ToString());
+            }
+
+            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage2.GetItems())
+            {
+                if(item == null)break;
+                weaponStorage2.Add(item.Data.GetType().ToString());
+            }
+
+            Debug.Log("PlayerNormalStorage : " + string.Join(",", normalStorage));
+            Debug.Log("WeaponStorage1 : " + string.Join(",", weaponStorage1));
+            Debug.Log("WeaponStorage2 : " + string.Join(",", weaponStorage2));
+        }
 
         if(gameStat.isInventoryPanelActive)
         {
@@ -82,12 +113,26 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         return new Vector2(x,z);
     }
 
-    public void OnAttack()
+    public void OnAttackStart()
     {
         if(gameStat.isInventoryPanelActive)return;
         if(gameStat.isCombatAllow == false)return; 
         
-        _player.Attack(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        _player.AttackStart(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+
+        Debug.Log("AttackStart");
+    }
+
+    public void OnAttack()
+    {
+        _player.Attaking(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        Debug.Log("Attacking");
+    }
+
+    public void OnAttackEnd()
+    {
+        _player.AttackEnd(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
+        Debug.Log("AttackEnd");
     }
 
     public void OnReload()

@@ -89,6 +89,15 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PlayerInteractiveTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""8868edb2-6995-4185-8a28-a3d235b05140"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -162,7 +171,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""6b25270a-e3dc-4fd5-af83-34cec5246f54"",
                     ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": ""Press(behavior=2)"",
+                    ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PlayerAttackTest"",
@@ -267,6 +276,17 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
                     ""action"": ""SelectingIndexChangeTest"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f76d2ec9-b95a-46ba-b6ad-8e9ba058629d"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlayerInteractiveTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -282,6 +302,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         m_PlayerActionTest_PlayerInventoryTest = m_PlayerActionTest.FindAction("PlayerInventoryTest", throwIfNotFound: true);
         m_PlayerActionTest_DashTest = m_PlayerActionTest.FindAction("DashTest", throwIfNotFound: true);
         m_PlayerActionTest_SelectingIndexChangeTest = m_PlayerActionTest.FindAction("SelectingIndexChangeTest", throwIfNotFound: true);
+        m_PlayerActionTest_PlayerInteractiveTest = m_PlayerActionTest.FindAction("PlayerInteractiveTest", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -350,6 +371,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActionTest_PlayerInventoryTest;
     private readonly InputAction m_PlayerActionTest_DashTest;
     private readonly InputAction m_PlayerActionTest_SelectingIndexChangeTest;
+    private readonly InputAction m_PlayerActionTest_PlayerInteractiveTest;
     public struct PlayerActionTestActions
     {
         private @InputAction_Test m_Wrapper;
@@ -361,6 +383,7 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         public InputAction @PlayerInventoryTest => m_Wrapper.m_PlayerActionTest_PlayerInventoryTest;
         public InputAction @DashTest => m_Wrapper.m_PlayerActionTest_DashTest;
         public InputAction @SelectingIndexChangeTest => m_Wrapper.m_PlayerActionTest_SelectingIndexChangeTest;
+        public InputAction @PlayerInteractiveTest => m_Wrapper.m_PlayerActionTest_PlayerInteractiveTest;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionTest; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -391,6 +414,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @SelectingIndexChangeTest.started += instance.OnSelectingIndexChangeTest;
             @SelectingIndexChangeTest.performed += instance.OnSelectingIndexChangeTest;
             @SelectingIndexChangeTest.canceled += instance.OnSelectingIndexChangeTest;
+            @PlayerInteractiveTest.started += instance.OnPlayerInteractiveTest;
+            @PlayerInteractiveTest.performed += instance.OnPlayerInteractiveTest;
+            @PlayerInteractiveTest.canceled += instance.OnPlayerInteractiveTest;
         }
 
         private void UnregisterCallbacks(IPlayerActionTestActions instance)
@@ -416,6 +442,9 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
             @SelectingIndexChangeTest.started -= instance.OnSelectingIndexChangeTest;
             @SelectingIndexChangeTest.performed -= instance.OnSelectingIndexChangeTest;
             @SelectingIndexChangeTest.canceled -= instance.OnSelectingIndexChangeTest;
+            @PlayerInteractiveTest.started -= instance.OnPlayerInteractiveTest;
+            @PlayerInteractiveTest.performed -= instance.OnPlayerInteractiveTest;
+            @PlayerInteractiveTest.canceled -= instance.OnPlayerInteractiveTest;
         }
 
         public void RemoveCallbacks(IPlayerActionTestActions instance)
@@ -442,5 +471,6 @@ public partial class @InputAction_Test: IInputActionCollection2, IDisposable
         void OnPlayerInventoryTest(InputAction.CallbackContext context);
         void OnDashTest(InputAction.CallbackContext context);
         void OnSelectingIndexChangeTest(InputAction.CallbackContext context);
+        void OnPlayerInteractiveTest(InputAction.CallbackContext context);
     }
 }

@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerInteractiveTest",
+                    "type": "Button",
+                    "id": "8868edb2-6995-4185-8a28-a3d235b05140",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -140,7 +149,7 @@
                     "name": "",
                     "id": "6b25270a-e3dc-4fd5-af83-34cec5246f54",
                     "path": "<Mouse>/leftButton",
-                    "interactions": "Press(behavior=2)",
+                    "interactions": "Hold",
                     "processors": "",
                     "groups": "",
                     "action": "PlayerAttackTest",
@@ -243,6 +252,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SelectingIndexChangeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f76d2ec9-b95a-46ba-b6ad-8e9ba058629d",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlayerInteractiveTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

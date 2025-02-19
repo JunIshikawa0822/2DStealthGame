@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using System;
+using UniRx;
 public class Shotgun : AGun
 {
     //発射の内部的な処理に必要
@@ -11,11 +12,10 @@ public class Shotgun : AGun
     //----------------------------------------
     //private LineRenderer _muzzleFlashRenderer;
     //private IObjectPool _objectPool;
-
     //----------------------------------------
     private CancellationTokenSource _shotIntervalTokenSource;
     //----------------------------------------
-
+    private CompositeDisposable _shotDisposable;
     //銃に必要な処理
     //----------------------------------------
     private Entity_Magazine _magazine;
@@ -30,6 +30,8 @@ public class Shotgun : AGun
 
         _isShotIntervalActive = false;
         _isJamming = false;
+
+        _shotDisposable = new CompositeDisposable();
     }
 
     public override void Init(I_Data_Gun data)
@@ -43,7 +45,34 @@ public class Shotgun : AGun
 
     public void OnUpdate()
     {
+        
+    }
 
+    public override void TriggerOn()
+    {
+        //射撃と射撃の間隔を制御
+        if(_isShotIntervalActive)return;
+        
+        Shot();
+
+        _isShotIntervalActive = true;
+        _shotIntervalTokenSource = new CancellationTokenSource();
+
+        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
+    }
+
+    public override void Shooting()
+    {
+        if(_gun_Data.IsAuto == false) return;
+
+        Observable.Interval(System.TimeSpan.FromSeconds(_shotInterval))
+            .Subscribe(_ => Shot())
+            .AddTo(_shotDisposable); // 射撃用のDisposableに追加
+    }
+
+    public override void TriggerOff()
+    {
+        _shotDisposable.Clear();
     }
 
     public override void Shot()
@@ -55,10 +84,9 @@ public class Shotgun : AGun
             return;
         }
 
-        //射撃と射撃の間隔を制御
-        if(_isShotIntervalActive)return;
         //_objectPoolの有無をチェック
         if(_objectPool == null)return;
+        //Poolからもってくる
 
         Quaternion centerAngle = _muzzlePosition.rotation;
 
@@ -67,21 +95,16 @@ public class Shotgun : AGun
             //Poolからもってくる
             ABullet bullet = _objectPool.GetFromPool() as ABullet;
 
-            if(bullet == null)
-            {
-                Debug.Log("キャスト無理ぃ");
-                return;
-            }
-
+            if(bullet == null) return;
             if (bullet.gameObject == null)return;
 
-            float angleOffset = -_spreadAngle / 2 + (_spreadAngle / (_simulNum - 1)) * i;
+            float angleOffset = -_spreadAngle / 2 + _spreadAngle / (_simulNum - 1) * i;
 
-            Debug.Log(angleOffset);
             Quaternion bulletRotation = centerAngle * Quaternion.Euler(0, angleOffset, 0);
 
             //発射
             Debug.Log("発射");
+            
             bullet.Init(_muzzlePosition.position);
             bullet.GetBulletTransform().SetPositionAndRotation(_muzzlePosition.position, bulletRotation);
             bullet.GetBulletRigidbody().AddForce(bullet.gameObject.transform.forward * _muzzleVelocity, ForceMode.Acceleration);
@@ -89,19 +112,7 @@ public class Shotgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
-        
-        _shotIntervalTokenSource = new CancellationTokenSource();
-
-        _isShotIntervalActive = true;
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
-
-        // if(_muzzleFlashRenderer == null) return;
-
-        // _muzzleFlashRenderer.SetPosition(0, _muzzlePosition.position);
-        // _muzzleFlashRenderer.SetPosition(1, _muzzlePosition.position + _muzzlePosition.forward * 2);
-        // ActionInterval(() => LineRendererFlash(_muzzleFlashRenderer), _shotIntervalTokenSource.Token, 0.1f, "マズルフラッシュ").Forget();
-        
-        //ActionInterval(() => LineRendererFlash(_shotOrbitRenderer), shotIntervalTokenSource.Token, 0.1f, "軌道").Forget();
+        //_isShotIntervalActive = true;
     }
 
     public override void Reload(Entity_Magazine magazine)
@@ -119,7 +130,7 @@ public class Shotgun : AGun
     {
         lineRenderer.enabled = !lineRenderer.enabled;
     }
-    public override async UniTask IntervalWait(Action action, CancellationToken token, float time, string ActionName)
+    public override async UniTask IntervalWait(Action action, CancellationToken token, float time, string actionName)
     {
         try
         {
@@ -127,7 +138,7 @@ public class Shotgun : AGun
         }
         catch
         {
-            Debug.Log($"{ActionName} がキャンセルされました");
+            Debug.Log($"{actionName} がキャンセルされました");
         }
         finally
         {

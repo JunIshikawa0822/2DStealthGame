@@ -1,0 +1,223 @@
+//エントリポイントの指定
+#pragma kernel CSMain
+
+// 定数バッファの定義
+#define OBJECT_TYPE_SPHERE 0
+#define OBJECT_TYPE_BOX 1
+#define OBJECT_TYPE_RECT 2
+#define OBJECT_TYPE_CAPSULE 3
+
+#define THREADS_X 10
+
+// オブジェクトデータ構造
+// struct ObjectData
+// {
+//     float3 position; // オブジェクトの位置
+//     float size; // サイズ (半径や寸法)
+//     int type; // オブジェクトタイプ
+//     float3 padding;
+// };
+struct ObjectData
+{
+    float3 position; // オブジェクトの位置
+    float3 size; // サイズ (半径や寸法)
+    int type; // オブジェクトタイプ
+    float padding; // パディング
+};
+//書き込みができるテクスチャデータらしい
+//RWTexture2D<float4> Result;
+RWStructuredBuffer<float> _debugBuffer3 : register(u3);
+RWStructuredBuffer<float3> _debugBuffer6 : register(u6);
+RWStructuredBuffer<int> _debugBuffer2 : register(u2);
+RWStructuredBuffer<float3> _positionBuffer : register(u1);//ここに問題
+RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
+StructuredBuffer<ObjectData> _objectsBuffer : register(t0); // オブジェクトのリスト //可変
+
+int _objectCount;
+int _rayCount;
+float _viewAngle; //固定
+
+float _maxDistance; //固定 //データ渡し必要
+float _threshold; //固定 //データ渡し必要
+
+float3 _originPos; //可変
+float3 _forwardVec; //可変
+
+// 距離関数 (Signed Distance Function)らしい
+//vec にはレイの座標とオブジェクトの座標の差をとったベクトル情報が入る
+float SDF_Sphere(float3 vec, float radius)
+{
+    return abs(length(vec) - radius);
+}
+
+//軸に並行なAABB 立方体
+float SDF_Box(float3 pos, float3 size) {
+    float3 dist = abs(pos) - size;
+    return min(max(dist.x, max(dist.y, dist.z)), 0.0) + length(max(dist, 0.0));
+}
+
+//軸に並行な直方体 
+float SDF_Rect(float3 pos, float3 size) 
+{
+    return max(max(abs(pos.x) - size.x, abs(pos.y) - size.y), abs(pos.z) - size.z);
+}
+
+float SDF_Capsule(float3 p, float3 a, float3 b, float radius) {
+    float3 pa = p - a;
+    float3 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return abs(length(pa - ba * h) - radius);
+}
+
+// シーンに存在するオブジェクト全てと比較し、一番短い距離を返す
+//当たり判定が欲しいので、大事なのはインデックス 距離は一応持っておく
+float SceneSDF(float3 rayPos, out int nearestIndex)
+{
+    float minDist = _maxDistance;
+    nearestIndex = -1;
+
+    for (int k = 0; k < _objectCount; k++)
+    {
+        ObjectData obj = _objectsBuffer[k];
+        float nowDist = _maxDistance;
+        
+        if (obj.type == OBJECT_TYPE_SPHERE)
+        {
+            nowDist = SDF_Sphere(rayPos - obj.position, obj.size.x);
+        }
+        //i * (20 * 10) + j * 10 + k;
+        else if (obj.type == OBJECT_TYPE_BOX) 
+        {
+            nowDist = SDF_Box(rayPos - obj.position, obj.size);
+        } 
+        else if (obj.type == OBJECT_TYPE_RECT) 
+        {
+            nowDist = SDF_Rect(rayPos - obj.position, obj.size);
+        } 
+        else if (obj.type == OBJECT_TYPE_CAPSULE) 
+        {
+            float3 a = obj.position - float3(0, obj.size.y / 2.0, 0);
+            float3 b = obj.position + float3(0, obj.size.y / 2.0, 0);
+            nowDist = SDF_Capsule(rayPos, a, b, obj.size.x);
+        }
+
+        //minDist = min(minDist, nowDist);
+
+        if (nowDist < minDist)
+        {
+            minDist = nowDist;
+            nearestIndex = k;
+        }
+    }
+
+    return minDist;
+}
+
+// レイマーチング
+//全てのオブジェクトに対して比較することを256回繰り返す
+int RayMarch(float3 originPos, float3 directionVec, out float3 hitPos)
+{
+    float distance = 0.0;
+    hitPos = originPos + directionVec * _maxDistance;
+    //hitPos = 0.01f;
+    int nearest = -1;
+    
+    for (int j = 0; j < 20; j++)
+    {
+        int nearestIndex = -1;
+        float3 pos = originPos + directionVec * distance;
+        float minDist = SceneSDF(pos, nearestIndex);
+
+        if (distance > _maxDistance)
+        {
+            break;
+        }
+        
+        if (minDist < _threshold)
+        {
+            // ヒット判定
+            hitPos = pos;
+            nearest = nearestIndex;
+        }
+        
+        distance += minDist;
+    }
+
+    return nearest; // ヒットなし
+}
+
+float3 rotate(float3 vec, float3 rotateBaseAxis, float angle)
+{
+    float cosTheta = cos(angle);
+    float sinTheta = sin(angle);
+
+    //念のため正規化
+    float3 axis = normalize(rotateBaseAxis);
+    // 回転行列を計算
+    //ロドリゲスの回転公式
+    //回転軸方向の単位ベクトル(axis)をnとすると
+    float3x3 rotationMatrix = float3x3
+    (
+        //nx^2 * (1 - cosθ) + cosθ
+        axis.x * axis.x * (1 - cosTheta) + cosTheta,
+
+        //nx * ny * (1 - cosθ) - xz * sinθ
+        axis.x * axis.y * (1 - cosTheta) - axis.z * sinTheta,
+
+        //nx * nz * (1 - cosθ) + ny * sinθ
+        axis.x * axis.z * (1 - cosTheta) + axis.y * sinTheta,
+
+        //nx * ny * (1 - cosθ) + nz * sinθ
+        axis.x * axis.y * (1 - cosTheta) + axis.z * sinTheta,
+
+        //ny^2 * (1 - cosθ) + cosθ
+        axis.y * axis.y * (1 - cosTheta) + cosTheta,
+
+        //ny * nz * (1 - cosθ) - nx * sinθ
+        axis.y * axis.z * (1 - cosTheta) - axis.x * sinTheta,
+
+        //nx * nz * (1 - cosθ) * ny * sinθ
+        axis.x * axis.z * (1 - cosTheta) - axis.y * sinTheta,
+
+        //ny * nz * (1 - cosθ) * nx * sinθ
+        axis.y * axis.z * (1 - cosTheta) + axis.x * sinTheta,
+
+        //nz^2 * (1 - cosθ) * cosθ
+        axis.z * axis.z * (1 - cosTheta) + cosTheta
+    );
+    // 入力ベクトルを回転行列で変換
+    return mul(rotationMatrix, vec);
+}
+
+// メインカーネル
+//THREADS_X * THREADS_Yは一つのスレッドグループに含まれるスレッドの数
+[numthreads(8, 8, 1)]
+void CSMain(uint3 GroupThreadID : SV_GroupThreadID, uint3 GroupID : SV_GroupID)
+{
+    // グループ内スレッドID
+    int threadId = GroupThreadID.x + GroupThreadID.y * 8;
+
+    // グループIDを元に一意なIDを計算
+    int uniqueID = GroupID.x * (8 * 8) + threadId;
+    
+    //int uniqueID = GroupIndex * (8 * 8) + GroupThreadID.x + GroupThreadID.y * 8 + GroupThreadID.z * (8 * 8);
+    int rayIndex = uniqueID;
+    
+    if (rayIndex >= _rayCount) return;
+    
+    float betweenAngle = radians(_viewAngle / (float)(_rayCount - 1));
+    float halfAngle = radians(_viewAngle) / 2;
+
+    float rayAngle = -halfAngle + betweenAngle * rayIndex;
+    float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));
+
+    float3 hitPos = float3(0, 0, 0);
+    int hitIndex = RayMarch(_originPos, rayDir, hitPos);
+    // 結果の処理
+    ;
+    // _debugBuffer3[rayIndex] = degrees(rayAngle);
+    // _debugBuffer6[rayIndex] = rayDir;
+    _positionBuffer[rayIndex] = hitPos;
+    _outputBuffer[rayIndex] = hitIndex;
+    
+}

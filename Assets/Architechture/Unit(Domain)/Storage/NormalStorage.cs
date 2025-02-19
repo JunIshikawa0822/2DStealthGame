@@ -1,24 +1,17 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using Unity.Collections;
 using Unity.Entities.UniversalDelegates;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class NormalStorage : MonoBehaviour, IStorage
 {
     List<IInventoryItem> _itemList = new List<IInventoryItem>();
     [SerializeField]private List<ScriptableObject> _testDataList = new List<ScriptableObject>();
+    [SerializeField]private List<uint> _stackNumberList = new List<uint>();
 
     void Start()
     {
-        TestDataLoad(_testDataList, 10, 10);
-
-        // foreach(IInventoryItem item in _itemList)
-        // {
-        //     Debug.Log(item.Address + " , Width : " + item.Data.Width + " , Height : " + item.Data.Height);
-        // }
+        TestDataLoad(_testDataList, _stackNumberList, 10, 10);
     }
 
     public void Add(IInventoryItem item)
@@ -40,12 +33,27 @@ public class NormalStorage : MonoBehaviour, IStorage
         }
     }
 
+    public IInventoryItem FindItem<T>(Func<T, bool> func)
+    {
+        foreach(IInventoryItem item in _itemList)
+        {
+            if(!(item.Data is T itemData))continue;
+
+            if(func.Invoke(itemData))
+            {
+                return item;
+            }
+            return null;
+        }
+        return null;
+    }
+
     public IInventoryItem[] GetItems()
     {
         return _itemList.ToArray();
     }
 
-    private void TestDataLoad(List<ScriptableObject> testDataList, int width, int height)
+    private void TestDataLoad(List<ScriptableObject> testDataList, List<uint> dataNumber, int width, int height)
     {
         int[,] vInv = new int[width, height];
 
@@ -59,7 +67,7 @@ public class NormalStorage : MonoBehaviour, IStorage
             {
                 PlaceObject(vInv, canPlacePos.x, canPlacePos.y, data.Width, data.Height);
                 
-                IInventoryItem newItem = new InventoryItem(data, 1);
+                IInventoryItem newItem = new InventoryItem(data, dataNumber[i]);
                 newItem.Address = new CellNumber(canPlacePos.x, canPlacePos.y);
 
                 Add(newItem);

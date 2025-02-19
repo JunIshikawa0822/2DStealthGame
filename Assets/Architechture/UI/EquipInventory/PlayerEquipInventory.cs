@@ -72,6 +72,7 @@ public class PlayerEquipInventory : A_Inventory
     
     private void LoadItem(IInventoryItem inventoryItem)
     {
+        Debug.Log("Load");
         A_Item_GUI gui = _guiPool.GetFromPool() as A_Item_GUI;
 
         if(gui == null)return;
@@ -83,10 +84,12 @@ public class PlayerEquipInventory : A_Inventory
         {
             Vector3 newPosition = _container.position;
 
+            _gui_Item = gui;
+
             gui.Item.Address = new CellNumber(0, 0);
             gui.Item.Direction = IInventoryItem.ItemDir.Down;
 
-            InsertItem(gui, gui.Item.Address, gui.Item.Direction);
+            //InsertItem(gui, gui.Item.Address, gui.Item.Direction);
 
             gui.SetParent(_container);
 
@@ -120,6 +123,7 @@ public class PlayerEquipInventory : A_Inventory
 
     public override uint InsertItem(A_Item_GUI insertGUI, CellNumber origin, IInventoryItem.ItemDir direction)
     {
+        Debug.Log("Insert");
         _gui_Item = insertGUI;
         
         insertGUI.Item.Address = origin;
@@ -143,10 +147,11 @@ public class PlayerEquipInventory : A_Inventory
 
     public override void RemoveItem(CellNumber origin)
     {
+        Debug.Log("Remove");
         if(_gui_Item == null) return;
         _openningStorage.Remove(_gui_Item.Item);
 
-        Debug.Log(_onRemoveEvent.Target);
+        Debug.Log("抜いた");
         _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item.Data);
 
         _gui_Item = null;

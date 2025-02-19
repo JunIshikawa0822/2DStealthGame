@@ -24,15 +24,15 @@ public class ShotGun_CreateConcreteFactory : ICustomizeFactory
 
         switch(gunData.CaliberType)
         {
-            case I_Data_Gun.CaliberTypes._10mm :
+            case IBulletType.CaliberTypes._10mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_10mm>) objectPool = pool;
                 break;
             
-            case I_Data_Gun.CaliberTypes._5_56mm :
+            case IBulletType.CaliberTypes._5_56mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_5_56mm>) objectPool = pool;
                 break;
 
-            case I_Data_Gun.CaliberTypes._7_62mm :
+            case IBulletType.CaliberTypes._7_62mm :
                 foreach(IObjectPool pool in _bulletPools)if(pool is ObjectPool<Bullet_7_62mm>) objectPool = pool;
                 break;
         }
@@ -40,7 +40,7 @@ public class ShotGun_CreateConcreteFactory : ICustomizeFactory
         gun.OnSetUp(objectPool);
         gun.Init(gunData);
         //gun.GunData = gunData;
-        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, 0));
+        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, gunData.MaxAmmoNum));
         
 
         return gun;

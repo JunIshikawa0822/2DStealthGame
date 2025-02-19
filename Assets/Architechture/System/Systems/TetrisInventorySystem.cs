@@ -8,10 +8,6 @@ using Unity.VisualScripting;
 public class TetrisInventorySystem : ASystem, IOnUpdate
 {
     private GameObject _UGUIPanel;
-#region test
-    //private Item_GUI _item_GUI_Prefab;
-    //private List<Scriptable_ItemData> _item_Data_List;
-#endregion
 
     private A_Inventory _toInventory;
     private A_Inventory _fromInventory;
@@ -25,8 +21,6 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
     private Vector3[] _offsetVecArray = new Vector3[4];
     private Vector3 _positionOffset;
-    //private Vector3 _oldPosition;
-
     //------------------
     private CellNumber _oldCellNum;
 
@@ -59,6 +53,9 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     {
         gameStat.isInventoryPanelActive = !gameStat.isInventoryPanelActive;
         InventoryPanelActive(gameStat.isInventoryPanelActive);
+
+        //if(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex] == null)return;
+        //Debug.Log(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex].Magazine.MagazineRemaining);
     }
 
     private void InventoryPanelActive(bool isActive)

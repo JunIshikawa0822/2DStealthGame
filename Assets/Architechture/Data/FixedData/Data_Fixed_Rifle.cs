@@ -17,16 +17,18 @@ public class Data_Fixed_Rifle : A_Data_Fixed<Data_Fixed_Rifle>, I_Data_Rifle
     [Header("銃の基本データ")]
     [SerializeField] float _muzzleVelocity;
     [SerializeField] float _shotInterval;
-    [SerializeField] I_Data_Gun.CaliberTypes _caliberType;
+    [SerializeField] IBulletType.CaliberTypes _caliberType;
     [SerializeField] uint _maxAmmoNum;
     [SerializeField] float _reloadTime;
+    [SerializeField] bool _isAuto;
 
     #region  銃基本機能
-    public I_Data_Gun.CaliberTypes CaliberType{get => _caliberType;}
+    public IBulletType.CaliberTypes CaliberType{get => _caliberType;}
     public virtual float ShotInterval{get => _shotInterval;}
     public virtual float ShotVelocity{get => _muzzleVelocity;}
     public virtual uint MaxAmmoNum{get => _maxAmmoNum;}
     public virtual float ReloadTime{get => _reloadTime;}
+    public virtual bool IsAuto{get => _isAuto;}
     #endregion
 
     #region GUI基本機能
@@ -91,6 +93,7 @@ public class Data_Fixed_Rifle : A_Data_Fixed<Data_Fixed_Rifle>, I_Data_Rifle
             hashCode.Add(_caliberType);
             hashCode.Add(_maxAmmoNum);
             hashCode.Add(_reloadTime);
+            hashCode.Add(_isAuto);
 
             return hashCode.ToHashCode();
         }
