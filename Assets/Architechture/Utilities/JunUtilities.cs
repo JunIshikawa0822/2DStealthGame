@@ -597,7 +597,7 @@ namespace JunUtilities
 
                 for (int j = 0; j < n; j++)
                 {
-                    unPrime -= Vector3.Dot(orthonormal[j], vectors[n]) * orthonormal[j];
+                    unPrime -= JunMath.VectorDot(orthonormal[j], vectors[n]) * orthonormal[j];
                 }
 
                 //引数に同じ固有ベクトルが2個あった場合の対応
@@ -626,7 +626,7 @@ namespace JunUtilities
                     // 既存の直交ベクトルと直交しているかチェック
                     for (int i = 0; i < count; i++)
                     {
-                        if (Mathf.Abs(Vector3.Dot(basis[i], candidate)) > 0.9f)
+                        if (Mathf.Abs(JunMath.VectorDot(basis[i], candidate)) > 0.9f)
                         {
                             isValid = false;
                             break;
