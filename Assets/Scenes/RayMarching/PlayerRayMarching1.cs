@@ -205,21 +205,21 @@ public class PlayerRayMarching1 : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if(Application.isPlaying == false) return;
-        // // XZ平面
-        for (int i = 0; i < _rayCount; i++)
-        {
-            Vector3 from = this.transform.position;
-            //Debug.Log(_positionResultArray[i]);
-            Vector3 to = _positionResultArray[i];
-            Gizmos.DrawLine(from, to);
-        }
+        // if(Application.isPlaying == false) return;
+        // // // XZ平面
+        // for (int i = 0; i < _rayCount; i++)
+        // {
+        //     Vector3 from = this.transform.position;
+        //     //Debug.Log(_positionResultArray[i]);
+        //     Vector3 to = _positionResultArray[i];
+        //     Gizmos.DrawLine(from, to);
+        // }
     }
-    private void OnDestroy()
-    {
-        _outputBuffer.Dispose();
-        _objectBuffer.Dispose();
-        //_debugBuffer6.Dispose();
-        _positionBuffer.Dispose();
-    }
+    // private void OnDestroy()
+    // {
+    //     _outputBuffer.Dispose();
+    //     _objectBuffer.Dispose();
+    //     //_debugBuffer6.Dispose();
+    //     _positionBuffer.Dispose();
+    // }
 }
