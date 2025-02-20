@@ -246,8 +246,9 @@ namespace JunUtilities
             int separateY = Mathf.FloorToInt((bounds.Max.y - bounds.Min.y) / cellSize.y);
             int separateZ = Mathf.FloorToInt((bounds.Max.z - bounds.Min.z) / cellSize.z);
         
-            int[] intersectMortonSpaces = new int[separateX * separateY * separateZ];
             //Debug.Log($"{separateX}, {separateY}, {separateZ}");
+            int[] intersectMortonSpaces = new int[separateX * separateY * separateZ];
+            
             //Debug.Log(intersectMortonSpaces);
         
             for (int i = 0; i < separateX; i++)
@@ -264,8 +265,9 @@ namespace JunUtilities
                     }
                 }
             }
-        
-            return JunExpandUnityClass.ConvertToUniqueArray(intersectMortonSpaces);
+
+            return JunExpandUnityClass.ConvertToUniqueArray(intersectMortonSpaces)
+                .Where(n => n < Mathf.Pow(Mathf.Pow(2, dimensionLevel), 3)).ToArray();
         }
 
         #endregion
@@ -848,13 +850,15 @@ namespace JunUtilities
     {
         public TreeNode3D rootNode;
 
-        public void BuildTree(List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objects)
+        public AABB3DTree BuildTree(List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objects)
         {
             rootNode = BuildNode(objects);
+            return this;
         }
 
         private TreeNode3D BuildNode(List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objects)
         {
+            if (objects == null) return null;
             if (objects.Count == 0) return null;
             // 単一要素ならリーフノードを作成
             if (objects.Count == 1)
@@ -1005,6 +1009,7 @@ namespace JunUtilities
         public Vector3 Min; // AABBの最小点
         public Vector3 Max; // AABBの最大点
         public Vector3 Center => (Min + Max) / 2.0f;
+        public Vector3 Size => (Max - Min);
 
         public AABB3D(Bounds bounds)
         {
@@ -1065,12 +1070,6 @@ namespace JunUtilities
             );
             
             return new AABB3D(newMin, newMax);
-        }
-        
-        // AABBのサイズを取得する
-        public Vector3 Size()
-        {
-            return Max - Min;
         }
 
         public float Volume()

@@ -6,180 +6,137 @@ using System.Linq;
 
 public class CollisionRenderSystem : ASystem, IOnUpdate
 {
-    private Vector3 _referencePos;
+    //レイマーチングコンポーネント
+    private PlayerRayMarching _playerRayMarching;
+    
+    //静的オブジェクト管理
+    private AABB3DTree _staticObjectTree;
+    private Transform _staticObjectsParent;
+    //動的オブジェクト管理
+    //private Transform[] _dynamicObjects;
+    private List<Transform> _dynamicObjectList;
+     
+    //カメラ
+    private Camera _camera;
+    private Vector3 _cameraRotateEulerAngle;
+    private List<Vector3> _cameraCorners = new List<Vector3>();
+
+    private Bounds _cameraBounds;
+    private AABB3D _cameraAABB3D;
+    
+    //モートン空間
+    private Vector3 _mortonSpaceBasePos;
+    private int _dimensionLevel;
     private Vector3 _cellSize;
     
-    private List<MeshChangable> _oldTargetList = new List<MeshChangable>();
-    //private List<MeshChangable> _newTargetList = new List<MeshChangable>();
-
-    private Vector3 _rotateEulerAngle;
-    List<Vector3> _cameraCorners = new List<Vector3>();
-
-    private MeshChangable[] _targetObjectArray;
-    private MortonTest _mortonTest;
-    private Transform[] _testObjectsArray;
     public override void OnSetUp()
     {
-        _referencePos = gameStat.mortonSpaceBaseTrans.position;
-        _cellSize = new Vector3(gameStat.cellWidth, gameStat.cellHeight, gameStat.cellDepth);
-        _rotateEulerAngle = new Vector3(
-            gameStat.camera.transform.rotation.eulerAngles.x,
-            gameStat.camera.transform.rotation.eulerAngles.y,
-            gameStat.camera.transform.rotation.eulerAngles.z);
-
-        _targetObjectArray = gameStat.targetParent.transform.GetComponentsInChildren<MeshChangable>();
+        _camera = gameStat.camera;
+        _staticObjectsParent = gameStat.staticObjectsParent;
+        _dynamicObjectList = gameStat.dynamicObjectList;
+        _mortonSpaceBasePos = gameStat.mortonSpaceBaseTrans.position;
+        _dimensionLevel = gameStat.dimensionLevel;
+        _cellSize = gameStat.CellSize;
+        _playerRayMarching = gameStat.player.GetComponent<PlayerRayMarching>();
         
-        _mortonTest = gameStat.player.GetComponent<MortonTest>();
-        _mortonTest.Init(_cellSize, gameStat.dimensionLevel);
-        //_testObjectsArray = gameStat.testObject.transform.GetComponentsInChildren<Transform>();
+        if (_playerRayMarching == null || _camera == null || _mortonSpaceBasePos == null || _staticObjectsParent == null)
+        {
+            Debug.LogWarning("レイマーチングが開始できません アタッチしてください");
+            return;
+        }
+        
+        _staticObjectTree = new AABB3DTree()
+            .BuildTree(GetStaticObjectList(_staticObjectsParent));
+        
+        _cameraRotateEulerAngle = new Vector3(
+            _camera.transform.rotation.eulerAngles.x,
+            _camera.transform.rotation.eulerAngles.y,
+            _camera.transform.rotation.eulerAngles.z);
+        
+        _playerRayMarching.OnSetUp();
     }
+
     public void OnUpdate()
     {
-        //モートン空間とオブジェクトの引き渡し部分
+        //カメラのAABB3Dをつくろう
         _cameraCorners.Clear();
-        Vector3[] nearCorners = JunCamera.CalculateFrustumCorners(gameStat.camera, gameStat.camera.nearClipPlane);
+        Vector3[] nearCorners = JunCamera.CalculateFrustumCorners(_camera, _camera.nearClipPlane);
         for (int i = 0; i < nearCorners.Length; i++)
         {
             Vector3 direction = Vector3.forward;
-            direction = JunGeometry.RotateAround(direction, _rotateEulerAngle);
+            direction = JunGeometry.RotateAround(direction, _cameraRotateEulerAngle);
             float t = (float)(0 - nearCorners[i].y) / (float)direction.y;
             
             _cameraCorners.Add(nearCorners[i]);
             _cameraCorners.Add(new Vector3(nearCorners[i].x + t * direction.x, 0, nearCorners[i].z + t * direction.z));
         }
         
-        Bounds bound = GetBounds(_cameraCorners.ToArray());//ここまではOK
+        _cameraBounds = JunGeometry.GetBoundsFromVertices(_cameraCorners);
+        //_cameraAABB3D = JunGeometry.GetAABB3DFromVertices(_cameraCorners);
+        _cameraAABB3D = new AABB3D(_cameraBounds);
         
-        _mortonTest.SetBounds(bound);
+        _playerRayMarching.SetBounds(_cameraBounds);
+        _playerRayMarching.SetAABB3D(_cameraAABB3D);
+        //できた
+        //_playerRayMarching.SetBound(cameraAABB3D);
+        // Debug.Log(_staticObjectTree);
+        //カメラが交差している可能性のあるオブジェクトたち staticに何もない場合は空のリスト
+        //List<TreeNode3D> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D>();
+        List<TreeNode3D> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D>();
         
-        int[] cameraMortonCodes = GetMortonCodesFromAABB(bound, _cellSize);
-        Debug.Log($"{string.Join(",", cameraMortonCodes)}");
-        //Debug.Log($"{_targetObjectArray.Length}");
-        if(_targetObjectArray.Length < 1)return;
-        Debug.Log("動いている");
-        List<MeshChangable>newTargetList = new List<MeshChangable>();
+        //カメラが交差しているモートン空間
+        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
+        HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);//含まれるかの処理のためHash化
         
-        foreach (MeshChangable objTrans in _targetObjectArray)
+        //全ての動的オブジェクトに対して、カメラの交差しているモートン空間内にいるかどうかを確認、いたらリストに追加
+        _dynamicObjectList = gameStat.dynamicObjectList;
+        List<Transform> dynamicObjectsInCamera = new List<Transform>();
+        for (int i = 0; i < _dynamicObjectList.Count; i++)
         {
-            int objectMortonCode = JunGeometry.PosToMortonNumber(
-                objTrans.transform.position, 
-                gameStat.mortonSpaceBaseTrans.position, 
-                gameStat.dimensionLevel, 
-                _cellSize);
-        
-            if (Array.IndexOf(cameraMortonCodes, objectMortonCode) != -1)
-            {
-                newTargetList.Add(objTrans);
-            }
-        }
-        
-        DisplayVisibleTargets(newTargetList);
-        Debug.Log($"最初 : {string.Join(", " , newTargetList.Select(t => t.gameObject.name))}");
-        Debug.Log($"最初 : {string.Join(", " , _oldTargetList.Select(t => t.gameObject.name))}");
-        
-        UnDisplayInvisibleTargets(newTargetList, _oldTargetList);
-        _oldTargetList = newTargetList;
+            Transform dynamicTrans = _dynamicObjectList[i];
+            int mortonNum = JunGeometry.PosToMortonNumber(dynamicTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
 
-        Debug.Log($"あと : {string.Join(", " , newTargetList.Select(t => t.gameObject.name))}");
-        Debug.Log($"あと : {string.Join(", " , _oldTargetList.Select(t => t.gameObject.name))}");
-    }
-    
-    private Bounds GetBounds(Vector3[] points)
-    {
-        float minX = points[0].x;
-        float minY = points[0].y;
-        float minZ = points[0].z;
+            if (cameraMortonNums.Contains(mortonNum)) { dynamicObjectsInCamera.Add(dynamicTrans); }
+        }
         
-        float maxX = points[0].x;
-        float maxY = points[0].y;
-        float maxZ = points[0].z;
+        (Transform transform, int objType, OBB obb)[] objectDataArray = 
+            new (Transform transform, int objType, OBB obb)[staticIntersectNodes.Count + dynamicObjectsInCamera.Count];
 
-        for (int i = 0; i < points.Length; i++)
+        //静的オブジェクト
+        for (int i = 0; i < staticIntersectNodes.Count; i++)
         {
-            if(points[i].x < minX) minX = points[i].x;
-            if(points[i].y < minY) minY = points[i].y;
-            if(points[i].z < minZ) minZ = points[i].z;
-            
-            if(points[i].x > maxX) maxX = points[i].x;
-            if(points[i].y > maxY) maxY = points[i].y;
-            if(points[i].z > maxZ) maxZ = points[i].z;
+            TreeNode3D node = staticIntersectNodes[i];
+            objectDataArray[i] = (node.Transform, 1, node.OrientedBounds);
         }
-        
-        Bounds bounds = new Bounds();
-        bounds.SetMinMax(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
-        return bounds;
-    }
-    
-    private int[] GetMortonCodesFromAABB(Bounds bound, Vector3 cellSize)
-    {
-        int separateX = Mathf.FloorToInt((bound.max.x - bound.min.x) / cellSize.x) + 1;
-        int separateY = Mathf.FloorToInt((bound.max.y - bound.min.y) / cellSize.y) + 1;
-        int separateZ = Mathf.FloorToInt((bound.max.z - bound.min.z) / cellSize.z) + 1;
-        //Debug.Log((bound.max.y - bound.min.y));
-        //Debug.Log(($"最大 : {bound.max.z} , 最小 : {bound.min.z}, 引いたら : {bound.max.z - bound.min.z} , cellDepth : {cellSize.z}")); 
-        
-        int[] intersectMortonSpaces = new int[separateX * separateY * separateZ];
-        // Debug.Log($"{separateX}, {separateY}, {separateZ}");
-        // Debug.Log(intersectMortonSpaces);
-        
-        for (int i = 0; i < separateX; i++)
-        {
-            for (int j = 0; j < separateY; j++)
-            {
-                for (int k = 0; k < separateZ; k++)
-                {
-                    int num = i * (separateY * separateZ) + j * separateZ + k;
-                    // Debug.Log(num);
-                    Vector3 pos = bound.min + new Vector3(i * cellSize.x, j * cellSize.y, k * cellSize.z);
-                    // Debug.Log(num);
-                    //_testObjectsArray[num].position = pos;
-                    int mortonNum = JunGeometry.PosToMortonNumber(pos, _referencePos, gameStat.dimensionLevel, cellSize);
-                    intersectMortonSpaces[num] = mortonNum;
-                }
-            }
-        }
-        
-        HashSet<int> uniqueHashSet = new HashSet<int>(intersectMortonSpaces);
-        int[] uniqueMortonArray = new int[uniqueHashSet.Count];
-        uniqueHashSet.CopyTo(uniqueMortonArray);
-        
-        return uniqueMortonArray;
-    }
-    
-    void DisplayVisibleTargets(List<MeshChangable> newVisibleTargets)
-    {
-        foreach(MeshChangable target in newVisibleTargets)
-        {
-            if(target == null)return;
-            target.EntityMeshAble();
-        }
-    }
-    
-    void UnDisplayInvisibleTargets(List<MeshChangable> newVisibleTargets, List<MeshChangable> oldVisibleTargets)
-    {
-        
-       // Debug.Log(string.Join(", ", oldVisibleTargets.Select(t => t.gameObject.name)));
-        
-        foreach (MeshChangable oldTarget in oldVisibleTargets)
-        {
-            bool isInclude = false;
 
-            foreach (MeshChangable newTarget in newVisibleTargets)
-            {
-                //newにoldが含まれていればok
-                if (oldTarget == newTarget)
-                {
-                    isInclude = true;
-                    break;
-                }
-            }
-
-            //含まれていないならオフ
-            if (isInclude == false)
-            {
-                if(oldTarget ==null)return;
-                oldTarget.EntityMeshDisable();
-            }
+        //動的オブジェクト
+        for (int i = 0; i < dynamicObjectsInCamera.Count; i++)
+        {
+            objectDataArray[staticIntersectNodes.Count + i] = (dynamicObjectsInCamera[i], 0, null);
         }
+        
+        //if(objectDataArray.Length < 1) return;
+        _playerRayMarching.OnRayMarchingUpdate(objectDataArray);
+    }
+
+    public List<(AABB3D bounds, OBB orientedBounds, Transform transform)> GetStaticObjectList(Transform staticObjectParent)
+    {
+        if (staticObjectParent.childCount < 1) return null;
+        
+        List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objectList = new List<(AABB3D bounds, OBB orientedBounds, Transform transform)>();
+        MeshRenderer[] meshesArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
+        MeshFilter[] meshFiltersArray = JunExpandUnityClass.GetChildrenComponent<MeshFilter>(staticObjectParent);
+        Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
+        
+        for (int i = 0; i < meshesArray.Length; i++)
+        {
+            objectList.Add((
+                new AABB3D(meshesArray[i].bounds), 
+                new OBB(transformsArray[i], meshFiltersArray[i].mesh.vertices),
+                transformsArray[i]
+            ));
+        }
+        
+        return objectList;
     }
 }

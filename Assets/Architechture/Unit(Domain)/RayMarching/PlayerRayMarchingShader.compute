@@ -26,6 +26,9 @@ RWStructuredBuffer<float3> _positionBuffer : register(u1);
 //レイが当たったオブジェクトのインデックスをレイごとに保存しておくバッファ
 RWStructuredBuffer<int> _outputBuffer : register(u0); //データ渡し必要
 
+RWStructuredBuffer<float3> _debugBuffer1 : register(u2);
+RWStructuredBuffer<float3> _debugBuffer2 : register(u3);
+
 //固定の変数たち
 float _maxDistance; //固定 初期化のみでOK 暗い時は見えづらいとかもやっていいかもだけど...
 float _threshold; //固定 この値より距離が小さいときは当たっていることにする
@@ -212,6 +215,9 @@ void CSMain (uint3 GroupThreadID : SV_GroupThreadID, uint3 GroupID : SV_GroupID)
     float3 rayDir = normalize(rotate(_forwardVec, float3(0, 1, 0), rayAngle));//正面のベクトルをy軸に沿って回転
 
     float3 hitPos = float3(0, 0, 0);
+    _debugBuffer1[0] = _originPos;
+    _debugBuffer2[rayIndex] = rayDir;
+    
     //レイを発射する始点と見ている向きにレイマーチング
     int hitIndex = RayMarch(_originPos, rayDir, hitPos);
 

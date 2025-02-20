@@ -34,6 +34,7 @@ public class StageObject : MonoBehaviour
     private Vector3 _rotateEulerAngle;
     List<Vector3> _cameraCorners = new List<Vector3>();
     Bounds _cameraBounds;
+    AABB3D _cameraAABB3D;
 
     [Header("てすと")] 
     public Transform test;
@@ -89,17 +90,20 @@ public class StageObject : MonoBehaviour
             _cameraCorners.Add(nearCorners[i]);
             _cameraCorners.Add(new Vector3(nearCorners[i].x + t * direction.x, 0, nearCorners[i].z + t * direction.z));
         }
+        
         _cameraBounds = JunGeometry.GetBoundsFromVertices(_cameraCorners);
-        
+        _cameraAABB3D = new AABB3D(_cameraBounds);
+        //_cameraAABB3D = JunGeometry.GetAABB3DFromVertices(_cameraCorners);
+
         //カメラのAABB
-        AABB3D cameraAABB3D = new AABB3D(_cameraBounds);
-        
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
-        List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(cameraAABB3D);
+        List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(_cameraAABB3D);
+        //List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(new AABB3D(_cameraBounds));
         
         //動的オブジェクト
         //カメラが交差しているモートン空間を取得
-        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(cameraAABB3D, _baseTrans.position, _dimensionLevel, _cellSize);
+        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _baseTrans.position, _dimensionLevel, _cellSize);
+        // Debug.Log(string.Join(",", intersectMortonSpaceNums));
         HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);
 
         //全ての動的オブジェクトに対して、カメラの交差しているモートン空間内にいるかどうかを確認、いたらリストに追加
@@ -214,6 +218,10 @@ public class StageObject : MonoBehaviour
 
         Gizmos.color = Color.green; // 緑色で描画
         Gizmos.DrawWireCube(_cameraBounds.center, _cameraBounds.size);
+        //Gizmos.DrawWireCube(_cameraAABB3D.Center, _cameraAABB3D.Size);
+        
+        //Debug.Log($"bounds {_cameraBounds.center}, {_cameraBounds.size}");
+        
 
         #endregion
         

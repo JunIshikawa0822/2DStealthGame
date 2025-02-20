@@ -29,13 +29,11 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.SelectingIndexChangeTest.started += OnPlayerSelectingIndexChangeFromKey;
 
         _gameInputs.Enable();
-
-        //Cursor.visible = false;
     }
 
     public void OnPreUpdate()
     {
-        // Debug.Log(_gameInputs);
+        Debug.Log(_gameInputs);
         _cursorScreenPosition = _gameInputs.PlayerActionTest.CursorPosition.ReadValue<Vector2>();
 
         if(IsCursorRayHit(_cursorScreenPosition, out _rayCastHit))
@@ -51,7 +49,6 @@ public class InputSystem : ASystem, IOnPreUpdate
             gameStat.camera, 
             new Vector3(_cursorWorldPosition.x, gameStat.player.equipPos.transform.position.y, _cursorWorldPosition.z)
         );
-        //Debug.Log(gameStat.testObject.position);
     }
     
     private void OnDestroy()
@@ -67,13 +64,10 @@ public class InputSystem : ASystem, IOnPreUpdate
     private void OnDashInput(InputAction.CallbackContext context)
     {
         gameStat.moveDirection = (gameStat.moveDirection * 2).normalized;
-
-        Debug.Log("押している");
     }
 
     private void OnAttackStartInput(InputAction.CallbackContext context)
     {
-        //Debug.Log("click");
         gameStat.onPlayerAttackStartEvent?.Invoke();
     }
 

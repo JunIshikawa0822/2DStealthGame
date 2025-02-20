@@ -17,6 +17,8 @@ public class EnemySystem : ASystem, IOnUpdate
     {
         
     }
+    
+    
 
     public void EquipGun(AEnemy enemy)
     {

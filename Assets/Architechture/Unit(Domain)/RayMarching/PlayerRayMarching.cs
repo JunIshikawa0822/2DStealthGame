@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JunUtilities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerRayMarching : MonoBehaviour
@@ -28,6 +29,16 @@ public class PlayerRayMarching : MonoBehaviour
     
     //当たった場所を入れる
     private Vector3[] _positionResultArray;//デバッグ用
+    
+    private AABB3D _cameraAABB3D;
+    private Bounds _cameraBounds;
+    
+    //デバッグ用
+    private int _debugBuffer1ID;
+    private GraphicsBuffer _debugBuffer1;
+    
+    private int _debugBuffer2ID;
+    private GraphicsBuffer _debugBuffer2;
     
     struct Object
     {
@@ -65,10 +76,19 @@ public class PlayerRayMarching : MonoBehaviour
         _rayMarchingComputeShader.SetBuffer(_kernelIndex, _outputBufferID, _outputBuffer);
         _positionBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _rayCount, sizeof(float) * 3);
         _rayMarchingComputeShader.SetBuffer(_kernelIndex, _positionBufferID, _positionBuffer);
+        
+        //デバッグ用
+        _debugBuffer1ID = Shader.PropertyToID("_debugBuffer1");
+        _debugBuffer1 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(_kernelIndex, _debugBuffer1ID, _debugBuffer1);
+        
+        _debugBuffer2ID = Shader.PropertyToID("_debugBuffer2");
+        _debugBuffer2 = new GraphicsBuffer(GraphicsBuffer.Target.Structured, _rayCount, sizeof(float) * 3);
+        _rayMarchingComputeShader.SetBuffer(_kernelIndex, _debugBuffer2ID, _debugBuffer2);
     }
     
     /// <param name="objectDataArray">衝突比較を行うオブジェクトのデータ</param>
-    public void OnRayMarchingUpdate((Transform transform, int objType, OBB obb)[] objectDataArray)
+    public int[] OnRayMarchingUpdate((Transform transform, int objType, OBB obb)[] objectDataArray)
     {
         // gameObjectBufferがすでに存在する場合は解放
         if (_objectBuffer != null)
@@ -77,12 +97,17 @@ public class PlayerRayMarching : MonoBehaviour
         }
         
         //引き渡すオブジェクトのデータを渡す
+        //まずは長さ
         int objectLength = objectDataArray.Length;
         Object[] objectArray = new Object[objectLength];
         
-        for (int i = 0; i < objectLength; i++)
+        //当たるものが何もない場合はobjectArrayに何も入れない
+        if (objectDataArray.Length > 0)
         {
-            objectArray[i] = ConstructObjectData(objectDataArray[i]);
+            for (int i = 0; i < objectLength; i++)
+            {
+                objectArray[i] = ConstructObjectData(objectDataArray[i]);
+            }
         }
         
         //可変データを引き渡し祭り
@@ -90,13 +115,19 @@ public class PlayerRayMarching : MonoBehaviour
         _rayMarchingComputeShader.SetVector(_forwardVecID, this.transform.forward);
         _rayMarchingComputeShader.SetInt(_objectCountID, objectLength);
         
-        //オブジェクトのバッファを作る
-        _objectBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, objectLength, _objectDataSize);
-        //データをバッファに入れる
-        _objectBuffer.SetData(objectArray);
-        //バッファを引き渡す
-        _rayMarchingComputeShader.SetBuffer(_kernelIndex, _objectBufferID, _objectBuffer);
+        //オブジェクトのバッファを作ってデータを入れて引き渡し
+        //GraphicsBufferに長さが0のものを渡せないので便宜上1
+        if (objectLength > 0)
+        {
+            _objectBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, objectLength, _objectDataSize);
+        }
+        else
+        {
+            _objectBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1, _objectDataSize);
+        }
         
+        _objectBuffer.SetData(objectArray);
+        _rayMarchingComputeShader.SetBuffer(_kernelIndex, _objectBufferID, _objectBuffer);
         //実行
         _rayMarchingComputeShader.Dispatch(_kernelIndex, 16, 1, 1);
         
@@ -105,10 +136,19 @@ public class PlayerRayMarching : MonoBehaviour
         Debug.Log(_outputBuffer);
         _outputBuffer.GetData(resultArray);
         int[] uniqueResultArray = JunExpandUnityClass.ConvertToUniqueArray(resultArray);
-        Debug.Log($"このフレームで、({string.Join(", ", uniqueResultArray)})とぶつかっている");
-        
+        //Debug.Log($"このフレームで、({string.Join(", ", uniqueResultArray)})とぶつかっている");
         _positionResultArray = new Vector3[_rayCount];
         _positionBuffer.GetData(_positionResultArray);
+        
+        Vector3[] debugArray1 = new Vector3[1];
+        _debugBuffer1.GetData(debugArray1);
+        Debug.Log(debugArray1[0]);
+        
+        Vector3[] debugArray2 = new Vector3[_rayCount];
+        _debugBuffer2.GetData(debugArray2);
+        Debug.Log(string.Join(", ", debugArray2));
+        
+        return uniqueResultArray;
     }
     
     private Object ConstructObjectData((Transform transform, int objType, OBB obb) objectData)
@@ -135,25 +175,39 @@ public class PlayerRayMarching : MonoBehaviour
             
         return new Object { type = type, center = center, axisX = axisX, axisY = axisY, axisZ = axisZ, padding = padding };
     }
+
+    public void SetAABB3D( AABB3D bounds )
+    {
+        _cameraAABB3D = bounds;
+    }
+    
+    public void SetBounds( Bounds bounds )
+    {
+        _cameraBounds = bounds;
+    }
     
     void OnDrawGizmos()
     {
+        
         if(Application.isPlaying == false) return;
-        // // XZ平面
-        for (int i = 0; i < _rayCount; i++)
+        
+        for (int i = 0; i < _positionResultArray.Length; i++)
         {
-            if(_positionResultArray.Length < _rayCount)return;
-            
             Vector3 from = this.transform.position;
             Vector3 to = _positionResultArray[i];
             Gizmos.DrawLine(from, to);
         }
+        
+        Debug.Log("うごく");
+        Gizmos.color = Color.green; // 緑色で描画
+        Gizmos.DrawWireCube(_cameraBounds.center, _cameraBounds.size);
+        //Gizmos.DrawWireCube(_cameraAABB3D.Center, _cameraAABB3D.Size);
     }
     
     private void OnDestroy()
     {
-        _outputBuffer.Dispose();
-        _objectBuffer.Dispose();
-        _positionBuffer.Dispose();
+        if(_outputBuffer != null)_outputBuffer.Dispose();
+        if(_objectBuffer != null)_objectBuffer.Dispose();
+        if(_positionBuffer != null)_positionBuffer.Dispose();
     }
 }

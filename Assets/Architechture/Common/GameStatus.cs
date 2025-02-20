@@ -92,10 +92,16 @@ public class GameStatus
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
 
+    [Header("静的オブジェクト")] 
+    public Transform staticObjectsParent;
+
+    [Header("動的オブジェクト")] 
+    public List<Transform> dynamicObjectList = new List<Transform>();
+
 #region  即席
     [Header("Enemy")]
     public Transform enemyParent;
-    public List<AEnemy> enemyObjects;
+    public List<AEnemy> enemyObjects = new List<AEnemy>();
 #endregion
 
     [Header("Facade")]
@@ -106,12 +112,12 @@ public class GameStatus
 
     //public List<IGunFactory> gunFactoriesList;
     [Header("MortonSpace")]
-    [SerializeField] public float cellWidth;
-    [SerializeField] public float cellHeight;
-    [SerializeField] public float cellDepth;
+    [SerializeField] private float cellWidth;
+    [SerializeField] private float cellHeight;
+    [SerializeField] private float cellDepth;
+    [HideInInspector]public Vector3 CellSize{get => new Vector3(cellWidth, cellHeight, cellDepth);}
+    
     [SerializeField] public int dimensionLevel;
     [SerializeField] public Transform mortonSpaceBaseTrans;
-    [SerializeField] public Transform targetParent;
 
-    [SerializeField] public Transform testObject;
 }
