@@ -36,7 +36,8 @@ public class Data_Fixed_Handgun : A_Data_Fixed<Data_Fixed_Handgun>, I_Data_HandG
     public string ItemDiscription{get => _itemDiscription;}
     public uint Width{get => _widthInGUI;}
     public uint Height{get => _heightInGUI;}
-    public uint StackableNum{get => _stackableNum;}
+    public bool IsStackable { get => false;}
+    public uint StackableNum{get => _maxAmmoNum;}
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}
     public int ItemID{get => _itemID;}

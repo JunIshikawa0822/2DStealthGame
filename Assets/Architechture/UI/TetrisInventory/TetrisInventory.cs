@@ -24,8 +24,8 @@ public class TetrisInventory : A_Inventory
     private IObjectPool _guiPool;
     //private ItemFacade _facade;
     private IStorage _openningStorage;
-    public override Action<int, I_Data_Item> InsertAction{get; set;} 
-    public override Action<int, I_Data_Item> RemoveAction{get; set;}
+    public override Action<int, IInventoryItem> InsertAction{get; set;} 
+    public override Action<int, IInventoryItem> RemoveAction{get; set;}
 
     void Awake()
     {

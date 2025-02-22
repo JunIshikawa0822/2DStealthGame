@@ -110,6 +110,10 @@ public class Rifle : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
+        //データ反映
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
+        
+        Debug.Log(_referenceInventoryItem.StackingNum);
         //_shotIntervalTokenSource = new CancellationTokenSource();
 
         //_isShotIntervalActive = true;
@@ -119,6 +123,9 @@ public class Rifle : AGun
     public override void Reload(Entity_Magazine magazine)
     {
         _magazine = magazine;
+        
+        if(_referenceInventoryItem == null) return;
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
     }
 
     public override void Jam()

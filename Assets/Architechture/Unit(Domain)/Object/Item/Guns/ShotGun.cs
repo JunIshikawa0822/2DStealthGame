@@ -112,6 +112,7 @@ public class Shotgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
         //_isShotIntervalActive = true;
     }
 
@@ -119,6 +120,9 @@ public class Shotgun : AGun
     {
         Debug.Log(this.gameObject.name + ":" + magazine);
         _magazine = magazine;
+        
+        if(_referenceInventoryItem == null) return;
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
     }
 
     public override void Jam()

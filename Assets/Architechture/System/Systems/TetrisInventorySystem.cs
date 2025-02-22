@@ -129,16 +129,16 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         Debug.Log(gui.Item.Data.ItemName + "を使った");
     }
 
-    public void EquipmentInsert(int index, I_Data_Item data)
+    public void EquipmentInsert(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Systemもいれたといっている");
-        gameStat.onPlayerEquipEvent?.Invoke(index, data);
+        gameStat.onPlayerEquipEvent?.Invoke(index, inventoryItem);
     }
 
-    public void EquipmentRemove(int index, I_Data_Item data)
+    public void EquipmentRemove(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Systemもぬいたといっている");
-        gameStat.onPlayerUnEquipEvent?.Invoke(index, data);
+        gameStat.onPlayerUnEquipEvent?.Invoke(index, inventoryItem);
     }
 
     public void PointerDown(A_Item_GUI gui)

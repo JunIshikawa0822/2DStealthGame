@@ -146,17 +146,15 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.UnEquipMotion(gameStat.playerGunsArray[1 - gameStat.selectingGunsArrayIndex]);
     }
 
-    public void OnEquipGun(int index, I_Data_Item data)
+    public void OnEquipGun(int index, IInventoryItem inventoryItem)
     {
-        if(data == null) return;
-
-        Debug.Log("Playerでもいれてる");
-
-        AGun gun = gameStat.gunFacade.GetGunInstance(data);
-
-        Debug.Log(index);
-        Debug.Log(gameStat.selectingGunsArrayIndex);
-
+        if(inventoryItem == null) return;
+        if(!(inventoryItem.Data is I_Data_Gun gunData))return;
+        
+        AGun gun = gameStat.gunFacade.GetGunInstance(inventoryItem.Data);
+        gun.Init(gunData);
+        gun.ReferenceSet(inventoryItem);
+        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, inventoryItem.StackingNum));
         gameStat.playerGunsArray[index] = gun;
 
         if(index == gameStat.selectingGunsArrayIndex)
@@ -165,7 +163,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         }
     }
 
-    public void OnUnEquipGun(int index, I_Data_Item data)
+    public void OnUnEquipGun(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Playerでもぬいてる");
 

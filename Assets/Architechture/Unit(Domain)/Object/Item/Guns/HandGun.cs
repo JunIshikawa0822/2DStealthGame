@@ -103,12 +103,16 @@ public class Handgun : AGun
 
         //弾を消費する
         _magazine.ConsumeBullet();
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
         //_shotIntervalTokenSource = new CancellationTokenSource();
     }
 
     public override void Reload(Entity_Magazine magazine)
     {
         _magazine = magazine;
+        
+        if(_referenceInventoryItem == null) return;
+        _referenceInventoryItem.StackingNum = _magazine.MagazineRemaining;
     }
 
     public override void Jam()

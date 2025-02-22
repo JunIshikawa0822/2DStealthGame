@@ -11,6 +11,7 @@ public class Data_Fixed_Food : A_Data_Fixed<Data_Fixed_Food>, I_Data_Food
     [SerializeField]private Sprite _itemImage;
     [SerializeField]private uint _widthInGUI;
     [SerializeField]private uint _heightInGUI;
+    [SerializeField]private bool _isStackable;
     [SerializeField]private uint _stackableNum;
     [SerializeField]private int _itemID;
     [SerializeField]private int _itemPrice;
@@ -27,6 +28,7 @@ public class Data_Fixed_Food : A_Data_Fixed<Data_Fixed_Food>, I_Data_Food
     public string ItemDiscription{get => _itemDiscription;}
     public uint Width{get => _widthInGUI;}
     public uint Height{get => _heightInGUI;}
+    public bool IsStackable{get => _isStackable;}
     public uint StackableNum{get => _stackableNum;}
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}

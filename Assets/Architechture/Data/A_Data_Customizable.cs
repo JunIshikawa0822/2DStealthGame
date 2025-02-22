@@ -12,6 +12,7 @@ public abstract class A_Data_Customizable : I_Data_Item
     private Sprite _itemImage;
     private uint _widthInGUI;
     private uint _heightInGUI;
+    private bool _isStackable;
     private uint _stackableNum;
     private int _itemID;
 
@@ -20,6 +21,7 @@ public abstract class A_Data_Customizable : I_Data_Item
     public string ItemDiscription{get => _itemDiscription;}
     public uint Width{get => _widthInGUI;}
     public uint Height{get => _heightInGUI;}
+    public bool IsStackable{get => _isStackable;}
     public uint StackableNum{get => _stackableNum;}
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}

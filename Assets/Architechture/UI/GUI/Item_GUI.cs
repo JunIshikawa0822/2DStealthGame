@@ -38,11 +38,13 @@ public class Item_GUI : A_Item_GUI, IObject
     public override void Init(IInventoryItem inventoryItem)
     {
         // Debug.Log(inventoryItem);
-
+        I_Data_Item data = inventoryItem.Data;
         _inventoryItem = inventoryItem;
-        _itemImage.sprite = inventoryItem.Data.ItemImage;
+        _itemImage.sprite = data.ItemImage;
         
         BackGroundInit();
+        SetStackText(inventoryItem.StackingNum);
+        //if(data.IsStackable == false) _stackNumText.gameObject.SetActive(false);
         if(_inventoryItem.Data.StackableNum == 1)_stackNumText.gameObject.SetActive(false);
     }
 

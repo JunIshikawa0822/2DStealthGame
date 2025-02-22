@@ -50,10 +50,11 @@ public class PlayerController : AEntity
 
     public void Move(Vector2 inputDirection)
     {
+        Vector3 velocity = new Vector3(inputDirection.x, 0, inputDirection.y); // 上下のキー入力からZ軸方向の移動量を取得
+        transform.localPosition += velocity * _playerMoveForce * Time.fixedDeltaTime;
         //Debug.Log("移動");
         //移動
-
-        _entityRigidbody.velocity = new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce;
+        //_entityRigidbody.velocity = new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce;
         //_entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
     }
 

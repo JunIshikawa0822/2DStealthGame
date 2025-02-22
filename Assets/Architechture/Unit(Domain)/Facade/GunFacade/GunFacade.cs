@@ -39,7 +39,8 @@ public class GunFacade
 
             default : return null;
         }
-
+        
+        gun.ReferenceSet(null);
         gun.gameObject.SetActive(true);
         return gun;
     }
