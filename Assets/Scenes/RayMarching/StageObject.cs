@@ -40,6 +40,7 @@ public class StageObject : MonoBehaviour
     [Header("てすと")] 
     public Transform test;
     private Vector3[] _obbVertices;
+    public Transform[] tests;
     private void Start()
     {
         List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objectList = new List<(AABB3D bounds, OBB orientedBounds, Transform transform)>();
@@ -80,6 +81,10 @@ public class StageObject : MonoBehaviour
         AllignedOBB testObb = new AllignedOBB(test, testMeshVertices);
         //OBB testObb = new OBB(test, testMeshVertices);
         Debug.Log(testObb.Center);
+        tests[0].position = testObb.Center;
+        tests[1].position = testObb.Min;
+        tests[2].position = testObb.Max;
+        
         _obbVertices = testObb.Vertices;
         
         Destroy(tempMesh);

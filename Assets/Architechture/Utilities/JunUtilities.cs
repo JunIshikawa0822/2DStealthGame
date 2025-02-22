@@ -1136,7 +1136,7 @@ namespace JunUtilities
 
             return (minPos, maxPos);
         }
-
+        
         private Vector3[] CalculateVertices(Vector3 center, Vector3[] axis)
         {
             Vector3 halfSizeX = axis[0] * 0.5f; // X軸方向の半分のサイズ
@@ -1159,37 +1159,81 @@ namespace JunUtilities
         }
     }
 
+    /// <summary>
+    /// オブジェクトのtransformを使用したOOB
+    /// </summary>
+    /// <param name="Center">重心</param>
+    /// <param name="Axis">OBBの軸と大きさを兼ねたベクトル</param>
+    /// <param name="Vertices">頂点</param>
+    /// <param name="Min, Max">最小、最大</param>
+    /// <returns></returns>
     public class AllignedOBB
     {
         public Vector3 Center{get;}
         public Vector3[] Axis {get;}
-        public Vector3[] Size {get;}
+        public Vector3 Min { get;}
+        public Vector3 Max { get;}
         public Vector3[] Vertices {get;}
 
         public AllignedOBB(Transform transform, Vector3[] points)
         {
-            Vector3[] eigenVectors = new Vector3[]
+            Vector3[] eigenVectorsInWorld = new[] { transform.right, transform.up, transform.forward };
+            Vector3[] eigenVectors = new Vector3[eigenVectorsInWorld.Length];
+
+            for (int i = 0; i < eigenVectors.Length; i++)
             {
-                transform.worldToLocalMatrix.MultiplyVector(transform.right), 
-                transform.worldToLocalMatrix.MultiplyVector(transform.up), 
-                transform.worldToLocalMatrix.MultiplyVector(transform.forward)
-            };
+                eigenVectors[i] = transform.worldToLocalMatrix.MultiplyVector(eigenVectorsInWorld[i]);
+            }
             
-            (Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points);
-            
+            //ローカル座標軸で最小と最大を見つける
+            (Vector3 min, Vector3 max) = findMinAndMax(points);
+            //(Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points);
+
+            //ワールド座標軸で計算
+            Min = transform.localToWorldMatrix.MultiplyPoint(min);
+            Max = transform.localToWorldMatrix.MultiplyPoint(max);
+            //
             Vector3 origin = Vector3.zero;
             Vector3[] axis = new Vector3[3];
+            
             for (int i = 0; i < 3; i++)
             {
                 origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
-                axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
+                //localToWorldMatrix.MultiplyVectorはスケールの影響を受けない（常に長さが1になる）ので
+                //ワールド空間における各辺の大きさを計算して掛け合わせる
+                float distance = Vector3.Dot(Max - Min, eigenVectorsInWorld[i]);
+                axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i]) * distance;
+                //axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
             }
-
+            
+            Debug.Log($"{axis[0].magnitude}, {axis[1].magnitude}, {axis[2].magnitude}");
             Axis = axis;
             Center = transform.localToWorldMatrix.MultiplyPoint(origin);
             Vertices = CalculateVertices(Center, Axis);
-            Size = new Vector3[]{axis[0] * 0.5f, axis[1] * 0.5f, axis[2] * 0.5f};
-            // Debug.Log($"このオブジェクトの重心 : {Center}");
+        }
+
+        private (Vector3 min, Vector3 max) findMinAndMax(Vector3[] points)
+        {
+            Vector3 minPos = Vector3.zero;
+            Vector3 maxPos = Vector3.zero;
+            float minX = float.MaxValue, maxX = float.MinValue;
+            float minY = float.MaxValue, maxY = float.MinValue;
+            float minZ = float.MaxValue, maxZ = float.MinValue;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                minX = Mathf.Min(minX, points[i].x);
+                minY = Mathf.Min(minY, points[i].y);
+                minZ = Mathf.Min(minZ, points[i].z);
+                maxX = Mathf.Max(maxX, points[i].x);
+                maxY = Mathf.Max(maxY, points[i].y);
+                maxZ = Mathf.Max(maxZ, points[i].z);
+            }
+            
+            minPos = new Vector3(minX, minY, minZ);
+            maxPos = new Vector3(maxX, maxY, maxZ);
+            
+            return (minPos, maxPos);
         }
 
         private (Vector3 min, Vector3 max) CalculateSize(Vector3[] axis, Vector3[] points)
