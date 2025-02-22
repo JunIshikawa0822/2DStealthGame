@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Cysharp.Threading.Tasks.Triggers;
 using TreeEditor;
 using UnityEngine;
 using Unity.Mathematics;
@@ -1087,9 +1088,94 @@ namespace JunUtilities
         public OBB(Transform transform, Vector3[] points)
         {
             (Vector3[] eigenVectors, float[] eigenValues) = JunGeometry.CalculateEigens(points);
+            Debug.Log($"{transform.right}, {transform.up}, {transform.forward}");
+            Debug.Log($"{eigenVectors[0]}, {eigenVectors[1]}, {eigenVectors[2]}");
             
             //Vector3[] axis = JunGeometry.GramSchmidt(eigenVectors);
             (Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points); 
+            
+            Vector3 origin = Vector3.zero;
+            Vector3[] axis = new Vector3[3];
+            for (int i = 0; i < 3; i++)
+            {
+                origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
+                axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
+            }
+
+            Axis = axis;
+            Center = transform.localToWorldMatrix.MultiplyPoint(origin);
+            Vertices = CalculateVertices(Center, Axis);
+            Size = new Vector3[]{axis[0] * 0.5f, axis[1] * 0.5f, axis[2] * 0.5f};
+            // Debug.Log($"このオブジェクトの重心 : {Center}");
+        }
+
+        private (Vector3 min, Vector3 max) CalculateSize(Vector3[] axis, Vector3[] points)
+        {
+            Vector3 center = JunGeometry.Centroid(points);
+            Vector3 minPos = Vector3.zero;
+            Vector3 maxPos = Vector3.zero;
+
+            for (int i = 0; i < axis.Length; i++)
+            {
+                float min = float.MaxValue;
+                float max = float.MinValue;
+
+                foreach (Vector3 point in points)
+                {
+                    //固有ベクトル　＝　軸に各点を投影し、大きさを比べる
+                    //主成分分析でも同じ考え方だったね
+                    float projection = JunMath.VectorDot(point - center, axis[i]);
+                    min = Mathf.Min(min, projection);
+                    max = Mathf.Max(max, projection);
+                }
+
+                //size[i] = max - min; // 各軸のサイズを格納
+                minPos[i] = min;
+                maxPos[i] = max;
+            }
+
+            return (minPos, maxPos);
+        }
+
+        private Vector3[] CalculateVertices(Vector3 center, Vector3[] axis)
+        {
+            Vector3 halfSizeX = axis[0] * 0.5f; // X軸方向の半分のサイズ
+            Vector3 halfSizeY = axis[1] * 0.5f; // Y軸方向の半分のサイズ
+            Vector3 halfSizeZ = axis[2] * 0.5f; // Z軸方向の半分のサイズ
+
+            Vector3[] vertices = new Vector3[8];
+
+            // 各頂点を計算
+            vertices[0] = center - halfSizeX - halfSizeY - halfSizeZ; // (-X, -Y, -Z)
+            vertices[1] = center + halfSizeX - halfSizeY - halfSizeZ; // (+X, -Y, -Z)
+            vertices[2] = center - halfSizeX + halfSizeY - halfSizeZ; // (-X, +Y, -Z)
+            vertices[3] = center + halfSizeX + halfSizeY - halfSizeZ; // (+X, +Y, -Z)
+            vertices[4] = center - halfSizeX - halfSizeY + halfSizeZ; // (-X, -Y, +Z)
+            vertices[5] = center + halfSizeX - halfSizeY + halfSizeZ; // (+X, -Y, +Z)
+            vertices[6] = center - halfSizeX + halfSizeY + halfSizeZ; // (-X, +Y, +Z)
+            vertices[7] = center + halfSizeX + halfSizeY + halfSizeZ; // (+X, +Y, +Z)
+
+            return vertices;
+        }
+    }
+
+    public class AllignedOBB
+    {
+        public Vector3 Center{get;}
+        public Vector3[] Axis {get;}
+        public Vector3[] Size {get;}
+        public Vector3[] Vertices {get;}
+
+        public AllignedOBB(Transform transform, Vector3[] points)
+        {
+            Vector3[] eigenVectors = new Vector3[]
+            {
+                transform.worldToLocalMatrix.MultiplyVector(transform.right), 
+                transform.worldToLocalMatrix.MultiplyVector(transform.up), 
+                transform.worldToLocalMatrix.MultiplyVector(transform.forward)
+            };
+            
+            (Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points);
             
             Vector3 origin = Vector3.zero;
             Vector3[] axis = new Vector3[3];

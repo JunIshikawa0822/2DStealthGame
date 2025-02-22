@@ -142,11 +142,11 @@ public class PlayerRayMarching : MonoBehaviour
         
         Vector3[] debugArray1 = new Vector3[1];
         _debugBuffer1.GetData(debugArray1);
-        Debug.Log(debugArray1[0]);
+        // Debug.Log(debugArray1[0]);
         
         Vector3[] debugArray2 = new Vector3[_rayCount];
         _debugBuffer2.GetData(debugArray2);
-        Debug.Log(string.Join(", ", debugArray2));
+        // Debug.Log(string.Join(", ", debugArray2));
         
         return uniqueResultArray;
     }

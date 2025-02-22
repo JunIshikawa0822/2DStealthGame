@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using JunUtilities;
 using System.Linq;
+using NUnit.Framework.Internal;
 
 public class StageObject : MonoBehaviour
 {
@@ -71,9 +72,17 @@ public class StageObject : MonoBehaviour
         
         playerRayMarching.OnSetUp();
         
-        OBB testObb = new OBB(test, test.GetComponent<MeshFilter>().mesh.vertices);
+        if(test == null)return;
+        // 一度だけコピー
+        Mesh tempMesh = Instantiate(test.GetComponent<MeshFilter>().mesh);
+        // 頂点データ取得
+        Vector3[] testMeshVertices = tempMesh.vertices;
+        AllignedOBB testObb = new AllignedOBB(test, testMeshVertices);
+        //OBB testObb = new OBB(test, testMeshVertices);
+        Debug.Log(testObb.Center);
         _obbVertices = testObb.Vertices;
-
+        
+        Destroy(tempMesh);
     }
 
     private void Update()
@@ -233,6 +242,7 @@ public class StageObject : MonoBehaviour
             {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
         };
         
+        if(_obbVertices.Length < 1) return;
         for (int i = 0; i < edges.GetLength(0); i++)
         {
             Gizmos.DrawLine(_obbVertices[edges[i, 0]], _obbVertices[edges[i, 1]]);

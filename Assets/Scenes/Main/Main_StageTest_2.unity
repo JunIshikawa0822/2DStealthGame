@@ -15738,7 +15738,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 899369123}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: StaticObjectParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30954,7 +30954,7 @@ GameObject:
   - component: {fileID: 1852455809}
   - component: {fileID: 1852455808}
   - component: {fileID: 1852455807}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

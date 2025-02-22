@@ -11,8 +11,7 @@ public abstract class AGun : MonoBehaviour, IObject
     // public IGunData GunData{get => _gunData; set => _gunData = value;}
     protected float _muzzleVelocity = 700f;
     protected float _shotInterval = 0.5f;
-    protected uint _maxAmmoNum;
-    protected string _gunName;
+    //protected uint _maxAmmoNum;
     protected float _reloadTime;
     protected IObjectPool _objectPool;
     protected I_Data_Gun _gun_Data;
@@ -27,8 +26,7 @@ public abstract class AGun : MonoBehaviour, IObject
     public abstract Entity_Magazine Magazine{get;}
     public float ReloadTime{get => _reloadTime;}
     public float ShotInterval{get => _shotInterval;}
-    public string Name {get => _gunName;}
-    public uint MaxAmmoNum{get => _maxAmmoNum;}
+    //public uint MaxAmmoNum{get => _maxAmmoNum;}
 
     public virtual void OnSetUp(IObjectPool objectPool)
     {
@@ -41,7 +39,7 @@ public abstract class AGun : MonoBehaviour, IObject
         _shotInterval = data.ShotInterval;
         _muzzleVelocity = data.ShotVelocity;
 
-        _maxAmmoNum = data.MaxAmmoNum;
+        // _maxAmmoNum = data.MaxAmmoNum;
 
         _gun_Data = data;
     }
