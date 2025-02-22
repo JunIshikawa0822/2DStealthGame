@@ -88,7 +88,7 @@ public class PlayerRayMarching : MonoBehaviour
     }
     
     /// <param name="objectDataArray">衝突比較を行うオブジェクトのデータ</param>
-    public int[] OnRayMarchingUpdate((Transform transform, int objType, OBB obb)[] objectDataArray)
+    public int[] OnRayMarchingUpdate((Transform transform, int objType, AllignedOBB obb)[] objectDataArray)
     {
         // gameObjectBufferがすでに存在する場合は解放
         if (_objectBuffer != null)
@@ -151,7 +151,7 @@ public class PlayerRayMarching : MonoBehaviour
         return uniqueResultArray;
     }
     
-    private Object ConstructObjectData((Transform transform, int objType, OBB obb) objectData)
+    private Object ConstructObjectData((Transform transform, int objType, AllignedOBB obb) objectData)
     {
         int type = objectData.objType;
         Vector3 center = Vector3.zero;

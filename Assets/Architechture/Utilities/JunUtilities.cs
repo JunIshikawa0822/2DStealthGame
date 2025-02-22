@@ -844,6 +844,171 @@ namespace JunUtilities
             }
         }
     }
+    
+    ///<summary> 汎用性を上げたAABB3DTree</summary>
+    /// <typeparam name="T">保存したい情報のタプル</typeparam>
+    public class AABB3DTree<T>
+    {
+        public TreeNode3D<T> rootNode;
+
+        public AABB3DTree<T> BuildTree(List<(AABB3D bounds, T Info)> objects)
+        {
+            rootNode = BuildNode(objects);
+            return this;
+        }
+
+        private TreeNode3D<T> BuildNode(List<(AABB3D bounds, T Info)> objects)
+        {
+            if (objects == null) return null;
+            if (objects.Count == 0) return null;
+            // 単一要素ならリーフノードを作成
+            if (objects.Count == 1)
+            {
+                return new TreeNode3D<T>
+                {
+                    Bounds = objects[0].bounds, 
+                    
+                    InformationTuple = objects[0].Info
+                };
+            }
+            //Debug.Log("ノード作成");
+            //1.全てくっつける
+            AABB3D combineAllBounds = new AABB3D(objects[0].bounds);
+            //全部結合する
+            foreach ((AABB3D bounds, T Info) obj in objects)
+            {
+                combineAllBounds = combineAllBounds.Merge(obj.bounds);
+            }
+            
+            //2. 一番でかいBoundingBoxにおける一番長い辺を探す
+            Vector3 size = combineAllBounds.Max - combineAllBounds.Min;
+            int longestAxis = 0;
+            if (size.x >= size.y && size.x >= size.z) longestAxis = 0;
+            if (size.y >= size.x && size.y >= size.z) longestAxis = 1; // y軸が最長
+            else longestAxis = 2; // z軸が最長
+            
+            //Debug.Log(longestAxis);
+            //Debug.Log($"ソート前 : {string.Join(",", objects.Select(item => item.transform.name))}");
+            //3. 長い辺（軸）にそってソート
+            objects.Sort((a, b) => a.bounds.Center[longestAxis].CompareTo(b.bounds.Center[longestAxis]));
+            
+            //Debug.Log($"ソート後 : {string.Join(",", objects.Select(item => item.transform.name))}");
+
+            //4. 分割してリスト再作成
+            int midIndex = objects.Count / 2;
+            List<(AABB3D bounds, T Info)> leftObjects = objects.GetRange(0, midIndex);
+            List<(AABB3D bounds, T Info)> rightObjects = objects.GetRange(midIndex, objects.Count - midIndex);
+            
+            //5. ノードを作る
+            TreeNode3D<T> node = new TreeNode3D<T> { Bounds = combineAllBounds};
+            //再帰
+            //Debug.Log("左ノード");
+            node.Left = BuildNode(leftObjects);
+            //Debug.Log("右ノード");
+            node.Right = BuildNode(rightObjects);
+            
+            if (node.Left != null) node.Left.Parent = node;
+            if (node.Right != null) node.Right.Parent = node;
+
+            return node;
+        }
+        ///<summary> ///frustramBoundsと交差する全てのBoundsとそのTransformをリストにして返す ///</summary>
+        public List<(AABB3D bounds, T Info)> GetIntersectAABB3D(AABB3D frustumBounds)
+        {
+            List<(AABB3D bounds, T Info)> result = new List<(AABB3D bounds, T Info)>();
+            IntersectAABB3DSearch(rootNode, frustumBounds, result);
+            return result;
+        }
+
+        public List<TreeNode3D<T>> GetIntersectNode(AABB3D frustumBounds)
+        {
+            return IntersectNodeSearch(rootNode, frustumBounds);
+        }
+
+        private List<TreeNode3D<T>> IntersectNodeSearch(TreeNode3D<T> node, AABB3D frustumBounds)
+        {
+            List<TreeNode3D<T>> intersectedNodes = new List<TreeNode3D<T>>();
+
+            if (node == null) return intersectedNodes;
+
+            // AABB が視錐台の境界と交差しているか？
+            if (node.Bounds.Intersects(frustumBounds))
+            {
+                // リーフノードならこのノードをリストに追加
+                if (node.Left == null && node.Right == null)
+                {
+                    intersectedNodes.Add(node); // Nodeそのものを追加
+                }
+                else
+                {
+                    // 左右の子ノードを再帰的に探索
+                    intersectedNodes.AddRange(IntersectNodeSearch(node.Left, frustumBounds));
+                    intersectedNodes.AddRange(IntersectNodeSearch(node.Right, frustumBounds));
+                }
+            }
+
+            return intersectedNodes; // 交差したノードのリストを返す
+        }
+
+        ///<summary> ///frustramBoundsと交差する全てのBoundsをさがしてくる ///</summary>
+        private void IntersectAABB3DSearch(TreeNode3D<T> node, AABB3D frustumBounds, List<(AABB3D bounds, T Info)> result)
+        {
+            if (node == null) return;
+
+            // AABB が視錐台の境界と交差しているか？
+            if (node.Bounds.Intersects(frustumBounds))
+            {
+                // リーフノードならリストに追加
+                if (node.Left == null && node.Right == null)
+                {
+                    result.Add((node.Bounds, node.InformationTuple));
+                }
+                else
+                {
+                    // 再帰的に探索
+                    IntersectAABB3DSearch(node.Left, frustumBounds, result);
+                    IntersectAABB3DSearch(node.Right, frustumBounds, result);
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Tにはタプル
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class TreeNode3D<T>
+    {
+        public AABB3D Bounds; //ノードのバウンディングボックス
+        public TreeNode3D<T> Left; // 左の子ノード
+        public TreeNode3D<T> Right; // 右の子ノード
+        public TreeNode3D<T> Parent; //親のノード
+        public T InformationTuple;
+        
+        public TreeNode3D()
+        {
+            Left = null;
+            Right = null;
+            Parent = null;
+        }
+
+        public TreeNode3D(AABB3D aabb)
+        {
+            Bounds = new AABB3D(aabb.Min, aabb.Max);
+            Left = null;
+            Right = null;
+            Parent = null;
+        }
+
+        public TreeNode3D(Bounds bounds)
+        {
+            Bounds = new AABB3D(bounds.min, bounds.max);
+            Left = null;
+            Right = null;
+            Parent = null;
+            //ObjectId = -1;
+        }
+    }
     /// <summary>
     /// 静的オブジェクトの管理に適したTree 動的な追加は考慮されない
     /// </summary>
@@ -1078,6 +1243,10 @@ namespace JunUtilities
             return (Max.x - Min.x) * (Max.y - Min.y) * (Max.z - Min.z);
         }
     }
+    
+    //オブジェクトの回転に合わせたバウンディングボックス
+    //下にあるAllignedOBBの方が僕向きに改造してあるのであんま使わなそう
+    //わざわざ3次方程式の解を調べたり固有ベクトル計算したのに...
     public class OBB
     {
         public Vector3 Center{get;}
@@ -1160,7 +1329,7 @@ namespace JunUtilities
     }
 
     /// <summary>
-    /// オブジェクトのtransformを使用したOOB
+    /// オブジェクトのtransformを使用したOOB　いい感じ
     /// </summary>
     /// <param name="Center">重心</param>
     /// <param name="Axis">OBBの軸と大きさを兼ねたベクトル</param>
@@ -1187,31 +1356,36 @@ namespace JunUtilities
             
             //ローカル座標軸で最小と最大を見つける
             (Vector3 min, Vector3 max) = findMinAndMax(points);
-            //(Vector3 min, Vector3 max) = CalculateSize(eigenVectors, points);
 
             //ワールド座標軸で計算
             Min = transform.localToWorldMatrix.MultiplyPoint(min);
             Max = transform.localToWorldMatrix.MultiplyPoint(max);
-            //
-            Vector3 origin = Vector3.zero;
+            //Vector3 origin = Vector3.zero;
             Vector3[] axis = new Vector3[3];
             
             for (int i = 0; i < 3; i++)
             {
-                origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
+                //origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
                 //localToWorldMatrix.MultiplyVectorはスケールの影響を受けない（常に長さが1になる）ので
                 //ワールド空間における各辺の大きさを計算して掛け合わせる
                 float distance = Vector3.Dot(Max - Min, eigenVectorsInWorld[i]);
                 axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i]) * distance;
                 //axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
             }
+            //Debug.Log($"{axis[0].magnitude}, {axis[1].magnitude}, {axis[2].magnitude}");
             
-            Debug.Log($"{axis[0].magnitude}, {axis[1].magnitude}, {axis[2].magnitude}");
             Axis = axis;
-            Center = transform.localToWorldMatrix.MultiplyPoint(origin);
+            // foreach (Vector3 point in points)
+            // {
+            //     origin += point;
+            // }
+            //Center = transform.localToWorldMatrix.MultiplyPoint(origin / points.Length);
+            //重心はメッシュの偏りに対して無力なので、普通に最大と最小の間を中心としよう...
+            Center = (Min + Max) * 0.5f;
             Vertices = CalculateVertices(Center, Axis);
         }
 
+        //ローカル空間で最小と最大を探す
         private (Vector3 min, Vector3 max) findMinAndMax(Vector3[] points)
         {
             Vector3 minPos = Vector3.zero;
