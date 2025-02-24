@@ -16,7 +16,7 @@ public class Item_GUI_CreateConcreteFactory : IFactory
         onPointerDownAction += pDown;
         onPointerUpAction += pUp;
     }
-
+    
     public IObject ObjectInstantiate()
     {
         Item_GUI newGUI = GameObject.Instantiate(_item_GUI);

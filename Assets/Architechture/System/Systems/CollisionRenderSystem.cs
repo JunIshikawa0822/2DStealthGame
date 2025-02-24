@@ -124,7 +124,15 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         }
         
         //if(objectDataArray.Length < 1) return;
-        _playerRayMarching.OnRayMarchingUpdate(objectDataArray);
+        int[] hitDynamicObjects = _playerRayMarching.OnRayMarchingUpdate(objectDataArray).Where(index => index > 0 && index >= staticIntersectNodes.Count).ToArray();
+        
+        List<string> hitDynamicObjectNames = new List<string>();
+        for (int i = 0; i < hitDynamicObjects.Length; i++)
+        {
+            int index = hitDynamicObjects[i];
+            hitDynamicObjectNames.Add(objectDataArray[index].transform.name);
+        }
+        Debug.Log(string.Join(", ", hitDynamicObjectNames));
     }
 
     // public List<(AABB3D bounds, OBB orientedBounds, Transform transform)> GetStaticObjectList(Transform staticObjectParent)

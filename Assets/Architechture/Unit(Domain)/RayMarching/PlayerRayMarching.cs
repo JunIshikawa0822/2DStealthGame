@@ -133,7 +133,7 @@ public class PlayerRayMarching : MonoBehaviour
         
         //結果を受け取る
         int[] resultArray = new int[_rayCount];
-        Debug.Log(_outputBuffer);
+        // Debug.Log(_outputBuffer);
         _outputBuffer.GetData(resultArray);
         int[] uniqueResultArray = JunExpandUnityClass.ConvertToUniqueArray(resultArray);
         //Debug.Log($"このフレームで、({string.Join(", ", uniqueResultArray)})とぶつかっている");
@@ -198,7 +198,7 @@ public class PlayerRayMarching : MonoBehaviour
             Gizmos.DrawLine(from, to);
         }
         
-        Debug.Log("うごく");
+        // Debug.Log("うごく");
         Gizmos.color = Color.green; // 緑色で描画
         Gizmos.DrawWireCube(_cameraBounds.center, _cameraBounds.size);
         //Gizmos.DrawWireCube(_cameraAABB3D.Center, _cameraAABB3D.Size);

@@ -205,9 +205,11 @@ public class Item_GUI : A_Item_GUI, IObject
     public override void OnPointerEnter(PointerEventData pointerEventData)
     {
         //説明文表示もしたい
-        if(_inventoryItem.Data.IsClickUse)_useButton.gameObject.SetActive(true);
-
         base.OnPointerEnter(pointerEventData);
+        
+        if(!_inventoryItem.Data.IsClickUse)return;
+        //2秒後もマウスが乗っていたら
+        _useButton.gameObject.SetActive(true);
     }
 
     public override void OnPointerExit(PointerEventData pointerEventData)

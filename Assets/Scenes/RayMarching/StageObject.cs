@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using JunUtilities;
 using System.Linq;
-using NUnit.Framework.Internal;
 
 public class StageObject : MonoBehaviour
 {
@@ -154,17 +153,28 @@ public class StageObject : MonoBehaviour
             objectDataArray[intersectNodes.Count + i] = (dynamicObjectsInCamera[i], 0, null);
         }
         
+        // Debug.Log($"静的オブジェクトの数 : {intersectNodes.Count}");
         playerRayMarching.OnRayMarchingUpdate(objectDataArray);
-        // Debug.Log(
-        //     string.Join((","), 
-        //         intersectNodes
-        //             .Where(item => item != null && item.Transform != null)
-        //             .Select(item => item.Transform)));
-        // Debug.Log(
-        //     string.Join((","), 
-        //         intersectNodes
-        //             .Where(item => item != null && item.OrientedBounds != null)
-        //             .Select(item => item.OrientedBounds.Center)));
+
+        int[] hitDynamicObjects = playerRayMarching.OnRayMarchingUpdate(objectDataArray).Where(index => index > 0 && index >= intersectNodes.Count).ToArray();
+        Debug.Log($"このフレームで、({string.Join(", ", hitDynamicObjects)})とぶつかっているよ");
+        //.Where(index => index >= intersectNodes.Count).ToArray();
+        List<string> hitDynamicObjectNames = new List<string>();
+        for (int i = 0; i < hitDynamicObjects.Length; i++)
+        {
+            int index = hitDynamicObjects[i];
+            hitDynamicObjectNames.Add(objectDataArray[index].transform.name);
+        }
+        Debug.Log(string.Join(", ", hitDynamicObjectNames));
+        //
+        // List<string> allObjectNames = new List<string>();
+        // for (int i = 0; i < objectDataArray.Length; i++)
+        // {
+        //     // Debug.Log(i);
+        //     allObjectNames.Add(objectDataArray[i].transform.name);
+        // }
+        //
+        // Debug.Log(string.Join(", ", allObjectNames));
     }
 
     public void OnDrawGizmos()

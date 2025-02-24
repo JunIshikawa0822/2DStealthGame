@@ -33,9 +33,6 @@ public class PlayerController : AEntity
     [SerializeField] WeaponStorage _weaponStorage1;
     [SerializeField] WeaponStorage _weaponStorage2;
     [SerializeField] NormalStorage _playerStorage;
-    //private AGun[] _playerGunsArray;
-    //private int _selectingGunsArrayIndex;
-    //private CompositeDisposable _disposablesByLifeCycle;
 
     [HideInInspector]public Action<IStorage> storageFindEvent;
     [HideInInspector]public Action leaveStorageEvent;
@@ -52,10 +49,6 @@ public class PlayerController : AEntity
     {
         Vector3 velocity = new Vector3(inputDirection.x, 0, inputDirection.y); // 上下のキー入力からZ軸方向の移動量を取得
         transform.localPosition += velocity * _playerMoveForce * Time.fixedDeltaTime;
-        //Debug.Log("移動");
-        //移動
-        //_entityRigidbody.velocity = new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce;
-        //_entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
     }
 
     public void Rotate(Vector3 mouseWorldPosition)
@@ -145,25 +138,6 @@ public class PlayerController : AEntity
         Entity_Magazine magazine = new Entity_Magazine(bulletCapacity, reloadNum + bulletRemain);
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
     }
-
-    // public void Reload(int gunIndex)
-    // {
-    //     if(_isEntityActionInterval)return;
-    //
-    //     AGun gun = _playerGunArray[gunIndex];
-    //
-    //     if(gun == null) return;
-    //     if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
-    //
-    //
-    //     uint max = gun.MaxAmmoNum;
-    //     uint current = gun.MaxAmmoNum;
-    //
-    //     Debug.Log(max + "," + current);
-    //     Entity_Magazine magazine = new Entity_Magazine(max, current);
-    //
-    //     EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
-    // }
 
     public void EquipMotion(AGun gun)
     {
