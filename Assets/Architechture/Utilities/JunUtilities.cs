@@ -405,7 +405,7 @@ namespace JunUtilities
             float n1 = CoVariance(xArray, yArray);
             float n2 = CoVariance(xArray, zArray);
             float n3 = CoVariance(yArray, zArray);
-
+            
             float a = -1;
             float b = a1 + a2 + a3;
             float c = -(a1 * a2 + a2 * a3 + a3 * a1 - n2 * n2 - n3 * n3 - n1 * n1);
@@ -1183,10 +1183,18 @@ namespace JunUtilities
             Max = bounds.max;
         }
 
-        public AABB3D(Vector3 min, Vector3 max)
+        public AABB3D(Vector3 a, Vector3 b)
         {
-            Min = min;
-            Max = max;
+            float minX = Mathf.Min(a.x, b.x);
+            float minY = Mathf.Min(a.y, b.y);
+            float minZ = Mathf.Min(a.z, b.z);
+            
+            float maxX = Mathf.Max(a.x, b.x);
+            float maxY = Mathf.Max(a.y, b.y);
+            float maxZ = Mathf.Max(a.z, b.z);
+
+            Min = new Vector3(minX, minY, minZ);
+            Max = new Vector3(maxX, maxY, maxZ);
         }
 
         public AABB3D(AABB3D aabb)
@@ -1343,6 +1351,7 @@ namespace JunUtilities
         public Vector3 Min { get;}
         public Vector3 Max { get;}
         public Vector3[] Vertices {get;}
+        public Vector3 Size {get;}
 
         public AllignedOBB(Transform transform, Vector3[] points)
         {
@@ -1375,6 +1384,7 @@ namespace JunUtilities
             //Debug.Log($"{axis[0].magnitude}, {axis[1].magnitude}, {axis[2].magnitude}");
             
             Axis = axis;
+            Size = new Vector3(axis[0].magnitude, axis[1].magnitude, axis[2].magnitude);
             // foreach (Vector3 point in points)
             // {
             //     origin += point;
@@ -1457,6 +1467,166 @@ namespace JunUtilities
             vertices[7] = center + halfSizeX + halfSizeY + halfSizeZ; // (+X, +Y, +Z)
 
             return vertices;
+        }
+    }
+
+    public class RRTStar
+    {
+        private List<RRTSNode> _rrtsNodes;
+        //一定方向にどれだけ進むんだい
+        private float _stepDistance;
+        //効率的なノードにするために、近くのノードができた場合に対処する必要がある（Star）
+        //近くにあるノードを調べるために一定の範囲を設定しておく
+        //_stepLengthよりはちょい大きめがいいかも？
+        private float _neighborRadius;
+        //どこまで近づいたらごーるとするか
+        private float _thresholdDistance;
+
+        //線分との当たり判定　中身は外付けでいけるのでいいね
+        private Func<Vector3, Vector3, bool> _collideFunc;
+        public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance, Func<Vector3, Vector3, bool> collideFunc)
+        {
+            _stepDistance = stepDistance;
+            _neighborRadius = neighborRadius;
+            _thresholdDistance = thresholdDistance;
+            _collideFunc = collideFunc;
+            
+            _rrtsNodes = new List<RRTSNode>();
+        }
+
+        public List<Vector3> FindPath(Vector3 start, Vector3 goal)
+        {
+            _rrtsNodes.Add(new RRTSNode(start, null));
+            Debug.Log("順調");
+            Vector3 formerPoint = Vector3.zero;
+            for (int i = 0; i < 1000; i++) // 最大試行回数
+            {
+                //適当な点を取ってくる
+                Vector3 randomPoint = formerPoint + GetRandomPoint(-10.0f, 10.0f);
+                //Debug.Log(randomPoint);
+                //これまで辿ってきたNodeのなかから適当な点と一番近い点のノードを選ぶ
+                RRTSNode nearestNode = GetNearestNode(randomPoint);
+                //ノードの点から適当な点の方向にある程度(stepLengthぶん)進める
+                Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
+                formerPoint = newPoint;
+                Debug.Log($"{newPoint} : {i}");
+                new GameObject().transform.position = newPoint;
+                //その線分にオブジェクトは当たっているか確認し、当たってないなら
+                if (IsCollide(nearestNode.Position, newPoint) == false)
+                {
+                    Debug.Log($"道がある1!!!!!!!");
+                    //そこを新しいNodeとする
+                    RRTSNode newNode = new RRTSNode(newPoint, nearestNode); // 新しいノードを作成
+                    _rrtsNodes.Add(newNode); 
+                    Debug.Log(newNode.Position);
+                    
+                    // 近傍ノードを探して最適化（近いノードがあったら省略しちゃおう）
+                    List<RRTSNode> neighbors = GetNeighborNodes(newNode);
+                    
+                    //近傍ノードまでの道に障害物がないか調べる
+                    foreach (RRTSNode neighborNode in neighbors)
+                    {
+                        if (IsCollide(newNode.Position, neighborNode.Position) == false)
+                        {
+                            //親を設定し直す
+                            Debug.Log($"道がある2");
+                            newNode.Parent = neighborNode; 
+                        }
+                    }
+                    
+                    // ゴールに近づいた！となったら経路を作成
+                    if (Vector3.Distance(newPoint, goal) < _thresholdDistance)
+                    {
+                        return ConstructPath(newNode); // 経路を再構築
+                    }
+                }
+            }
+
+            //無駄足
+            return null;
+        }
+        
+        private bool IsCollide(Vector3 start, Vector3 end)
+        {
+            return _collideFunc(start, end);
+        }
+        
+        private RRTSNode GetNearestNode(Vector3 point)
+        {
+            RRTSNode nearestNode = null;
+            float minDistance = float.MaxValue;
+
+            foreach (RRTSNode node in _rrtsNodes)
+            {
+                //Nodeに入っている各点データとの距離
+                float distance = Vector3.Distance(node.Position, point);
+                
+                //近いものをえらぶ
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestNode = node; // 最も近いノードを更新
+                }
+            }
+
+            return nearestNode; // 最も近いノードを返す
+        }
+        
+        private Vector3 GetRandomPoint(float min, float max)
+        {
+            // ランダムなポイントを生成
+            return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max)); // 適宜範囲を調整
+        }
+        
+        //適当な点に向かって一定の長さだけ歩みを進める処理
+        private Vector3 VectorStep(Vector3 from, Vector3 to)
+        {
+            Vector3 direction = (to - from).normalized; // 方向を計算
+            return from + direction * _stepDistance; // 新しいポイントを計算
+        }
+
+        private List<RRTSNode> GetNeighborNodes(RRTSNode node)
+        {
+            List<RRTSNode> neighbors = new List<RRTSNode>();
+
+            foreach (RRTSNode rrtsNode in _rrtsNodes)
+            {
+                //近いか判定
+                if (Vector3.Distance(rrtsNode.Position, node.Position) < _neighborRadius)
+                {
+                    neighbors.Add(rrtsNode); // 近傍ノードとして追加
+                }
+            }
+
+            return neighbors; // 近傍ノードのリストを返す
+        }
+        
+        private List<Vector3> ConstructPath(RRTSNode endNode)
+        {
+            List<Vector3> path = new List<Vector3>();
+            RRTSNode currentNode = endNode;
+
+            //さかのぼっていく（最初のNodeはかならず親がnullのはず）
+            while (currentNode != null)
+            {
+                path.Add(currentNode.Position); // 経路を構築
+                currentNode = currentNode.Parent; // 親ノードを辿る
+            }
+            
+            path.Reverse(); // 逆順にして開始点からの経路にする
+            return path; // 経路を返す
+        }
+        
+        private class RRTSNode
+        {
+            public Vector3 Position;
+            public RRTSNode Parent;
+
+            public RRTSNode(Vector3 position, RRTSNode parent)
+            {
+                Position = position;
+                Parent = parent;
+            }
         }
     }
 }

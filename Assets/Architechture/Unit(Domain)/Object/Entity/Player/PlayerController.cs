@@ -84,15 +84,15 @@ public class PlayerController : AEntity
     {
         equipPos.SetPositionAndRotation(equipPos.position, this.transform.rotation);
 
-        Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
-        if(collides.Length > 0)
-        {
-            storageFindEvent?.Invoke(collides[0].GetComponent<NormalStorage>());
-        }
-        else
-        {
-            leaveStorageEvent?.Invoke();
-        }
+        // Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
+        // if(collides.Length > 0)
+        // {
+        //     storageFindEvent?.Invoke(collides[0].GetComponent<NormalStorage>());
+        // }
+        // else
+        // {
+        //     leaveStorageEvent?.Invoke();
+        // }
     }
 
     public void AttackStart(AGun gun)
@@ -178,9 +178,9 @@ public class PlayerController : AEntity
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        EntityHP.EntityDamage(damage);
 
-        Debug.Log(_entityHP.CurrentHp);
+        Debug.Log(EntityHP.CurrentHp);
 
         if(IsEntityDead())
         {

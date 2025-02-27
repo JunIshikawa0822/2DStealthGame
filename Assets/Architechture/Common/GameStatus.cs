@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using JunUtilities;
 
 [System.Serializable]
 public class GameStatus
@@ -95,14 +96,13 @@ public class GameStatus
     [Header("静的オブジェクト")] 
     public Transform staticObjectsParent;
 
+    public AABB3DTree<(Transform, AllignedOBB)> staticObjectTree;
+
     [Header("動的オブジェクト")] 
     public List<Transform> dynamicObjectList = new List<Transform>();
-
-#region  即席
+    
     [Header("Enemy")]
-    public Transform enemyParent;
     public List<AEnemy> enemyObjects = new List<AEnemy>();
-#endregion
 
     [Header("Facade")]
     public Transform gunInstanceParent;

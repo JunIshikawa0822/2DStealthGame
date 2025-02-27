@@ -65,9 +65,6 @@ public class StageObject : MonoBehaviour
             .ToList();
         _stageObjectTree.BuildTree(convertedList);
         
-        // OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
-        // _obbTestPoints = obbtest.Vertices;
-        
         _rotateEulerAngle = new Vector3(
             _camera.transform.rotation.eulerAngles.x,
             _camera.transform.rotation.eulerAngles.y,
@@ -90,6 +87,9 @@ public class StageObject : MonoBehaviour
         tests[2].position = testObb.Max;
         
         _obbVertices = testObb.Vertices;
+        
+        // OBB obbtest = new OBB(test, test.GetComponent<MeshFilter>().mesh.vertices);
+        // _obbVertices = obbtest.Vertices;
         
         Destroy(tempMesh);
     }

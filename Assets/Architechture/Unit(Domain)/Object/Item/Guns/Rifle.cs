@@ -38,12 +38,11 @@ public class Rifle : AGun
         _shotDisposable = new CompositeDisposable();
     }
 
-    public override void Init(I_Data_Gun data)
+    public override AGun Init(I_Data_Gun data)
     {
         base.Init(data);
 
-        if(!(data is I_Data_Rifle rifleData)) return;
-        
+        return this;
     }
 
     public void OnUpdate()

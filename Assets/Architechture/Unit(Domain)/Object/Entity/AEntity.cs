@@ -7,7 +7,7 @@ using System;
 
 public abstract class AEntity : MonoBehaviour
 {
-    protected Entity_HealthPoint _entityHP;
+    protected Entity_HealthPoint EntityHP { get; set; }
     //protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
@@ -25,7 +25,7 @@ public abstract class AEntity : MonoBehaviour
 
     public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint)
     {
-        _entityHP = entity_HealthPoint;
+        EntityHP = entity_HealthPoint;
 
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();
@@ -47,7 +47,7 @@ public abstract class AEntity : MonoBehaviour
     // }
     public virtual bool IsEntityDead()
     {
-        if(_entityHP.CurrentHp <= 0)return true;
+        if(EntityHP.CurrentHp <= 0)return true;
         return false;
     }
     public virtual void OnEntityDead()

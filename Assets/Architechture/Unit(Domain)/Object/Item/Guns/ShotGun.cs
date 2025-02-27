@@ -34,13 +34,17 @@ public class Shotgun : AGun
         _shotDisposable = new CompositeDisposable();
     }
 
-    public override void Init(I_Data_Gun data)
+    public override AGun Init(I_Data_Gun data)
     {
         base.Init(data);
 
-        if(!(data is I_Data_Shotgun shotgunData))return;
-        _simulNum = shotgunData.SimulNum;
-        _spreadAngle = shotgunData.SpreadAngle;
+        if (data is I_Data_Shotgun shotgunData)
+        {
+            _simulNum = shotgunData.SimulNum;
+            _spreadAngle = shotgunData.SpreadAngle;
+        }
+
+        return this;
     }
 
     public void OnUpdate()

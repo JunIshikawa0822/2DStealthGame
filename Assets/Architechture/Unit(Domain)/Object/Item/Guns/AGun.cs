@@ -40,7 +40,7 @@ public abstract class AGun : MonoBehaviour, IObject
         _referenceInventoryItem = inventoryItem;
     }
 
-    public virtual void Init(I_Data_Gun data)
+    public virtual AGun Init(I_Data_Gun data)
     {
         _reloadTime = data.ReloadTime;
         _shotInterval = data.ShotInterval;
@@ -49,6 +49,8 @@ public abstract class AGun : MonoBehaviour, IObject
         // _maxAmmoNum = data.MaxAmmoNum;
 
         _gun_Data = data;
+
+        return this;
     }
     //public abstract void OnUpdate();
     //撃った弾数をリアルタイムで反映させるためにデータを引き渡す

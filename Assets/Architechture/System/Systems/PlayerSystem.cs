@@ -151,8 +151,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         if(inventoryItem == null) return;
         if(!(inventoryItem.Data is I_Data_Gun gunData))return;
         
-        AGun gun = gameStat.gunFacade.GetGunInstance(inventoryItem.Data);
-        gun.Init(gunData);
+        AGun gun = gameStat.gunFacade.GetGunInstance(gunData).Init(gunData);
         gun.ReferenceSet(inventoryItem);
         gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, inventoryItem.StackingNum));
         gameStat.playerGunsArray[index] = gun;

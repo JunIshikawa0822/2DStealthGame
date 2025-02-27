@@ -3,7 +3,6 @@ using UnityEngine;
 
 public interface IEnemy
 {
-    public void OnSetUp(Entity_HealthPoint enemyHP);
     public void Move();
     public void Rotate();
     public void Attack();

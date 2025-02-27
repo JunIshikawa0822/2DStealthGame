@@ -62,6 +62,8 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             _camera.transform.rotation.eulerAngles.z);
         
         _playerRayMarching.OnSetUp();
+
+        gameStat.staticObjectTree = _staticObjectTree;
     }
 
     public void OnUpdate()
