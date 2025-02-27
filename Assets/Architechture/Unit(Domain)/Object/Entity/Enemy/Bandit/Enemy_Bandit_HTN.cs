@@ -43,8 +43,8 @@ public class Enemy_Bandit_HTN : AEnemy
     {
         _enemyMoveAlgorithm = enemyMoveAlgorithm;
         Debug.Log(_targetPos);
-        List<Vector3> points = _enemyMoveAlgorithm.FindPath(this.transform.position, _targetPos.position);
-        //Debug.Log(string.Join(", ", _enemyMoveAlgorithm.FindPath(this.transform.position, _targetPos.position)));
+        //List<Vector3> points = _enemyMoveAlgorithm.FindPath(this.transform.position, _targetPos.position);
+        //Debug.Log($"おりゃ{string.Join(", ", points)}");
     }
     
     public override void Rotate()

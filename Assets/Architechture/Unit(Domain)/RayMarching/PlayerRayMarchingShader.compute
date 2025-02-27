@@ -4,6 +4,8 @@
 // 定数バッファの定義
 #define OBJECT_TYPE_SPHERE 0
 #define OBJECT_TYPE_OBB 1
+#define OBJECT_TYPE_CYLINDER 2
+#define OBJECT_TYPE_CUBE 3
 
 // #define OBJECT_TYPE_BOX 2
 // #define OBJECT_TYPE_RECT 3
@@ -45,6 +47,19 @@ float SDF_Sphere(float3 rayPoint, float3 sphereCenter, float radius)
     return abs(length(sphereCenter - rayPoint) - radius);
 }
 
+float SDF_Cylinder(float3 rayPoint, float3 cylCenter, float3 cylAxis, float radius, float halfHeight)
+{
+    //axisはCylinderの軸
+    float3 axis = normalize(cylAxis);
+    float3 dist = rayPoint - cylCenter;
+    //軸に投影
+    float localD = dot(dist, axis);
+    float axialDist = max(abs(localD) - halfHeight, 0.0);
+    
+    float radialDist = length(dist - axis * localD) - radius;
+    return length(max(float2(radialDist, axialDist), 0.0));
+}
+
 float SDF_OBB(float3 rayPoint, float3 obbCenter, float3 axisX, float3 axisY, float3 axisZ)
 {
     // OBBのハーフサイズ（各軸の長さの半分）
@@ -78,6 +93,14 @@ float SceneSDF(float3 rayPos, out int nearestIndex)
             nowDist = SDF_Sphere(rayPos, obj.center, obj.axisX[0] * 0.5f);
         }
         else if (obj.type == OBJECT_TYPE_OBB)
+        {
+            nowDist = SDF_OBB(rayPos, obj.center, obj.axisX, obj.axisY, obj.axisZ);
+        }
+        else if (obj.type == OBJECT_TYPE_CYLINDER)
+        {
+            nowDist = SDF_Cylinder(rayPos, obj.center, obj.axisY, length(obj.axisX)/2, length(obj.axisY)/2);
+        }
+        else if (obj.type == OBJECT_TYPE_CUBE)
         {
             nowDist = SDF_OBB(rayPos, obj.center, obj.axisX, obj.axisY, obj.axisZ);
         }

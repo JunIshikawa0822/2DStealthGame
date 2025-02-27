@@ -18,7 +18,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     private float _enemy_Bandit_RotateSpeed;
 
     [SerializeField]
-    private TextMeshPro _statusText;
+    //private TextMeshPro _statusText;
 
     private bool isFighting;
 
@@ -45,10 +45,10 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     //public Action<AGun> onEnemyDeadEvent;
 
     //いずれはEnemyも生成した側で初期化することだけ留意
-    void Start()
-    {
-        OnSetUp(new Entity_HealthPoint(100, 100));
-    }
+    // void Start()
+    // {
+    //     OnSetUp(new Entity_HealthPoint(100, 100));
+    // }
 
     public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
     {
@@ -116,8 +116,8 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
             {
                 Rotate(); 
 
-                if(_currentTarget.Value == null)return;    
-                _statusText.transform.LookAt(_currentTarget.Value.position);
+                if(_currentTarget.Value == null)return;
+                //_statusText.transform.LookAt(_currentTarget.Value.position);
             }).AddTo(_disposablesByLifeCycle, this);
     }
 
@@ -126,20 +126,20 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
         switch(status)
         {
             case IBandit.BanditStatus.Usual : 
-                _statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
             
                 StartSearchAround(0.5f); 
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; 
                 _currentAction.Value = IBandit.BanditAction.Standing; 
                 break;
             case IBandit.BanditStatus.Warn : 
-                _statusText.text = $"<color=#{0xFF0000FF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFF0000FF:X}>{_currentStatus.Value.ToString()}</color>";
 
                 StartSearchAround(0.2f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Attacking;
                 break;
             case IBandit.BanditStatus.Caution : 
-                _statusText.text = $"<color=#{0xFFFF00FF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFFFF00FF:X}>{_currentStatus.Value.ToString()}</color>";
 
                 StartSearchAround(0.35f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; break;
@@ -286,7 +286,6 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
 
     public override void Equip(AGun gun)
     {
-        //Debug.Log("こんにちは！！！");
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
         EnemyGun = gun;

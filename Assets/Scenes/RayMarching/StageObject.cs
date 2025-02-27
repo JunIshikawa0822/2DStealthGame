@@ -86,7 +86,7 @@ public class StageObject : MonoBehaviour
         tests[1].position = testObb.Min;
         tests[2].position = testObb.Max;
         
-        _obbVertices = testObb.Vertices;
+        // _obbVertices = testObb.Vertices;
         
         // OBB obbtest = new OBB(test, test.GetComponent<MeshFilter>().mesh.vertices);
         // _obbVertices = obbtest.Vertices;
@@ -120,8 +120,9 @@ public class StageObject : MonoBehaviour
         
         //動的オブジェクト
         //カメラが交差しているモートン空間を取得
+        Debug.Log($"かめら : {_cameraAABB3D.Center}");
         int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _baseTrans.position, _dimensionLevel, _cellSize);
-        // Debug.Log(string.Join(",", intersectMortonSpaceNums));
+        Debug.Log(string.Join(",", intersectMortonSpaceNums));
         HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);
 
         //全ての動的オブジェクトに対して、カメラの交差しているモートン空間内にいるかどうかを確認、いたらリストに追加

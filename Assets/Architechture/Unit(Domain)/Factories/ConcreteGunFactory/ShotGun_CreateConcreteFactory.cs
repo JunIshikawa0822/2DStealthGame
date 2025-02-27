@@ -42,7 +42,6 @@ public class ShotGun_CreateConcreteFactory : ICustomizeFactory
         //gun.GunData = gunData;
         gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, gunData.MaxAmmoNum));
         
-
         return gun;
     }
 

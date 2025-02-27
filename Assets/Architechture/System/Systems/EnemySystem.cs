@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class EnemySystem : ASystem, IOnUpdate
 {
-    private float _enemyRadius = 0.5f;
+    private float _enemyRadius = 1;
     WorldState _worldState;
     public override void OnSetUp()
     {
@@ -15,15 +15,15 @@ public class EnemySystem : ASystem, IOnUpdate
         if(gameStat.enemyObjects.Count < 1) return;
         RRTStar moveAlgorithm = new RRTStar
         (
-            5,
-            10,
+            0.5f,
+            2,
             _enemyRadius,
             IsLineCollideWithStaticObject
         );
         
         foreach(AEnemy enemy in gameStat.enemyObjects)
         {
-            Debug.Log(enemy);
+            Debug.Log(enemy.transform.name); 
             enemy.OnSetUp(new Entity_HealthPoint(100, 100));
             enemy.gunReleaseAction += (AGun gun) => gameStat.gunFacade.ReturnGunInstance(gun);
             //enemy.onEntityDeadEvent += () => { };
@@ -40,7 +40,7 @@ public class EnemySystem : ASystem, IOnUpdate
     public void EquipGun(AEnemy enemy)
     {
         IInventoryItem[] weaponDataArray = enemy.WeaponStorage.GetItems();
-
+        // Debug.LogWarning(weaponDataArray[0].Data);
         if(weaponDataArray == null || weaponDataArray[0] == null)
         {
             Debug.LogWarning("武器のデータを入れてください");
@@ -50,8 +50,13 @@ public class EnemySystem : ASystem, IOnUpdate
         }
 
         if(!(weaponDataArray[0].Data is I_Data_Gun gunData)) return;
+        
+        // Debug.Log(enemy.transform.name);
         AGun enemyGun = gameStat.gunFacade.GetGunInstance(gunData).Init(gunData);
+        enemyGun.ReferenceSet(weaponDataArray[0]);
         enemy.Equip(enemyGun);
+        
+        enemy.GetComponent<MeshChangable>().OnSetUp();
     }
 
     public bool IsLineCollideWithStaticObject(Vector3 startPos, Vector3 endPos)

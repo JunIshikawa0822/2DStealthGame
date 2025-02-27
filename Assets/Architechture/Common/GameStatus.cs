@@ -101,6 +101,9 @@ public class GameStatus
     [Header("動的オブジェクト")] 
     public List<Transform> dynamicObjectList = new List<Transform>();
     
+    [Header("宝箱")]
+    public List<Transform> InteractableObjects = new List<Transform>();
+    
     [Header("Enemy")]
     public List<AEnemy> enemyObjects = new List<AEnemy>();
 
@@ -120,4 +123,5 @@ public class GameStatus
     [SerializeField] public int dimensionLevel;
     [SerializeField] public Transform mortonSpaceBaseTrans;
 
+    [SerializeField] public Transform[] testObjects;
 }

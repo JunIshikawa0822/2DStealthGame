@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using Cysharp.Threading.Tasks.Triggers;
-using TreeEditor;
 using UnityEngine;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using Matrix4x4 = UnityEngine.Matrix4x4;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -1502,23 +1497,24 @@ namespace JunUtilities
             for (int i = 0; i < 1000; i++) // 最大試行回数
             {
                 //適当な点を取ってくる
-                Vector3 randomPoint = formerPoint + GetRandomPoint(-10.0f, 10.0f);
-                //Debug.Log(randomPoint);
+                //Vector3 randomPoint = formerPoint + GetRandomPoint(-3.0f, 3.0f);
+                Vector3 randomPoint = GetRandomPoint(goal, 0.1f, -3.0f, 3.0f);
+                //Debug.Log($"{randomPoint}");
                 //これまで辿ってきたNodeのなかから適当な点と一番近い点のノードを選ぶ
                 RRTSNode nearestNode = GetNearestNode(randomPoint);
                 //ノードの点から適当な点の方向にある程度(stepLengthぶん)進める
-                Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
+                Vector3 newPoint = VectorStep(nearestNode.Position, formerPoint + randomPoint);
                 formerPoint = newPoint;
-                Debug.Log($"{newPoint} : {i}");
+                //Debug.Log($"{newPoint} : {i}");
                 new GameObject().transform.position = newPoint;
                 //その線分にオブジェクトは当たっているか確認し、当たってないなら
                 if (IsCollide(nearestNode.Position, newPoint) == false)
                 {
-                    Debug.Log($"道がある1!!!!!!!");
+                    //Debug.Log($"道がある1!!!!!!!");
                     //そこを新しいNodeとする
                     RRTSNode newNode = new RRTSNode(newPoint, nearestNode); // 新しいノードを作成
                     _rrtsNodes.Add(newNode); 
-                    Debug.Log(newNode.Position);
+                    // Debug.Log(newNode.Position);
                     
                     // 近傍ノードを探して最適化（近いノードがあったら省略しちゃおう）
                     List<RRTSNode> neighbors = GetNeighborNodes(newNode);
@@ -1529,13 +1525,17 @@ namespace JunUtilities
                         if (IsCollide(newNode.Position, neighborNode.Position) == false)
                         {
                             //親を設定し直す
-                            Debug.Log($"道がある2");
-                            newNode.Parent = neighborNode; 
+                            //Debug.Log($"道がある2");
+                            newNode.Parent = neighborNode;
                         }
                     }
-                    
-                    // ゴールに近づいた！となったら経路を作成
-                    if (Vector3.Distance(newPoint, goal) < _thresholdDistance)
+                     
+                    float x2 = (float)Math.Pow(Mathf.Abs(goal.x - newPoint.x), 2);
+                    float y2 = (float)Math.Pow(Mathf.Abs(goal.z - newPoint.z), 2);
+                    float distance = Mathf.Sqrt(x2 + y2);
+                    Debug.Log(distance);
+                    // 上から見てゴールに近づいた！となったら経路を作成
+                    if (Vector2.Distance(newPoint, goal) < _thresholdDistance)
                     {
                         return ConstructPath(newNode); // 経路を再構築
                     }
@@ -1576,6 +1576,18 @@ namespace JunUtilities
         {
             // ランダムなポイントを生成
             return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max)); // 適宜範囲を調整
+        }
+        
+        Vector3 GetRandomPoint(Vector3 goal, float goalBias, float min, float max)
+        {
+            if (UnityEngine.Random.value < goalBias)
+            {
+                return goal; // 10%の確率でゴールをサンプリング
+            }
+            else
+            {
+                return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max));
+            }
         }
         
         //適当な点に向かって一定の長さだけ歩みを進める処理

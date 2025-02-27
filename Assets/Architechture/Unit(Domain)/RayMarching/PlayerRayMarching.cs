@@ -172,6 +172,20 @@ public class PlayerRayMarching : MonoBehaviour
             axisY = objectData.obb.Axis[1];
             axisZ = objectData.obb.Axis[2];
         }
+        else if (objectData.objType == 2)
+        {
+            center = objectData.transform.position;
+            axisX = objectData.transform.right * objectData.transform.lossyScale.x;
+            axisY = objectData.transform.up * objectData.transform.lossyScale.y * 2;
+            axisZ = objectData.transform.forward * objectData.transform.lossyScale.z;
+        }
+        else if (objectData.objType == 3)
+        {
+            center = objectData.transform.position;
+            axisX = objectData.transform.right * objectData.transform.lossyScale.x;
+            axisY = objectData.transform.up * objectData.transform.lossyScale.y;
+            axisZ = objectData.transform.forward * objectData.transform.lossyScale.z;
+        }
             
         return new Object { type = type, center = center, axisX = axisX, axisY = axisY, axisZ = axisZ, padding = padding };
     }

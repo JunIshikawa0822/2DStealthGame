@@ -57,8 +57,11 @@ GameObject:
   - component: {fileID: 8689536052111602373}
   - component: {fileID: 9091182700678699573}
   - component: {fileID: 400189929717141808}
-  - component: {fileID: 5120579060530149792}
-  - component: {fileID: 6935899025275989315}
+  - component: {fileID: 7523503890164645257}
+  - component: {fileID: 6767335324042816230}
+  - component: {fileID: 9193937603705381831}
+  - component: {fileID: 8097528422645450}
+  - component: {fileID: 7629754567530620222}
   m_Layer: 0
   m_Name: Enemy_Bandit_HTN
   m_TagString: Untagged
@@ -76,7 +79,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -29.4, y: 1.950234, z: -3336.27}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalScale: {x: 1, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1872576372793797507}
@@ -91,7 +94,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886251293193327396}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &9091182700678699573
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -157,7 +160,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &5120579060530149792
+--- !u!114 &7523503890164645257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!54 &6767335324042816230
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -182,9 +197,9 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &6935899025275989315
+--- !u!114 &9193937603705381831
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -193,14 +208,54 @@ MonoBehaviour:
   m_GameObject: {fileID: 1886251293193327396}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f64deecf1bdd4fba98f8477ae4d1e7f, type: 3}
+  m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPos: {fileID: 0}
   _gunTrans: {fileID: 7766200569188714279}
-  _enemy_Bandit_RotateSpeed: 0
+  _enemy_Bandit_RotateSpeed: 500
+  isFighting: 0
   _enemyStorage: {fileID: 8928440547230266821}
   _enemyWeaponStorage: {fileID: 2860845596486801920}
+--- !u!114 &8097528422645450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _viewRadius: 10
+  _viewAngle: 60
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 768
+  meshResolution: 1
+  edgeResolveIterations: 4
+  edgeDstThreshold: 0.5
+  isTargetDisplayChange: 0
+  isDrawFieldOfView: 0
+  viewMeshFilter: {fileID: 0}
+--- !u!114 &7629754567530620222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0038a5f9930314fa1ab94e2c02a5296b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _testDataList:
+  - {fileID: 11400000, guid: 393570dbd8b504c1f992182bc528e512, type: 2}
 --- !u!1 &6394876782349269869
 GameObject:
   m_ObjectHideFlags: 0
