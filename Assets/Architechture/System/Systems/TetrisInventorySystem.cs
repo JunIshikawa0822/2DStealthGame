@@ -55,13 +55,15 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
 
     public void LoadStorage()
     {
+        Debug.Log($"{gameStat.activeStorageList.Count}");
         if (gameStat.activeStorageList.Count > 0)
         {
-            _otherStorage = gameStat.activeStorageList[0];
+            gameStat.otherStorage = gameStat.activeStorageList[0];
+            Debug.Log("いれた");
         }
         else
         {
-            _otherStorage = null;
+            gameStat.otherStorage = null;
         }
     }
 
@@ -86,6 +88,7 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
             gameStat.inventories[2].OpenInventory(gameStat.weaponStorages[0]);
             gameStat.inventories[3].OpenInventory(gameStat.weaponStorages[1]);
 
+            Debug.Log($"チェック : {gameStat.otherStorage == null}");
             if (gameStat.otherStorage == null)
             {
                 gameStat.inventories[1].gameObject.SetActive(false);

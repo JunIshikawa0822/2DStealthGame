@@ -120,24 +120,24 @@ public class PlayerController : AEntity
 
     public void Reload(AGun gun)
     {
-        Debug.Log("リロード");
+        //Debug.Log("リロード");
         if(_isEntityActionInterval)return;
 
-        Debug.Log("デバッグその1");
+        //Debug.Log("デバッグその1");
         if(gun == null)return;
         uint bulletRemain = gun.Magazine.MagazineRemaining;
         uint bulletCapacity = gun.Magazine.MagazineCapacity;
         
-        Debug.Log("デバッグその2");
+        //Debug.Log("デバッグその2");
         if(bulletRemain >= bulletCapacity) return;
 
-        Debug.Log(gun.Data.CaliberType);
+        //Debug.Log(gun.Data.CaliberType);
         IInventoryItem ammoItem = _playerStorage.FindItem<I_Data_Ammo>((I_Data_Ammo ammo) => ammo.CaliberType == gun.Data.CaliberType);
-        Debug.Log(ammoItem);
-        Debug.Log("デバッグその3");
+        //Debug.Log(ammoItem);
+        //Debug.Log("デバッグその3");
         if(ammoItem == null) return;
 
-        Debug.Log("リロードしている");
+        //Debug.Log("リロードしている");
         uint reloadNum = ammoItem.StackingNum >= bulletCapacity ? bulletCapacity - bulletRemain : ammoItem.StackingNum;
 
         ammoItem.StackingNum -= reloadNum;
@@ -217,7 +217,8 @@ public class PlayerController : AEntity
     public void OnTriggerEnter(Collider other)
     {
         Debug.Log("OnTriggerEnter");
-        if (other.CompareTag("Storage") && other.TryGetComponent(out IStorage storage))
+        Debug.Log(other.TryGetComponent<IStorage>(out IStorage some));
+        if (other.CompareTag("Storage") && other.TryGetComponent<IStorage>(out IStorage storage))
         {
             Debug.Log("Storageみつけた");
             storageFindAction?.Invoke(storage);
@@ -226,10 +227,10 @@ public class PlayerController : AEntity
     
     public void OnTriggerExit(Collider other)
     {
-        Debug.Log("OnTriggerEnter");
+        Debug.Log("OnTriggerExit");
         if (other.CompareTag("Storage") && other.TryGetComponent(out IStorage storage))
         {
-            Debug.Log("Storageみつけた");
+            Debug.Log("Storage離れた");
             storageLeaveAction?.Invoke(storage);
         }
     }
