@@ -113,7 +113,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         //int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
         int[] intersectMortonSpaceNums = JunGeometry.GetMortonNumbersFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
         HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);//含まれるかの処理のためHash化
-        Debug.Log(string.Join(", ", intersectMortonSpaceNums));
+        // Debug.Log(string.Join(", ", intersectMortonSpaceNums));
         
         //全ての動的オブジェクトに対して、カメラの交差しているモートン空間内にいるかどうかを確認、いたらリストに追加
         List<Transform> dynamicObjectsInCamera = new List<Transform>();
@@ -187,7 +187,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             change.EntityMeshAble();
             _oldMeshableList.Add(obj);
         }
-        Debug.Log(string.Join(", ", hitDynamicObjectNames));
+        // Debug.Log(string.Join(", ", hitDynamicObjectNames));
         
         
         #region モートン空間描画

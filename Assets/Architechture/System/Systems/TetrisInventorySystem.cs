@@ -32,6 +32,7 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         _otherStorage = gameStat.otherStorage;
         //_item_GUI_Prefab = gameStat.item_GUI;
 
+        gameStat.onInventoryActiveEvent += LoadStorage;
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         
         InventoryPanelActive(gameStat.isInventoryPanelActive);
@@ -49,6 +50,18 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
                 inventory.InsertAction += EquipmentInsert;
                 inventory.RemoveAction += EquipmentRemove;
             }
+        }
+    }
+
+    public void LoadStorage()
+    {
+        if (gameStat.activeStorageList.Count > 0)
+        {
+            _otherStorage = gameStat.activeStorageList[0];
+        }
+        else
+        {
+            _otherStorage = null;
         }
     }
 
@@ -72,9 +85,16 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
             gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
             gameStat.inventories[2].OpenInventory(gameStat.weaponStorages[0]);
             gameStat.inventories[3].OpenInventory(gameStat.weaponStorages[1]);
-            
-            if(gameStat.otherStorage == null)return;
-            gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
+
+            if (gameStat.otherStorage == null)
+            {
+                gameStat.inventories[1].gameObject.SetActive(false);
+            }
+            else
+            {
+                gameStat.inventories[1].gameObject.SetActive(true);
+                gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
+            }
         }
         else 
         {

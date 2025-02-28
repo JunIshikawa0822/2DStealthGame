@@ -23,7 +23,7 @@ public class EnemySystem : ASystem, IOnUpdate
         
         foreach(AEnemy enemy in gameStat.enemyObjects)
         {
-            Debug.Log(enemy.transform.name); 
+            // Debug.Log(enemy.transform.name); 
             enemy.OnSetUp(new Entity_HealthPoint(100, 100));
             enemy.gunReleaseAction += (AGun gun) => gameStat.gunFacade.ReturnGunInstance(gun);
             //enemy.onEntityDeadEvent += () => { };

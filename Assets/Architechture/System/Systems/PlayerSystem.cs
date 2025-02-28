@@ -8,6 +8,9 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public override void OnSetUp()
     {
         _player = gameStat.player;
+        _player.storageFindAction += StorageFind;
+        _player.storageLeaveAction += StorageLeave;
+        
         gameStat.playerGunsArray = new AGun[2];
         gameStat.selectingGunsArrayIndex = 0;
 
@@ -67,7 +70,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         if(gameStat.isInventoryPanelActive)
         {
-
+    
         }
         else
         {
@@ -172,5 +175,15 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         {
             _player.UnEquipMotion(gameStat.playerGunsArray[index]);
         }
+    }
+
+    public void StorageFind(IStorage storage)
+    {
+        gameStat.activeStorageList.Add(storage);
+    }
+    
+    public void StorageLeave(IStorage storage)
+    {
+        gameStat.activeStorageList.Remove(storage);
     }
 }

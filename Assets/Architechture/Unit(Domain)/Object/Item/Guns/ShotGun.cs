@@ -122,7 +122,7 @@ public class Shotgun : AGun
 
     public override void Reload(Entity_Magazine magazine)
     {
-        Debug.Log(this.gameObject.name + ":" + magazine);
+        // Debug.Log(this.gameObject.name + ":" + magazine);
         _magazine = magazine;
         
         if(_referenceInventoryItem == null) return;

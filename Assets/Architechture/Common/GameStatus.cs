@@ -50,6 +50,7 @@ public class GameStatus
     
     [Header("Player")]
     public PlayerController player;
+    public List<IStorage> activeStorageList = new List<IStorage>();
 
     [Header("EnemiesInfo")]
     public Enemy_Bandit_Controller bandit;

@@ -33,6 +33,9 @@ public class PlayerController : AEntity
     [SerializeField] WeaponStorage _weaponStorage1;
     [SerializeField] WeaponStorage _weaponStorage2;
     [SerializeField] NormalStorage _playerStorage;
+
+    public event Action<IStorage> storageFindAction;
+    public event Action<IStorage> storageLeaveAction;
     
     public override void OnSetUp(Entity_HealthPoint playerHP)
     {
@@ -120,13 +123,18 @@ public class PlayerController : AEntity
         Debug.Log("リロード");
         if(_isEntityActionInterval)return;
 
+        Debug.Log("デバッグその1");
         if(gun == null)return;
         uint bulletRemain = gun.Magazine.MagazineRemaining;
         uint bulletCapacity = gun.Magazine.MagazineCapacity;
         
+        Debug.Log("デバッグその2");
         if(bulletRemain >= bulletCapacity) return;
 
+        Debug.Log(gun.Data.CaliberType);
         IInventoryItem ammoItem = _playerStorage.FindItem<I_Data_Ammo>((I_Data_Ammo ammo) => ammo.CaliberType == gun.Data.CaliberType);
+        Debug.Log(ammoItem);
+        Debug.Log("デバッグその3");
         if(ammoItem == null) return;
 
         Debug.Log("リロードしている");
@@ -203,6 +211,26 @@ public class PlayerController : AEntity
             tokenSource.Dispose();
             tokenSource = null;
             _isEntityActionInterval = false;
+        }
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("OnTriggerEnter");
+        if (other.CompareTag("Storage") && other.TryGetComponent(out IStorage storage))
+        {
+            Debug.Log("Storageみつけた");
+            storageFindAction?.Invoke(storage);
+        }
+    }
+    
+    public void OnTriggerExit(Collider other)
+    {
+        Debug.Log("OnTriggerEnter");
+        if (other.CompareTag("Storage") && other.TryGetComponent(out IStorage storage))
+        {
+            Debug.Log("Storageみつけた");
+            storageLeaveAction?.Invoke(storage);
         }
     }
 }

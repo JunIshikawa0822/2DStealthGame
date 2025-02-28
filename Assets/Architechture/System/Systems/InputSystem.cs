@@ -33,7 +33,7 @@ public class InputSystem : ASystem, IOnPreUpdate
 
     public void OnPreUpdate()
     {
-        Debug.Log(_gameInputs);
+        // Debug.Log(_gameInputs);
         _cursorScreenPosition = _gameInputs.PlayerActionTest.CursorPosition.ReadValue<Vector2>();
 
         if(IsCursorRayHit(_cursorScreenPosition, out _rayCastHit))

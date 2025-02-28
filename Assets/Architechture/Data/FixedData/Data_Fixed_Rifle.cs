@@ -52,7 +52,7 @@ public class Data_Fixed_Rifle : A_Data_Fixed<Data_Fixed_Rifle>, I_Data_Rifle
 
     public override bool Equals(object obj)
     {
-        Debug.Log("比較");
+        // Debug.Log("比較");
         return Equals(obj as I_Data_Item);
     }
 
