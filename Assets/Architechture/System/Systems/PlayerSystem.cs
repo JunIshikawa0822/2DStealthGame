@@ -24,10 +24,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
         _player.OnSetUp(gameStat.playerHP);
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
-
-        _player.storageFindEvent += OnFindStorage;
-        _player.leaveStorageEvent += OnExitStorage;
-
+        
         gameStat.onPlayerAttackStartEvent += OnAttackStart;
         gameStat.onPlayerAttackingEvent += OnAttack;
         gameStat.onPlayerAttackEndEvent += OnAttackEnd;
@@ -175,15 +172,5 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         {
             _player.UnEquipMotion(gameStat.playerGunsArray[index]);
         }
-    }
-
-    public void OnFindStorage(IStorage storage)
-    {
-        gameStat.otherStorage = storage;
-    }
-
-    public void OnExitStorage()
-    {
-        gameStat.otherStorage = null;
     }
 }

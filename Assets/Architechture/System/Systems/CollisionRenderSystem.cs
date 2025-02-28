@@ -110,7 +110,8 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         List<TreeNode3D<(Transform, AllignedOBB)>> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D<(Transform, AllignedOBB)>>();
         
         //カメラが交差しているモートン空間
-        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
+        //int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
+        int[] intersectMortonSpaceNums = JunGeometry.GetMortonNumbersFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
         HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);//含まれるかの処理のためHash化
         Debug.Log(string.Join(", ", intersectMortonSpaceNums));
         
@@ -119,7 +120,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         for (int i = 0; i < _dynamicObjectList.Count; i++)
         {
             Transform dynamicTrans = _dynamicObjectList[i];
-            int mortonNum = JunGeometry.PosToMortonNumber(dynamicTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
+            int mortonNum = JunGeometry.PositionToMortonNumber(dynamicTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
             // Debug.Log(mortonNum);
             if (cameraMortonNums.Contains(mortonNum))
             {
@@ -131,14 +132,13 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         for (int i = 0; i < _InteractableObjectList.Count; i++)
         {
             Transform interactableTrans = _InteractableObjectList[i];
-            int mortonNum = JunGeometry.PosToMortonNumber(interactableTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
+            int mortonNum = JunGeometry.PositionToMortonNumber(interactableTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
             // Debug.Log(mortonNum);
             if (cameraMortonNums.Contains(mortonNum))
             {
                 interactableObjectsInCamera.Add(interactableTrans);
             }
         }
-        
         
         (Transform transform, int objType, AllignedOBB obb)[] objectDataArray = 
             new (Transform transform, int objType, AllignedOBB obb)[staticIntersectNodes.Count + dynamicObjectsInCamera.Count + interactableObjectsInCamera.Count];

@@ -33,9 +33,7 @@ public class PlayerController : AEntity
     [SerializeField] WeaponStorage _weaponStorage1;
     [SerializeField] WeaponStorage _weaponStorage2;
     [SerializeField] NormalStorage _playerStorage;
-
-    [HideInInspector]public Action<IStorage> storageFindEvent;
-    [HideInInspector]public Action leaveStorageEvent;
+    
     public override void OnSetUp(Entity_HealthPoint playerHP)
     {
         base.OnSetUp(playerHP);
@@ -205,33 +203,6 @@ public class PlayerController : AEntity
             tokenSource.Dispose();
             tokenSource = null;
             _isEntityActionInterval = false;
-        }
-    }
-
-    private void OnTriggerEnter(Collider collider)
-    {
-        Debug.Log("Storage見つけた");
-        if(collider.gameObject.tag == "Storage")
-        {
-            Debug.Log("Storage見つけた");
-            storageFindEvent?.Invoke(collider.GetComponent<NormalStorage>());
-        }
-        else
-        {
-            //storageFindEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
-        }
-    }
-
-    private void OnTriggerExit(Collider collider)
-    {
-        if(collider.gameObject.tag == "Storage")
-        {
-            Debug.Log("Storage離れた");
-            //leaveStorageEvent?.Invoke(collider.GetComponent<NormalStorage>());
-        }
-        else
-        {
-            //leaveStorageEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
         }
     }
 }

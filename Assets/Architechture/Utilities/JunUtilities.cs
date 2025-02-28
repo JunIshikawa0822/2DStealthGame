@@ -161,8 +161,7 @@ namespace JunUtilities
         #endregion
         #region ・OctTree（モートン空間）
 
-        public static int PosToMortonNumber(Vector3 objectPosition, Vector3 basePosition, int dimensionLevel,
-            Vector3 cellSize)
+        public static int PosToMortonNumber(Vector3 objectPosition, Vector3 basePosition, int dimensionLevel, Vector3 cellSize)
         {
             //全てのマスの総数を計算
             int cellNum = (int)Mathf.Pow(8, dimensionLevel);
@@ -198,6 +197,24 @@ namespace JunUtilities
 
             return (int)GetMortonNumber((byte)numX, (byte)numY, (byte)numZ);
         }
+        //綺麗にしたバージョン　対応する数もふやしてある
+        public static int PositionToMortonNumber(Vector3 objectPosition, Vector3 basePosition, int dimensionLevel, Vector3 cellSize)
+        {
+            // セル空間内の位置を計算
+            int numX = Mathf.FloorToInt((objectPosition.x - basePosition.x) / cellSize.x);
+            int numY = Mathf.FloorToInt((objectPosition.y - basePosition.y) / cellSize.y);
+            int numZ = Mathf.FloorToInt((objectPosition.z - basePosition.z) / cellSize.z);
+
+            // 範囲チェック
+            int cellsPerDimension = 1 << dimensionLevel; // 2^dimensionLevel
+            if (numX < 0 || numY < 0 || numZ < 0 || 
+                numX >= cellsPerDimension || numY >= cellsPerDimension || numZ >= cellsPerDimension)
+            {
+                return -1;
+            }
+
+            return (int)Get3DMortonNumber((uint)numX, (uint)numY, (uint)numZ);
+        }
 
         private static uint GetMortonNumber(byte x, byte y, byte z)
         {
@@ -232,6 +249,33 @@ namespace JunUtilities
             //Debug.Log("最後 : " + s);
             return s;
         }
+        
+        //綺麗にしたバージョン byteだと256までしか対応しないのでuint
+        private static uint Get3DMortonNumber(uint x, uint y, uint z)
+        {
+            // 各座標を10ビットまでサポート（最大値1023）
+            x &= 0x3FF;
+            y &= 0x3FF;
+            z &= 0x3FF;
+    
+            //ビットシフトで計算むず
+            x = (x | (x << 16)) & 0x30000FF;
+            x = (x | (x << 8)) & 0x300F00F;
+            x = (x | (x << 4)) & 0x30C30C3;
+            x = (x | (x << 2)) & 0x9249249;
+
+            y = (y | (y << 16)) & 0x30000FF;
+            y = (y | (y << 8)) & 0x300F00F;
+            y = (y | (y << 4)) & 0x30C30C3;
+            y = (y | (y << 2)) & 0x9249249;
+
+            z = (z | (z << 16)) & 0x30000FF;
+            z = (z | (z << 8)) & 0x300F00F;
+            z = (z | (z << 4)) & 0x30C30C3;
+            z = (z | (z << 2)) & 0x9249249;
+
+            return x | (y << 1) | (z << 2);
+        }
 
         /// <summary>
         /// AABB3Dが交差しているモートン空間を調べる
@@ -264,6 +308,57 @@ namespace JunUtilities
 
             return JunExpandUnityClass.ConvertToUniqueArray(intersectMortonSpaces)
                 .Where(n => n < Mathf.Pow(Mathf.Pow(2, dimensionLevel), 3)).ToArray();
+        }
+        //綺麗にしたバージョン
+        public static int[] GetMortonNumbersFromAABB(AABB3D bounds, Vector3 mortonBasePos, int dimensionLevel, Vector3 cellSize)
+        {
+            // AABB3Dが占めるセル数を計算（切り上げ）
+            // 例えばAABB3Dがきっちり2マス分だとまずかったので修正
+            int minX = Mathf.FloorToInt((bounds.Min.x - mortonBasePos.x) / cellSize.x);
+            int minY = Mathf.FloorToInt((bounds.Min.y - mortonBasePos.y) / cellSize.y);
+            int minZ = Mathf.FloorToInt((bounds.Min.z - mortonBasePos.z) / cellSize.z);
+    
+            int maxX = Mathf.CeilToInt((bounds.Max.x - mortonBasePos.x) / cellSize.x);
+            int maxY = Mathf.CeilToInt((bounds.Max.y - mortonBasePos.y) / cellSize.y);
+            int maxZ = Mathf.CeilToInt((bounds.Max.z - mortonBasePos.z) / cellSize.z);
+    
+            // 範囲の制限
+            int cellsPerDimension = 1 << dimensionLevel; // 2^dimensionLevel
+            minX = Mathf.Max(0, minX);
+            minY = Mathf.Max(0, minY);
+            minZ = Mathf.Max(0, minZ);
+            maxX = Mathf.Min(cellsPerDimension - 1, maxX);
+            maxY = Mathf.Min(cellsPerDimension - 1, maxY);
+            maxZ = Mathf.Min(cellsPerDimension - 1, maxZ);
+    
+            int separateX = maxX - minX + 1;
+            int separateY = maxY - minY + 1;
+            int separateZ = maxZ - minZ + 1;
+    
+            List<int> mortonCodes = new List<int>(separateX * separateY * separateZ);
+    
+            for (int i = 0; i < separateX; i++)
+            {
+                for (int j = 0; j < separateY; j++)
+                {
+                    for (int k = 0; k < separateZ; k++)
+                    {
+                        Vector3 pos = mortonBasePos + new Vector3(
+                            (minX + i) * cellSize.x,
+                            (minY + j) * cellSize.y,
+                            (minZ + k) * cellSize.z);
+                
+                        int mortonNum = PosToMortonNumber(pos, mortonBasePos, dimensionLevel, cellSize);
+                        if (mortonNum >= 0)
+                        {
+                            mortonCodes.Add(mortonNum);
+                        }
+                    }
+                }
+            }
+    
+            // 重複を削除して返す
+            return mortonCodes.Distinct().ToArray();
         }
 
         #endregion

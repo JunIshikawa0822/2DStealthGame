@@ -12,6 +12,8 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     private A_Inventory _toInventory;
     private A_Inventory _fromInventory;
 
+    private IStorage _otherStorage;
+
     private float _oldAngle;
     private float _newAngle;
     private float _rotateAngle;
@@ -27,6 +29,7 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         _UGUIPanel = gameStat.inventoryPanel;
+        _otherStorage = gameStat.otherStorage;
         //_item_GUI_Prefab = gameStat.item_GUI;
 
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
@@ -67,9 +70,11 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         if(isActive)
         {
             gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
-            gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
             gameStat.inventories[2].OpenInventory(gameStat.weaponStorages[0]);
             gameStat.inventories[3].OpenInventory(gameStat.weaponStorages[1]);
+            
+            if(gameStat.otherStorage == null)return;
+            gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
         }
         else 
         {

@@ -293,6 +293,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
 
     public override void OnDamage(float damage)
     {
+        Debug.LogWarning($"{transform.name}が{damage}ダメージを受けた");
         EntityHP.EntityDamage(damage);
 
         _currentStatus.Value = IBandit.BanditStatus.Warn;
