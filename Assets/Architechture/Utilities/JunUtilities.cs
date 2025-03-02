@@ -1297,8 +1297,8 @@ namespace JunUtilities
         public bool Intersects(AABB3D other)
         {
             return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
-                   (Min.y <= other.Max.y && Max.y >= other.Min.y) &&
-                   (Min.z <= other.Max.z && Max.z >= other.Min.z);
+                    (Min.y <= other.Max.y && Max.y >= other.Min.y) &&
+                    (Min.z <= other.Max.z && Max.z >= other.Min.z);
         }
 
         // AABBを拡張する（比較してAABBを合体
@@ -1565,76 +1565,115 @@ namespace JunUtilities
         private List<RRTSNode> _rrtsNodes;
         //一定方向にどれだけ進むんだい
         private float _stepDistance;
-        //効率的なノードにするために、近くのノードができた場合に対処する必要がある（Star）
-        //近くにあるノードを調べるために一定の範囲を設定しておく
+        //効率的なノードにするために、近くのノードができた場合に対処するのが通常のRRTとの違い（*）
+        //近くにあるノードを調べるために一定の範囲を設定しておく 
         //_stepLengthよりはちょい大きめがいいかも？
         private float _neighborRadius;
         //どこまで近づいたらごーるとするか
         private float _thresholdDistance;
+        // 最大試行回数
+        private int _maxIterations;
+        // ゴール方向を基準として設定する確率
+        private float _goalBias;
+        // サンプリング範囲
+        private float _minRange;
+        private float _maxRange;
 
         //線分との当たり判定　中身は外付けでいけるのでいいね
         private Func<Vector3, Vector3, bool> _collideFunc;
-        public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance, Func<Vector3, Vector3, bool> collideFunc)
+        
+        public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance, 
+            Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000, 
+            float goalBias = 0.2f, float minRange = -10f, float maxRange = 10f)
         {
             _stepDistance = stepDistance;
             _neighborRadius = neighborRadius;
             _thresholdDistance = thresholdDistance;
             _collideFunc = collideFunc;
-            
+            _maxIterations = maxIterations;
+            _goalBias = goalBias;
+            _minRange = minRange;
+            _maxRange = maxRange;
+        
             _rrtsNodes = new List<RRTSNode>();
         }
 
-        public List<Vector3> FindPath(Vector3 start, Vector3 goal)
+        public List<Vector3> FindPath(Vector3 startPos, Vector3 goalPos)
         {
-            _rrtsNodes.Add(new RRTSNode(start, null));
-            Debug.Log("順調");
-            Vector3 formerPoint = Vector3.zero;
-            for (int i = 0; i < 1000; i++) // 最大試行回数
+            _rrtsNodes.Clear(); // 初期化
+            _rrtsNodes.Add(new RRTSNode(startPos, null, 0f));
+
+            RRTSNode goalNode = null;
+            float bestGoalDistance = float.MaxValue;
+
+            for(int i = 0; i < _maxIterations; i++)
             {
                 //適当な点を取ってくる
-                //Vector3 randomPoint = formerPoint + GetRandomPoint(-3.0f, 3.0f);
-                Vector3 randomPoint = GetRandomPoint(goal, 0.1f, -3.0f, 3.0f);
-                //Debug.Log($"{randomPoint}");
+                Vector3 randomPoint = GetRandomPoint(goalPos);
+
                 //これまで辿ってきたNodeのなかから適当な点と一番近い点のノードを選ぶ
                 RRTSNode nearestNode = GetNearestNode(randomPoint);
-                //ノードの点から適当な点の方向にある程度(stepLengthぶん)進める
-                Vector3 newPoint = VectorStep(nearestNode.Position, formerPoint + randomPoint);
-                formerPoint = newPoint;
-                //Debug.Log($"{newPoint} : {i}");
-                new GameObject().transform.position = newPoint;
-                //その線分にオブジェクトは当たっているか確認し、当たってないなら
-                if (IsCollide(nearestNode.Position, newPoint) == false)
+
+                //ノードの点から適当な点の方向にある程度(stepDistanceぶん)進める
+                Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
+
+                // 障害物チェック
+                if (!IsCollide(nearestNode.Position, newPoint))
                 {
-                    //Debug.Log($"道がある1!!!!!!!");
-                    //そこを新しいNodeとする
-                    RRTSNode newNode = new RRTSNode(newPoint, nearestNode); // 新しいノードを作成
-                    _rrtsNodes.Add(newNode); 
-                    // Debug.Log(newNode.Position);
-                    
-                    // 近傍ノードを探して最適化（近いノードがあったら省略しちゃおう）
-                    List<RRTSNode> neighbors = GetNeighborNodes(newNode);
-                    
-                    //近傍ノードまでの道に障害物がないか調べる
-                    foreach (RRTSNode neighborNode in neighbors)
+                    // コスト計算
+                    float newCost = nearestNode.Cost + Vector3.Distance(nearestNode.Position, newPoint);
+
+                    RRTSNode newNode = new RRTSNode(newPoint, nearestNode, newCost);
+                    _rrtsNodes.Add(newNode);
+
+                    // 近傍ノードを探して最適化 ここがRRT*アルゴリズムの肝だよ
+                    OptimizeWithNeighbors(newNode);
+
+                    // ゴールとの距離をチェック
+                    float distToGoal = Vector3.Distance(newPoint, goalPos);
+                    if (distToGoal < _thresholdDistance)
                     {
-                        if (IsCollide(newNode.Position, neighborNode.Position) == false)
+                        // ゴールに到達したノードを記録
+                        if (distToGoal < bestGoalDistance)
                         {
-                            //親を設定し直す
-                            //Debug.Log($"道がある2");
-                            newNode.Parent = neighborNode;
+                            bestGoalDistance = distToGoal;
+                            goalNode = newNode;
                         }
                     }
-                     
-                    float x2 = (float)Math.Pow(Mathf.Abs(goal.x - newPoint.x), 2);
-                    float y2 = (float)Math.Pow(Mathf.Abs(goal.z - newPoint.z), 2);
-                    float distance = Mathf.Sqrt(x2 + y2);
-                    Debug.Log(distance);
-                    // 上から見てゴールに近づいた！となったら経路を作成
-                    if (Vector2.Distance(newPoint, goal) < _thresholdDistance)
+
+                    // デバッグ情報
+                    if (i % 100 == 0)
                     {
-                        return ConstructPath(newNode); // 経路を再構築
+                        Debug.Log($"反復: {i}, 最良のゴール距離: {bestGoalDistance}");
                     }
                 }
+            }
+
+            //ゴールが見つかればそこまでの経路を返すよ
+            if (goalNode != null)
+            {
+                Debug.Log("経路を発見しました！");
+                return ConstructPath(goalNode);
+            }
+
+            //ゴールが見つからないなら一番ゴールまで近い場所を返す
+            if (_rrtsNodes.Count > 1)
+            {
+                RRTSNode closestToGoal = null;
+                float minDist = float.MaxValue;
+                
+                foreach (RRTSNode node in _rrtsNodes)
+                {
+                    float dist = Vector3.Distance(node.Position, goalPos);
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        closestToGoal = node;
+                    }
+                }
+                
+                Debug.Log($"完全な経路は見つかりませんでした。最も近いノードまでの距離: {minDist}");
+                return ConstructPath(closestToGoal);
             }
 
             //無駄足
@@ -1644,6 +1683,56 @@ namespace JunUtilities
         private bool IsCollide(Vector3 start, Vector3 end)
         {
             return _collideFunc(start, end);
+        }
+
+        private void OptimizeWithNeighbors(RRTSNode newNode)
+        {
+            // 近傍ノードを取得
+            List<RRTSNode> neighbors = GetNeighborNodes(newNode);
+            
+            // 近傍ノードへの再ワイヤリング（RRT* の核心部分）
+            foreach (RRTSNode neighbor in neighbors)
+            {
+                // 自分自身と親は除外
+                if (neighbor == newNode || neighbor == newNode.Parent)
+                    continue;
+                    
+                // この近傍ノードへの直接パスに障害物がないか確認
+                if (!IsCollide(newNode.Position, neighbor.Position))
+                {
+                    // 新しいコストを計算
+                    float potentialCost = neighbor.Cost + Vector3.Distance(neighbor.Position, newNode.Position);
+                    
+                    // より良いパスが見つかれば更新
+                    if (potentialCost < newNode.Cost)
+                    {
+                        newNode.Parent = neighbor;
+                        newNode.Cost = potentialCost;
+                    }
+                }
+            }
+            
+            // 近傍ノードのコスト最適化（これもRRT* の重要部分）
+            foreach (RRTSNode neighbor in neighbors)
+            {
+                // 自分自身は除外
+                if (neighbor == newNode)
+                    continue;
+                    
+                // 新しいノードを経由したパスに障害物がないか確認
+                if (!IsCollide(newNode.Position, neighbor.Position))
+                {
+                    // 新しいコストを計算
+                    float potentialCost = newNode.Cost + Vector3.Distance(newNode.Position, neighbor.Position);
+                    
+                    // より良いパスが見つかれば更新
+                    if (potentialCost < neighbor.Cost)
+                    {
+                        neighbor.Parent = newNode;
+                        neighbor.Cost = potentialCost;
+                    }
+                }
+            }
         }
         
         private RRTSNode GetNearestNode(Vector3 point)
@@ -1672,16 +1761,21 @@ namespace JunUtilities
             // ランダムなポイントを生成
             return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max)); // 適宜範囲を調整
         }
-        
-        Vector3 GetRandomPoint(Vector3 goal, float goalBias, float min, float max)
+
+        private Vector3 GetRandomPoint(Vector3 goal)
         {
-            if (UnityEngine.Random.value < goalBias)
+            // ゴールにバイアスをかける
+            if (UnityEngine.Random.value < _goalBias)
             {
-                return goal; // 10%の確率でゴールをサンプリング
+                return goal;
             }
             else
             {
-                return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max));
+                return new Vector3(
+                    UnityEngine.Random.Range(_minRange, _maxRange),
+                    0, // Y座標は常に0（2D平面上で探索）
+                    UnityEngine.Random.Range(_minRange, _maxRange)
+                );
             }
         }
         
@@ -1728,11 +1822,13 @@ namespace JunUtilities
         {
             public Vector3 Position;
             public RRTSNode Parent;
+            public float Cost; // 開始点からのコスト
 
-            public RRTSNode(Vector3 position, RRTSNode parent)
+            public RRTSNode(Vector3 position, RRTSNode parent, float cost)
             {
                 Position = position;
                 Parent = parent;
+                Cost = cost;
             }
         }
     }
