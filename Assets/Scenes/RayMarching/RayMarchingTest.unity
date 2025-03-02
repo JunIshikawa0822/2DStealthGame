@@ -224,7 +224,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6ac2a520e60d4f5bbdaf005477e95d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  animSpeed: 1.5
+  lookSmoother: 3
+  useCurves: 1
+  useCurvesHeight: 0.5
+  forwardSpeed: 7
+  backwardSpeed: 2
+  rotateSpeed: 2
+  jumpPower: 3
 --- !u!54 &183117826
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -664,6 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &533473690
 GameObject:
   m_ObjectHideFlags: 0
@@ -971,6 +979,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &736386939
 GameObject:
   m_ObjectHideFlags: 0
@@ -1015,9 +1024,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab8f4d09a3ea946ab8fcb3c3ba4c6bac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerRayMarching: {fileID: 0}
   staticObjectParent: {fileID: 1989453465}
-  player: {fileID: 183117823}
-  obbTest: {fileID: 1138524350}
+  dynamicObjectParent: {fileID: 0}
+  _cellWidth: 20
+  _cellHeight: 20
+  _cellDepth: 20
+  _dimensionLevel: 0
+  _baseTrans: {fileID: 0}
+  _camera: {fileID: 0}
+  test: {fileID: 0}
+  tests: []
 --- !u!1 &766653974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1407,6 +1424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &1122890580
 GameObject:
   m_ObjectHideFlags: 0
@@ -1715,6 +1733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &1299398349
 GameObject:
   m_ObjectHideFlags: 0
@@ -2254,6 +2273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &1989453464
 GameObject:
   m_ObjectHideFlags: 0
@@ -2494,6 +2514,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &2104636824
 GameObject:
   m_ObjectHideFlags: 0
@@ -2590,6 +2611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1 &2110426066
 GameObject:
   m_ObjectHideFlags: 0
@@ -2686,6 +2708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
