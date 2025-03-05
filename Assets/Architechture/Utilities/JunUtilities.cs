@@ -1434,16 +1434,27 @@ namespace JunUtilities
     /// <param name="Vertices">頂点</param>
     /// <param name="Min, Max">最小、最大</param>
     /// <returns></returns>
-    public class AllignedOBB
+    public class AlignedOBB
     {
-        public Vector3 Center{get;}
-        public Vector3[] Axis {get;}
-        public Vector3 Min { get;}
-        public Vector3 Max { get;}
-        public Vector3[] Vertices {get;}
-        public Vector3 Size {get;}
+        //OBBの中心（ワールド座標）
+        public Vector3 Center { get; }
 
-        public AllignedOBB(Transform transform, Vector3[] points)
+        //OBBの軸（ワールド座標）
+        public Vector3[] Axis { get; }
+
+        //OBBのバウンドにおける一番小さい座標（ワールド座標）
+        public Vector3 Min { get; }
+
+        //OBBのバウンドにおける一番大きい座標（ワールド座標）
+        public Vector3 Max { get; }
+
+        //OBBのバウンドの頂点（ワールド座標）
+        public Vector3[] Vertices { get; }
+
+        //OBBの各辺のサイズ（ワールド座標）
+        public Vector3 Size { get; }
+
+        public AlignedOBB(Transform transform, Vector3[] points)
         {
             Vector3[] eigenVectorsInWorld = new[] { transform.right, transform.up, transform.forward };
             Vector3[] eigenVectors = new Vector3[eigenVectorsInWorld.Length];
@@ -1452,7 +1463,7 @@ namespace JunUtilities
             {
                 eigenVectors[i] = transform.worldToLocalMatrix.MultiplyVector(eigenVectorsInWorld[i]);
             }
-            
+
             //ローカル座標軸で最小と最大を見つける
             (Vector3 min, Vector3 max) = findMinAndMax(points);
 
@@ -1461,7 +1472,7 @@ namespace JunUtilities
             Max = transform.localToWorldMatrix.MultiplyPoint(max);
             //Vector3 origin = Vector3.zero;
             Vector3[] axis = new Vector3[3];
-            
+
             for (int i = 0; i < 3; i++)
             {
                 //origin += (eigenVectors[i] * (min[i] + max[i]) * 0.5f);
@@ -1472,7 +1483,7 @@ namespace JunUtilities
                 //axis[i] = transform.localToWorldMatrix.MultiplyVector(eigenVectors[i] * (max[i] - min[i]));
             }
             //Debug.Log($"{axis[0].magnitude}, {axis[1].magnitude}, {axis[2].magnitude}");
-            
+
             Axis = axis;
             Size = new Vector3(axis[0].magnitude, axis[1].magnitude, axis[2].magnitude);
             // foreach (Vector3 point in points)
@@ -1503,10 +1514,10 @@ namespace JunUtilities
                 maxY = Mathf.Max(maxY, points[i].y);
                 maxZ = Mathf.Max(maxZ, points[i].z);
             }
-            
+
             minPos = new Vector3(minX, minY, minZ);
             maxPos = new Vector3(maxX, maxY, maxZ);
-            
+
             return (minPos, maxPos);
         }
 
@@ -1558,6 +1569,72 @@ namespace JunUtilities
 
             return vertices;
         }
+        
+        public bool IsLineIntersectionSAT(Vector3 lineStart, Vector3 lineEnd)
+        {
+            Vector3 lineDir = lineEnd - lineStart;
+            float lineLength = lineDir.magnitude;
+            lineDir = lineDir.normalized;
+
+            // 線分の端とOBBの中心との相対位置ベクトル
+            Vector3 relativeStart = lineStart - Center;
+            Vector3 relativeEnd   = lineEnd   - Center;
+
+            // 「ライン vs OBB」判定に必要な分離軸だけ生成
+            Vector3[] testAxes = new Vector3[7];
+
+            //どうせSizeもあって正規化するならAxisは大きさ持たなくてもいい気がするけど...
+            Vector3 axisX = Axis[0].normalized;
+            Vector3 axisY = Axis[1].normalized;
+            Vector3 axisZ = Axis[2].normalized;
+
+            //OBB vs OBBは15本の軸がいるらしいけど、OBB vs 線分　なら7本でいいらしい
+            //OBBの3つの軸
+            testAxes[0] = axisX;
+            testAxes[1] = axisY;
+            testAxes[2] = axisZ;
+
+            //線分の方向ベクトル
+            testAxes[3] = lineDir;
+
+            //OBBの軸と線分方向ベクトルの外積
+            testAxes[4] = Vector3.Cross(axisX, lineDir);
+            testAxes[5] = Vector3.Cross(axisY, lineDir);
+            testAxes[6] = Vector3.Cross(axisZ, lineDir);
+            
+            // 各軸に対して射影するよ
+            foreach (Vector3 axisRaw in testAxes)
+            {
+                if (axisRaw.sqrMagnitude < 1e-6f) continue;
+                Vector3 axis = axisRaw.normalized;
+
+                //OBBの投影範囲
+                float halfWidth =
+                    Mathf.Abs(Vector3.Dot(axisX, axis) * Size.x * 0.5f) +
+                    Mathf.Abs(Vector3.Dot(axisY, axis) * Size.y * 0.5f) +
+                    Mathf.Abs(Vector3.Dot(axisZ, axis) * Size.z * 0.5f);
+
+                //線分の投影範囲
+                float lineProjStart = Vector3.Dot(relativeStart, axis);
+                float lineProjEnd   = Vector3.Dot(relativeEnd,   axis);
+                float lineProjMin   = Mathf.Min(lineProjStart, lineProjEnd);
+                float lineProjMax   = Mathf.Max(lineProjStart, lineProjEnd);
+
+                //中心点の投影は0（relativeを使っているため）
+                float centerMinProj = -halfWidth;
+                float centerMaxProj = +halfWidth;
+
+                // 分離軸が存在するかチェック（1次元の範囲が離れていれば衝突なし）
+                if (lineProjMax < centerMinProj || lineProjMin > centerMaxProj)
+                {
+                    // この軸で完全に分離しているので衝突していない
+                    return false;
+                }
+            }
+
+            // すべての軸で分離されていない = 衝突している
+            return true;
+        }
     }
 
     public class RRTStar
@@ -1579,12 +1656,15 @@ namespace JunUtilities
         private float _minRange;
         private float _maxRange;
 
+        //ステージの中心座標
+        private Vector3 _stageCenter;
+
         //線分との当たり判定　中身は外付けでいけるのでいいね
         private Func<Vector3, Vector3, bool> _collideFunc;
         
         public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance, 
             Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000, 
-            float goalBias = 0.2f, float minRange = -10f, float maxRange = 10f)
+            float goalBias = 0.1f, float minRange = -100f, float maxRange = 100f, Vector3 stageCenter = default)
         {
             _stepDistance = stepDistance;
             _neighborRadius = neighborRadius;
@@ -1594,6 +1674,8 @@ namespace JunUtilities
             _goalBias = goalBias;
             _minRange = minRange;
             _maxRange = maxRange;
+
+            _stageCenter = stageCenter;
         
             _rrtsNodes = new List<RRTSNode>();
         }
@@ -1616,13 +1698,16 @@ namespace JunUtilities
 
                 //ノードの点から適当な点の方向にある程度(stepDistanceぶん)進める
                 Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
-
+                
                 // 障害物チェック
                 if (!IsCollide(nearestNode.Position, newPoint))
                 {
                     // コスト計算
                     float newCost = nearestNode.Cost + Vector3.Distance(nearestNode.Position, newPoint);
-
+                    
+                    // Debug.Log($"RandomPoint : {randomPoint}");
+                    // Debug.Log($"NewPoint : {newPoint}");
+                    //
                     RRTSNode newNode = new RRTSNode(newPoint, nearestNode, newCost);
                     _rrtsNodes.Add(newNode);
 
@@ -1755,12 +1840,6 @@ namespace JunUtilities
 
             return nearestNode; // 最も近いノードを返す
         }
-        
-        private Vector3 GetRandomPoint(float min, float max)
-        {
-            // ランダムなポイントを生成
-            return new Vector3(UnityEngine.Random.Range(min, max), 0, UnityEngine.Random.Range(min, max)); // 適宜範囲を調整
-        }
 
         private Vector3 GetRandomPoint(Vector3 goal)
         {
@@ -1771,11 +1850,9 @@ namespace JunUtilities
             }
             else
             {
-                return new Vector3(
-                    UnityEngine.Random.Range(_minRange, _maxRange),
-                    0, // Y座標は常に0（2D平面上で探索）
-                    UnityEngine.Random.Range(_minRange, _maxRange)
-                );
+                float randomX = UnityEngine.Random.Range(_minRange, _maxRange);
+                float randomZ = UnityEngine.Random.Range(_minRange, _maxRange);
+                return new Vector3(randomX + _stageCenter.x, _stageCenter.y, randomZ + _stageCenter.z);
             }
         }
         

@@ -13,14 +13,14 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
     //private AABB3DTree _staticObjectTree;
     private Transform _staticObjectsParent;
     
-    private AABB3DTree<(Transform, AllignedOBB)> _staticObjectTree;
+    private AABB3DTree<(Transform, AlignedOBB)> _staticObjectTree;
     //動的オブジェクト管理
     //private Transform[] _dynamicObjects;
     private List<Transform> _dynamicObjectList;
     
     //宝箱管理
     private List<Transform> _InteractableObjectList;
-     
+    
     //カメラ
     private Camera _camera;
     private Vector3 _cameraRotateEulerAngle;
@@ -35,6 +35,9 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
     private Vector3 _cellSize;
     
     List<Transform> _oldMeshableList = new List<Transform>();
+    
+    //テスト用
+    private Vector3[] _obbVertices;
     
     public override void OnSetUp()
     {
@@ -53,13 +56,13 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             return;
         }
 
-        List<(AABB3D bounds, Transform transform, AllignedOBB allignedObb)> originalList = GetStaticObjectList(_staticObjectsParent);
-        List<(AABB3D bounds, (Transform, AllignedOBB))> convertedList = 
+        List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)> originalList = GetStaticObjectList(_staticObjectsParent);
+        List<(AABB3D bounds, (Transform, AlignedOBB))> convertedList = 
             originalList
             .Select(item => (item.bounds, (item.transform, item.allignedObb)))
             .ToList();
         
-        _staticObjectTree = new AABB3DTree<(Transform, AllignedOBB)>()
+        _staticObjectTree = new AABB3DTree<(Transform, AlignedOBB)>()
             .BuildTree(convertedList);
         
         _cameraRotateEulerAngle = new Vector3(
@@ -70,6 +73,19 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         _playerRayMarching.OnSetUp();
 
         gameStat.staticObjectTree = _staticObjectTree;
+        
+        if(gameStat.obbTest == null)return;
+        // 一度だけコピー
+        Mesh tempMesh = GameObject.Instantiate(gameStat.obbTest.GetComponent<MeshFilter>().mesh);
+        // 頂点データ取得
+        Vector3[] testMeshVertices = tempMesh.vertices;
+        AlignedOBB testObb = new AlignedOBB(gameStat.obbTest, testMeshVertices);
+        _obbVertices = testObb.Vertices;
+        //OBB testObb = new OBB(test, testMeshVertices);
+        // Debug.Log(testObb.Center);
+        gameStat.obbTestObjects[0].position = testObb.Center;
+        gameStat.obbTestObjects[1].position = testObb.Min;
+        gameStat.obbTestObjects[2].position = testObb.Max;
     }
 
     public void OnUpdate()
@@ -107,7 +123,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         // Debug.Log(_staticObjectTree);
         //カメラが交差している可能性のあるオブジェクトたち staticに何もない場合は空のリスト
         //List<TreeNode3D> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D>();
-        List<TreeNode3D<(Transform, AllignedOBB)>> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D<(Transform, AllignedOBB)>>();
+        List<TreeNode3D<(Transform, AlignedOBB)>> staticIntersectNodes = _staticObjectTree != null ? _staticObjectTree.GetIntersectNode(_cameraAABB3D) : new List<TreeNode3D<(Transform, AlignedOBB)>>();
         
         //カメラが交差しているモートン空間
         //int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
@@ -140,13 +156,13 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             }
         }
         
-        (Transform transform, int objType, AllignedOBB obb)[] objectDataArray = 
-            new (Transform transform, int objType, AllignedOBB obb)[staticIntersectNodes.Count + dynamicObjectsInCamera.Count + interactableObjectsInCamera.Count];
+        (Transform transform, int objType, AlignedOBB obb)[] objectDataArray = 
+            new (Transform transform, int objType, AlignedOBB obb)[staticIntersectNodes.Count + dynamicObjectsInCamera.Count + interactableObjectsInCamera.Count];
 
         //静的オブジェクト
         for (int i = 0; i < staticIntersectNodes.Count; i++)
         {
-            TreeNode3D<(Transform, AllignedOBB)> node = staticIntersectNodes[i];
+            TreeNode3D<(Transform, AlignedOBB)> node = staticIntersectNodes[i];
             objectDataArray[i] = (node.InformationTuple.Item1, 1, node.InformationTuple.Item2);
         }
 
@@ -188,7 +204,26 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             _oldMeshableList.Add(obj);
         }
         // Debug.Log(string.Join(", ", hitDynamicObjectNames));
-        
+
+        #region OBB描画
+
+        Gizmos.color = Color.red;
+        int[,] edges = {
+            {0, 1}, {1, 3}, {3, 2}, {2, 0}, // 底面
+            {4, 5}, {5, 7}, {7, 6}, {6, 4}, // 上面
+            {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
+        };
+
+        //Debug.LogWarning(_obbVertices.Length);
+        // Debug.Log(edges.GetLength(0));
+        if (_obbVertices.Length > 0)
+        {
+            for (int i = 0; i < edges.GetLength(0); i++)
+            {
+                Debug.DrawLine(_obbVertices[edges[i, 0]], _obbVertices[edges[i, 1]]);
+            }
+        }
+        #endregion
         
         #region モートン空間描画
         float _cellWidth = gameStat.CellSize.x;
@@ -257,11 +292,11 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         #endregion
     }
     
-    public List<(AABB3D bounds, Transform transform, AllignedOBB allignedObb)> GetStaticObjectList(Transform staticObjectParent)
+    public List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)> GetStaticObjectList(Transform staticObjectParent)
     {
         if (staticObjectParent.childCount < 1) return null;
         
-        List<(AABB3D bounds, Transform transform, AllignedOBB)> objectList = new List<(AABB3D bounds, Transform transform, AllignedOBB)>();
+        List<(AABB3D bounds, Transform transform, AlignedOBB)> objectList = new List<(AABB3D bounds, Transform transform, AlignedOBB)>();
         MeshRenderer[] meshesArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
         MeshFilter[] meshFiltersArray = JunExpandUnityClass.GetChildrenComponent<MeshFilter>(staticObjectParent);
         Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
@@ -271,7 +306,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             objectList.Add((
                 new AABB3D(meshesArray[i].bounds), 
                 transformsArray[i],
-                new AllignedOBB(transformsArray[i], meshFiltersArray[i].mesh.vertices)
+                new AlignedOBB(transformsArray[i], meshFiltersArray[i].mesh.vertices)
             ));
         }
         

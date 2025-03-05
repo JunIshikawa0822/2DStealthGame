@@ -12,7 +12,7 @@ public class StageObject : MonoBehaviour
     
     [Header("静的オブジェクトゾーン")]
     public Transform staticObjectParent;
-    private AABB3DTree<(Transform, AllignedOBB)> _stageObjectTree;
+    private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
     
     [Header("動的オブジェクトゾーン")]
     public Transform dynamicObjectParent;
@@ -42,7 +42,7 @@ public class StageObject : MonoBehaviour
     public Transform[] tests;
     private void Start()
     {
-        List<(AABB3D bounds, Transform transform, AllignedOBB allignedObb)> objectList = new List<(AABB3D bounds, Transform transform, AllignedOBB allignedObb)>();
+        List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)> objectList = new List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)>();
         MeshRenderer[] meshesArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
         MeshFilter[] meshFiltersArray = JunExpandUnityClass.GetChildrenComponent<MeshFilter>(staticObjectParent);
         Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
@@ -53,13 +53,13 @@ public class StageObject : MonoBehaviour
             objectList.Add((
                 new AABB3D(meshesArray[i].bounds), 
                 transformsArray[i],
-                new AllignedOBB(transformsArray[i], meshFiltersArray[i].mesh.vertices)
+                new AlignedOBB(transformsArray[i], meshFiltersArray[i].mesh.vertices)
                 ));
         }
         
-        _stageObjectTree = new AABB3DTree<(Transform, AllignedOBB)>();
+        _stageObjectTree = new AABB3DTree<(Transform, AlignedOBB)>();
         
-        List<(AABB3D bounds, (Transform, AllignedOBB))> convertedList = 
+        List<(AABB3D bounds, (Transform, AlignedOBB))> convertedList = 
             objectList
             .Select(item => (item.bounds, (item.transform, item.allignedObb)))
             .ToList();
@@ -79,7 +79,7 @@ public class StageObject : MonoBehaviour
         Mesh tempMesh = Instantiate(test.GetComponent<MeshFilter>().mesh);
         // 頂点データ取得
         Vector3[] testMeshVertices = tempMesh.vertices;
-        AllignedOBB testObb = new AllignedOBB(test, testMeshVertices);
+        AlignedOBB testObb = new AlignedOBB(test, testMeshVertices);
         //OBB testObb = new OBB(test, testMeshVertices);
         Debug.Log(testObb.Center);
         tests[0].position = testObb.Center;
@@ -115,7 +115,7 @@ public class StageObject : MonoBehaviour
 
         //カメラのAABB
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
-        List<TreeNode3D<(Transform, AllignedOBB)>> intersectNodes = _stageObjectTree.GetIntersectNode(_cameraAABB3D);
+        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = _stageObjectTree.GetIntersectNode(_cameraAABB3D);
         //List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(new AABB3D(_cameraBounds));
         
         //動的オブジェクト
@@ -140,12 +140,12 @@ public class StageObject : MonoBehaviour
         
         //レイマーチングに引き渡すためにオブジェクトの情報をつくる
         //まずは静的オブジェクト
-        (Transform transform, int objType, AllignedOBB allignedObb)[] objectDataArray = 
-            new (Transform transform, int objType, AllignedOBB allignedObb)[intersectNodes.Count + dynamicObjectsInCamera.Count];
+        (Transform transform, int objType, AlignedOBB allignedObb)[] objectDataArray = 
+            new (Transform transform, int objType, AlignedOBB allignedObb)[intersectNodes.Count + dynamicObjectsInCamera.Count];
 
         for (int i = 0; i < intersectNodes.Count; i++)
         {
-            TreeNode3D<(Transform, AllignedOBB)> node = intersectNodes[i];
+            TreeNode3D<(Transform, AlignedOBB)> node = intersectNodes[i];
             objectDataArray[i] = (node.InformationTuple.Item1, 1, node.InformationTuple.Item2);
         }
 

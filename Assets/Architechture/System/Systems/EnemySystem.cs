@@ -11,16 +11,22 @@ public class EnemySystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         _worldState = new WorldState();
+
+        foreach (PathFinder obj in gameStat.pathFinders)
+        {
+            obj.SetUp(gameStat.staticObjectTree);
+        }
         
-        if(gameStat.enemyObjects.Count < 1) return;
-        RRTStar moveAlgorithm = new RRTStar
-        (
-            0.5f,
-            2,
-            _enemyRadius,
-            IsLineCollideWithStaticObject
-        );
-        
+        // if(gameStat.enemyObjects.Count < 1) return;
+        // RRTStar moveAlgorithm = new RRTStar
+        // (
+        //     0.5f,
+        //     2,
+        //     _enemyRadius,
+        //     IsLineCollideWithStaticObject,
+        //     1000
+        // );
+        //
         foreach(AEnemy enemy in gameStat.enemyObjects)
         {
             // Debug.Log(enemy.transform.name); 
@@ -28,7 +34,7 @@ public class EnemySystem : ASystem, IOnUpdate
             enemy.gunReleaseAction += (AGun gun) => gameStat.gunFacade.ReturnGunInstance(gun);
             //enemy.onEntityDeadEvent += () => { };
             
-            enemy.SetUpEnemyAI(moveAlgorithm);
+            //enemy.SetUpEnemyAI(moveAlgorithm);
             EquipGun(enemy);
         }
     }
@@ -62,11 +68,11 @@ public class EnemySystem : ASystem, IOnUpdate
     public bool IsLineCollideWithStaticObject(Vector3 startPos, Vector3 endPos)
     {
         AABB3D lineBound = new AABB3D(startPos, endPos);
-        List<TreeNode3D<(Transform, AllignedOBB)>> intersectNodes = gameStat.staticObjectTree.GetIntersectNode(lineBound);
+        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = gameStat.staticObjectTree.GetIntersectNode(lineBound);
 
-        foreach (TreeNode3D<(Transform transform, AllignedOBB allignedObb)> node in intersectNodes)
+        foreach (TreeNode3D<(Transform transform, AlignedOBB allignedObb)> node in intersectNodes)
         {
-            AllignedOBB obb = node.InformationTuple.allignedObb;
+            AlignedOBB obb = node.InformationTuple.allignedObb;
             Vector3 localStart = new Vector3(
                 JunMath.VectorDot(obb.Center - startPos, obb.Axis[0]),
                 JunMath.VectorDot(obb.Center - startPos, obb.Axis[1]),

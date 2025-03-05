@@ -94,10 +94,14 @@ public class GameStatus
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
 
+    [Header("OBBテスト")] 
+    public Transform obbTest;
+    public Transform[] obbTestObjects;
+
     [Header("静的オブジェクト")] 
     public Transform staticObjectsParent;
 
-    public AABB3DTree<(Transform, AllignedOBB)> staticObjectTree;
+    public AABB3DTree<(Transform, AlignedOBB)> staticObjectTree;
 
     [Header("動的オブジェクト")] 
     public List<Transform> dynamicObjectList = new List<Transform>();
@@ -124,5 +128,6 @@ public class GameStatus
     [SerializeField] public int dimensionLevel;
     [SerializeField] public Transform mortonSpaceBaseTrans;
 
-    [SerializeField] public Transform[] testObjects;
+    [SerializeField] public PathFinder[] pathFinders;
+    //[SerializeField] public GameObject pathTest;
 }
