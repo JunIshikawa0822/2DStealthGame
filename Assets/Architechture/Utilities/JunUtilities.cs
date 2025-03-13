@@ -1496,6 +1496,14 @@ namespace JunUtilities
             Vertices = CalculateVertices(Center, Axis);
         }
 
+        public AlignedOBB(Vector3 center, Vector3[] axis, Vector3 size)
+        {
+            Center = center;
+            Axis = new[] {axis[0] * size.x, axis[1] * size.y, axis[2] * size.z};
+            Size = size;
+            Vertices = CalculateVertices(Center, Axis);
+        }
+
         //ローカル空間で最小と最大を探す
         private (Vector3 min, Vector3 max) findMinAndMax(Vector3[] points)
         {
@@ -1569,8 +1577,162 @@ namespace JunUtilities
 
             return vertices;
         }
+
+        public bool IsOBBIntersection(AlignedOBB otherObb)
+        {
+            // OBB間のベクトル
+            Vector3 distance = Center - otherObb.Center;
+            Vector3[] testAxes = new Vector3[15];
+
+            Vector3[] axes = new Vector3[] { Axis[0].normalized, Axis[1].normalized, Axis[3].normalized };
+            Vector3[] otherAxes = new Vector3[] { otherObb.Axis[0].normalized, otherObb.Axis[1].normalized, otherObb.Axis[2].normalized };
+            //どうせSizeもあって正規化するならAxisは大きさ持たなくてもいい気がするけど...
+            testAxes[0] = axes[0];
+            testAxes[1] = axes[1];
+            testAxes[2] = axes[2];
+            testAxes[3] = otherAxes[0];
+            testAxes[4] = otherAxes[1];
+            testAxes[5] = otherAxes[2];
+            
+            //各軸同士の外積（9本）
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Vector3 cross = Vector3.Cross(axes[i], otherAxes[j]);
+                    testAxes[6 + 3 * i + j] = cross;
+                }
+            }
+
+            foreach(Vector3 axis in axes)
+            {
+                if(axis.sqrMagnitude < 1e-6f) continue;
+                
+                Vector3 normalizedAxis = axis.normalized;
+                
+                float radiusA = 0f;
+                float radiusB = 0f;
         
-        public bool IsLineIntersectionSAT(Vector3 lineStart, Vector3 lineEnd)
+                for (int i = 0; i < 3; i++)
+                {
+                    radiusA += Mathf.Abs(Vector3.Dot(axes[i] * Size[i] * 0.5f, normalizedAxis));
+                    radiusB += Mathf.Abs(Vector3.Dot(otherAxes[i] * otherObb.Size[i] * 0.5f, normalizedAxis));
+                }
+        
+                // 中心間距離の投影
+                float distance_proj = Mathf.Abs(Vector3.Dot(distance, normalizedAxis));
+        
+                // 分離軸が見つかった場合、衝突していない
+                if (distance_proj > radiusA + radiusB)
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        public bool IsThickLineIntersection(Vector3 lineStart, Vector3 lineEnd, float width, float height)
+        {
+            Vector3 lineDir = lineEnd - lineStart;
+            float lineLength = lineDir.magnitude;
+            
+            // 線分の方向が0に近い場合は計算できないため早期リターン
+            if (lineLength < 1e-6f)
+                return false;
+                
+            lineDir = lineDir.normalized;
+
+            // 線分の端とOBBの中心との相対位置ベクトル
+            Vector3 relativeStart = lineStart - Center;
+            Vector3 relativeEnd = lineEnd - Center;
+
+            // 線分の上方向と右方向を決定
+            // 線分の方向に垂直な2つのベクトルを作成
+            Vector3 upDir;
+            if (Mathf.Abs(Vector3.Dot(lineDir, Vector3.up)) > 0.99f)
+            {
+                // 線分がほぼ上方向を向いている場合は右方向を基準にする
+                upDir = Vector3.Cross(lineDir, Vector3.right).normalized;
+            }
+            else
+            {
+                // それ以外の場合は上方向を基準にする
+                upDir = Vector3.Cross(Vector3.up, lineDir).normalized;
+            }
+            Vector3 rightDir = Vector3.Cross(upDir, lineDir).normalized;
+
+            // 「ライン vs OBB」判定に必要な分離軸を生成
+            // 幅と高さを持つ線分は実質的には直方体として扱うので、軸は最大15本必要
+            Vector3[] testAxes = new Vector3[15];
+
+            //OBBの3つの軸
+            Vector3 axisX = Axis[0].normalized;
+            Vector3 axisY = Axis[1].normalized;
+            Vector3 axisZ = Axis[2].normalized;
+
+            testAxes[0] = axisX;
+            testAxes[1] = axisY;
+            testAxes[2] = axisZ;
+
+            //線分の3つの軸（方向、幅、高さ）
+            testAxes[3] = lineDir;
+            testAxes[4] = rightDir;
+            testAxes[5] = upDir;
+
+            //OBBの軸と線分の3軸との外積（9本）
+            testAxes[6] = Vector3.Cross(axisX, lineDir);
+            testAxes[7] = Vector3.Cross(axisX, rightDir);
+            testAxes[8] = Vector3.Cross(axisX, upDir);
+            testAxes[9] = Vector3.Cross(axisY, lineDir);
+            testAxes[10] = Vector3.Cross(axisY, rightDir);
+            testAxes[11] = Vector3.Cross(axisY, upDir);
+            testAxes[12] = Vector3.Cross(axisZ, lineDir);
+            testAxes[13] = Vector3.Cross(axisZ, rightDir);
+            testAxes[14] = Vector3.Cross(axisZ, upDir);
+            
+            // 各軸に対して射影するよ
+            foreach (Vector3 axisRaw in testAxes)
+            {
+                if (axisRaw.sqrMagnitude < 1e-6f) continue;
+                Vector3 axis = axisRaw.normalized;
+
+                //OBBの投影範囲
+                float halfWidth =
+                    Mathf.Abs(Vector3.Dot(axisX, axis) * Size.x * 0.5f) +
+                    Mathf.Abs(Vector3.Dot(axisY, axis) * Size.y * 0.5f) +
+                    Mathf.Abs(Vector3.Dot(axisZ, axis) * Size.z * 0.5f);
+
+                //太い線分の投影範囲を計算
+                //線分自体の始点と終点
+                float lineProjStart = Vector3.Dot(relativeStart, axis);
+                float lineProjEnd = Vector3.Dot(relativeEnd, axis);
+                
+                //幅方向と高さ方向の寄与を計算
+                float widthContribution = Mathf.Abs(Vector3.Dot(rightDir * width * 0.5f, axis));
+                float heightContribution = Mathf.Abs(Vector3.Dot(upDir * height * 0.5f, axis));
+                
+                //線分の太さを考慮した投影範囲
+                float lineProjMin = Mathf.Min(lineProjStart, lineProjEnd) - widthContribution - heightContribution;
+                float lineProjMax = Mathf.Max(lineProjStart, lineProjEnd) + widthContribution + heightContribution;
+
+                //中心点の投影は0（relativeを使っているため）
+                float centerMinProj = -halfWidth;
+                float centerMaxProj = +halfWidth;
+
+                // 分離軸が存在するかチェック（1次元の範囲が離れていれば衝突なし）
+                if (lineProjMax < centerMinProj || lineProjMin > centerMaxProj)
+                {
+                    // この軸で完全に分離しているので衝突していない
+                    return false;
+                }
+            }
+
+            // すべての軸で分離されていない = 衝突している
+            return true;
+        }
+        
+        public bool IsLineIntersection(Vector3 lineStart, Vector3 lineEnd)
         {
             Vector3 lineDir = lineEnd - lineStart;
             float lineLength = lineDir.magnitude;
@@ -1729,7 +1891,7 @@ namespace JunUtilities
                     // デバッグ情報
                     if (i % 100 == 0)
                     {
-                        Debug.Log($"反復: {i}, 最良のゴール距離: {bestGoalDistance}");
+                        // Debug.Log($"反復: {i}, 最良のゴール距離: {bestGoalDistance}");
                     }
                 }
             }
@@ -1851,6 +2013,7 @@ namespace JunUtilities
             else
             {
                 float randomX = UnityEngine.Random.Range(_minRange, _maxRange);
+                float randomY = UnityEngine.Random.Range(_minRange, _maxRange);
                 float randomZ = UnityEngine.Random.Range(_minRange, _maxRange);
                 return new Vector3(randomX + _stageCenter.x, _stageCenter.y, randomZ + _stageCenter.z);
             }
@@ -1906,6 +2069,336 @@ namespace JunUtilities
                 Position = position;
                 Parent = parent;
                 Cost = cost;
+            }
+        }
+    }
+    
+    public class RRTS
+    {
+        private List<RRTSNode> _rrtsNodes;
+        private float _stepDistance;
+        private float _neighborRadius;
+        private float _thresholdDistance;
+        private int _maxIterations;
+        private float _goalBias;
+        private float _minRange;
+        private float _maxRange;
+        private Vector3 _stageCenter;
+        private Func<Vector3, Vector3, bool> _collideFunc;
+
+        // Regeneration and pruning parameters
+        private int _stagnationThreshold = 500;
+        private int _maintenanceInterval = 100;
+        private int _pruneInterval = 1000;
+        private float _regenerationRadiusMultiplier = 2f;
+        
+        // Parameters for improved sampling strategy
+        private List<Vector3> _collisionPoints = new List<Vector3>();
+        private float _collisionBias = 0.15f;
+        private float _collisionSamplingRadius = 5f;
+
+        public RRTS(Vector3 stageCenter, float stepDistance, float neighborRadius, float thresholdDistance, 
+            Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000, 
+            float goalBias = 0.1f, float minRange = -100f, float maxRange = 100f)
+        {
+            _stepDistance = stepDistance;
+            _neighborRadius = neighborRadius;
+            _thresholdDistance = thresholdDistance;
+            _collideFunc = collideFunc;
+            _maxIterations = maxIterations;
+            _goalBias = goalBias;
+            _minRange = minRange;
+            _maxRange = maxRange;
+            _stageCenter = stageCenter;
+            _rrtsNodes = new List<RRTSNode>();
+        }
+
+        public List<Vector3> FindPath(Vector3 startPos, Vector3 goalPos)
+        {
+            _rrtsNodes.Clear();
+            _collisionPoints.Clear();
+            // Create initial node (with iteration 0)
+            _rrtsNodes.Add(new RRTSNode(startPos, null, 0f, 0));
+
+            RRTSNode goalNode = null;
+            float bestGoalDistance = float.MaxValue;
+
+            for (int i = 0; i < _maxIterations; i++)
+            {
+                Vector3 randomPoint = GetRandomPoint(goalPos);
+                RRTSNode nearestNode = GetNearestNode(randomPoint);
+                Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
+
+                // Check for collision and record collision points
+                if (!IsCollide(nearestNode.Position, newPoint))
+                {
+                    float newCost = nearestNode.Cost + Vector3.Distance(nearestNode.Position, newPoint);
+                    RRTSNode newNode = new RRTSNode(newPoint, nearestNode, newCost, i);
+                    _rrtsNodes.Add(newNode);
+                    nearestNode.Children.Add(newNode); // Track child nodes for proper pruning
+                    nearestNode.LastExtensionIteration = i;
+
+                    OptimizeWithNeighbors(newNode);
+
+                    float distToGoal = Vector3.Distance(newPoint, goalPos);
+                    if (distToGoal < _thresholdDistance)
+                    {
+                        if (distToGoal < bestGoalDistance)
+                        {
+                            bestGoalDistance = distToGoal;
+                            goalNode = newNode;
+                        }
+                    }
+
+                    if (i % 100 == 0)
+                    {
+                        Debug.Log($"Iteration: {i}, Best goal distance: {bestGoalDistance}");
+                    }
+                }
+                else
+                {
+                    // Record collision point for improved sampling
+                    _collisionPoints.Add(newPoint);
+                    // Limit size of collision points list to prevent memory issues
+                    if (_collisionPoints.Count > 1000)
+                    {
+                        _collisionPoints.RemoveAt(0);
+                    }
+                }
+
+                // Maintenance phase: Node regeneration
+                if (i % _maintenanceInterval == 0)
+                {
+                    foreach (var node in _rrtsNodes.ToList()) // Create a copy to avoid collection modification issues
+                    {
+                        if (i - node.LastExtensionIteration > _stagnationThreshold)
+                        {
+                            // Sample around collision points if any, otherwise sample around node
+                            Vector3 newSample;
+                            if (_collisionPoints.Count > 0 && UnityEngine.Random.value < _collisionBias)
+                            {
+                                // Sample near a random collision point
+                                Vector3 collisionPoint = _collisionPoints[UnityEngine.Random.Range(0, _collisionPoints.Count)];
+                                newSample = SampleAround3D(collisionPoint, _collisionSamplingRadius);
+                            }
+                            else
+                            {
+                                newSample = SampleAround3D(node.Position, _stepDistance * _regenerationRadiusMultiplier);
+                            }
+
+                            if (!IsCollide(node.Position, newSample))
+                            {
+                                float regenCost = node.Cost + Vector3.Distance(node.Position, newSample);
+                                RRTSNode regeneratedNode = new RRTSNode(newSample, node, regenCost, i);
+                                _rrtsNodes.Add(regeneratedNode);
+                                node.Children.Add(regeneratedNode); // Track child nodes
+                                node.LastExtensionIteration = i;
+                            }
+                        }
+                    }
+                }
+
+                // Maintenance phase: Node pruning
+                if (i % _pruneInterval == 0)
+                {
+                    List<RRTSNode> nodesToRemove = new List<RRTSNode>();
+                    foreach (var node in _rrtsNodes)
+                    {
+                        if (node.Parent != null && (i - node.LastExtensionIteration > _stagnationThreshold * 2))
+                        {
+                            // If node has no children and hasn't been extended recently, mark for removal
+                            if (node.Children.Count == 0)
+                            {
+                                nodesToRemove.Add(node);
+                            }
+                        }
+                    }
+
+                    // Safe removal of nodes, handling parent-child references
+                    foreach (var node in nodesToRemove)
+                    {
+                        if (node.Parent != null)
+                        {
+                            node.Parent.Children.Remove(node); // Remove from parent's children list
+                        }
+                        _rrtsNodes.Remove(node);
+                    }
+                }
+            }
+
+            if (goalNode != null)
+            {
+                Debug.Log("Path found!");
+                return ConstructPath(goalNode);
+            }
+            if (_rrtsNodes.Count > 1)
+            {
+                RRTSNode closestToGoal = null;
+                float minDist = float.MaxValue;
+                foreach (RRTSNode node in _rrtsNodes)
+                {
+                    float dist = Vector3.Distance(node.Position, goalPos);
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        closestToGoal = node;
+                    }
+                }
+                Debug.Log($"No complete path found. Closest node distance: {minDist}");
+                return ConstructPath(closestToGoal);
+            }
+            return null;
+        }
+
+        private bool IsCollide(Vector3 start, Vector3 end)
+        {
+            return _collideFunc(start, end);
+        }
+
+        private void OptimizeWithNeighbors(RRTSNode newNode)
+        {
+            List<RRTSNode> neighbors = GetNeighborNodes(newNode);
+            foreach (RRTSNode neighbor in neighbors)
+            {
+                if (neighbor == newNode || neighbor == newNode.Parent)
+                    continue;
+                if (!IsCollide(newNode.Position, neighbor.Position))
+                {
+                    float potentialCost = neighbor.Cost + Vector3.Distance(neighbor.Position, newNode.Position);
+                    if (potentialCost < newNode.Cost)
+                    {
+                        // Update parent reference
+                        if (newNode.Parent != null)
+                        {
+                            newNode.Parent.Children.Remove(newNode);
+                        }
+                        newNode.Parent = neighbor;
+                        neighbor.Children.Add(newNode);
+                        newNode.Cost = potentialCost;
+                    }
+                }
+            }
+            foreach (RRTSNode neighbor in neighbors)
+            {
+                if (neighbor == newNode)
+                    continue;
+                if (!IsCollide(newNode.Position, neighbor.Position))
+                {
+                    float potentialCost = newNode.Cost + Vector3.Distance(newNode.Position, neighbor.Position);
+                    if (potentialCost < neighbor.Cost)
+                    {
+                        // Update parent reference
+                        if (neighbor.Parent != null)
+                        {
+                            neighbor.Parent.Children.Remove(neighbor);
+                        }
+                        neighbor.Parent = newNode;
+                        newNode.Children.Add(neighbor);
+                        neighbor.Cost = potentialCost;
+                    }
+                }
+            }
+        }
+
+        private RRTSNode GetNearestNode(Vector3 point)
+        {
+            RRTSNode nearestNode = null;
+            float minDistance = float.MaxValue;
+            foreach (RRTSNode node in _rrtsNodes)
+            {
+                float distance = Vector3.Distance(node.Position, point);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestNode = node;
+                }
+            }
+            return nearestNode;
+        }
+
+        private Vector3 GetRandomPoint(Vector3 goal)
+        {
+            // Biased sampling strategy
+            float rand = UnityEngine.Random.value;
+            
+            // Goal biased sampling
+            if (rand < _goalBias)
+            {
+                return goal;
+            }
+            // Collision biased sampling - sample near collision points
+            else if (rand < _goalBias + _collisionBias && _collisionPoints.Count > 0)
+            {
+                Vector3 collisionPoint = _collisionPoints[UnityEngine.Random.Range(0, _collisionPoints.Count)];
+                return SampleAround3D(collisionPoint, _collisionSamplingRadius);
+            }
+            // Regular random sampling
+            else
+            {
+                float randomX = UnityEngine.Random.Range(_minRange, _maxRange);
+                float randomY = UnityEngine.Random.Range(_minRange, _maxRange);
+                float randomZ = UnityEngine.Random.Range(_minRange, _maxRange);
+                return new Vector3(randomX + _stageCenter.x, randomY + _stageCenter.y, randomZ + _stageCenter.z);
+            }
+        }
+
+        private Vector3 VectorStep(Vector3 from, Vector3 to)
+        {
+            Vector3 direction = (to - from).normalized;
+            return from + direction * _stepDistance;
+        }
+
+        private List<RRTSNode> GetNeighborNodes(RRTSNode node)
+        {
+            List<RRTSNode> neighbors = new List<RRTSNode>();
+            foreach (RRTSNode rrtsNode in _rrtsNodes)
+            {
+                if (Vector3.Distance(rrtsNode.Position, node.Position) < _neighborRadius)
+                {
+                    neighbors.Add(rrtsNode);
+                }
+            }
+            return neighbors;
+        }
+
+        private List<Vector3> ConstructPath(RRTSNode endNode)
+        {
+            List<Vector3> path = new List<Vector3>();
+            RRTSNode currentNode = endNode;
+            while (currentNode != null)
+            {
+                path.Add(currentNode.Position);
+                currentNode = currentNode.Parent;
+            }
+            path.Reverse();
+            return path;
+        }
+
+        // Improved 3D sampling around a center point
+        private Vector3 SampleAround3D(Vector3 center, float radius)
+        {
+            // Random direction in 3D space
+            Vector3 randomDir = UnityEngine.Random.onUnitSphere;
+            // Random distance within radius
+            float distance = UnityEngine.Random.Range(0, radius);
+            return center + randomDir * distance;
+        }
+
+        private class RRTSNode
+        {
+            public Vector3 Position;
+            public RRTSNode Parent;
+            public List<RRTSNode> Children; // Track children for proper reference management
+            public float Cost; // Start-to-node cost
+            public int LastExtensionIteration; // Iteration when last extended
+
+            public RRTSNode(Vector3 position, RRTSNode parent, float cost, int iteration)
+            {
+                Position = position;
+                Parent = parent;
+                Cost = cost;
+                LastExtensionIteration = iteration;
+                Children = new List<RRTSNode>();
             }
         }
     }
