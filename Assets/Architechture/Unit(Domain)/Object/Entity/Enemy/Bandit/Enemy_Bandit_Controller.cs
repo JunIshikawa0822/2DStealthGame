@@ -277,7 +277,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     public void Reload(AGun gun, Entity_Magazine magazine)
     {
         //リロード
-        if(_isEntityActionInterval)return;
+        if(IsEntityActionInterval)return;
         //CancelAction(actionCancellationTokenSource);
 
         _actionCancellationTokenSource = new CancellationTokenSource();

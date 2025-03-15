@@ -99,6 +99,9 @@ public class PlayerController : AEntity
     public void AttackStart(AGun gun)
     {
         if(gun == null)return;
+        if(IsEntityActionInterval)return;
+
+        IsEntityActionInterval = true;
         gun.TriggerOn();
 
         _playerAnimator.SetTrigger("Shot");
@@ -106,22 +109,18 @@ public class PlayerController : AEntity
         //EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
     }
 
-    public void Attaking(AGun gun)
-    {
-        if(gun == null)return;
-        gun.Shooting();
-    }
-
     public void AttackEnd(AGun gun)
     {
         if(gun == null)return;
+        
+        IsEntityActionInterval = false;
         gun.TriggerOff();
     }
 
     public void Reload(AGun gun)
     {
         //Debug.Log("リロード");
-        if(_isEntityActionInterval)return;
+        if(IsEntityActionInterval)return;
 
         //Debug.Log("デバッグその1");
         if(gun == null)return;
@@ -210,7 +209,7 @@ public class PlayerController : AEntity
             tokenSource.Cancel();
             tokenSource.Dispose();
             tokenSource = null;
-            _isEntityActionInterval = false;
+            IsEntityActionInterval = false;
         }
     }
 

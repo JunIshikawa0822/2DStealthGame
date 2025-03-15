@@ -29,7 +29,6 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
         
         gameStat.onPlayerAttackStartEvent += OnAttackStart;
-        gameStat.onPlayerAttackingEvent += OnAttack;
         gameStat.onPlayerAttackEndEvent += OnAttackEnd;
 
         gameStat.onPlayerReloadEvent += OnReload;
@@ -117,16 +116,9 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Debug.Log("AttackStart");
     }
 
-    public void OnAttack()
-    {
-        _player.Attaking(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
-        Debug.Log("Attacking");
-    }
-
     public void OnAttackEnd()
     {
         _player.AttackEnd(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
-        Debug.Log("AttackEnd");
     }
 
     public void OnReload()

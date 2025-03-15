@@ -14,6 +14,7 @@ public class EnemySystem : ASystem, IOnUpdate
 
         foreach (PathFinder obj in gameStat.pathFinders)
         {
+            if(obj == null) continue;
             obj.SetUp(gameStat.staticObjectTree);
         }
         

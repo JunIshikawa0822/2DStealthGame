@@ -20,7 +20,7 @@ public abstract class AGun : MonoBehaviour, IObject
     [SerializeField]
     protected Transform _muzzlePosition;
 
-    protected bool _isShotIntervalActive;
+    protected bool IsShotIntervalActive { get; set; }
     protected bool _isJamming;
 
     public I_Data_Gun Data {get => _gun_Data;}
@@ -56,10 +56,10 @@ public abstract class AGun : MonoBehaviour, IObject
     //撃った弾数をリアルタイムで反映させるためにデータを引き渡す
     public abstract void Reload(Entity_Magazine magazine);
     public abstract void TriggerOn();
-    public abstract void Shooting();
+    //public abstract void Shooting();
     public abstract void TriggerOff();
 
-    public abstract void Shot();
+    //public abstract void Shot();
     public abstract void Jam();
     public abstract UniTask IntervalWait(Action action, CancellationToken token, float time, string ActionName);
 

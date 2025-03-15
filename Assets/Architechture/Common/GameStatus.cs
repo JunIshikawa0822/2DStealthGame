@@ -17,7 +17,6 @@ public class GameStatus
 
     [Header("PlayerActions")]
     public Action onPlayerAttackStartEvent;
-    public Action onPlayerAttackingEvent;
     public Action onPlayerAttackEndEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;

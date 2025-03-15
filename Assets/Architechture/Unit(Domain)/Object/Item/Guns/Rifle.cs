@@ -32,7 +32,7 @@ public class Rifle : AGun
         // _muzzleFlashRenderer = GetComponent<LineRenderer>();
         // _muzzleFlashRenderer.enabled = false;
 
-        _isShotIntervalActive = false;
+        IsShotIntervalActive = false;
         _isJamming = false;
 
         _shotDisposable = new CompositeDisposable();
@@ -44,42 +44,88 @@ public class Rifle : AGun
 
         return this;
     }
-
-    public void OnUpdate()
+    
+    private async UniTaskVoid ContinuousFireAsync()
     {
-
+        while (_actionIntervalTokenSource.IsCancellationRequested == false)
+        {
+            Debug.Log("うごいている");
+            Debug.Log(IsShotIntervalActive);
+            if (!IsShotIntervalActive)
+            {
+                Shot();
+                IsShotIntervalActive = true;
+                IntervalWait(() => IsShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
+            }
+            else
+            {
+                Debug.Log("まだIntervalだよ");
+                await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+            
+            // 残弾が0になったら発射を停止
+            if (Magazine.MagazineRemaining < 1)
+            {
+                _actionIntervalTokenSource.Cancel();
+                _shotIntervalTokenSource.Cancel();
+                break;
+            }
+        }
+        
+        Debug.Log("ぬけた");
     }
 
     public override void TriggerOn()
     {
-        Debug.Log("撃ってる");
-        Debug.Log(_isShotIntervalActive);
-        //射撃と射撃の間隔を制御
-        if(_isShotIntervalActive)return;
-
-        Shot();
-
-        _isShotIntervalActive = true;
-        _shotIntervalTokenSource = new CancellationTokenSource();
-
-        IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();    
-    }
-
-    public override void Shooting()
-    {
-        if(_gun_Data.IsAuto == false) return;
-
-        Observable.Interval(System.TimeSpan.FromSeconds(_shotInterval))
-            .Subscribe(_ => Shot())
-            .AddTo(_shotDisposable); // 射撃用のDisposableに追加
+        RefreshActionToken();
+        RefreshShotIntervalToken();
+        
+        if (_gun_Data.IsAuto)
+        {
+            ContinuousFireAsync().Forget();
+        }
+        else
+        {
+            if(IsShotIntervalActive)return;
+            
+            Shot();
+            IsShotIntervalActive = true;
+            IntervalWait(() => IsShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
+        }
     }
 
     public override void TriggerOff()
     {
-        _shotDisposable.Clear();
+        _actionIntervalTokenSource.Cancel();
     }
 
-    public override void Shot()
+    private void RefreshShotIntervalToken()
+    {
+        if (_shotIntervalTokenSource == null)
+        {
+            _shotIntervalTokenSource = new CancellationTokenSource(); 
+        }
+        else if (_shotIntervalTokenSource.IsCancellationRequested)
+        {
+            _shotIntervalTokenSource.Dispose();
+            _shotIntervalTokenSource = new CancellationTokenSource();
+        }
+    }
+    
+    private void RefreshActionToken()
+    {
+        if (_actionIntervalTokenSource == null)
+        {
+            _actionIntervalTokenSource = new CancellationTokenSource();
+        }
+        else if (_actionIntervalTokenSource.IsCancellationRequested)
+        {
+            _actionIntervalTokenSource.Dispose();
+            _actionIntervalTokenSource = new CancellationTokenSource();
+        }
+    }
+
+    private void Shot()
     {
         //マガジンがないor弾がないとそもそも撃てない
         if(_magazine == null || _magazine.MagazineRemaining < 1)
@@ -89,7 +135,7 @@ public class Rifle : AGun
         }
 
         //射撃と射撃の間隔を制御
-        //if(_isShotIntervalActive)return;
+        //if(IsShotIntervalActive)return;
         //_objectPoolの有無をチェック
         if(_objectPool == null)return;
         //Poolからもってくる
@@ -115,12 +161,13 @@ public class Rifle : AGun
         Debug.Log(_referenceInventoryItem.StackingNum);
         //_shotIntervalTokenSource = new CancellationTokenSource();
 
-        //_isShotIntervalActive = true;
-        //IntervalWait(() => _isShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
+        //IsShotIntervalActive = true;
+        //IntervalWait(() => IsShotIntervalActive = false, _shotIntervalTokenSource.Token, _shotInterval, "射撃クールダウン").Forget();
     }
 
     public override void Reload(Entity_Magazine magazine)
     {
+        RefreshActionToken();
         _magazine = magazine;
         
         if(_referenceInventoryItem == null) return;

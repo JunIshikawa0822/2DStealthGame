@@ -14,10 +14,14 @@ public class PathFinder : MonoBehaviour
     [SerializeField] private Transform goal;
     [SerializeField] private GameObject pathTestObject;
 
-    [SerializeField] private Transform[] LineTestObjects;
+    //[SerializeField] private Transform[] LineTestObjects;
     [SerializeField] private Transform stageCenter;
+    private CancellationTokenSource _cancellationTokenSource;
+
+    private AGun gun;
     public void SetUp(AABB3DTree<(Transform, AlignedOBB)> tree)
     {
+        _cancellationTokenSource = new CancellationTokenSource();
         _staticObjectTree = tree;
 
         RRTStar moveAlgorithm = new RRTStar
@@ -67,52 +71,33 @@ public class PathFinder : MonoBehaviour
             }
         }
         
-        MoveAlongPaths(paths);
+        //ここからはTaskをHTNに入れ込む
     }
 
-    private void Update()
+    private void Attack()
     {
-        //Debug.Log(IsLineCollideWithStaticObject(LineTestObjects[0].position, LineTestObjects[1].position);
+        if(gun == null)return;
+        gun.TriggerOn();
     }
-
-    private void FixedUpdate()
-    {
-        //Debug.Log("はあ");
-        //MoveToDir(goal.position - transform.position);
-    }
-
-    // private void MoveToDir(Vector3 moveDir)
-    // {
-    //     while ((goal.position - transform.position).sqrMagnitude > 1)
-    //     {
-    //         Vector3 direction = moveDir.normalized;
-    //         transform.localPosition += direction * 5;
-    //     }
-    // }
-    //
-    // private async UniTask Move(List<Vector3> paths)
-    // {
-    //     await MoveAlongPaths(paths);
-    // }
 
     private async UniTask MoveAlongPaths(List<Vector3> paths)
     {
         foreach (Vector3 target in paths)
         {
-            await MoveToDir(target);
+            await MoveToTarget(target);
         }
         
         Debug.Log("おわった");
     }
 
-    private async UniTask MoveToDir(Vector3 target)
+    private async UniTask MoveToTarget(Vector3 target)
     {
         float stuckTimeThreshold = 2.0f;
         float noMovementTimer = 0f;
         Vector3 lastPosition = transform.localPosition;
         float movementThreshold = 0.1f;
         // 目標に到達するまでループ
-        while ((target - transform.position).sqrMagnitude > _enemySize.y)
+        while ((target - transform.position).sqrMagnitude > _enemySize.y + _enemySize.x)
         {
             Debug.Log("移動中");
             Debug.Log($"ターゲット : {target}, 現在 : {transform.position}, 距離 : {(target - transform.position).sqrMagnitude}");
@@ -137,7 +122,7 @@ public class PathFinder : MonoBehaviour
             }
 
             // 次のフレームの Update 時に処理を再開
-            await UniTask.Yield(PlayerLoopTiming.Update);
+            await UniTask.Yield(PlayerLoopTiming.Update, _cancellationTokenSource.Token);
         }
         
         Debug.Log("1フェーズ終了");
@@ -148,7 +133,7 @@ public class PathFinder : MonoBehaviour
         Gizmos.color = Color.green;
         
         if(!Application.isPlaying)return;
-        Gizmos.DrawLine(LineTestObjects[0].position, LineTestObjects[1].position);
+        //Gizmos.DrawLine(LineTestObjects[0].position, LineTestObjects[1].position);
     }
 
     public bool IsOBBCollisionWithStaticObject(Vector3 startPos, Vector3 endPos)
@@ -177,6 +162,7 @@ public class PathFinder : MonoBehaviour
 
     public void OnDestroy()
     {
-        
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
     }
 }

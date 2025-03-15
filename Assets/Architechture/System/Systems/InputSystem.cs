@@ -18,7 +18,7 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerMoveTest.canceled += OnMoveInput;
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackStartInput;
-        _gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackingInput;
+        // _gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackingInput;
         _gameInputs.PlayerActionTest.PlayerAttackTest.canceled += OnAttackEndInput;
 
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
@@ -71,10 +71,10 @@ public class InputSystem : ASystem, IOnPreUpdate
         gameStat.onPlayerAttackStartEvent?.Invoke();
     }
 
-    private void OnAttackingInput(InputAction.CallbackContext context)
-    {
-        gameStat.onPlayerAttackingEvent?.Invoke();
-    }
+    // private void OnAttackingInput(InputAction.CallbackContext context)
+    // {
+    //     gameStat.onPlayerAttackingEvent?.Invoke();
+    // }
 
     private void OnAttackEndInput(InputAction.CallbackContext context)
     {

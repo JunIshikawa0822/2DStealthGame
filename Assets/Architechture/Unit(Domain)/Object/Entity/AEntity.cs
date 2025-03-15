@@ -16,7 +16,7 @@ public abstract class AEntity : MonoBehaviour
     protected MeshRenderer _entityRenderer;
     protected MeshRenderer[] _entityChildrenMeshsArray;
 
-    protected bool _isEntityActionInterval;
+    protected bool IsEntityActionInterval { get; set; }
     protected CancellationTokenSource _actionCancellationTokenSource;
 
     public abstract IStorage Storage{get;}
@@ -87,7 +87,7 @@ public abstract class AEntity : MonoBehaviour
 
     public async UniTask EntityActionInterval(Action waitAction, CancellationToken token, float time, string ActionName)
     {
-        _isEntityActionInterval = true;
+        IsEntityActionInterval = true;
 
         try
         {
@@ -103,7 +103,7 @@ public abstract class AEntity : MonoBehaviour
         }
         finally
         {
-            _isEntityActionInterval = false; // クールタイム終了（またはキャンセル)
+            IsEntityActionInterval = false; // クールタイム終了（またはキャンセル)
         }
     }
 }
