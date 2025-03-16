@@ -9122,7 +9122,7 @@ Transform:
   m_GameObject: {fileID: 165118306}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: -39.400066, y: 14.342091, z: -3349.4001}
+  m_LocalPosition: {x: 4.600008, y: 14.342156, z: -1531.4001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34196,7 +34196,7 @@ Transform:
   m_GameObject: {fileID: 1141584801}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: -39.400066, y: 14.342091, z: -3349.4001}
+  m_LocalPosition: {x: 4.600008, y: 14.342156, z: -1531.4001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -42230,6 +42230,8 @@ MonoBehaviour:
       type: 3}
     inventoryPanel: {fileID: 1986844071}
     isInventoryPanelActive: 0
+    obbTest: {fileID: 0}
+    obbTestObjects: []
     staticObjectsParent: {fileID: 0}
     dynamicObjectList: []
     InteractableObjects: []
@@ -42243,7 +42245,7 @@ MonoBehaviour:
     cellDepth: 20
     dimensionLevel: 3
     mortonSpaceBaseTrans: {fileID: 2076361589}
-    testObjects: []
+    pathFinders: []
 --- !u!43 &1572338265
 Mesh:
   m_ObjectHideFlags: 0
@@ -52842,7 +52844,7 @@ PrefabInstance:
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -29.4
+      value: 14.6
       objectReference: {fileID: 0}
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -52852,7 +52854,7 @@ PrefabInstance:
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3339.4
+      value: -1521.4
       objectReference: {fileID: 0}
     - target: {fileID: 547463796572365423, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -53027,7 +53029,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0381799287642443d8575cabb84316e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _baseTrans: {fileID: 2076361589}
 --- !u!114 &3514247124795816324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53040,14 +53041,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5556e562021046748013a15decd892b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rayMarchingComputeShader: {fileID: 7200000, guid: 2cbae872cfd7e4e60835d96443534816,
-    type: 3}
-  _rayCount: 100
-  _rayAngle: 60
-  _thresholdValue: 0.01
-  _maxDistance: 30
-  targetParent: {fileID: 1818613857}
-  obstacleParent: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

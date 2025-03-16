@@ -7,7 +7,7 @@ using UnityEditor.ShaderGraph.Internal;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
-public class PathFinder : MonoBehaviour
+public class PathFinder : AEntity
 {
     private AABB3DTree<(Transform, AlignedOBB)> _staticObjectTree;
     [SerializeField]private Vector3 _enemySize;
@@ -19,6 +19,8 @@ public class PathFinder : MonoBehaviour
     private CancellationTokenSource _cancellationTokenSource;
 
     private AGun gun;
+    
+    public override IStorage Storage{ get;}
     public void SetUp(AABB3DTree<(Transform, AlignedOBB)> tree)
     {
         _cancellationTokenSource = new CancellationTokenSource();
@@ -72,12 +74,9 @@ public class PathFinder : MonoBehaviour
         }
         
         //ここからはTaskをHTNに入れ込む
-    }
 
-    private void Attack()
-    {
-        if(gun == null)return;
-        gun.TriggerOn();
+        PrimitiveTask attackStart = new PrimitiveTask("AttackStart", (ws) => gun == null && IsEntityActionInterval == false, (ws) => gun.TriggerOn(), (ws) => ws);
+        PrimitiveTask attackEnd = new PrimitiveTask("AttackEnd", (ws) => gun == null, (ws) => gun.TriggerOff(), (ws) => ws);
     }
 
     private async UniTask MoveAlongPaths(List<Vector3> paths)
@@ -158,6 +157,11 @@ public class PathFinder : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public override void OnDamage(float damage)
+    {
+        
     }
 
     public void OnDestroy()
