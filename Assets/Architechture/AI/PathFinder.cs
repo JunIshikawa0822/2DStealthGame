@@ -21,6 +21,9 @@ public class PathFinder : AEntity
     private AGun gun;
     
     public override IStorage Storage{ get;}
+    
+    //ここからHTN用
+    private List<Vector3> _movePaths = new List<Vector3>();
     public void SetUp(AABB3DTree<(Transform, AlignedOBB)> tree)
     {
         _cancellationTokenSource = new CancellationTokenSource();
@@ -38,20 +41,6 @@ public class PathFinder : AEntity
             100,
             stageCenter.transform.position
         );
-
-        RRTS moveAlgorithm2 = new RRTS
-        (
-            stageCenter.position,
-            4,
-            15,
-            2,
-            IsLineCollideWithStaticObject,
-            5000,
-            0.1f,
-            -100,
-            100
-        );
-        //Debug.Log(IsLineCollideWithStaticObject(LineTestObjects[0].position, LineTestObjects[1].position));
 
         List<Vector3> paths = moveAlgorithm.FindPath(this.transform.position, goal.position);
         if (paths == null)
@@ -72,21 +61,17 @@ public class PathFinder : AEntity
                 Instantiate(pathTestObject, groundPos, Quaternion.identity);
             }
         }
-        
+
+        MoveAlongPaths(paths).Forget();
         //ここからはTaskをHTNに入れ込む
-
-        PrimitiveTask attackStart = new PrimitiveTask("AttackStart", (ws) => gun == null && IsEntityActionInterval == false, (ws) => gun.TriggerOn(), (ws) => ws);
-        PrimitiveTask attackEnd = new PrimitiveTask("AttackEnd", (ws) => gun == null, (ws) => gun.TriggerOff(), (ws) => ws);
     }
-
+    
     private async UniTask MoveAlongPaths(List<Vector3> paths)
     {
         foreach (Vector3 target in paths)
         {
             await MoveToTarget(target);
         }
-        
-        Debug.Log("おわった");
     }
 
     private async UniTask MoveToTarget(Vector3 target)
