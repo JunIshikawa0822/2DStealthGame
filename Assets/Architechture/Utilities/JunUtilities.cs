@@ -2402,4 +2402,79 @@ namespace JunUtilities
             }
         }
     }
+
+    namespace EQS
+    {
+        public abstract class EnvQueryStrategy : ScriptableObject
+        {
+            public bool IsActive = true;
+            public abstract void RunStrategy(int currentTest, List<EnvQueryItem> items);
+        }
+        
+        // --- プレイヤーの視線からカバーを判定するテスト ---
+        [CreateAssetMenu(menuName = "EQS/Test/CoverVisibilityTest")]
+        public class CoverVisibilityStrategy : EnvQueryStrategy
+        {
+            public Transform visionObject;
+            public LayerMask coverMask;
+
+            public override void RunStrategy(int currentTest, List<EnvQueryItem> items)
+            {
+                foreach (EnvQueryItem item in items)
+                {
+                    Vector3 worldPos = item.GetWorldPosition();
+                    Vector3 dir = worldPos - visionObject.position;
+                    float dist = dir.magnitude;
+                    bool blocked = Physics.Raycast(visionObject.position, dir.normalized, out var hit, dist, coverMask);
+                    item.TestResults[currentTest] = blocked ? 1f : 0f;
+                }
+            }
+        }
+
+        public class DistanceStrategy : EnvQueryStrategy
+        {
+            public Transform distanceTo;
+            public override void RunStrategy(int currentTest, List<EnvQueryItem> items)
+            {
+                if(distanceTo != null && items != null)
+                {
+                    foreach(EnvQueryItem item in items)
+                    {
+                        item.TestResults[currentTest] = Vector3.Distance(distanceTo.position, item.GetWorldPosition());
+                    }
+                }
+                else
+                {
+                    foreach(EnvQueryItem item in items)
+                    {
+                        item.TestResults[currentTest] = 0.0f;
+                    }
+                }
+            }
+        }
+        //自身を中心に展開する各点のこと
+        public class EnvQueryItem
+        {
+            public float Score;
+            public bool IsValid;
+            public float[] TestResults;
+
+            private Transform centerOfItems; // 基準位置
+            private Vector3 location; // 相対位置
+            
+            public EnvQueryItem(int numTests, Vector3 location, Transform centerOfItems)
+            {
+                Score = 0.0f;
+                IsValid = true;
+                TestResults = new float[numTests];
+                this.centerOfItems = centerOfItems;
+                this.location = location;
+            }
+
+            public Vector3 GetWorldPosition()
+            {
+                return centerOfItems.position + location;
+            }
+        }
+    }
 }

@@ -81,10 +81,10 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
         SetEvent();
     }
 
-    public override void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm)
-    {
-        
-    }
+    // public override void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm)
+    // {
+    //     
+    // }
 
     public void SetEvent()
     {
@@ -264,12 +264,12 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
             .AddTo(_disposablesByBattleAction, this);
     }
 
-    public override void Attack()
+    public void Attack()
     {
         EnemyGun.TriggerOn();
     }
 
-    public override void Reload()
+    public void Reload()
     {
         
     }

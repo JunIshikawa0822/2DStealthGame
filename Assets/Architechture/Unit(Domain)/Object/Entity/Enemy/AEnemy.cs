@@ -10,7 +10,7 @@ public abstract class AEnemy : AEntity
     protected AGun EnemyGun { get; set; }
     public abstract IStorage WeaponStorage{get;}
 
-    public abstract void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm);
+    //public abstract void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm);
 
     public virtual void SetUpEnemyAI(RRTStar enemyMoveAlgorithm)
     {
@@ -34,8 +34,7 @@ public abstract class AEnemy : AEntity
         return nearestObject;
     }
     public abstract void Rotate();
-    public abstract void Attack();
-    public abstract void Reload();
+
     public abstract void Equip(AGun gun);
     public override void OnEntityDead()
     {

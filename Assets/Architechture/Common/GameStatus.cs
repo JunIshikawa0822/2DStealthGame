@@ -124,9 +124,15 @@ public class GameStatus
     [SerializeField] private float cellDepth;
     [HideInInspector]public Vector3 CellSize{get => new Vector3(cellWidth, cellHeight, cellDepth);}
     
-    [SerializeField] public int dimensionLevel;
-    [SerializeField] public Transform mortonSpaceBaseTrans;
+    public int dimensionLevel;
+    public Transform mortonSpaceBaseTrans;
 
-    [SerializeField] public PathFinder[] pathFinders;
+    public PathFinder[] pathFinders;
     //[SerializeField] public GameObject pathTest;
+
+    [Header("RRTStar")] 
+    public Transform stageCenterTrans;
+
+    [Header("HTN")] 
+    public WorldState worldState;
 }

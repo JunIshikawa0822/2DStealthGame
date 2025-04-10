@@ -7,10 +7,11 @@ using System.Collections.Generic;
 public class EnemySystem : ASystem, IOnUpdate
 {
     private float _enemyRadius = 1;
-    WorldState _worldState;
     public override void OnSetUp()
     {
-        _worldState = new WorldState();
+        gameStat.worldState = new WorldState();
+        gameStat.worldState.SetState("StageCenter", gameStat.stageCenterTrans);
+        gameStat.worldState.SetState("StageObjectTree", gameStat.staticObjectTree);
 
         foreach (PathFinder obj in gameStat.pathFinders)
         {
@@ -33,6 +34,10 @@ public class EnemySystem : ASystem, IOnUpdate
             // Debug.Log(enemy.transform.name); 
             enemy.OnSetUp(new Entity_HealthPoint(100, 100));
             enemy.gunReleaseAction += (AGun gun) => gameStat.gunFacade.ReturnGunInstance(gun);
+            if (enemy is Enemy_Bandit_HTN htnEnemy)
+            {
+                htnEnemy.Initialize(gameStat.worldState);
+            }
             //enemy.onEntityDeadEvent += () => { };
             
             //enemy.SetUpEnemyAI(moveAlgorithm);

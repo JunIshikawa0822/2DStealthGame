@@ -62,7 +62,7 @@ public class PathFinder : AEntity
             }
         }
 
-        MoveAlongPaths(paths).Forget();
+        //MoveAlongPaths(paths).Forget();
         //ここからはTaskをHTNに入れ込む
     }
     

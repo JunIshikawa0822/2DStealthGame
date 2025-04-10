@@ -1,26 +1,33 @@
+using System;
 using JetBrains.Annotations;
 using JunUtilities;
 using UnityEngine;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using System.Threading;
+using Unity.VisualScripting;
 
 public class Enemy_Bandit_HTN : AEnemy
 {
-    [SerializeField] private Transform _targetPos;
-    [SerializeField]
-    private Transform _gunTrans;
-    [SerializeField]
-    private float _enemy_Bandit_RotateSpeed;
+    [SerializeField] private Vector3 _enemySize;
+    [SerializeField] private Transform _gunTrans;
+    [SerializeField] private float _enemy_Bandit_RotateSpeed;
+    
+    [SerializeField] private Transform goal;
     
     [SerializeField]private NormalStorage _enemyStorage;
     [SerializeField]private WeaponStorage _enemyWeaponStorage;
     public override IStorage Storage {get => _enemyStorage;}
     public override IStorage WeaponStorage {get => _enemyWeaponStorage;}
-    
-    private Transform _currentTarget;
-    
-    private HTNPlanner _enemyAI;
-    private RRTStar _enemyMoveAlgorithm;
 
+    private CancellationTokenSource _actionCancellationTokenSource;
+    private Transform _currentTarget;
+    private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
+    
+    Planner _planner;
+    PlanRunner _planRunner;
+    WorldState _worldState;
+    
     public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
     {
         base.OnSetUp(enemy_Bandit_HP);
@@ -32,19 +39,99 @@ public class Enemy_Bandit_HTN : AEnemy
             return;
         }
     }
-    
-    public override void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm)
+
+    public void Initialize(WorldState worldState)
     {
-        _enemyAI = enemyAI;
-        _enemyMoveAlgorithm = enemyMoveAlgorithm;
+        _worldState = worldState;
+        
+        RRTStar moveAlgorithm = new RRTStar
+        (
+            4f,
+            15,
+            2,
+            IsLineCollideWithStaticObject,
+            1000,
+            0.2f,
+            -100,
+            100,
+            _worldState.GetState<Transform>("StageCenter").position
+        );
+
+        _stageObjectTree = _worldState.GetState<AABB3DTree<(Transform, AlignedOBB)>>("StageObjectTree");
+        
+        ATask domainTask = null;
+        HTNTaskDomain domain = new HTNTaskDomain(domainTask);
+        _planner = new Planner(domain);
+        _planRunner = new PlanRunner();
+        
+        List<Vector3> paths = moveAlgorithm.FindPath(this.transform.position, goal.position);
     }
 
-    public override void SetUpEnemyAI(RRTStar enemyMoveAlgorithm)
+    public ATask BuildTask()
     {
-        _enemyMoveAlgorithm = enemyMoveAlgorithm;
-        Debug.Log(_targetPos);
-        //List<Vector3> points = _enemyMoveAlgorithm.FindPath(this.transform.position, _targetPos.position);
-        //Debug.Log($"おりゃ{string.Join(", ", points)}");
+        PrimitiveTask shotStart = new PrimitiveTask
+            (
+                "ShotStart",
+                async (ws , cts) =>
+                {
+                    EnemyGun.TriggerOn();
+                    return TaskStatus.Success;
+                }, 
+                (ws) =>
+                {
+                    bool isHaveGun = EnemyGun != false;
+                    bool isFindEnemy = _currentTarget != false;
+
+                    return isHaveGun && isFindEnemy;
+                }
+            );
+        
+        PrimitiveTask shotEnd = new PrimitiveTask
+            (
+                "ShotEnd", 
+                async (ws, cts) =>
+                {
+                    EnemyGun.TriggerOff();
+                    return TaskStatus.Success;
+                },
+                (ws) =>
+                {
+                    bool isHaveGun = EnemyGun != false;
+
+                    return isHaveGun;
+                }
+            );
+
+        PrimitiveTask reload = new PrimitiveTask
+            (
+                "Reload",
+                async(ws, cts) =>
+                {
+                    Entity_Magazine magazine = new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity);
+
+                    try
+                    {
+                        Debug.Log($"Reload開始");
+                        await UniTask.Delay((int)(EnemyGun.ShotInterval * 1000), cancellationToken: cts);
+                        return TaskStatus.Success;
+                    }
+                    catch(OperationCanceledException)
+                    {
+                        return TaskStatus.Canceled;
+                    }
+                    catch (Exception ex)
+                    {
+                        return TaskStatus.Faulted;
+                    }
+                },
+
+                (ws) =>
+                {
+                    return EnemyGun.Magazine.MagazineRemaining < 1;
+                }
+            );
+
+        return null;
     }
     
     public override void Rotate()
@@ -54,20 +141,14 @@ public class Enemy_Bandit_HTN : AEnemy
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _enemy_Bandit_RotateSpeed * Time.deltaTime);
     }
 
-    public override void Attack()
-    {
-        if(EnemyGun == null)return;
-        EnemyGun.TriggerOn();
-    }
-
-    public override void Reload()
-    {
-        if(EnemyGun == null)return;
-        if(EnemyGun.Magazine == null)return;
-        if(EnemyGun.Magazine.MagazineRemaining >= EnemyGun.Magazine.MagazineCapacity)return;
-
-        EnemyGun.Reload(new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity));
-    }
+    // public void Reload()
+    // {
+    //     if(EnemyGun == null)return;
+    //     if(EnemyGun.Magazine == null)return;
+    //     if(EnemyGun.Magazine.MagazineRemaining >= EnemyGun.Magazine.MagazineCapacity)return;
+    //
+    //     EnemyGun.Reload(new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity));
+    // }
 
     public override void Equip(AGun gun)
     {
@@ -81,7 +162,76 @@ public class Enemy_Bandit_HTN : AEnemy
         if(IsEntityDead())
         {
             base.OnEntityDead();
-            
         }
-    } 
+    }
+    
+    //ノードを移動する
+    private async UniTask<TaskStatus> MoveAlongPaths(List<Vector3> paths, CancellationTokenSource actionCTS)
+    {
+        foreach (Vector3 target in paths)
+        {
+            await MoveToTarget(target, actionCTS);
+        }
+
+        return TaskStatus.Success;
+        
+        //ノードからノードへ移動
+        async UniTask<TaskStatus> MoveToTarget(Vector3 target, CancellationTokenSource actionCTS)
+        {
+            float stuckTimeThreshold = 2.0f;
+            float noMovementTimer = 0f;
+            Vector3 lastPosition = transform.localPosition;
+            float movementThreshold = 0.1f;
+            // 目標に到達するまでループ
+            while ((target - transform.position).sqrMagnitude > _enemySize.y + _enemySize.x)
+            {
+                Debug.Log("移動中");
+                Debug.Log($"ターゲット : {target}, 現在 : {transform.position}, 距離 : {(target - transform.position).sqrMagnitude}");
+            
+                // 目標方向の単位ベクトルを算出し、localPositionに加算して移動
+                Vector3 direction = (target - transform.position).normalized;
+                transform.localPosition += direction * 5 * Time.deltaTime;
+
+                if ((transform.localPosition - lastPosition).sqrMagnitude < movementThreshold)
+                {
+                    noMovementTimer += Time.deltaTime;
+                    if (noMovementTimer >= stuckTimeThreshold)
+                    {
+                        Debug.Log("一定時間動いていないため移動を中断します。");
+                        return TaskStatus.Canceled;
+                    }
+                }
+                else
+                {
+                    noMovementTimer = 0f;
+                    lastPosition = transform.localPosition;
+                }
+
+                // 次のフレームの Update 時に処理を再開
+                await UniTask.Yield(PlayerLoopTiming.Update, actionCTS.Token);
+            }
+        
+            Debug.Log("1フェーズ終了");
+            return TaskStatus.Success;
+        }
+    }
+    
+    //RRTStarにぶち込む、接触判定
+    public bool IsLineCollideWithStaticObject(Vector3 startPos, Vector3 endPos)
+    {
+        AABB3D lineBound = new AABB3D(startPos, endPos);
+        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = _stageObjectTree.GetIntersectNode(lineBound);
+        foreach (TreeNode3D<(Transform transform, AlignedOBB allignedObb)> node in intersectNodes)
+        {
+            // Debug.Log($"オブジェクト : {node.InformationTuple.transform.name}, " +
+            //           $"サイズ : {node.InformationTuple.allignedObb.Size}");
+            bool isCollide = node.InformationTuple.allignedObb.IsThickLineIntersection(startPos, endPos, _enemySize.x, _enemySize.y);
+
+            if (isCollide)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
