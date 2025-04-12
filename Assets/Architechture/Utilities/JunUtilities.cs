@@ -1802,18 +1802,24 @@ namespace JunUtilities
     public class RRTStar
     {
         private List<RRTSNode> _rrtsNodes;
+
         //一定方向にどれだけ進むんだい
         private float _stepDistance;
+
         //効率的なノードにするために、近くのノードができた場合に対処するのが通常のRRTとの違い（*）
         //近くにあるノードを調べるために一定の範囲を設定しておく 
         //_stepLengthよりはちょい大きめがいいかも？
         private float _neighborRadius;
+
         //どこまで近づいたらごーるとするか
         private float _thresholdDistance;
+
         // 最大試行回数
         private int _maxIterations;
+
         // ゴール方向を基準として設定する確率
         private float _goalBias;
+
         // サンプリング範囲
         private float _minRange;
         private float _maxRange;
@@ -1823,9 +1829,9 @@ namespace JunUtilities
 
         //線分との当たり判定　中身は外付けでいけるのでいいね
         private Func<Vector3, Vector3, bool> _collideFunc;
-        
-        public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance, 
-            Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000, 
+
+        public RRTStar(float stepDistance, float neighborRadius, float thresholdDistance,
+            Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000,
             float goalBias = 0.1f, float minRange = -100f, float maxRange = 100f, Vector3 stageCenter = default)
         {
             _stepDistance = stepDistance;
@@ -1838,7 +1844,7 @@ namespace JunUtilities
             _maxRange = maxRange;
 
             _stageCenter = stageCenter;
-        
+
             _rrtsNodes = new List<RRTSNode>();
         }
 
@@ -1850,7 +1856,7 @@ namespace JunUtilities
             RRTSNode goalNode = null;
             float bestGoalDistance = float.MaxValue;
 
-            for(int i = 0; i < _maxIterations; i++)
+            for (int i = 0; i < _maxIterations; i++)
             {
                 //適当な点を取ってくる
                 Vector3 randomPoint = GetRandomPoint(goalPos);
@@ -1860,13 +1866,13 @@ namespace JunUtilities
 
                 //ノードの点から適当な点の方向にある程度(stepDistanceぶん)進める
                 Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
-                
+
                 // 障害物チェック
                 if (!IsCollide(nearestNode.Position, newPoint))
                 {
                     // コスト計算
                     float newCost = nearestNode.Cost + Vector3.Distance(nearestNode.Position, newPoint);
-                    
+
                     // Debug.Log($"RandomPoint : {randomPoint}");
                     // Debug.Log($"NewPoint : {newPoint}");
                     //
@@ -1908,7 +1914,7 @@ namespace JunUtilities
             {
                 RRTSNode closestToGoal = null;
                 float minDist = float.MaxValue;
-                
+
                 foreach (RRTSNode node in _rrtsNodes)
                 {
                     float dist = Vector3.Distance(node.Position, goalPos);
@@ -1918,7 +1924,7 @@ namespace JunUtilities
                         closestToGoal = node;
                     }
                 }
-                
+
                 Debug.Log($"完全な経路は見つかりませんでした。最も近いノードまでの距離: {minDist}");
                 return ConstructPath(closestToGoal);
             }
@@ -1926,7 +1932,7 @@ namespace JunUtilities
             //無駄足
             return null;
         }
-        
+
         private bool IsCollide(Vector3 start, Vector3 end)
         {
             return _collideFunc(start, end);
@@ -1936,20 +1942,20 @@ namespace JunUtilities
         {
             // 近傍ノードを取得
             List<RRTSNode> neighbors = GetNeighborNodes(newNode);
-            
+
             // 近傍ノードへの再ワイヤリング（RRT* の核心部分）
             foreach (RRTSNode neighbor in neighbors)
             {
                 // 自分自身と親は除外
                 if (neighbor == newNode || neighbor == newNode.Parent)
                     continue;
-                    
+
                 // この近傍ノードへの直接パスに障害物がないか確認
                 if (!IsCollide(newNode.Position, neighbor.Position))
                 {
                     // 新しいコストを計算
                     float potentialCost = neighbor.Cost + Vector3.Distance(neighbor.Position, newNode.Position);
-                    
+
                     // より良いパスが見つかれば更新
                     if (potentialCost < newNode.Cost)
                     {
@@ -1958,20 +1964,20 @@ namespace JunUtilities
                     }
                 }
             }
-            
+
             // 近傍ノードのコスト最適化（これもRRT* の重要部分）
             foreach (RRTSNode neighbor in neighbors)
             {
                 // 自分自身は除外
                 if (neighbor == newNode)
                     continue;
-                    
+
                 // 新しいノードを経由したパスに障害物がないか確認
                 if (!IsCollide(newNode.Position, neighbor.Position))
                 {
                     // 新しいコストを計算
                     float potentialCost = newNode.Cost + Vector3.Distance(newNode.Position, neighbor.Position);
-                    
+
                     // より良いパスが見つかれば更新
                     if (potentialCost < neighbor.Cost)
                     {
@@ -1981,7 +1987,7 @@ namespace JunUtilities
                 }
             }
         }
-        
+
         private RRTSNode GetNearestNode(Vector3 point)
         {
             RRTSNode nearestNode = null;
@@ -1991,7 +1997,7 @@ namespace JunUtilities
             {
                 //Nodeに入っている各点データとの距離
                 float distance = Vector3.Distance(node.Position, point);
-                
+
                 //近いものをえらぶ
                 if (distance < minDistance)
                 {
@@ -2018,7 +2024,7 @@ namespace JunUtilities
                 return new Vector3(randomX + _stageCenter.x, _stageCenter.y, randomZ + _stageCenter.z);
             }
         }
-        
+
         //適当な点に向かって一定の長さだけ歩みを進める処理
         private Vector3 VectorStep(Vector3 from, Vector3 to)
         {
@@ -2041,7 +2047,7 @@ namespace JunUtilities
 
             return neighbors; // 近傍ノードのリストを返す
         }
-        
+
         private List<Vector3> ConstructPath(RRTSNode endNode)
         {
             List<Vector3> path = new List<Vector3>();
@@ -2053,428 +2059,23 @@ namespace JunUtilities
                 path.Add(currentNode.Position); // 経路を構築
                 currentNode = currentNode.Parent; // 親ノードを辿る
             }
-            
+
             path.Reverse(); // 逆順にして開始点からの経路にする
             return path; // 経路を返す
         }
-        
-        private class RRTSNode
-        {
-            public Vector3 Position;
-            public RRTSNode Parent;
-            public float Cost; // 開始点からのコスト
 
-            public RRTSNode(Vector3 position, RRTSNode parent, float cost)
-            {
-                Position = position;
-                Parent = parent;
-                Cost = cost;
-            }
-        }
-    }
-    
-    public class RRTS
-    {
-        private List<RRTSNode> _rrtsNodes;
-        private float _stepDistance;
-        private float _neighborRadius;
-        private float _thresholdDistance;
-        private int _maxIterations;
-        private float _goalBias;
-        private float _minRange;
-        private float _maxRange;
-        private Vector3 _stageCenter;
-        private Func<Vector3, Vector3, bool> _collideFunc;
-
-        // Regeneration and pruning parameters
-        private int _stagnationThreshold = 500;
-        private int _maintenanceInterval = 100;
-        private int _pruneInterval = 1000;
-        private float _regenerationRadiusMultiplier = 2f;
-        
-        // Parameters for improved sampling strategy
-        private List<Vector3> _collisionPoints = new List<Vector3>();
-        private float _collisionBias = 0.15f;
-        private float _collisionSamplingRadius = 5f;
-
-        public RRTS(Vector3 stageCenter, float stepDistance, float neighborRadius, float thresholdDistance, 
-            Func<Vector3, Vector3, bool> collideFunc, int maxIterations = 5000, 
-            float goalBias = 0.1f, float minRange = -100f, float maxRange = 100f)
-        {
-            _stepDistance = stepDistance;
-            _neighborRadius = neighborRadius;
-            _thresholdDistance = thresholdDistance;
-            _collideFunc = collideFunc;
-            _maxIterations = maxIterations;
-            _goalBias = goalBias;
-            _minRange = minRange;
-            _maxRange = maxRange;
-            _stageCenter = stageCenter;
-            _rrtsNodes = new List<RRTSNode>();
-        }
-
-        public List<Vector3> FindPath(Vector3 startPos, Vector3 goalPos)
-        {
-            _rrtsNodes.Clear();
-            _collisionPoints.Clear();
-            // Create initial node (with iteration 0)
-            _rrtsNodes.Add(new RRTSNode(startPos, null, 0f, 0));
-
-            RRTSNode goalNode = null;
-            float bestGoalDistance = float.MaxValue;
-
-            for (int i = 0; i < _maxIterations; i++)
-            {
-                Vector3 randomPoint = GetRandomPoint(goalPos);
-                RRTSNode nearestNode = GetNearestNode(randomPoint);
-                Vector3 newPoint = VectorStep(nearestNode.Position, randomPoint);
-
-                // Check for collision and record collision points
-                if (!IsCollide(nearestNode.Position, newPoint))
-                {
-                    float newCost = nearestNode.Cost + Vector3.Distance(nearestNode.Position, newPoint);
-                    RRTSNode newNode = new RRTSNode(newPoint, nearestNode, newCost, i);
-                    _rrtsNodes.Add(newNode);
-                    nearestNode.Children.Add(newNode); // Track child nodes for proper pruning
-                    nearestNode.LastExtensionIteration = i;
-
-                    OptimizeWithNeighbors(newNode);
-
-                    float distToGoal = Vector3.Distance(newPoint, goalPos);
-                    if (distToGoal < _thresholdDistance)
-                    {
-                        if (distToGoal < bestGoalDistance)
-                        {
-                            bestGoalDistance = distToGoal;
-                            goalNode = newNode;
-                        }
-                    }
-
-                    if (i % 100 == 0)
-                    {
-                        Debug.Log($"Iteration: {i}, Best goal distance: {bestGoalDistance}");
-                    }
-                }
-                else
-                {
-                    // Record collision point for improved sampling
-                    _collisionPoints.Add(newPoint);
-                    // Limit size of collision points list to prevent memory issues
-                    if (_collisionPoints.Count > 1000)
-                    {
-                        _collisionPoints.RemoveAt(0);
-                    }
-                }
-
-                // Maintenance phase: Node regeneration
-                if (i % _maintenanceInterval == 0)
-                {
-                    foreach (var node in _rrtsNodes.ToList()) // Create a copy to avoid collection modification issues
-                    {
-                        if (i - node.LastExtensionIteration > _stagnationThreshold)
-                        {
-                            // Sample around collision points if any, otherwise sample around node
-                            Vector3 newSample;
-                            if (_collisionPoints.Count > 0 && UnityEngine.Random.value < _collisionBias)
-                            {
-                                // Sample near a random collision point
-                                Vector3 collisionPoint = _collisionPoints[UnityEngine.Random.Range(0, _collisionPoints.Count)];
-                                newSample = SampleAround3D(collisionPoint, _collisionSamplingRadius);
-                            }
-                            else
-                            {
-                                newSample = SampleAround3D(node.Position, _stepDistance * _regenerationRadiusMultiplier);
-                            }
-
-                            if (!IsCollide(node.Position, newSample))
-                            {
-                                float regenCost = node.Cost + Vector3.Distance(node.Position, newSample);
-                                RRTSNode regeneratedNode = new RRTSNode(newSample, node, regenCost, i);
-                                _rrtsNodes.Add(regeneratedNode);
-                                node.Children.Add(regeneratedNode); // Track child nodes
-                                node.LastExtensionIteration = i;
-                            }
-                        }
-                    }
-                }
-
-                // Maintenance phase: Node pruning
-                if (i % _pruneInterval == 0)
-                {
-                    List<RRTSNode> nodesToRemove = new List<RRTSNode>();
-                    foreach (var node in _rrtsNodes)
-                    {
-                        if (node.Parent != null && (i - node.LastExtensionIteration > _stagnationThreshold * 2))
-                        {
-                            // If node has no children and hasn't been extended recently, mark for removal
-                            if (node.Children.Count == 0)
-                            {
-                                nodesToRemove.Add(node);
-                            }
-                        }
-                    }
-
-                    // Safe removal of nodes, handling parent-child references
-                    foreach (var node in nodesToRemove)
-                    {
-                        if (node.Parent != null)
-                        {
-                            node.Parent.Children.Remove(node); // Remove from parent's children list
-                        }
-                        _rrtsNodes.Remove(node);
-                    }
-                }
-            }
-
-            if (goalNode != null)
-            {
-                Debug.Log("Path found!");
-                return ConstructPath(goalNode);
-            }
-            if (_rrtsNodes.Count > 1)
-            {
-                RRTSNode closestToGoal = null;
-                float minDist = float.MaxValue;
-                foreach (RRTSNode node in _rrtsNodes)
-                {
-                    float dist = Vector3.Distance(node.Position, goalPos);
-                    if (dist < minDist)
-                    {
-                        minDist = dist;
-                        closestToGoal = node;
-                    }
-                }
-                Debug.Log($"No complete path found. Closest node distance: {minDist}");
-                return ConstructPath(closestToGoal);
-            }
-            return null;
-        }
-
-        private bool IsCollide(Vector3 start, Vector3 end)
-        {
-            return _collideFunc(start, end);
-        }
-
-        private void OptimizeWithNeighbors(RRTSNode newNode)
-        {
-            List<RRTSNode> neighbors = GetNeighborNodes(newNode);
-            foreach (RRTSNode neighbor in neighbors)
-            {
-                if (neighbor == newNode || neighbor == newNode.Parent)
-                    continue;
-                if (!IsCollide(newNode.Position, neighbor.Position))
-                {
-                    float potentialCost = neighbor.Cost + Vector3.Distance(neighbor.Position, newNode.Position);
-                    if (potentialCost < newNode.Cost)
-                    {
-                        // Update parent reference
-                        if (newNode.Parent != null)
-                        {
-                            newNode.Parent.Children.Remove(newNode);
-                        }
-                        newNode.Parent = neighbor;
-                        neighbor.Children.Add(newNode);
-                        newNode.Cost = potentialCost;
-                    }
-                }
-            }
-            foreach (RRTSNode neighbor in neighbors)
-            {
-                if (neighbor == newNode)
-                    continue;
-                if (!IsCollide(newNode.Position, neighbor.Position))
-                {
-                    float potentialCost = newNode.Cost + Vector3.Distance(newNode.Position, neighbor.Position);
-                    if (potentialCost < neighbor.Cost)
-                    {
-                        // Update parent reference
-                        if (neighbor.Parent != null)
-                        {
-                            neighbor.Parent.Children.Remove(neighbor);
-                        }
-                        neighbor.Parent = newNode;
-                        newNode.Children.Add(neighbor);
-                        neighbor.Cost = potentialCost;
-                    }
-                }
-            }
-        }
-
-        private RRTSNode GetNearestNode(Vector3 point)
-        {
-            RRTSNode nearestNode = null;
-            float minDistance = float.MaxValue;
-            foreach (RRTSNode node in _rrtsNodes)
-            {
-                float distance = Vector3.Distance(node.Position, point);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    nearestNode = node;
-                }
-            }
-            return nearestNode;
-        }
-
-        private Vector3 GetRandomPoint(Vector3 goal)
-        {
-            // Biased sampling strategy
-            float rand = UnityEngine.Random.value;
-            
-            // Goal biased sampling
-            if (rand < _goalBias)
-            {
-                return goal;
-            }
-            // Collision biased sampling - sample near collision points
-            else if (rand < _goalBias + _collisionBias && _collisionPoints.Count > 0)
-            {
-                Vector3 collisionPoint = _collisionPoints[UnityEngine.Random.Range(0, _collisionPoints.Count)];
-                return SampleAround3D(collisionPoint, _collisionSamplingRadius);
-            }
-            // Regular random sampling
-            else
-            {
-                float randomX = UnityEngine.Random.Range(_minRange, _maxRange);
-                float randomY = UnityEngine.Random.Range(_minRange, _maxRange);
-                float randomZ = UnityEngine.Random.Range(_minRange, _maxRange);
-                return new Vector3(randomX + _stageCenter.x, randomY + _stageCenter.y, randomZ + _stageCenter.z);
-            }
-        }
-
-        private Vector3 VectorStep(Vector3 from, Vector3 to)
-        {
-            Vector3 direction = (to - from).normalized;
-            return from + direction * _stepDistance;
-        }
-
-        private List<RRTSNode> GetNeighborNodes(RRTSNode node)
-        {
-            List<RRTSNode> neighbors = new List<RRTSNode>();
-            foreach (RRTSNode rrtsNode in _rrtsNodes)
-            {
-                if (Vector3.Distance(rrtsNode.Position, node.Position) < _neighborRadius)
-                {
-                    neighbors.Add(rrtsNode);
-                }
-            }
-            return neighbors;
-        }
-
-        private List<Vector3> ConstructPath(RRTSNode endNode)
-        {
-            List<Vector3> path = new List<Vector3>();
-            RRTSNode currentNode = endNode;
-            while (currentNode != null)
-            {
-                path.Add(currentNode.Position);
-                currentNode = currentNode.Parent;
-            }
-            path.Reverse();
-            return path;
-        }
-
-        // Improved 3D sampling around a center point
-        private Vector3 SampleAround3D(Vector3 center, float radius)
-        {
-            // Random direction in 3D space
-            Vector3 randomDir = UnityEngine.Random.onUnitSphere;
-            // Random distance within radius
-            float distance = UnityEngine.Random.Range(0, radius);
-            return center + randomDir * distance;
-        }
-
-        private class RRTSNode
-        {
-            public Vector3 Position;
-            public RRTSNode Parent;
-            public List<RRTSNode> Children; // Track children for proper reference management
-            public float Cost; // Start-to-node cost
-            public int LastExtensionIteration; // Iteration when last extended
-
-            public RRTSNode(Vector3 position, RRTSNode parent, float cost, int iteration)
-            {
-                Position = position;
-                Parent = parent;
-                Cost = cost;
-                LastExtensionIteration = iteration;
-                Children = new List<RRTSNode>();
-            }
-        }
-    }
-
-    namespace EQS
-    {
-        public abstract class EnvQueryStrategy : ScriptableObject
-        {
-            public bool IsActive = true;
-            public abstract void RunStrategy(int currentTest, List<EnvQueryItem> items);
-        }
-        
-        // --- プレイヤーの視線からカバーを判定するテスト ---
-        [CreateAssetMenu(menuName = "EQS/Test/CoverVisibilityTest")]
-        public class CoverVisibilityStrategy : EnvQueryStrategy
-        {
-            public Transform visionObject;
-            public LayerMask coverMask;
-
-            public override void RunStrategy(int currentTest, List<EnvQueryItem> items)
-            {
-                foreach (EnvQueryItem item in items)
-                {
-                    Vector3 worldPos = item.GetWorldPosition();
-                    Vector3 dir = worldPos - visionObject.position;
-                    float dist = dir.magnitude;
-                    bool blocked = Physics.Raycast(visionObject.position, dir.normalized, out var hit, dist, coverMask);
-                    item.TestResults[currentTest] = blocked ? 1f : 0f;
-                }
-            }
-        }
-
-        public class DistanceStrategy : EnvQueryStrategy
-        {
-            public Transform distanceTo;
-            public override void RunStrategy(int currentTest, List<EnvQueryItem> items)
-            {
-                if(distanceTo != null && items != null)
-                {
-                    foreach(EnvQueryItem item in items)
-                    {
-                        item.TestResults[currentTest] = Vector3.Distance(distanceTo.position, item.GetWorldPosition());
-                    }
-                }
-                else
-                {
-                    foreach(EnvQueryItem item in items)
-                    {
-                        item.TestResults[currentTest] = 0.0f;
-                    }
-                }
-            }
-        }
-        //自身を中心に展開する各点のこと
-        public class EnvQueryItem
-        {
-            public float Score;
-            public bool IsValid;
-            public float[] TestResults;
-
-            private Transform centerOfItems; // 基準位置
-            private Vector3 location; // 相対位置
-            
-            public EnvQueryItem(int numTests, Vector3 location, Transform centerOfItems)
-            {
-                Score = 0.0f;
-                IsValid = true;
-                TestResults = new float[numTests];
-                this.centerOfItems = centerOfItems;
-                this.location = location;
-            }
-
-            public Vector3 GetWorldPosition()
-            {
-                return centerOfItems.position + location;
-            }
-        }
+        // private class RRTSNode
+        // {
+        //     public Vector3 Position;
+        //     public RRTSNode Parent;
+        //     public float Cost; // 開始点からのコスト
+        //
+        //     public RRTSNode(Vector3 position, RRTSNode parent, float cost)
+        //     {
+        //         Position = position;
+        //         Parent = parent;
+        //         Cost = cost;
+        //     }
+        // }
     }
 }

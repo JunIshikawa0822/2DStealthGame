@@ -1,0 +1,97 @@
+
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+
+public class EnvQuerySystem : MonoBehaviour
+{
+    public GameObject centerOfItems;
+    [SerializeField]private float _itemRadius = 4.0f;
+    [SerializeField]private float _itemSpaceBetween = 1.0f;
+    [SerializeField]private EnvItemGeneratorType _generatorType = EnvItemGeneratorType.Circle;
+    
+    [SerializeField]private List<EnvQueryStrategy> _envQueryStrategies = new List<EnvQueryStrategy>();
+    private List<EnvQueryItem> _envQueryItems;
+    private GameObject _querier;
+    private IGeneratorBase _generator;
+    
+    public EnvQueryItem BestResult { get; private set; }
+    
+    public enum EnvItemGeneratorType
+    {
+        Circle,
+        Grid
+    }
+    public void Start()
+    {
+        if(_querier == null)
+        {
+            _querier = this.gameObject;
+        }
+        
+        if(centerOfItems == null)
+        {
+            centerOfItems = _querier;
+        }
+        
+        if(_generatorType == EnvItemGeneratorType.Grid) _generator = new GenerateGrid(_itemRadius, _itemSpaceBetween);
+    }
+    
+    public Vector3 FindPoint()
+    {
+        ResetScore();
+        for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
+        {
+            _envQueryStrategies[currentStrategy].RunStrategy(currentStrategy, _envQueryItems);
+            _envQueryStrategies[currentStrategy].NormalizeItemScores(currentStrategy, _envQueryItems);
+        }
+        
+        NormalizeScore();
+        BestResult = _envQueryItems
+            .Where(x => x.IsValid)
+            .OrderByDescending(x => x.Score)
+            .FirstOrDefault();
+
+        return BestResult.GetWorldPosition();
+    }
+    
+    private void NormalizeScore()
+    {
+        if(_envQueryItems == null || _envQueryItems.Count < 1)
+        {
+            return;
+        }
+
+        float maxScore = _envQueryItems[0].Score;
+        float minScore = _envQueryItems[0].Score;
+
+        foreach(EnvQueryItem item in _envQueryItems)
+        {
+            if(item.Score > maxScore)
+            {
+                maxScore = item.Score;
+            }
+            if(item.Score < minScore)
+            {
+                minScore = item.Score;
+            }
+        }
+
+        if(maxScore != minScore)
+        {
+            foreach(EnvQueryItem item in _envQueryItems)
+            {
+                item.Score = (item.Score - minScore) / (maxScore - minScore);
+            }
+        }
+    }
+    
+    private void ResetScore()
+    {
+        foreach(EnvQueryItem item in _envQueryItems)
+        {
+            item.IsValid = true;
+            item.Score = 0.0f;
+        }
+    }
+}

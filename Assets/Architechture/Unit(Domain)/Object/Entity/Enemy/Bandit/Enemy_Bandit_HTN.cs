@@ -23,10 +23,12 @@ public class Enemy_Bandit_HTN : AEnemy
     private CancellationTokenSource _actionCancellationTokenSource;
     private Transform _currentTarget;
     private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
-    
+
+    private RRTStar _moveAlgorithm;
     Planner _planner;
     PlanRunner _planRunner;
     WorldState _worldState;
+    
     
     public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
     {
@@ -43,19 +45,24 @@ public class Enemy_Bandit_HTN : AEnemy
     public void Initialize(WorldState worldState)
     {
         _worldState = worldState;
-        
-        RRTStar moveAlgorithm = new RRTStar
-        (
-            4f,
-            15,
-            2,
-            IsLineCollideWithStaticObject,
-            1000,
-            0.2f,
-            -100,
-            100,
-            _worldState.GetState<Transform>("StageCenter").position
-        );
+
+        if (_worldState.GetState<Transform>("StageCenter") != null)
+        {
+            _moveAlgorithm = new RRTStar
+            (
+                4f,
+                15,
+                2,
+                IsLineCollideWithStaticObject,
+                1000,
+                0.2f,
+                -100,
+                100,
+            
+                //worldStateにStageCenterが入ってないと動かないよ
+                _worldState.GetState<Transform>("StageCenter").position
+            );
+        }
 
         _stageObjectTree = _worldState.GetState<AABB3DTree<(Transform, AlignedOBB)>>("StageObjectTree");
         
@@ -64,7 +71,8 @@ public class Enemy_Bandit_HTN : AEnemy
         _planner = new Planner(domain);
         _planRunner = new PlanRunner();
         
-        List<Vector3> paths = moveAlgorithm.FindPath(this.transform.position, goal.position);
+        if(_moveAlgorithm == null)return;
+        List<Vector3> paths = _moveAlgorithm.FindPath(this.transform.position, goal.position);
     }
 
     public ATask BuildTask()

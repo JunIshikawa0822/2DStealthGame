@@ -31510,7 +31510,7 @@ MonoBehaviour:
     InteractableObjects:
     - {fileID: 1390573214}
     enemyObjects:
-    - {fileID: 0}
+    - {fileID: 1925183108}
     - {fileID: 1210021032}
     gunInstanceParent: {fileID: 1508822754}
     cellWidth: 20
@@ -31520,6 +31520,7 @@ MonoBehaviour:
     mortonSpaceBaseTrans: {fileID: 2076361589}
     pathFinders:
     - {fileID: 2097809435}
+    stageCenterTrans: {fileID: 0}
 --- !u!1 &1573432204
 GameObject:
   m_ObjectHideFlags: 0

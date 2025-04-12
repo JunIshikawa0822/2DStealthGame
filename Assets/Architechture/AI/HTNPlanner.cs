@@ -321,7 +321,7 @@ public class Planner
     public Planner(HTNTaskDomain domain)
     {
         _domain = domain;
-        _worldState.AddChangeListener(OnWorldStateChanged);
+        //_worldState.AddChangeListener(OnWorldStateChanged);
     }
 
     private void OnWorldStateChanged()
