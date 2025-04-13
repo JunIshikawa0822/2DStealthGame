@@ -1578,13 +1578,14 @@ namespace JunUtilities
             return vertices;
         }
 
+        #region ここいらないかも/要変更
         public bool IsOBBIntersection(AlignedOBB otherObb)
         {
             // OBB間のベクトル
             Vector3 distance = Center - otherObb.Center;
             Vector3[] testAxes = new Vector3[15];
 
-            Vector3[] axes = new Vector3[] { Axis[0].normalized, Axis[1].normalized, Axis[3].normalized };
+            Vector3[] axes = new Vector3[] { Axis[0].normalized, Axis[1].normalized, Axis[2].normalized };
             Vector3[] otherAxes = new Vector3[] { otherObb.Axis[0].normalized, otherObb.Axis[1].normalized, otherObb.Axis[2].normalized };
             //どうせSizeもあって正規化するならAxisは大きさ持たなくてもいい気がするけど...
             testAxes[0] = axes[0];
@@ -1631,7 +1632,32 @@ namespace JunUtilities
             
             return true;
         }
+        #endregion
         
+        public bool IsPointIntersection(Vector3 point)
+        {
+            // OBBの中心から点へのベクトル
+            Vector3 dir = point - Center;
+
+            // 各軸方向についてチェック
+            for (int i = 0; i < Axis.Length; i++)
+            {
+                // 軸方向への投影距離
+                float distance = JunMath.VectorDot(dir, Axis[i]);
+
+                // その軸の長さの半分を計算
+                float halfExtent = Size[i] * 0.5f;
+
+                // 範囲外なら false
+                if (Mathf.Abs(distance) > halfExtent)
+                {
+                    return false;
+                }
+            }
+
+            // 全ての軸で範囲内 → 中にある
+            return true;
+        }
         public bool IsThickLineIntersection(Vector3 lineStart, Vector3 lineEnd, float width, float height)
         {
             Vector3 lineDir = lineEnd - lineStart;
@@ -1731,7 +1757,8 @@ namespace JunUtilities
             // すべての軸で分離されていない = 衝突している
             return true;
         }
-        
+
+        #region 要変更
         public bool IsLineIntersection(Vector3 lineStart, Vector3 lineEnd)
         {
             Vector3 lineDir = lineEnd - lineStart;
@@ -1797,6 +1824,7 @@ namespace JunUtilities
             // すべての軸で分離されていない = 衝突している
             return true;
         }
+        #endregion
     }
 
     public class RRTStar

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 // --- プレイヤーの視線からカバーを判定するテスト ---
-[CreateAssetMenu(menuName = "EQS/Strategy/Visibility")]
+// [CreateAssetMenu(menuName = "EQS/Strategy/Visibility")]
+[System.Serializable]
 public class VisibilityStrategy : EnvQueryStrategy
 {
     public enum StrategyMode

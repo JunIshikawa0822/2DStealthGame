@@ -26,7 +26,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
     private Vector3 _cameraRotateEulerAngle;
     private List<Vector3> _cameraCorners = new List<Vector3>();
 
-    private Bounds _cameraBounds;
+    //private Bounds _cameraBounds;
     private AABB3D _cameraAABB3D;
     
     //モートン空間

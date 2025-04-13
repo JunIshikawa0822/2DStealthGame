@@ -1,7 +1,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-public abstract class EnvQueryStrategy : ScriptableObject
+
+[Serializable]
+public abstract class EnvQueryStrategy /*: ScriptableObject*/
 {
     public bool IsActive = true;
     public float Weight;

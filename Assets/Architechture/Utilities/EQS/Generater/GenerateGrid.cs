@@ -24,7 +24,7 @@ public class GenerateGrid : IGeneratorBase
     
         int numOfSteps = (int)Mathf.Ceil(_radius / _spaceBetween);
     
-        Debug.Log(numOfSteps);
+        // Debug.Log(numOfSteps);
         // すべての象限を一度に処理
         for(int xi = -numOfSteps; xi < numOfSteps; xi++)
         {
@@ -35,7 +35,7 @@ public class GenerateGrid : IGeneratorBase
         		position.y = 0.0f;
         		position.z = zi * _spaceBetween + (_spaceBetween/2.0f);
                
-        		Debug.Log(position);
+        		// Debug.Log(position);
         		
         		items.Add(new EnvQueryItem(numberOfStrategy, position, centerOfItems));
         	}

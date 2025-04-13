@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[CreateAssetMenu(menuName = "EQS/Strategy/Distance")]
+// [CreateAssetMenu(menuName = "EQS/Strategy/Distance")]
+[System.Serializable]
 public class DistanceStrategy : EnvQueryStrategy
 {
     public enum StrategyMode

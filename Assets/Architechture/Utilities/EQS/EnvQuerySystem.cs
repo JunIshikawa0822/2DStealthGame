@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ public class EnvQuerySystem : MonoBehaviour
     [SerializeField]private float _itemSpaceBetween = 1.0f;
     [SerializeField]private EnvItemGeneratorType _generatorType = EnvItemGeneratorType.Circle;
     
-    [SerializeField]private List<EnvQueryStrategy> _envQueryStrategies = new List<EnvQueryStrategy>();
+    [SerializeReference]private List<EnvQueryStrategy> _envQueryStrategies = new List<EnvQueryStrategy>();
     private List<EnvQueryItem> _envQueryItems;
     private GameObject _querier;
     private IGeneratorBase _generator;
@@ -24,6 +25,8 @@ public class EnvQuerySystem : MonoBehaviour
     }
     public void Start()
     {
+        Debug.Log(_envQueryStrategies.Count);
+        
         if(_querier == null)
         {
             _querier = this.gameObject;
@@ -35,8 +38,33 @@ public class EnvQuerySystem : MonoBehaviour
         }
         
         if(_generatorType == EnvItemGeneratorType.Grid) _generator = new GenerateGrid(_itemRadius, _itemSpaceBetween);
+        
+        if(centerOfItems != null && _generator != null)
+        {
+            _envQueryItems = _generator.GenerateItems(_envQueryStrategies.Count, centerOfItems.transform);
+        }
+        else
+        {
+            _envQueryItems = new List<EnvQueryItem>();
+        }
     }
-    
+
+    public void Update()
+    {
+        ResetScore();
+        for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
+        {
+            _envQueryStrategies[currentStrategy].RunStrategy(currentStrategy, _envQueryItems);
+            _envQueryStrategies[currentStrategy].NormalizeItemScores(currentStrategy, _envQueryItems);
+        }
+        
+        NormalizeScore();
+        BestResult = _envQueryItems
+            .Where(x => x.IsValid)
+            .OrderByDescending(x => x.Score)
+            .FirstOrDefault();
+    }
+
     public Vector3 FindPoint()
     {
         ResetScore();
@@ -94,4 +122,27 @@ public class EnvQuerySystem : MonoBehaviour
             item.Score = 0.0f;
         }
     }
+    
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if(isActiveAndEnabled && _envQueryItems != null)
+        {
+            foreach(EnvQueryItem item in _envQueryItems)
+            {
+                if(item.IsValid)
+                {
+                    Gizmos.color = Color.HSVToRGB((item.Score/2.0f), 1.0f, 1.0f);
+                    Gizmos.DrawWireSphere(item.GetWorldPosition(), 0.25f);
+                    UnityEditor.Handles.Label(item.GetWorldPosition(), item.Score.ToString());
+                }
+            }
+        }
+        if(isActiveAndEnabled && BestResult != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(BestResult.GetWorldPosition(), 0.25f);
+        }
+    }
+#endif
 }
