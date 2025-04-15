@@ -22,17 +22,34 @@ public class Enemy_Bandit_HTN : AEnemy
 
     private CancellationTokenSource _actionCancellationTokenSource;
     private Transform _currentTarget;
-    private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
-
-    private RRTStar _moveAlgorithm;
-    Planner _planner;
-    PlanRunner _planRunner;
+    //private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
+    
+    private HTNPlanner _planner;
+    private HTNPlanRunner _planRunner;
     WorldState _worldState;
+
+    //private EnvQuerySystem _envQuerySystem;
+    private FOV _enemyFieldOfView;
+    private EnvQuerySystem[] _envQuerySystems;
+    private RRTSSystem _rrtsSystem;
+
+    private Vector3 _movePosition;
+    private List<Vector3> _movePaths = new List<Vector3>();
+
+    private EnemyStatus _currentStatus = EnemyStatus.Usual;
+    private bool _isShooting = false;
+    private bool _isAlive = true;
     
-    
-    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
+    protected enum EnemyStatus
     {
-        base.OnSetUp(enemy_Bandit_HP);
+        Usual, //普通
+        Warn, //警戒
+        Caution //注意
+    }
+    
+    public override async void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
+    {
+        base.OnSetUp(enemy_Bandit_HP, stageObjectTree);
 
         if(EntityHP == null)
         {
@@ -40,39 +57,68 @@ public class Enemy_Bandit_HTN : AEnemy
             Debug.LogWarning($"{this.gameObject.name}に体力を設定してください、行動を開始できません");
             return;
         }
+
+        //_envQuerySystem = GetComponent<EnvQuerySystem>();
+        _enemyFieldOfView = GetComponent<FOV>();
+        _envQuerySystems = GetComponents<EnvQuerySystem>();
+        _rrtsSystem = GetComponent<RRTSSystem>();
+
+        foreach (EnvQuerySystem query in _envQuerySystems)
+        {
+            query.OnSetUp(Obstacles);
+        }
+        
+        //_envQuerySystem.OnSetUp(Obstacles);
+        
+        ATask rootTask = BuildTask();
+        
+        HTNTaskDomain domain = new HTNTaskDomain(rootTask);
+        
+        _planner = new HTNPlanner(domain);
+        _planRunner = new HTNPlanRunner();
+
+        Debug.Log("うごくぞ");
+        //RunPlanningLoop().Forget();
     }
 
-    public void Initialize(WorldState worldState)
+    public void Update()
     {
-        _worldState = worldState;
+        
+    }
 
-        if (_worldState.GetState<Transform>("StageCenter") != null)
+    private async UniTask RunPlanningLoop()
+    {
+        Debug.Log("はじまった");
+        while (_isAlive)
         {
-            _moveAlgorithm = new RRTStar
-            (
-                4f,
-                15,
-                2,
-                IsLineCollideWithStaticObject,
-                1000,
-                0.2f,
-                -100,
-                100,
+            SearchAround();
+            Rotate();
+            // プランを生成
+            List<ATask> plan = await _planner.GeneratePlan(_worldState);
+            // Debug.Log($" プラン {plan.Count}");
             
-                //worldStateにStageCenterが入ってないと動かないよ
-                _worldState.GetState<Transform>("StageCenter").position
-            );
+            if (plan.Count > 0)
+            {
+                // プランランナー作成
+                TaskStatus result = await _planRunner.StartExecution(plan, _worldState);
+            
+                if (result == TaskStatus.Success)
+                {
+                    Debug.Log("全てのタスクが正常に終了しました");
+                }
+                else
+                {
+                    Debug.LogWarning("タスク実行中にエラーが発生しました");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("有効なプランが生成されませんでした");
+            }
+        //     
+        //     // 実行後に再度プランニングを行う
+            await UniTask.Delay(1000 * 5); 
         }
-
-        _stageObjectTree = _worldState.GetState<AABB3DTree<(Transform, AlignedOBB)>>("StageObjectTree");
-        
-        ATask domainTask = null;
-        HTNTaskDomain domain = new HTNTaskDomain(domainTask);
-        _planner = new Planner(domain);
-        _planRunner = new PlanRunner();
-        
-        if(_moveAlgorithm == null)return;
-        List<Vector3> paths = _moveAlgorithm.FindPath(this.transform.position, goal.position);
     }
 
     public ATask BuildTask()
@@ -84,14 +130,9 @@ public class Enemy_Bandit_HTN : AEnemy
                 {
                     EnemyGun.TriggerOn();
                     return TaskStatus.Success;
-                }, 
-                (ws) =>
-                {
-                    bool isHaveGun = EnemyGun != false;
-                    bool isFindEnemy = _currentTarget != false;
-
-                    return isHaveGun && isFindEnemy;
-                }
+                },
+                (ws) => { return true;},
+                (ws) => { _isShooting = true; }
             );
         
         PrimitiveTask shotEnd = new PrimitiveTask
@@ -102,42 +143,243 @@ public class Enemy_Bandit_HTN : AEnemy
                     EnemyGun.TriggerOff();
                     return TaskStatus.Success;
                 },
-                (ws) =>
-                {
-                    bool isHaveGun = EnemyGun != false;
+                (ws) => { return true;},
+                (ws) => { _isShooting = false;}
+            );
 
-                    return isHaveGun;
+        PrimitiveTask rotateToTarget = new PrimitiveTask
+            (
+                "RotateToTarget",
+                async (ws, cts) =>
+                {
+                    
                 }
             );
+
+        Method singleFiring = new Method
+        (
+            "SingleFiring",
+             (ws) =>
+            {
+                return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining > 0;
+            }
+        );
 
         PrimitiveTask reload = new PrimitiveTask
             (
                 "Reload",
                 async(ws, cts) =>
                 {
-                    Entity_Magazine magazine = new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity);
-
                     try
                     {
                         Debug.Log($"Reload開始");
                         await UniTask.Delay((int)(EnemyGun.ShotInterval * 1000), cancellationToken: cts);
+                        Entity_Magazine magazine = new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity);
+                        Debug.Log($"Reload終了");
                         return TaskStatus.Success;
                     }
                     catch(OperationCanceledException)
                     {
+                        Debug.Log($"Reload中にキャンセル");
                         return TaskStatus.Canceled;
                     }
                     catch (Exception ex)
                     {
+                        Debug.Log($"Reload中にエラー");
                         return TaskStatus.Faulted;
                     }
                 },
 
                 (ws) =>
                 {
-                    return EnemyGun.Magazine.MagazineRemaining < 1;
+                    return EnemyGun.Magazine.MagazineRemaining < 1 && !_isShooting;
                 }
             );
+
+        PrimitiveTask findCoverPoint = new PrimitiveTask
+            (
+                "FindCoverPoint",
+                async (ws, cts) =>
+                {
+                    try
+                    {
+                        List<Vector3> pointCandidates = _envQuerySystems[0].FindPoints();
+                        // List<Vector3> pointCandidates = _envQuerySystem.FindPoints();
+                        float shortestDistance = float.MaxValue;
+                        List<Vector3> shortestPath = null;
+                        Vector3 moveTarget = Vector3.zero;
+                        
+                        Vector3 startPosition = this.transform.position;
+
+                        foreach (Vector3 target in pointCandidates)
+                        {
+                            List<Vector3> path =
+                                _rrtsSystem.FindPath(startPosition, target, IsLineCollideWithStaticObject);
+
+                            if (path == null || path.Count < 2) continue;
+                            
+                            // パスの総距離（比較用なら2乗距離で OK）
+                            float totalDistance = 0f;
+                            for (int i = 0; i < path.Count - 1; i++)
+                            {
+                                totalDistance += (path[i + 1] - path[i]).sqrMagnitude;
+                            }
+
+                            if (totalDistance < shortestDistance)
+                            {
+                                shortestDistance = totalDistance;
+                                shortestPath = path;
+                                moveTarget = target;
+                            }
+                        }
+
+                        _movePosition = moveTarget;
+                        _movePaths = shortestPath;
+
+                        return TaskStatus.Success;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Debug.Log($"FindCoverPoint中にキャンセル");
+                        return TaskStatus.Canceled;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log($"FindCoverPoint中にエラー {ex.Message}");
+                        return TaskStatus.Faulted;
+                    }
+                },
+                (ws) =>
+                {
+                    return _rrtsSystem != null && _envQuerySystems[0] != null;
+                }
+            );
+
+        PrimitiveTask chasePlayer = new PrimitiveTask
+        (
+            "ChasePlayer",
+            async (ws, cts) =>
+            {
+                try
+                {
+                    List<Vector3> pointCandidates = _envQuerySystems[1].FindPoints();
+                    // List<Vector3> pointCandidates = _envQuerySystem.FindPoints();
+                    float shortestDistance = float.MaxValue;
+                    List<Vector3> shortestPath = null;
+                    Vector3 moveTarget = Vector3.zero;
+                    
+                    Vector3 startPosition = this.transform.position;
+
+                    foreach (Vector3 target in pointCandidates)
+                    {
+                        List<Vector3> path =
+                            _rrtsSystem.FindPath(startPosition, target, IsLineCollideWithStaticObject);
+
+                        if (path == null || path.Count < 2) continue;
+                        
+                        // パスの総距離（比較用なら2乗距離で OK）
+                        float totalDistance = 0f;
+                        for (int i = 0; i < path.Count - 1; i++)
+                        {
+                            totalDistance += (path[i + 1] - path[i]).sqrMagnitude;
+                        }
+
+                        if (totalDistance < shortestDistance)
+                        {
+                            shortestDistance = totalDistance;
+                            shortestPath = path;
+                            moveTarget = target;
+                        }
+                    }
+
+                    _movePosition = moveTarget;
+                    _movePaths = shortestPath;
+
+                    return TaskStatus.Success;
+                }
+                catch (OperationCanceledException)
+                {
+                    Debug.Log($"ChasePlayer中にキャンセル");
+                    return TaskStatus.Canceled;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log($"ChasePlayer中にエラー");
+                    return TaskStatus.Faulted;
+                }
+            }
+        );
+
+        PrimitiveTask moveToPoint = new PrimitiveTask
+        (
+            "MoveToPoint",
+            async (ws, cts) =>
+            {
+                try
+                {
+                    return await MoveAlongPaths(_movePaths, _actionCancellationTokenSource);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log($"MoveToPoint中にエラー");
+                    return TaskStatus.Faulted;
+                }
+            }
+        );
+        
+        CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");
+
+        // ========= 1. 体力が少ないとき：遮蔽に隠れる =========
+        Method lowHealthTakeCover = new Method("LowHealthTakeCover", ws =>
+        {
+            return EntityHP.CurrentHp / EntityHP.MaxHp < 0.3f; // 体力が30%未満
+        });
+
+        // 撃っていれば止める → 遮蔽物を探す → 遮蔽物に移動する
+        lowHealthTakeCover.AddSubtask(shotEnd);          // 射撃終了
+        lowHealthTakeCover.AddSubtask(findCoverPoint);   // 遮蔽物を探す
+        lowHealthTakeCover.AddSubtask(moveToPoint);      // 遮蔽物まで移動
+
+        chaseAndAttack.AddMethod(lowHealthTakeCover);
+
+        // ========= 2. 通常の追跡＆射撃行動 =========
+        Method chaseThenShoot = new Method("ChaseThenShoot", ws =>
+        {
+            return _currentTarget != null && EnemyGun != null && !_isShooting;
+        });
+
+        chaseThenShoot.AddSubtask(chasePlayer);  // プレイヤーを追跡
+        chaseThenShoot.AddSubtask(shotStart);    // 射撃開始
+        chaseThenShoot.AddSubtask(shotEnd);      // 射撃終了
+
+        chaseAndAttack.AddMethod(chaseThenShoot);
+
+        // ========= 3. 弾切れ時：リロードして攻撃再開 =========
+        Method reloadThenAttack = new Method("ReloadThenAttack", ws =>
+        {
+            return _currentTarget != null && EnemyGun != null &&
+                   EnemyGun.Magazine.MagazineRemaining <= 0 && !_isShooting;
+        });
+
+        reloadThenAttack.AddSubtask(reload);     // リロード
+        reloadThenAttack.AddSubtask(chasePlayer); // 再び追跡
+        reloadThenAttack.AddSubtask(shotStart);   // 射撃開始
+        reloadThenAttack.AddSubtask(shotEnd);     // 射撃終了
+
+        chaseAndAttack.AddMethod(reloadThenAttack);
+
+        // ========= 4. ターゲットがいないとき：遮蔽物へ移動 =========
+        Method findAndMoveToCover = new Method("FindAndMoveToCover", ws =>
+        {
+            return _currentTarget == null && !_isShooting;
+        });
+
+        findAndMoveToCover.AddSubtask(findCoverPoint); // 遮蔽物を探す
+        findAndMoveToCover.AddSubtask(moveToPoint);    // 遮蔽物まで移動
+
+        chaseAndAttack.AddMethod(findAndMoveToCover);
+
+        return chaseAndAttack;
 
         return null;
     }
@@ -149,14 +391,13 @@ public class Enemy_Bandit_HTN : AEnemy
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _enemy_Bandit_RotateSpeed * Time.deltaTime);
     }
 
-    // public void Reload()
-    // {
-    //     if(EnemyGun == null)return;
-    //     if(EnemyGun.Magazine == null)return;
-    //     if(EnemyGun.Magazine.MagazineRemaining >= EnemyGun.Magazine.MagazineCapacity)return;
-    //
-    //     EnemyGun.Reload(new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity));
-    // }
+    private void SearchAround()
+    {
+        List<Transform> objectList = _enemyFieldOfView.FindTargets();
+        _currentTarget = FindNearestObject(objectList, this.transform);
+        
+        //Debug.Log($"{this.gameObject.name} : {_currentTarget.Value.position}に敵がいるぞ！");
+    }
 
     public override void Equip(AGun gun)
     {
@@ -228,7 +469,7 @@ public class Enemy_Bandit_HTN : AEnemy
     public bool IsLineCollideWithStaticObject(Vector3 startPos, Vector3 endPos)
     {
         AABB3D lineBound = new AABB3D(startPos, endPos);
-        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = _stageObjectTree.GetIntersectNode(lineBound);
+        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = Obstacles.GetIntersectNode(lineBound);
         foreach (TreeNode3D<(Transform transform, AlignedOBB allignedObb)> node in intersectNodes)
         {
             // Debug.Log($"オブジェクト : {node.InformationTuple.transform.name}, " +
@@ -241,5 +482,13 @@ public class Enemy_Bandit_HTN : AEnemy
             }
         }
         return false;
+    }
+
+    public override void OnEntityDead()
+    {
+        _isAlive = false;
+        _actionCancellationTokenSource.Cancel();
+        _actionCancellationTokenSource.Dispose();
+        base.OnEntityDead();
     }
 }

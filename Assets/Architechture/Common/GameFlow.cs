@@ -22,13 +22,14 @@ public class GameFlowManager :MonoBehaviour
 
         systems.Add(new GunSystem());
         systems.Add(new ItemSystem());
-        systems.Add(new PlayerSystem());
         systems.Add(new SceneManageSystem());
         systems.Add(new CollisionRenderSystem());
 
-        if(_isUIActiveAllow)systems.Add(new UISystem());
+        
         if(_isInventoryAllow) systems.Add(new TetrisInventorySystem());
+        systems.Add(new PlayerSystem());
         if(_isEnemySpawnAllow) systems.Add(new EnemySystem());
+        if(_isUIActiveAllow)systems.Add(new UISystem());
 
         systems.Add(new InputSystem());
         gameManager.SetUp(systems, sceneLoaders, _isCombatAllow, _isInventoryAllow);

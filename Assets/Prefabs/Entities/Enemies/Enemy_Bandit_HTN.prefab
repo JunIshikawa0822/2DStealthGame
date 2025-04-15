@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0038a5f9930314fa1ab94e2c02a5296b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _testDataList: []
+  _testDataList:
+  - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
 --- !u!1 &1886251293193327396
 GameObject:
   m_ObjectHideFlags: 0
@@ -59,9 +60,12 @@ GameObject:
   - component: {fileID: 400189929717141808}
   - component: {fileID: 7523503890164645257}
   - component: {fileID: 6767335324042816230}
-  - component: {fileID: 9193937603705381831}
   - component: {fileID: 8097528422645450}
   - component: {fileID: 7629754567530620222}
+  - component: {fileID: 4392280432424404181}
+  - component: {fileID: 7280216379217566666}
+  - component: {fileID: 1967055603862218230}
+  - component: {fileID: 8700490164204453219}
   m_Layer: 0
   m_Name: Enemy_Bandit_HTN
   m_TagString: Untagged
@@ -79,7 +83,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -29.4, y: 1.950234, z: -3336.27}
-  m_LocalScale: {x: 1, y: 1.5, z: 1}
+  m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1872576372793797507}
@@ -167,11 +171,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886251293193327396}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3dffa76f97f64e6bacca4816836a59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AutoDisable: 0
 --- !u!54 &6767335324042816230
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -199,23 +204,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &9193937603705381831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1886251293193327396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cfc6eda42f794b2dbeb7d07326cae6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gunTrans: {fileID: 7766200569188714279}
-  _enemy_Bandit_RotateSpeed: 500
-  isFighting: 0
-  _enemyStorage: {fileID: 8928440547230266821}
-  _enemyWeaponStorage: {fileID: 2860845596486801920}
 --- !u!114 &8097528422645450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b536b4800630468da4eda3b8a5d166f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _viewRadius: 10
+  _viewRadius: 20
   _viewAngle: 60
   targetMask:
     serializedVersion: 2
@@ -256,6 +244,174 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _testDataList:
   - {fileID: 11400000, guid: 393570dbd8b504c1f992182bc528e512, type: 2}
+--- !u!114 &4392280432424404181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f64deecf1bdd4fba98f8477ae4d1e7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemySize: {x: 1, y: 2, z: 1}
+  _gunTrans: {fileID: 7766200569188714279}
+  _enemy_Bandit_RotateSpeed: 30
+  goal: {fileID: 0}
+  _enemyStorage: {fileID: 8928440547230266821}
+  _enemyWeaponStorage: {fileID: 2860845596486801920}
+--- !u!114 &7280216379217566666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49309a71bc9e46d3a9b1db9f7b995f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActiveSystem: 1
+  centerOfItems: {fileID: 0}
+  _itemRadius: 20
+  _itemSpaceBetween: 3
+  _generatorType: 1
+  _envQueryStrategies:
+  - rid: 717780177386733575
+  - rid: 717780177386733576
+  - rid: 717780177386733577
+  - rid: 717780177386733578
+  references:
+    version: 2
+    RefIds:
+    - rid: 717780177386733575
+      type: {class: VisibilityStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _mode: 1
+        _coverMask:
+          serializedVersion: 2
+          m_Bits: 512
+        _invertScoring: 0
+        _visibleScore: 1
+        _notVisibleScore: 0
+        visionObject: {fileID: 0}
+    - rid: 717780177386733576
+      type: {class: DistanceStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _mode: 1
+        _minDistance: 10
+        _maxDistance: 100
+        _invertScoring: 0
+        distanceTo: {fileID: 0}
+        _filterClose: 1
+        _filterFar: 0
+    - rid: 717780177386733577
+      type: {class: ObstacleStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _collideRadius: 1
+    - rid: 717780177386733578
+      type: {class: DistanceStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _mode: 2
+        _minDistance: 3
+        _maxDistance: 100
+        _invertScoring: 0
+        distanceTo: {fileID: 229011777389990055}
+        _filterClose: 1
+        _filterFar: 1
+--- !u!114 &1967055603862218230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49309a71bc9e46d3a9b1db9f7b995f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActiveSystem: 1
+  centerOfItems: {fileID: 0}
+  _itemRadius: 10
+  _itemSpaceBetween: 2
+  _generatorType: 1
+  _envQueryStrategies:
+  - rid: 717780177386733579
+  - rid: 717780177386733580
+  - rid: 717780177386733581
+  references:
+    version: 2
+    RefIds:
+    - rid: 717780177386733579
+      type: {class: ObstacleStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _collideRadius: 1
+    - rid: 717780177386733580
+      type: {class: VisibilityStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _mode: 1
+        _coverMask:
+          serializedVersion: 2
+          m_Bits: 512
+        _invertScoring: 1
+        _visibleScore: 1
+        _notVisibleScore: 0
+        visionObject: {fileID: 0}
+    - rid: 717780177386733581
+      type: {class: DistanceStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        IsActive: 1
+        Weight: 1
+        ScoringMode: 0
+        _mode: 2
+        _minDistance: 10
+        _maxDistance: 100
+        _invertScoring: 0
+        distanceTo: {fileID: 0}
+        _filterClose: 1
+        _filterFar: 1
+--- !u!114 &8700490164204453219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886251293193327396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d51302e17995847e6b9155a5b221d431, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stepDistance: 4
+  _neighborRadius: 15
+  _thresholdDistance: 2
+  _maxIterations: 5000
+  _goalBias: 0.2
+  minRange: -100
+  maxRange: 100
+  _stageCenterTrans: {fileID: 0}
 --- !u!1 &6394876782349269869
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,7 +422,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7766200569188714279}
   m_Layer: 0
-  m_Name: Gun
+  m_Name: GunTrans
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

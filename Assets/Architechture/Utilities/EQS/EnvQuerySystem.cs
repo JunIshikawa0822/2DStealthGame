@@ -3,9 +3,11 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using JunUtilities;
 
 public class EnvQuerySystem : MonoBehaviour
 {
+    [SerializeField] private bool isActiveSystem = true;
     public GameObject centerOfItems;
     [SerializeField]private float _itemRadius = 4.0f;
     [SerializeField]private float _itemSpaceBetween = 1.0f;
@@ -17,15 +19,17 @@ public class EnvQuerySystem : MonoBehaviour
     private IGeneratorBase _generator;
     
     public EnvQueryItem BestResult { get; private set; }
-    
+    public List<EnvQueryItem> BestResults { get; private set; } = new List<EnvQueryItem>();
+
     public enum EnvItemGeneratorType
     {
         Circle,
         Grid
     }
-    public void Start()
+    
+    public void OnSetUp(AABB3DTree<(Transform, AlignedOBB)> obstacles)
     {
-        Debug.Log(_envQueryStrategies.Count);
+        BestResults = new List<EnvQueryItem>();
         
         if(_querier == null)
         {
@@ -47,9 +51,44 @@ public class EnvQuerySystem : MonoBehaviour
         {
             _envQueryItems = new List<EnvQueryItem>();
         }
+
+        if(_envQueryStrategies.Count != 0 || obstacles != null)
+        {
+            foreach (EnvQueryStrategy strategy in _envQueryStrategies)
+            {
+                if (strategy is ObstacleStrategy obstacleStrategy) obstacleStrategy.obstaclesTree = obstacles;
+            }
+        }
     }
 
-    public void Update()
+    // public void Update()
+    // {
+    //     if(isActiveSystem == false)return;
+    //     
+    //     ResetScore();
+    //     for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
+    //     {
+    //         _envQueryStrategies[currentStrategy].RunStrategy(currentStrategy, _envQueryItems);
+    //         _envQueryStrategies[currentStrategy].NormalizeItemScores(currentStrategy, _envQueryItems);
+    //     }
+    //     
+    //     NormalizeScore();
+    //     
+    //     float maxScore = _envQueryItems
+    //         .Where(x => x.IsValid)
+    //         .Max(x => x.Score);
+    //     
+    //     BestResults = _envQueryItems
+    //         .Where(x => x.IsValid && Mathf.Approximately(x.Score, maxScore))
+    //         .ToList();
+    //     
+    //     // BestResult = _envQueryItems
+    //     //     .Where(x => x.IsValid)
+    //     //     .OrderByDescending(x => x.Score)
+    //     //     .FirstOrDefault();
+    // }
+
+    public List<Vector3> FindPoints()
     {
         ResetScore();
         for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
@@ -59,10 +98,18 @@ public class EnvQuerySystem : MonoBehaviour
         }
         
         NormalizeScore();
-        BestResult = _envQueryItems
+        
+        float maxScore = _envQueryItems
             .Where(x => x.IsValid)
-            .OrderByDescending(x => x.Score)
-            .FirstOrDefault();
+            .Max(x => x.Score);
+
+        BestResults = _envQueryItems
+            .Where(x => x.IsValid && Mathf.Approximately(x.Score, maxScore))
+            .ToList();
+
+        return BestResults
+            .Select(item => item.GetWorldPosition())
+            .ToList();
     }
 
     public Vector3 FindPoint()
@@ -126,6 +173,7 @@ public class EnvQuerySystem : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
+        if(isActiveSystem == false)return;
         if(isActiveAndEnabled && _envQueryItems != null)
         {
             foreach(EnvQueryItem item in _envQueryItems)
@@ -138,11 +186,18 @@ public class EnvQuerySystem : MonoBehaviour
                 }
             }
         }
-        if(isActiveAndEnabled && BestResult != null)
+    
+        if(BestResults.Count == 0 || BestResults == null) return;
+        foreach (EnvQueryItem result in BestResults)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(BestResult.GetWorldPosition(), 0.25f);
+            Gizmos.DrawSphere(result.GetWorldPosition(), 0.25f);
         }
+        // if(isActiveAndEnabled && BestResult != null)
+        // {
+        //     Gizmos.color = Color.blue;
+        //     Gizmos.DrawSphere(BestResult.GetWorldPosition(), 0.25f);
+        // }
     }
 #endif
 }

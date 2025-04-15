@@ -6,12 +6,14 @@ using JunUtilities;
 [System.Serializable]
 public class ObstacleStrategy : EnvQueryStrategy
 {
-    public AABB3DTree<(Transform, AlignedOBB)> _obstaclesTree;
+    public AABB3DTree<(Transform, AlignedOBB)> obstaclesTree;
+    //障害物とぶつかっているとみなす半径
+    [SerializeField]private float _collideRadius = 1;
     
     public override void RunStrategy(int currentStrategyIndex, List<EnvQueryItem> items)
     {
         if (items == null || items.Count == 0)return;
-        if (_obstaclesTree == null) ;
+        if (obstaclesTree == null);
             
         // すべての点の境界を計算するためのベクトル変数を初期化
         Vector3 min = Vector3.positiveInfinity;  // 最小値として「無限大」を設定
@@ -32,7 +34,7 @@ public class ObstacleStrategy : EnvQueryStrategy
         // Vector3.oneは(1,1,1)を表し、それに0.001を掛けた(0.001,0.001,0.001)を引いたり足したりして少し余裕を持たせる
         
         // 全部の点を含むAABBと交差する可能性のあるOBBを検索
-        List<TreeNode3D<(Transform, AlignedOBB)>> potentialIntersectNodes = _obstaclesTree.GetIntersectNode(entireBoundsAABB);
+        List<TreeNode3D<(Transform, AlignedOBB)>> potentialIntersectNodes = obstaclesTree.GetIntersectNode(entireBoundsAABB);
         // _staticObjectTreeはOBBを格納した二分木で、GetIntersectNodeメソッドで交差するノードを取得
         
         // 各クエリアイテムを順番に処理
@@ -46,7 +48,7 @@ public class ObstacleStrategy : EnvQueryStrategy
             // 準備したすべてのOBBと衝突判定
             foreach (TreeNode3D<(Transform, AlignedOBB)> node in potentialIntersectNodes)
             {
-                bool isIntersect = node.InformationTuple.Item2.IsPointIntersection(point);
+                bool isIntersect = node.InformationTuple.Item2.IsSphereIntersection(point, _collideRadius);
 
                 if (isIntersect)
                 {

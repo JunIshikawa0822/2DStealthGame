@@ -4,6 +4,7 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using JunUtilities;
 
 public abstract class AEntity : MonoBehaviour
 {
@@ -22,10 +23,12 @@ public abstract class AEntity : MonoBehaviour
     public abstract IStorage Storage{get;}
 
     public event Action onEntityDeadEvent;
+    protected AABB3DTree<(Transform, AlignedOBB)> Obstacles;
 
-    public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint)
+    public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint, AABB3DTree<(Transform, AlignedOBB)> obstacles)
     {
         EntityHP = entity_HealthPoint;
+        Obstacles = obstacles;
 
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();

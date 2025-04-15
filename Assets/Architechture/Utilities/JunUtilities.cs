@@ -1434,6 +1434,8 @@ namespace JunUtilities
     /// <param name="Vertices">頂点</param>
     /// <param name="Min, Max">最小、最大</param>
     /// <returns></returns>
+    ///
+    //Axisを正規化して向きだけ示すほうがよかったかも
     public class AlignedOBB
     {
         //OBBの中心（ワールド座標）
@@ -1636,27 +1638,72 @@ namespace JunUtilities
         
         public bool IsPointIntersection(Vector3 point)
         {
-            // OBBの中心から点へのベクトル
-            Vector3 dir = point - Center;
-
-            // 各軸方向についてチェック
-            for (int i = 0; i < Axis.Length; i++)
+            // 点をOBBの中心からの相対位置に変換
+            Vector3 directionToPoint = point - Center;
+        
+            // 各軸に沿って投影し、その距離がサイズの半分以内かチェック
+            for (int i = 0; i < 3; i++)
             {
-                // 軸方向への投影距離
-                float distance = JunMath.VectorDot(dir, Axis[i]);
-
-                // その軸の長さの半分を計算
-                float halfExtent = Size[i] * 0.5f;
-
-                // 範囲外なら false
-                if (Mathf.Abs(distance) > halfExtent)
+                // 軸方向への投影距離を計算
+                float distance = Vector3.Dot(directionToPoint, Axis[i].normalized);
+            
+                // OBBのサイズの半分
+                float halfSize = Size[i] * 0.5f;
+            
+                // 距離がOBBの範囲外なら交差していない
+                if (Mathf.Abs(distance) > halfSize)
                 {
                     return false;
                 }
             }
-
-            // 全ての軸で範囲内 → 中にある
+        
+            // すべての軸でテストをパスした場合、点はOBB内にある
             return true;
+        }
+        
+        /// <summary>
+        /// 指定された球体とOBBが交差しているかどうかを判定します
+        /// </summary>
+        /// <param name="sphereCenter">球体の中心（ワールド座標）</param>
+        /// <param name="radius">球体の半径</param>
+        /// <returns>球体がOBBと交差している場合はtrue、そうでない場合はfalse</returns>
+        public bool IsSphereIntersection(Vector3 sphereCenter, float radius)
+        {
+            // 球の中心からOBBへの最短距離を計算
+            float squaredDistance = SquaredDistanceToPoint(sphereCenter);
+        
+            // 最短距離の2乗が半径の2乗以下なら交差している
+            return squaredDistance <= radius * radius;
+        }
+        
+        private float SquaredDistanceToPoint(Vector3 point)
+        {
+            // 点をOBBの中心からの相対位置に変換
+            Vector3 directionToPoint = point - Center;
+        
+            // OBBに対する最近接点（クランプされた点）
+            Vector3 closestPoint = Vector3.zero;
+        
+            // 各軸に沿って投影
+            for (int i = 0; i < 3; i++)
+            {
+                // 軸を正規化
+                Vector3 normalizedAxis = Axis[i].normalized;
+                // 正規化された軸方向への投影距離を計算
+                float distance = Vector3.Dot(directionToPoint, Axis[i].normalized);
+                float halfSize = Size[i] * 0.5f;
+                // 距離をOBBの範囲内にクランプ
+                float clampedDistance = Mathf.Clamp(distance, -halfSize, halfSize);
+            
+                // クランプされた距離に軸をかけて、その軸方向の最近接点の成分を計算
+                closestPoint += normalizedAxis * clampedDistance;
+            }
+        
+            // 最近接点をOBBの中心からの相対座標から絶対座標に変換
+            Vector3 worldClosestPoint = Center + closestPoint;
+        
+            // 点と最近接点の距離の2乗を返す
+            return (point - worldClosestPoint).sqrMagnitude;
         }
         public bool IsThickLineIntersection(Vector3 lineStart, Vector3 lineEnd, float width, float height)
         {

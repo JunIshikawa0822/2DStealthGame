@@ -20,8 +20,8 @@ public class DistanceStrategy : EnvQueryStrategy
     // trueなら近いほど高スコア、falseなら遠いほど高スコア
     [SerializeField]private bool _invertScoring = false;
     public Transform distanceTo;
-    private bool _filterTooClose = true;
-    private bool _filterTooFar = false;
+    [SerializeField]private bool _filterClose = false;
+    [SerializeField]private bool _filterFar = false;
     
     public override void RunStrategy(int currentStrategyIndex, List<EnvQueryItem> items)
     {
@@ -34,28 +34,30 @@ public class DistanceStrategy : EnvQueryStrategy
                 float distance = Vector3.Distance(distanceTo.position, item.GetWorldPosition());
                 
                 // フィルタリング処理
-                if(_mode == StrategyMode.Filtering || _mode == StrategyMode.Both)
+                if (_mode == StrategyMode.Filtering || _mode == StrategyMode.Both)
                 {
                     // 最小距離チェック
-                    if(_filterTooClose && distance < _minDistance)
+                    if (_filterClose && distance < _minDistance)
                     {
                         item.IsValid = false;
                     }
-                    
+
                     // 最大距離チェック
-                    if(_filterTooFar && distance > _maxDistance)
+                    if (_filterFar && distance > _maxDistance)
                     {
                         item.IsValid = false;
                     }
                 }
-                
+
                 // スコアリング処理
                 if(_mode == StrategyMode.Scoring || _mode == StrategyMode.Both)
                 {
-                    item.TestResults[currentStrategyIndex] = distance;
+                    Debug.Log("はい");
+                    item.TestResults[currentStrategyIndex] = _invertScoring ? distance : 1f / (distance + 0.001f);
                 }
                 else
                 {
+                    
                     // フィルタリングのみの場合はスコアに影響させない
                     item.TestResults[currentStrategyIndex] = 0.0f;
                 }

@@ -9,13 +9,8 @@ public abstract class AEnemy : AEntity
     public Action<AGun> gunReleaseAction;
     protected AGun EnemyGun { get; set; }
     public abstract IStorage WeaponStorage{get;}
-
     //public abstract void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm);
-
-    public virtual void SetUpEnemyAI(RRTStar enemyMoveAlgorithm)
-    {
-        
-    }
+    
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
         Transform nearestObject = null;

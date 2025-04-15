@@ -90,6 +90,12 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
 
     public void OnUpdate()
     {
+        Mesh tempMesh = GameObject.Instantiate(gameStat.obbTest.GetComponent<MeshFilter>().mesh);
+        // 頂点データ取得
+        Vector3[] testMeshVertices = tempMesh.vertices;
+        AlignedOBB testObb = new AlignedOBB(gameStat.obbTest, testMeshVertices);
+        
+        Debug.Log($"ポイントの交差 : {testObb.IsSphereIntersection(gameStat.obbTestObjects[0].position, 1)}");
         //カメラのAABB3Dをつくろう
         _cameraCorners.Clear();
         Vector3[] nearCorners = JunCamera.CalculateFrustumCorners(_camera, _camera.nearClipPlane);

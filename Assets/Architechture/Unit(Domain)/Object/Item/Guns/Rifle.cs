@@ -72,7 +72,7 @@ public class Rifle : AGun
             }
         }
         
-        Debug.Log("ぬけた");
+        // Debug.Log("ぬけた");
     }
 
     public override void TriggerOn()

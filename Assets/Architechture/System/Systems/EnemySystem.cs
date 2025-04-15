@@ -13,11 +13,11 @@ public class EnemySystem : ASystem, IOnUpdate
         gameStat.worldState.SetState("StageCenter", gameStat.stageCenterTrans);
         gameStat.worldState.SetState("StageObjectTree", gameStat.staticObjectTree);
 
-        foreach (PathFinder obj in gameStat.pathFinders)
-        {
-            if(obj == null) continue;
-            obj.SetUp(gameStat.staticObjectTree);
-        }
+        // foreach (PathFinder obj in gameStat.pathFinders)
+        // {
+        //     if(obj == null) continue;
+        //     obj.SetUp(gameStat.staticObjectTree);
+        // }
         
         // if(gameStat.enemyObjects.Count < 1) return;
         // RRTStar moveAlgorithm = new RRTStar
@@ -33,12 +33,13 @@ public class EnemySystem : ASystem, IOnUpdate
         {
             if(enemy == null)continue;
             // Debug.Log(enemy.transform.name); 
-            enemy.OnSetUp(new Entity_HealthPoint(100, 100));
             enemy.gunReleaseAction += (AGun gun) => gameStat.gunFacade.ReturnGunInstance(gun);
-            if (enemy is Enemy_Bandit_HTN htnEnemy)
-            {
-                htnEnemy.Initialize(gameStat.worldState);
-            }
+            enemy.OnSetUp(new Entity_HealthPoint(100, 100), gameStat.staticObjectTree);
+            
+            // if (enemy is Enemy_Bandit_HTN htnEnemy)
+            // {
+            //     htnEnemy.Initialize(gameStat.worldState);
+            // }
             //enemy.onEntityDeadEvent += () => { };
             
             //enemy.SetUpEnemyAI(moveAlgorithm);
@@ -47,7 +48,23 @@ public class EnemySystem : ASystem, IOnUpdate
     }
     public void OnUpdate()
     {
-        
+        if (AreAllItemsInactive(gameStat.enemyObjects))
+        {
+            gameStat.sceneLoader[1].LoadScene();
+        }
+    }
+    
+    bool AreAllItemsInactive(List<AEnemy> objects)
+    {
+        foreach (AEnemy obj in objects)
+        {
+            // 1つでもアクティブなオブジェクトがあればfalseを返す
+            if (obj.gameObject.activeSelf)
+            {
+                return false;
+            }
+        }
+        return true;  // すべてのオブジェクトが非アクティブならtrue
     }
     
     public void EquipGun(AEnemy enemy)

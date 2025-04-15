@@ -4,6 +4,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using JunUtilities;
 using UniRx;
 using UnityEngine.Rendering;
 using Unity.Entities.UniversalDelegates;
@@ -37,9 +38,9 @@ public class PlayerController : AEntity
     public event Action<IStorage> storageFindAction;
     public event Action<IStorage> storageLeaveAction;
     
-    public override void OnSetUp(Entity_HealthPoint playerHP)
+    public override void OnSetUp(Entity_HealthPoint playerHP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
     {
-        base.OnSetUp(playerHP);
+        base.OnSetUp(playerHP, stageObjectTree);
 
         //_fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();

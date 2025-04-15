@@ -25,7 +25,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Debug.Log(gameStat.weaponStorages[0]);
         Debug.Log(gameStat.weaponStorages[1]);
 
-        _player.OnSetUp(gameStat.playerHP);
+        _player.OnSetUp(gameStat.playerHP, gameStat.staticObjectTree);
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
         
         gameStat.onPlayerAttackStartEvent += OnAttackStart;

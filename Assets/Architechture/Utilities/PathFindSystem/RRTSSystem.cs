@@ -24,14 +24,16 @@ public class RRTSSystem : MonoBehaviour
     public float maxRange = 100;
 
     //ステージの中心座標
+    [SerializeField] private Transform _stageCenterTrans;
     private Vector3 _stageCenter = default;
 
     //線分との当たり判定　中身は外付けでいけるのでいいね
     private Func<Vector3, Vector3, bool> _collideFunc;
 
-    public List<Vector3> FindPath(Vector3 startPos, Vector3 goalPos, Vector3 stageCenter, Func<Vector3, Vector3, bool> collideFunc)
+    public List<Vector3> FindPath(Vector3 startPos, Vector3 goalPos, Func<Vector3, Vector3, bool> collideFunc)
     {
-        _stageCenter = stageCenter;
+        if (_stageCenterTrans != null) _stageCenter = _stageCenterTrans.position;
+        
         _collideFunc = collideFunc;
         _rrtsNodes.Clear(); // 初期化
         _rrtsNodes.Add(new RRTSNode(startPos, null, 0f));
@@ -118,6 +120,7 @@ public class RRTSSystem : MonoBehaviour
     
     private bool IsCollide(Vector3 start, Vector3 end)
     {
+        Debug.Log($"{start}, {end}, {_collideFunc}");
         return _collideFunc(start, end);
     }
 

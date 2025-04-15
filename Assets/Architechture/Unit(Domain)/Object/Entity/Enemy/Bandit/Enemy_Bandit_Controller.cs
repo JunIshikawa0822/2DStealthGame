@@ -8,6 +8,7 @@ using JunUtilities;
 using UniRx;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.ProBuilder;
 
 public class Enemy_Bandit_Controller : AEnemy, IBandit
 {
@@ -21,6 +22,8 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     //private TextMeshPro _statusText;
 
     private bool isFighting;
+
+    [SerializeField] private PlayerController _player;
 
     //AGun _enemyGun;
     FOV _enemyFieldOfView;
@@ -50,12 +53,12 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     //     OnSetUp(new Entity_HealthPoint(100, 100));
     // }
 
-    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
+    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
     {
         //_enemy_Bandit_HP = enemy_Bandit_HP;
         //gun.position = _gunTrans.position;
         //gun.SetParent(_gunTrans);
-        base.OnSetUp(enemy_Bandit_HP);
+        base.OnSetUp(enemy_Bandit_HP, stageObjectTree);
 
         if(EntityHP == null)
         {
@@ -236,7 +239,9 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
 
     public override void Rotate()
     {
-        if(_currentTarget.Value == null)return;
+        if(_currentTarget.Value == null && _currentStatus.Value == IBandit.BanditStatus.Usual)return;
+
+        _currentTarget.Value = _player.transform;
         Quaternion targetRotation = Quaternion.LookRotation(_currentTarget.Value.position - _entityTransform.position);
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _enemy_Bandit_RotateSpeed * Time.deltaTime);
     }
@@ -319,10 +324,8 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
         _disposablesByLifeCycle.Clear();
         _disposablesByStatus.Clear();
 
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
         Debug.Log($"{this.gameObject.name}はやられた！");
-
-        //onEnemyDeadEvent?.Invoke(_enemyGun);
         base.OnEntityDead();
     }   
 }
