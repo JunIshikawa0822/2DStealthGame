@@ -175,6 +175,24 @@ public class Enemy_Bandit_HTN : AEnemy
                     (ws) => { return true; },
                     (ws) => {}
             );
+
+        Method singleShotMethod = new Method
+        (
+            "SingleShotMethod",
+             (ws) =>
+            {
+                return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining > 0;
+            },
+            (ws) =>
+            {
+                float normalizedAmmo = (float)EnemyGun.Magazine.MagazineRemaining / (float)EnemyGun.Magazine.MagazineCapacity;
+                return (1 - normalizedAmmo) * (1 - normalizedAmmo);
+            }
+        );
+        
+        singleShotMethod.AddSubtask(aimToTargetTask);
+        singleShotMethod.AddSubtask(shotStartTask);
+        singleShotMethod.AddSubtask(shotEndTask);
         
         PrimitiveTask reloadTaskTask = new PrimitiveTask
         (
@@ -206,21 +224,20 @@ public class Enemy_Bandit_HTN : AEnemy
                 return EnemyGun.Magazine.MagazineRemaining < 1 && !_isShooting;
             }
         );
-
-        Method singleShotMethod = new Method
+        
+        Method reloadMethod = new Method
         (
-            "SingleShotMethod",
-             (ws) =>
+            "ReloadMethod",
+            (ws) =>
             {
-                return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining > 0;
+                return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining < EnemyGun.Magazine.MagazineCapacity;
+            },
+            (ws) =>
+            {
+                float normalizedAmmo = (float)EnemyGun.Magazine.MagazineRemaining / (float)EnemyGun.Magazine.MagazineCapacity;
+                return (1 - normalizedAmmo) * (1 - normalizedAmmo);
             }
         );
-        
-        singleShotMethod.AddSubtask(aimToTargetTask);
-        singleShotMethod.AddSubtask(shotStartTask);
-        singleShotMethod.AddSubtask(shotEndTask);
-        CompoundTask singleShotTask = new CompoundTask("SingleShotTask");
-        singleShotTask.AddMethod(singleShotMethod);
 
         PrimitiveTask findCoverPoint = new PrimitiveTask
             (
@@ -352,62 +369,63 @@ public class Enemy_Bandit_HTN : AEnemy
                 }
             }
         );
-        
-        CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");
-
-        // ========= 1. 体力が少ないとき：遮蔽に隠れる =========
-        Method lowHealthTakeCover = new Method("LowHealthTakeCover", ws =>
-        {
-            return EntityHP.CurrentHp / EntityHP.MaxHp < 0.3f; // 体力が30%未満
-        });
-
-        // 撃っていれば止める → 遮蔽物を探す → 遮蔽物に移動する
-        lowHealthTakeCover.AddSubtask(shotEnd);          // 射撃終了
-        lowHealthTakeCover.AddSubtask(findCoverPoint);   // 遮蔽物を探す
-        lowHealthTakeCover.AddSubtask(moveToPoint);      // 遮蔽物まで移動
-
-        chaseAndAttack.AddMethod(lowHealthTakeCover);
-
-        // ========= 2. 通常の追跡＆射撃行動 =========
-        Method chaseThenShoot = new Method("ChaseThenShoot", ws =>
-        {
-            return _currentTarget != null && EnemyGun != null && !_isShooting;
-        });
-
-        chaseThenShoot.AddSubtask(chasePlayer);  // プレイヤーを追跡
-        chaseThenShoot.AddSubtask(shotStart);    // 射撃開始
-        chaseThenShoot.AddSubtask(shotEnd);      // 射撃終了
-
-        chaseAndAttack.AddMethod(chaseThenShoot);
-
-        // ========= 3. 弾切れ時：リロードして攻撃再開 =========
-        Method reloadThenAttack = new Method("ReloadThenAttack", ws =>
-        {
-            return _currentTarget != null && EnemyGun != null &&
-                   EnemyGun.Magazine.MagazineRemaining <= 0 && !_isShooting;
-        });
-
-        reloadThenAttack.AddSubtask(reload);     // リロード
-        reloadThenAttack.AddSubtask(chasePlayer); // 再び追跡
-        reloadThenAttack.AddSubtask(shotStart);   // 射撃開始
-        reloadThenAttack.AddSubtask(shotEnd);     // 射撃終了
-
-        chaseAndAttack.AddMethod(reloadThenAttack);
-
-        // ========= 4. ターゲットがいないとき：遮蔽物へ移動 =========
-        Method findAndMoveToCover = new Method("FindAndMoveToCover", ws =>
-        {
-            return _currentTarget == null && !_isShooting;
-        });
-
-        findAndMoveToCover.AddSubtask(findCoverPoint); // 遮蔽物を探す
-        findAndMoveToCover.AddSubtask(moveToPoint);    // 遮蔽物まで移動
-
-        chaseAndAttack.AddMethod(findAndMoveToCover);
-
-        return chaseAndAttack;
 
         return null;
+        // CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");
+        //
+        // // ========= 1. 体力が少ないとき：遮蔽に隠れる =========
+        // Method lowHealthTakeCover = new Method("LowHealthTakeCover", ws =>
+        // {
+        //     return EntityHP.CurrentHp / EntityHP.MaxHp < 0.3f; // 体力が30%未満
+        // });
+        //
+        // // 撃っていれば止める → 遮蔽物を探す → 遮蔽物に移動する
+        // lowHealthTakeCover.AddSubtask(shotEnd);          // 射撃終了
+        // lowHealthTakeCover.AddSubtask(findCoverPoint);   // 遮蔽物を探す
+        // lowHealthTakeCover.AddSubtask(moveToPoint);      // 遮蔽物まで移動
+        //
+        // chaseAndAttack.AddMethod(lowHealthTakeCover);
+        //
+        // // ========= 2. 通常の追跡＆射撃行動 =========
+        // Method chaseThenShoot = new Method("ChaseThenShoot", ws =>
+        // {
+        //     return _currentTarget != null && EnemyGun != null && !_isShooting;
+        // });
+        //
+        // chaseThenShoot.AddSubtask(chasePlayer);  // プレイヤーを追跡
+        // chaseThenShoot.AddSubtask(shotStart);    // 射撃開始
+        // chaseThenShoot.AddSubtask(shotEnd);      // 射撃終了
+        //
+        // chaseAndAttack.AddMethod(chaseThenShoot);
+        //
+        // // ========= 3. 弾切れ時：リロードして攻撃再開 =========
+        // Method reloadThenAttack = new Method("ReloadThenAttack", ws =>
+        // {
+        //     return _currentTarget != null && EnemyGun != null &&
+        //            EnemyGun.Magazine.MagazineRemaining <= 0 && !_isShooting;
+        // });
+        //
+        // reloadThenAttack.AddSubtask(reload);     // リロード
+        // reloadThenAttack.AddSubtask(chasePlayer); // 再び追跡
+        // reloadThenAttack.AddSubtask(shotStart);   // 射撃開始
+        // reloadThenAttack.AddSubtask(shotEnd);     // 射撃終了
+        //
+        // chaseAndAttack.AddMethod(reloadThenAttack);
+        //
+        // // ========= 4. ターゲットがいないとき：遮蔽物へ移動 =========
+        // Method findAndMoveToCover = new Method("FindAndMoveToCover", ws =>
+        // {
+        //     return _currentTarget == null && !_isShooting;
+        // });
+        //
+        // findAndMoveToCover.AddSubtask(findCoverPoint); // 遮蔽物を探す
+        // findAndMoveToCover.AddSubtask(moveToPoint);    // 遮蔽物まで移動
+        //
+        // chaseAndAttack.AddMethod(findAndMoveToCover);
+        //
+        // return chaseAndAttack;
+        //
+        // return null;
     }
     
     public override void Rotate()
