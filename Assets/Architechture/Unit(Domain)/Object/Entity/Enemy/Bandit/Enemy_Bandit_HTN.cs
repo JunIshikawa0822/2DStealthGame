@@ -11,7 +11,7 @@ public class Enemy_Bandit_HTN : AEnemy
 {
     [SerializeField] private Vector3 _enemySize;
     [SerializeField] private Transform _gunTrans;
-    [SerializeField] private float _enemy_Bandit_RotateSpeed;
+    [SerializeField] private float _enemy_Bandit_RotateSpeed = 30;
     
     [SerializeField] private Transform goal;
     
@@ -123,7 +123,7 @@ public class Enemy_Bandit_HTN : AEnemy
 
     public ATask BuildTask()
     {
-        PrimitiveTask shotStart = new PrimitiveTask
+        PrimitiveTask shotStartTask = new PrimitiveTask
             (
                 "ShotStart",
                 async (ws , cts) =>
@@ -135,7 +135,7 @@ public class Enemy_Bandit_HTN : AEnemy
                 (ws) => { _isShooting = true; }
             );
         
-        PrimitiveTask shotEnd = new PrimitiveTask
+        PrimitiveTask shotEndTask = new PrimitiveTask
             (
                 "ShotEnd", 
                 async (ws, cts) =>
@@ -147,54 +147,80 @@ public class Enemy_Bandit_HTN : AEnemy
                 (ws) => { _isShooting = false;}
             );
 
-        PrimitiveTask rotateToTarget = new PrimitiveTask
+        PrimitiveTask aimToTargetTask = new PrimitiveTask
             (
-                "RotateToTarget",
+                "AimToTarget",
                 async (ws, cts) =>
-                {
-                    
-                }
+                    {
+                        float timeout = 4f;
+                        float timer = 0f;
+                        
+                        //目的とする方向
+                        Vector3 _opponentDirection = _currentTarget.transform.position - this.transform.position;
+                        while (Vector3.Angle(
+                                   new Vector3(this.transform.forward.x, 0, this.transform.forward.z),
+                                   new Vector3(_opponentDirection.x, 0, _opponentDirection.z)) > 1)
+                        {
+                            Rotate();
+                            //更新
+                            _opponentDirection = _currentTarget.transform.position - this.transform.position;
+                            await UniTask.Yield(); 
+                            
+                            timer += Time.deltaTime;
+                            if (timer > timeout) return TaskStatus.Failure;
+                        }
+                        
+                        return TaskStatus.Success;
+                    },
+                    (ws) => { return true; },
+                    (ws) => {}
             );
-
-        Method singleFiring = new Method
+        
+        PrimitiveTask reloadTaskTask = new PrimitiveTask
         (
-            "SingleFiring",
+            "Reload",
+            async(ws, cts) =>
+            {
+                try
+                {
+                    Debug.Log($"Reload開始");
+                    await UniTask.Delay((int)(EnemyGun.ReloadTime * 1000), cancellationToken: cts);
+                    Entity_Magazine magazine = new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity);
+                    Debug.Log($"Reload終了");
+                    return TaskStatus.Success;
+                }
+                catch(OperationCanceledException)
+                {
+                    Debug.Log($"Reload中にキャンセル");
+                    return TaskStatus.Canceled;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log($"Reload中にエラー");
+                    return TaskStatus.Faulted;
+                }
+            },
+
+            (ws) =>
+            {
+                return EnemyGun.Magazine.MagazineRemaining < 1 && !_isShooting;
+            }
+        );
+
+        Method singleShotMethod = new Method
+        (
+            "SingleShotMethod",
              (ws) =>
             {
                 return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining > 0;
             }
         );
-
-        PrimitiveTask reload = new PrimitiveTask
-            (
-                "Reload",
-                async(ws, cts) =>
-                {
-                    try
-                    {
-                        Debug.Log($"Reload開始");
-                        await UniTask.Delay((int)(EnemyGun.ShotInterval * 1000), cancellationToken: cts);
-                        Entity_Magazine magazine = new Entity_Magazine(EnemyGun.Magazine.MagazineCapacity, EnemyGun.Magazine.MagazineCapacity);
-                        Debug.Log($"Reload終了");
-                        return TaskStatus.Success;
-                    }
-                    catch(OperationCanceledException)
-                    {
-                        Debug.Log($"Reload中にキャンセル");
-                        return TaskStatus.Canceled;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log($"Reload中にエラー");
-                        return TaskStatus.Faulted;
-                    }
-                },
-
-                (ws) =>
-                {
-                    return EnemyGun.Magazine.MagazineRemaining < 1 && !_isShooting;
-                }
-            );
+        
+        singleShotMethod.AddSubtask(aimToTargetTask);
+        singleShotMethod.AddSubtask(shotStartTask);
+        singleShotMethod.AddSubtask(shotEndTask);
+        CompoundTask singleShotTask = new CompoundTask("SingleShotTask");
+        singleShotTask.AddMethod(singleShotMethod);
 
         PrimitiveTask findCoverPoint = new PrimitiveTask
             (

@@ -12,6 +12,7 @@ public class CompoundTask : ATask
 
     public CompoundTask(string name) : base(name)
     {
+        
     }
 
     public List<Method> GetApplicableMethods(WorldState worldState)

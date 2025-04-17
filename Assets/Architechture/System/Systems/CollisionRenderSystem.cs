@@ -142,6 +142,7 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         for (int i = 0; i < _dynamicObjectList.Count; i++)
         {
             Transform dynamicTrans = _dynamicObjectList[i];
+            
             int mortonNum = JunGeometry.PositionToMortonNumber(dynamicTrans.position, _mortonSpaceBasePos, _dimensionLevel, _cellSize);
             // Debug.Log(mortonNum);
             if (cameraMortonNums.Contains(mortonNum))

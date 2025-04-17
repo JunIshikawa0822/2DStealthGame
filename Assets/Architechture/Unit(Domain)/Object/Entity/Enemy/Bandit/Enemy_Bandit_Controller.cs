@@ -45,6 +45,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     private CompositeDisposable _disposablesByBattleAction;
     private CompositeDisposable _disposablesByLifeCycle;
 
+    [SerializeField]private Transform _target;
     //public Action<AGun> onEnemyDeadEvent;
 
     //いずれはEnemyも生成した側で初期化することだけ留意
@@ -53,12 +54,13 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
     //     OnSetUp(new Entity_HealthPoint(100, 100));
     // }
 
-    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
+    public override async void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
     {
         //_enemy_Bandit_HP = enemy_Bandit_HP;
         //gun.position = _gunTrans.position;
         //gun.SetParent(_gunTrans);
         base.OnSetUp(enemy_Bandit_HP, stageObjectTree);
+        Debug.Log((this.transform.forward));
 
         if(EntityHP == null)
         {
@@ -82,12 +84,28 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
         _disposablesByBattleAction = new CompositeDisposable();
 
         SetEvent();
+        
+        RotateTest();
     }
 
-    // public override void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm)
-    // {
-    //     
-    // }
+    public async void RotateTest()
+    {
+        Vector3 _opponentDirection = _target.position - this.transform.position;
+        while (Vector3.Angle(
+                   new Vector3(this.transform.forward.x, 0, this.transform.forward.z),
+                   new Vector3(_opponentDirection.x, 0, _opponentDirection.z)) > 1)
+        {
+            Quaternion targetRotation =
+                Quaternion.LookRotation(_target.position - _entityTransform.position);
+            _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(
+                _entityTransform.eulerAngles.y, targetRotation.eulerAngles.y,
+                _enemy_Bandit_RotateSpeed * Time.deltaTime);
+                            
+            //更新
+            _opponentDirection = _target.position - this.transform.position;
+            await UniTask.Yield();
+        }
+    }
 
     public void SetEvent()
     {
