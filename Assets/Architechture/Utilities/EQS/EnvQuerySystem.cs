@@ -61,32 +61,32 @@ public class EnvQuerySystem : MonoBehaviour
         }
     }
 
-    // public void Update()
-    // {
-    //     if(isActiveSystem == false)return;
-    //     
-    //     ResetScore();
-    //     for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
-    //     {
-    //         _envQueryStrategies[currentStrategy].RunStrategy(currentStrategy, _envQueryItems);
-    //         _envQueryStrategies[currentStrategy].NormalizeItemScores(currentStrategy, _envQueryItems);
-    //     }
-    //     
-    //     NormalizeScore();
-    //     
-    //     float maxScore = _envQueryItems
-    //         .Where(x => x.IsValid)
-    //         .Max(x => x.Score);
-    //     
-    //     BestResults = _envQueryItems
-    //         .Where(x => x.IsValid && Mathf.Approximately(x.Score, maxScore))
-    //         .ToList();
-    //     
-    //     // BestResult = _envQueryItems
-    //     //     .Where(x => x.IsValid)
-    //     //     .OrderByDescending(x => x.Score)
-    //     //     .FirstOrDefault();
-    // }
+    public void Update()
+    {
+        if(isActiveSystem == false)return;
+        
+        ResetScore();
+        for(int currentStrategy = 0; currentStrategy < _envQueryStrategies.Count; currentStrategy++)
+        {
+            _envQueryStrategies[currentStrategy].RunStrategy(currentStrategy, _envQueryItems);
+            _envQueryStrategies[currentStrategy].NormalizeItemScores(currentStrategy, _envQueryItems);
+        }
+        
+        NormalizeScore();
+        
+        float maxScore = _envQueryItems
+            .Where(x => x.IsValid)
+            .Max(x => x.Score);
+        
+        BestResults = _envQueryItems
+            .Where(x => x.IsValid && Mathf.Approximately(x.Score, maxScore))
+            .ToList();
+        
+        // BestResult = _envQueryItems
+        //     .Where(x => x.IsValid)
+        //     .OrderByDescending(x => x.Score)
+        //     .FirstOrDefault();
+    }
 
     public List<Vector3> FindPoints()
     {
@@ -187,12 +187,12 @@ public class EnvQuerySystem : MonoBehaviour
             }
         }
     
-        if(BestResults.Count == 0 || BestResults == null) return;
-        foreach (EnvQueryItem result in BestResults)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(result.GetWorldPosition(), 0.25f);
-        }
+        // if(BestResults.Count == 0 || BestResults == null) return;
+        // foreach (EnvQueryItem result in BestResults)
+        // {
+        //     Gizmos.color = Color.blue;
+        //     Gizmos.DrawSphere(result.GetWorldPosition(), 0.25f);
+        // }
         // if(isActiveAndEnabled && BestResult != null)
         // {
         //     Gizmos.color = Color.blue;

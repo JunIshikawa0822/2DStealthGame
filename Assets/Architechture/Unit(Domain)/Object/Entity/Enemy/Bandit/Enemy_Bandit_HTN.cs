@@ -194,7 +194,7 @@ public class Enemy_Bandit_HTN : AEnemy
         singleShotMethod.AddSubtask(shotStartTask);
         singleShotMethod.AddSubtask(shotEndTask);
         
-        PrimitiveTask reloadTaskTask = new PrimitiveTask
+        PrimitiveTask reloadTask = new PrimitiveTask
         (
             "Reload",
             async(ws, cts) =>
@@ -235,11 +235,11 @@ public class Enemy_Bandit_HTN : AEnemy
             (ws) =>
             {
                 float normalizedAmmo = (float)EnemyGun.Magazine.MagazineRemaining / (float)EnemyGun.Magazine.MagazineCapacity;
-                return (1 - normalizedAmmo) * (1 - normalizedAmmo);
+                return (normalizedAmmo) * (normalizedAmmo);
             }
         );
 
-        PrimitiveTask findCoverPoint = new PrimitiveTask
+        PrimitiveTask findCoverPointTask = new PrimitiveTask
             (
                 "FindCoverPoint",
                 async (ws, cts) =>
@@ -298,7 +298,7 @@ public class Enemy_Bandit_HTN : AEnemy
                 }
             );
 
-        PrimitiveTask chasePlayer = new PrimitiveTask
+        PrimitiveTask findOpenViewTask = new PrimitiveTask
         (
             "ChasePlayer",
             async (ws, cts) =>
@@ -353,7 +353,7 @@ public class Enemy_Bandit_HTN : AEnemy
             }
         );
 
-        PrimitiveTask moveToPoint = new PrimitiveTask
+        PrimitiveTask moveToPointTask = new PrimitiveTask
         (
             "MoveToPoint",
             async (ws, cts) =>
@@ -369,6 +369,14 @@ public class Enemy_Bandit_HTN : AEnemy
                 }
             }
         );
+        
+        Method takeCoverMethod = new Method("TakeCoverMethod");
+        takeCoverMethod.AddSubtask(findCoverPointTask);
+        takeCoverMethod.AddSubtask(moveToPointTask);
+        
+        Method takeOpenViewMethod = new Method("TakeOpenViewMethod");
+        takeOpenViewMethod.AddSubtask(findOpenViewTask);
+        takeOpenViewMethod.AddSubtask(moveToPointTask);
 
         return null;
         // CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");

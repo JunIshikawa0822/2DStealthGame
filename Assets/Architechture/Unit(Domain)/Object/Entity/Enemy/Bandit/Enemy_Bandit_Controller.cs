@@ -85,7 +85,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
 
         SetEvent();
         
-        RotateTest();
+        //RotateTest();
     }
 
     public async void RotateTest()
