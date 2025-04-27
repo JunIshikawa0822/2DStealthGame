@@ -378,6 +378,15 @@ public class Enemy_Bandit_HTN : AEnemy
         takeOpenViewMethod.AddSubtask(findOpenViewTask);
         takeOpenViewMethod.AddSubtask(moveToPointTask);
 
+        CompoundTask combatTask = new CompoundTask("CombatTask");
+        CompoundTask moveTask = new CompoundTask("MoveTask");
+        //現在あるMethod
+        //ReloadMethod
+        //SingleShotMethod
+        //TakeCoverMethod
+        //TakeOpenViewMethod
+        
+
         return null;
         // CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");
         //

@@ -20277,7 +20277,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _testDataList:
   - {fileID: 11400000, guid: f2f3989cf16e84db4a0c07c8b6d56626, type: 2}
-  _stackNumberList: 01000000
+  - {fileID: 11400000, guid: 5b0b5229dc2544e8eaddbb2e7fb9149a, type: 2}
+  - {fileID: 11400000, guid: 7299653d684374f9f81d7e33258de838, type: 2}
+  - {fileID: 11400000, guid: a78db1ca81dba490a9ee95d487a02719, type: 2}
+  _stackNumberList: 010000003c0000000300000002000000
 --- !u!65 &1031938543
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -36672,7 +36675,7 @@ Transform:
   m_GameObject: {fileID: 1951007052}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.5, y: 2.56, z: -16}
+  m_LocalPosition: {x: -9.9, y: 2.6, z: -15.7}
   m_LocalScale: {x: 20, y: 5, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
