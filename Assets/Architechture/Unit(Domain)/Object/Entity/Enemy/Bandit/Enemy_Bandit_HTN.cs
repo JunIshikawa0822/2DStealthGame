@@ -68,13 +68,7 @@ public class Enemy_Bandit_HTN : AEnemy
             query.OnSetUp(Obstacles);
         }
         
-        //_envQuerySystem.OnSetUp(Obstacles);
-        
-        ATask rootTask = BuildTask();
-        
-        HTNTaskDomain domain = new HTNTaskDomain(rootTask);
-        
-        _planner = new HTNPlanner(domain);
+        _planner = new HTNPlanner(BuildTask());
         _planRunner = new HTNPlanRunner();
 
         Debug.Log("うごくぞ");
@@ -121,7 +115,7 @@ public class Enemy_Bandit_HTN : AEnemy
         }
     }
 
-    public ATask BuildTask()
+    public HTNTaskDomain BuildTask()
     {
         PrimitiveTask shotStartTask = new PrimitiveTask
             (
@@ -238,6 +232,8 @@ public class Enemy_Bandit_HTN : AEnemy
                 return (normalizedAmmo) * (normalizedAmmo);
             }
         );
+        
+        reloadMethod.AddSubtask(reloadTask);
 
         PrimitiveTask findCoverPointTask = new PrimitiveTask
             (
@@ -379,70 +375,37 @@ public class Enemy_Bandit_HTN : AEnemy
         takeOpenViewMethod.AddSubtask(moveToPointTask);
 
         CompoundTask combatTask = new CompoundTask("CombatTask");
-        CompoundTask moveTask = new CompoundTask("MoveTask");
-        //現在あるMethod
-        //ReloadMethod
-        //SingleShotMethod
-        //TakeCoverMethod
-        //TakeOpenViewMethod
+        combatTask.AddMethod(singleShotMethod);
+        combatTask.AddMethod(reloadMethod);
         
+        CompoundTask moveTask = new CompoundTask("MoveTask");
+        moveTask.AddMethod(takeCoverMethod);
+        moveTask.AddMethod(takeOpenViewMethod);
+        
+        Method combatMethod = new Method("CombatMethod");
+        combatMethod.AddSubtask(combatTask);
 
-        return null;
-        // CompoundTask chaseAndAttack = new CompoundTask("ChaseAndAttack");
-        //
-        // // ========= 1. 体力が少ないとき：遮蔽に隠れる =========
-        // Method lowHealthTakeCover = new Method("LowHealthTakeCover", ws =>
-        // {
-        //     return EntityHP.CurrentHp / EntityHP.MaxHp < 0.3f; // 体力が30%未満
-        // });
-        //
-        // // 撃っていれば止める → 遮蔽物を探す → 遮蔽物に移動する
-        // lowHealthTakeCover.AddSubtask(shotEnd);          // 射撃終了
-        // lowHealthTakeCover.AddSubtask(findCoverPoint);   // 遮蔽物を探す
-        // lowHealthTakeCover.AddSubtask(moveToPoint);      // 遮蔽物まで移動
-        //
-        // chaseAndAttack.AddMethod(lowHealthTakeCover);
-        //
-        // // ========= 2. 通常の追跡＆射撃行動 =========
-        // Method chaseThenShoot = new Method("ChaseThenShoot", ws =>
-        // {
-        //     return _currentTarget != null && EnemyGun != null && !_isShooting;
-        // });
-        //
-        // chaseThenShoot.AddSubtask(chasePlayer);  // プレイヤーを追跡
-        // chaseThenShoot.AddSubtask(shotStart);    // 射撃開始
-        // chaseThenShoot.AddSubtask(shotEnd);      // 射撃終了
-        //
-        // chaseAndAttack.AddMethod(chaseThenShoot);
-        //
-        // // ========= 3. 弾切れ時：リロードして攻撃再開 =========
-        // Method reloadThenAttack = new Method("ReloadThenAttack", ws =>
-        // {
-        //     return _currentTarget != null && EnemyGun != null &&
-        //            EnemyGun.Magazine.MagazineRemaining <= 0 && !_isShooting;
-        // });
-        //
-        // reloadThenAttack.AddSubtask(reload);     // リロード
-        // reloadThenAttack.AddSubtask(chasePlayer); // 再び追跡
-        // reloadThenAttack.AddSubtask(shotStart);   // 射撃開始
-        // reloadThenAttack.AddSubtask(shotEnd);     // 射撃終了
-        //
-        // chaseAndAttack.AddMethod(reloadThenAttack);
-        //
-        // // ========= 4. ターゲットがいないとき：遮蔽物へ移動 =========
-        // Method findAndMoveToCover = new Method("FindAndMoveToCover", ws =>
-        // {
-        //     return _currentTarget == null && !_isShooting;
-        // });
-        //
-        // findAndMoveToCover.AddSubtask(findCoverPoint); // 遮蔽物を探す
-        // findAndMoveToCover.AddSubtask(moveToPoint);    // 遮蔽物まで移動
-        //
-        // chaseAndAttack.AddMethod(findAndMoveToCover);
-        //
-        // return chaseAndAttack;
-        //
-        // return null;
+        Method moveMethod = new Method("MoveMethod");
+        moveMethod.AddSubtask(moveTask);
+        
+        CompoundTask rootTask = new CompoundTask("RootTask");
+        rootTask.AddMethod(combatMethod);
+        rootTask.AddMethod(moveMethod);
+
+        HTNTaskDomain taskDomain = new HTNTaskDomain(rootTask);
+        
+        taskDomain.RegisterTask(shotStartTask);
+        taskDomain.RegisterTask(shotEndTask);
+        taskDomain.RegisterTask(aimToTargetTask);
+        taskDomain.RegisterTask(reloadTask);
+        taskDomain.RegisterTask(findCoverPointTask);
+        taskDomain.RegisterTask(findOpenViewTask);
+        taskDomain.RegisterTask(moveToPointTask);
+        taskDomain.RegisterTask(moveTask);
+        taskDomain.RegisterTask(combatTask);
+        taskDomain.RegisterTask(rootTask);
+        
+        return taskDomain;
     }
     
     public override void Rotate()
@@ -465,7 +428,7 @@ public class Enemy_Bandit_HTN : AEnemy
         EnemyGun = gun;
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
-    }
+    }   
     public override void OnDamage(float damage)
     {
         EntityHP.EntityDamage(damage);
