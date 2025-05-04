@@ -7,68 +7,54 @@ public class SelfState
 {
     private Dictionary<string, object> _states = new Dictionary<string, object>();
     private HashSet<string> _changedStates = new HashSet<string>();
-    private event Action _onStateChanged; 
-
-    public void SetState(string key, object value)
+    public event Action<string> OnStateChanged;
+    
+    // 変更時刻を保存するdictionary　変更履歴にあたる
+    private Dictionary<string, List<float>> _changeTimeHistories = new Dictionary<string, List<float>>();
+    public bool EnableChangeTimeHistory { get; set; } = false;
+    
+    // 型安全にステートを設定
+    public void SetState<T>(string key, T value)
     {
-        bool changed = !_states.TryGetValue(key, out var oldValue) || !Equals(oldValue, value);
-        _states[key] = value;
+        //いまの状態に値が存在するか
+        bool isExists = _states.ContainsKey(key);
         
-        if (changed)
+        //存在していない場合、および、値が同じでない場合に変更可能フラグをオン
+        bool isChange = !isExists || !EqualityComparer<T>.Default.Equals((T)_states[key], value);
+        
+        if (isChange)
         {
-            _changedStates.Add(key); 
-            _onStateChanged?.Invoke();
+            //存在すれば上書き、存在しなければ追加、の書き方
+            _states[key] = value;
+            // 差分キーに登録
+            _changedStates.Add(key);
+            // 時刻履歴への記録（オプション）
+            if (EnableChangeTimeHistory) 
+            {
+                if (!_changeTimeHistories.ContainsKey(key)) 
+                {
+                    _changeTimeHistories[key] = new List<float>();
+                }
+                _changeTimeHistories[key].Add(Time.time);
+            }
+            // 値変更通知イベントを発行
+            OnStateChanged?.Invoke(key);
         }
     }
-
-    public T GetState<T>(string key, T defaultValue = default)
+    
+    public T GetState<T>(string key) 
     {
-        if (_states.TryGetValue(key, out object value) && value is T typedValue)
+        if (_states.TryGetValue(key, out object objectValue)) 
         {
-            return typedValue;
+            if (objectValue is T item) 
+            {
+                return item;
+            } 
+            else 
+            {
+                throw new InvalidCastException($"「{key}」というアイテムは {typeof(T).Name}という型を含んでいません");
+            }
         }
-        return defaultValue;
-    }
-    
-    public IEnumerable<string> GetAllKeys()
-    {
-        // 内部の_factsディクショナリからキーを返す
-        return _states.Keys;
-    }
-    
-    public SelfState Clone()
-    {
-        SelfState copy = new SelfState();
-    
-        foreach (var key in GetAllKeys())
-        {
-            var value = this.GetState<object>(key);
-            // 値自体が参照型である場合、そのディープコピーも必要かもしれない
-            copy.SetState(key, value);
-        }
-    
-        return copy;
-    }
-
-    public bool HasFact(string key)
-    {
-        return _states.ContainsKey(key);
-    }
-
-    public HashSet<string> GetChangedFacts()
-    {
-        HashSet<string> result = new HashSet<string>(_changedStates);
-        _changedStates.Clear();
-        return result;
-    }
-
-    public void AddChangeListener(Action callback)
-    {
-        _onStateChanged += callback;
-    }
-
-    public void RemoveChangeListener(Action callback)
-    {
-        _onStateChanged -= callback;
+        return default;
     }
 }

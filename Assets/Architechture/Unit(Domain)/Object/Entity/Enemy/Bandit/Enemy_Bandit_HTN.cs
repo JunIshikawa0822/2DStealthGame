@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using JunUtilities;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using Unity.VisualScripting;
@@ -82,38 +83,143 @@ public class Enemy_Bandit_HTN : AEnemy
 
     private async UniTask RunPlanningLoop()
     {
-        Debug.Log("はじまった");
-        while (_isAlive)
+        Debug.Log("プランニングループを開始しました");
+        
+        // 状態変化のフラグとキャンセルトークン
+        bool needReplanning = true;
+        CancellationTokenSource loopCts = new CancellationTokenSource();
+        
+        try
         {
-            SearchAround();
-            Rotate();
-            // プランを生成
-            List<ATask> plan = await _planner.GeneratePlan(_worldState);
-            // Debug.Log($" プラン {plan.Count}");
-            
-            if (plan.Count > 0)
+            while (_isAlive && !loopCts.IsCancellationRequested)
             {
-                // プランランナー作成
-                TaskStatus result = await _planRunner.StartExecution(plan, _worldState);
-            
-                if (result == TaskStatus.Success)
+                // 周囲の状況確認
+                SearchAround();
+                
+                if (needReplanning)
                 {
-                    Debug.Log("全てのタスクが正常に終了しました");
+                    Debug.Log("プランを生成中...");
+                    needReplanning = false;
+                    // 既存のプラン実行があれば中止
+                    _planRunner?.StopExecution();
+                    
+                    // 新しいプランを生成
+                    List<ATask> plan = await _planner.GeneratePlan(_worldState);
+                    
+                    if (plan.Count > 0)
+                    {
+                        Debug.Log($"プラン生成成功: {string.Join(" -> ", plan.Select(t => t.TaskName).ToArray())}");
+                        
+                        // プラン実行および
+                        UniTask<TaskStatus> executionTask = _planRunner.StartExecution(plan, _worldState);
+                        UniTask<bool> stateChangeTask = WaitForStateChange();
+                        
+                        // 実行完了を待つか、状態変化による中断を待つ
+                        (int completedIndex, TaskStatus? result1, bool? result2) = await UniTask.WhenAny(executionTask, stateChangeTask);
+                        
+                        if (completedIndex == 0)
+                        {
+                            if (result1 == TaskStatus.Success)
+                            {
+                                Debug.Log("プランが正常に完了しました");
+                                // 短い待機時間を設けて次のプランニングまで間隔を空ける
+                                await UniTask.Delay(500, cancellationToken: loopCts.Token);
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"プラン実行結果: {result1} - 再プランニングを行います");
+                                // 失敗した場合は少し待機してから再プランニング
+                                await UniTask.Delay(1000, cancellationToken: loopCts.Token);
+                            }
+                            
+                            needReplanning = true;
+                        }
+                        else
+                        {
+                            _planRunner.StopExecution();
+                            
+                            // WaitForStateChangeが先に完了した場合は即再プランニング
+                            Debug.Log("状態変化を検出したため再プランニングを行います");
+                            needReplanning = true;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("有効なプランが生成できませんでした");
+                        // プランが生成できなかった場合は待機してから再試行
+                        await UniTask.Delay(2000, cancellationToken: loopCts.Token);
+                    
+                        // 少し待機した後にプランニング可能状態に
+                        needReplanning = true;
+                       
+                    }
                 }
                 else
                 {
-                    Debug.LogWarning("タスク実行中にエラーが発生しました");
+                    // プランニングも実行もされていない状態（待機中）は通常ありえない
+                    // 念のため状態変化を待つコードを残しておく
+                    Debug.Log("状態変化を待機中...");
+                    bool stateChanged = await WaitForStateChange();
+                    if (stateChanged)
+                    {
+                        Debug.Log("状態変化を検出: 次のループで再プランニングを実行します");
+                        needReplanning = true;
+                    }
                 }
+            
+                // 処理負荷軽減のための軽い待機
+                await UniTask.Yield();
             }
-            else
-            {
-                Debug.LogWarning("有効なプランが生成されませんでした");
-            }
-        //     
-        //     // 実行後に再度プランニングを行う
-            await UniTask.Delay(1000 * 5); 
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.Log("プランニングループがキャンセルされました");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"プランニングループでエラーが発生: {ex}");
+        }
+        finally
+        {
+            loopCts.Dispose();
+            Debug.Log("プランニングループを終了しました");
         }
     }
+    
+    private async UniTask<bool> WaitForStateChange()
+    {
+        // 実装例: 以下の条件のいずれかが変化したら再プランニングが必要
+        float checkInterval = 0.2f; // 200ms間隔でチェック
+    
+        while (true)
+        {
+            await UniTask.Delay((int)(checkInterval * 1000));
+        
+            //ターゲットの状態変化をチェック
+            if (_currentTarget != null)
+            {
+                return true;
+            }
+        
+            //ターゲットのロスト
+            if (_currentTarget == null)
+            {
+                return true; 
+            }
+        
+            // 例: HPの大幅な変化
+            float healthThreshold = 0.1f; // 10%の変化で再プランニング
+            float currentHealth = _health;
+            float previousHealth = _worldState.GetValue<float>("Health", currentHealth);
+        
+            if (Mathf.Abs(currentHealth - previousHealth) / _maxHealth > healthThreshold)
+            {
+                _worldState.SetValue("Health", currentHealth);
+                return true;
+            }
+        }
+    }
+
 
     public HTNTaskDomain BuildTask()
     {
@@ -483,6 +589,8 @@ public class Enemy_Bandit_HTN : AEnemy
                 // 次のフレームの Update 時に処理を再開
                 await UniTask.Yield(PlayerLoopTiming.Update, actionCTS.Token);
             }
+
+            transform.position = target;
         
             Debug.Log("1フェーズ終了");
             return TaskStatus.Success;
