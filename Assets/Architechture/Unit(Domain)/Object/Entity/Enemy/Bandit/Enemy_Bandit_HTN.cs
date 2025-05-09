@@ -150,8 +150,7 @@ public class Enemy_Bandit_HTN : AEnemy
                         await UniTask.Delay(2000, cancellationToken: loopCts.Token);
                     
                         // 少し待機した後にプランニング可能状態に
-                        needReplanning = true;
-                       
+                        needReplanning = true;               
                     }
                 }
                 else
@@ -258,8 +257,8 @@ public class Enemy_Bandit_HTN : AEnemy
                         //目的とする方向
                         Vector3 _opponentDirection = _currentTarget.transform.position - this.transform.position;
                         while (Vector3.Angle(
-                                   new Vector3(this.transform.forward.x, 0, this.transform.forward.z),
-                                   new Vector3(_opponentDirection.x, 0, _opponentDirection.z)) > 1)
+                                new Vector3(this.transform.forward.x, 0, this.transform.forward.z),
+                                new Vector3(_opponentDirection.x, 0, _opponentDirection.z)) > 1)
                         {
                             Rotate();
                             //更新
@@ -279,7 +278,7 @@ public class Enemy_Bandit_HTN : AEnemy
         Method singleShotMethod = new Method
         (
             "SingleShotMethod",
-             (ws) =>
+            (ws) =>
             {
                 return EnemyGun != null && EnemyGun.Magazine.MagazineRemaining > 0;
             },

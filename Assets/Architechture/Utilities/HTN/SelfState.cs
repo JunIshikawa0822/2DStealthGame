@@ -57,4 +57,27 @@ public class SelfState
         }
         return default;
     }
+
+    // ステートを複製して新しい SelfState を返す
+    public SelfState Clone() 
+    {
+        SelfState copy = new SelfState();
+        // ステート辞書をコピー（浅いコピー）
+        copy._states = new Dictionary<string, object>(_states);
+        // 差分キューは新規（クローン時点では未変更とする）
+        copy._changedStates = new HashSet<string>();
+        // 履歴設定をコピー（履歴データは保持しない場合は省略可能）
+        copy.EnableChangeTimeHistory = this.EnableChangeTimeHistory;
+        if (this.EnableChangeTimeHistory) 
+        {
+            // 履歴データをディープコピーする例
+            copy._changeTimeHistories = new Dictionary<string, List<float>>();
+            foreach (var kvp in _changeTimeHistories) 
+            {
+                copy._changeTimeHistories[kvp.Key] = new List<float>(kvp.Value);
+            }
+        }
+        // OnStateChanged イベントはコピーせず、新規インスタンス用に空のまま
+        return copy;
+    }
 }
