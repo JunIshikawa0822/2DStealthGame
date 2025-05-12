@@ -190,33 +190,35 @@ public class Enemy_Bandit_HTN : AEnemy
         // 実装例: 以下の条件のいずれかが変化したら再プランニングが必要
         float checkInterval = 0.2f; // 200ms間隔でチェック
     
-        while (true)
-        {
-            await UniTask.Delay((int)(checkInterval * 1000));
+        // while (true)
+        // {
+        //     await UniTask.Delay((int)(checkInterval * 1000));
         
-            //ターゲットの状態変化をチェック
-            if (_currentTarget != null)
-            {
-                return true;
-            }
+        //     //ターゲットの状態変化をチェック
+        //     if (_currentTarget != null)
+        //     {
+        //         return true;
+        //     }
         
-            //ターゲットのロスト
-            if (_currentTarget == null)
-            {
-                return true; 
-            }
+        //     //ターゲットのロスト
+        //     if (_currentTarget == null)
+        //     {
+        //         return true; 
+        //     }
         
-            // 例: HPの大幅な変化
-            float healthThreshold = 0.1f; // 10%の変化で再プランニング
-            float currentHealth = _health;
-            float previousHealth = _worldState.GetValue<float>("Health", currentHealth);
+        //     // 例: HPの大幅な変化
+        //     float healthThreshold = 0.1f; // 10%の変化で再プランニング
+        //     float currentHealth = _health;
+        //     float previousHealth = _worldState.GetValue<float>("Health", currentHealth);
         
-            if (Mathf.Abs(currentHealth - previousHealth) / _maxHealth > healthThreshold)
-            {
-                _worldState.SetValue("Health", currentHealth);
-                return true;
-            }
-        }
+        //     if (Mathf.Abs(currentHealth - previousHealth) / _maxHealth > healthThreshold)
+        //     {
+        //         _worldState.SetValue("Health", currentHealth);
+        //         return true;
+        //     }
+        // }
+
+        return false;
     }
 
 
