@@ -77,7 +77,10 @@ public class InGameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        foreach (ASystem system in _allSystemsList) system.OnSetUp();
+        foreach (ASystem system in _allSystemsList) 
+        {
+            system.OnSetUp();
+        }
     }
 
     // Update is called once per frame

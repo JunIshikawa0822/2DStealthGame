@@ -7,19 +7,32 @@ public class MeshChangable : MonoBehaviour
 {
     protected MeshRenderer _entityRenderer;
     protected MeshRenderer[] _entityChildrenMeshsArray;
-    void Awake()
-    {
-        _entityRenderer = GetComponent<MeshRenderer>();
-        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>(); 
-    }
+    [SerializeField]private bool _AutoDisable = false;
+    
+    // void Awake()
+    // {
+    //     
+    // }
 
     void Start()
     {
-        
+        if (_AutoDisable)
+        {
+            _entityRenderer = GetComponent<MeshRenderer>();
+            _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>();
+            EntityMeshDisable();
+        }
         // Debug.Log(_entityRenderer);
-        EntityMeshDisable();
+        //EntityMeshDisable();
     }
 
+    public void OnSetUp()
+    {
+        _entityRenderer = GetComponent<MeshRenderer>();
+        _entityChildrenMeshsArray= GetComponentsInChildren<MeshRenderer>();
+        EntityMeshDisable();
+    }
+    
     public void EntityMeshDisable()
     {
         //Debug.Log("消えた");

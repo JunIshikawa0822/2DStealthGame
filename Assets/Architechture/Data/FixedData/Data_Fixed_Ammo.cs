@@ -26,6 +26,7 @@ public class Data_Fixed_Ammo: A_Data_Fixed<Data_Fixed_Ammo>, I_Data_Ammo
     public string ItemDiscription{get => _itemDiscription;}
     public uint Width{get => _widthInGUI;}
     public uint Height{get => _heightInGUI;}
+    public bool IsStackable{get => true;}
     public uint StackableNum{get => _stackableNum;}
     public bool IsRotate{get => _widthInGUI == _heightInGUI ? false : true;}
     public Sprite ItemImage{get => _itemImage;}

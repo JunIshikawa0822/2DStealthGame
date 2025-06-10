@@ -2,12 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using JunUtilities;
 
 public abstract class AEnemy : AEntity
 {
-    public Action<AGun> onEnemyDeadEvent;
-    protected AGun _enemyGun;
+    public Action<AGun> gunReleaseAction;
+    protected AGun EnemyGun { get; set; }
     public abstract IStorage WeaponStorage{get;}
+    //public abstract void SetUpEnemyAI(HTNPlanner enemyAI, RRTStar enemyMoveAlgorithm);
+    
     public Transform FindNearestObject(List<Transform> objectList, Transform transform)
     {
         Transform nearestObject = null;
@@ -25,15 +28,13 @@ public abstract class AEnemy : AEntity
 
         return nearestObject;
     }
-    public abstract void Move();
     public abstract void Rotate();
-    public abstract void Attack();
-    public abstract void Reload(AGun gun, Entity_Magazine magazine);
-    public abstract void Hide();
+
     public abstract void Equip(AGun gun);
     public override void OnEntityDead()
     {
-        onEnemyDeadEvent?.Invoke(_enemyGun);
+        gunReleaseAction?.Invoke(EnemyGun);
         base.OnEntityDead();
+        gameObject.SetActive(false);
     }
 }

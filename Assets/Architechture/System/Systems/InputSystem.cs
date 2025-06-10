@@ -18,7 +18,7 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.PlayerMoveTest.canceled += OnMoveInput;
 
         _gameInputs.PlayerActionTest.PlayerAttackTest.started += OnAttackStartInput;
-        _gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackingInput;
+        // _gameInputs.PlayerActionTest.PlayerAttackTest.performed += OnAttackingInput;
         _gameInputs.PlayerActionTest.PlayerAttackTest.canceled += OnAttackEndInput;
 
         _gameInputs.PlayerActionTest.PlayerReloadTest.started += OnReloadInput;
@@ -29,8 +29,6 @@ public class InputSystem : ASystem, IOnPreUpdate
         _gameInputs.PlayerActionTest.SelectingIndexChangeTest.started += OnPlayerSelectingIndexChangeFromKey;
 
         _gameInputs.Enable();
-
-        //Cursor.visible = false;
     }
 
     public void OnPreUpdate()
@@ -51,7 +49,6 @@ public class InputSystem : ASystem, IOnPreUpdate
             gameStat.camera, 
             new Vector3(_cursorWorldPosition.x, gameStat.player.equipPos.transform.position.y, _cursorWorldPosition.z)
         );
-        //Debug.Log(gameStat.testObject.position);
     }
     
     private void OnDestroy()
@@ -67,20 +64,17 @@ public class InputSystem : ASystem, IOnPreUpdate
     private void OnDashInput(InputAction.CallbackContext context)
     {
         gameStat.moveDirection = (gameStat.moveDirection * 2).normalized;
-
-        Debug.Log("押している");
     }
 
     private void OnAttackStartInput(InputAction.CallbackContext context)
     {
-        //Debug.Log("click");
         gameStat.onPlayerAttackStartEvent?.Invoke();
     }
 
-    private void OnAttackingInput(InputAction.CallbackContext context)
-    {
-        gameStat.onPlayerAttackingEvent?.Invoke();
-    }
+    // private void OnAttackingInput(InputAction.CallbackContext context)
+    // {
+    //     gameStat.onPlayerAttackingEvent?.Invoke();
+    // }
 
     private void OnAttackEndInput(InputAction.CallbackContext context)
     {

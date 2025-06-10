@@ -12,6 +12,8 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     private A_Inventory _toInventory;
     private A_Inventory _fromInventory;
 
+    private IStorage _otherStorage;
+
     private float _oldAngle;
     private float _newAngle;
     private float _rotateAngle;
@@ -27,8 +29,10 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
     public override void OnSetUp()
     {
         _UGUIPanel = gameStat.inventoryPanel;
+        _otherStorage = gameStat.otherStorage;
         //_item_GUI_Prefab = gameStat.item_GUI;
 
+        gameStat.onInventoryActiveEvent += LoadStorage;
         gameStat.onInventoryActiveEvent += SwitchInventoryActive;
         
         InventoryPanelActive(gameStat.isInventoryPanelActive);
@@ -46,6 +50,20 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
                 inventory.InsertAction += EquipmentInsert;
                 inventory.RemoveAction += EquipmentRemove;
             }
+        }
+    }
+
+    public void LoadStorage()
+    {
+        Debug.Log($"{gameStat.activeStorageList.Count}");
+        if (gameStat.activeStorageList.Count > 0)
+        {
+            gameStat.otherStorage = gameStat.activeStorageList[0];
+            Debug.Log("いれた");
+        }
+        else
+        {
+            gameStat.otherStorage = null;
         }
     }
 
@@ -67,9 +85,19 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         if(isActive)
         {
             gameStat.inventories[0].OpenInventory(gameStat.playerStorage);
-            gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
             gameStat.inventories[2].OpenInventory(gameStat.weaponStorages[0]);
             gameStat.inventories[3].OpenInventory(gameStat.weaponStorages[1]);
+
+            Debug.Log($"チェック : {gameStat.otherStorage == null}");
+            if (gameStat.otherStorage == null)
+            {
+                gameStat.inventories[1].gameObject.SetActive(false);
+            }
+            else
+            {
+                gameStat.inventories[1].gameObject.SetActive(true);
+                gameStat.inventories[1].OpenInventory(gameStat.otherStorage);
+            }
         }
         else 
         {
@@ -129,16 +157,16 @@ public class TetrisInventorySystem : ASystem, IOnUpdate
         Debug.Log(gui.Item.Data.ItemName + "を使った");
     }
 
-    public void EquipmentInsert(int index, I_Data_Item data)
+    public void EquipmentInsert(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Systemもいれたといっている");
-        gameStat.onPlayerEquipEvent?.Invoke(index, data);
+        gameStat.onPlayerEquipEvent?.Invoke(index, inventoryItem);
     }
 
-    public void EquipmentRemove(int index, I_Data_Item data)
+    public void EquipmentRemove(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Systemもぬいたといっている");
-        gameStat.onPlayerUnEquipEvent?.Invoke(index, data);
+        gameStat.onPlayerUnEquipEvent?.Invoke(index, inventoryItem);
     }
 
     public void PointerDown(A_Item_GUI gui)

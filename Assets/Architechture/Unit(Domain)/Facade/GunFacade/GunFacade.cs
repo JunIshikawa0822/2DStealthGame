@@ -26,12 +26,12 @@ public class GunFacade
         categories.Add(new GunCategory(name, gunFactory, parent.transform));
     }
 
-    public AGun GetGunInstance(I_Data_Item data)
+    public AGun GetGunInstance(I_Data_Gun data)
     {
         AGun gun = null;
-        if(!(data is I_Data_Gun gunData))return null;
+        //if(!(data is I_Data_Gun gunData))return null;
 
-        switch(gunData)
+        switch(data)
         {
             case I_Data_HandGun : gun = categories[0].GetInstance(data);break;
             case I_Data_Shotgun : gun = categories[1].GetInstance(data);break;
@@ -39,7 +39,8 @@ public class GunFacade
 
             default : return null;
         }
-
+        
+        gun.ReferenceSet(null);
         gun.gameObject.SetActive(true);
         return gun;
     }

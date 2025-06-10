@@ -38,11 +38,13 @@ public class Item_GUI : A_Item_GUI, IObject
     public override void Init(IInventoryItem inventoryItem)
     {
         // Debug.Log(inventoryItem);
-
+        I_Data_Item data = inventoryItem.Data;
         _inventoryItem = inventoryItem;
-        _itemImage.sprite = inventoryItem.Data.ItemImage;
+        _itemImage.sprite = data.ItemImage;
         
         BackGroundInit();
+        SetStackText(inventoryItem.StackingNum);
+        //if(data.IsStackable == false) _stackNumText.gameObject.SetActive(false);
         if(_inventoryItem.Data.StackableNum == 1)_stackNumText.gameObject.SetActive(false);
     }
 
@@ -203,9 +205,11 @@ public class Item_GUI : A_Item_GUI, IObject
     public override void OnPointerEnter(PointerEventData pointerEventData)
     {
         //説明文表示もしたい
-        if(_inventoryItem.Data.IsClickUse)_useButton.gameObject.SetActive(true);
-
         base.OnPointerEnter(pointerEventData);
+        
+        if(!_inventoryItem.Data.IsClickUse)return;
+        //2秒後もマウスが乗っていたら
+        _useButton.gameObject.SetActive(true);
     }
 
     public override void OnPointerExit(PointerEventData pointerEventData)

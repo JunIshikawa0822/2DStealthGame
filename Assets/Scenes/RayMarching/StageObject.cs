@@ -12,7 +12,7 @@ public class StageObject : MonoBehaviour
     
     [Header("静的オブジェクトゾーン")]
     public Transform staticObjectParent;
-    private AABB3DTree _stageObjectTree;
+    private AABB3DTree<(Transform, AlignedOBB)> _stageObjectTree;
     
     [Header("動的オブジェクトゾーン")]
     public Transform dynamicObjectParent;
@@ -34,13 +34,15 @@ public class StageObject : MonoBehaviour
     private Vector3 _rotateEulerAngle;
     List<Vector3> _cameraCorners = new List<Vector3>();
     Bounds _cameraBounds;
+    AABB3D _cameraAABB3D;
 
     [Header("てすと")] 
     public Transform test;
     private Vector3[] _obbVertices;
+    public Transform[] tests;
     private void Start()
     {
-        List<(AABB3D bounds, OBB orientedBounds, Transform transform)> objectList = new List<(AABB3D bounds, OBB orientedBounds, Transform transform)>();
+        List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)> objectList = new List<(AABB3D bounds, Transform transform, AlignedOBB allignedObb)>();
         MeshRenderer[] meshesArray = JunExpandUnityClass.GetChildrenComponent<MeshRenderer>(staticObjectParent);
         MeshFilter[] meshFiltersArray = JunExpandUnityClass.GetChildrenComponent<MeshFilter>(staticObjectParent);
         Transform[] transformsArray = JunExpandUnityClass.GetChildrenComponent<Transform>(staticObjectParent);
@@ -50,16 +52,18 @@ public class StageObject : MonoBehaviour
         {
             objectList.Add((
                 new AABB3D(meshesArray[i].bounds), 
-                new OBB(transformsArray[i], meshFiltersArray[i].mesh.vertices),
-                transformsArray[i]
+                transformsArray[i],
+                new AlignedOBB(transformsArray[i], meshFiltersArray[i].mesh.vertices)
                 ));
         }
         
-        _stageObjectTree = new AABB3DTree();
-        _stageObjectTree.BuildTree(objectList);
+        _stageObjectTree = new AABB3DTree<(Transform, AlignedOBB)>();
         
-        // OBB obbtest = new OBB(obbTest, obbTest.GetComponent<MeshFilter>().mesh.vertices);
-        // _obbTestPoints = obbtest.Vertices;
+        List<(AABB3D bounds, (Transform, AlignedOBB))> convertedList = 
+            objectList
+            .Select(item => (item.bounds, (item.transform, item.allignedObb)))
+            .ToList();
+        _stageObjectTree.BuildTree(convertedList);
         
         _rotateEulerAngle = new Vector3(
             _camera.transform.rotation.eulerAngles.x,
@@ -70,9 +74,24 @@ public class StageObject : MonoBehaviour
         
         playerRayMarching.OnSetUp();
         
-        OBB testObb = new OBB(test, test.GetComponent<MeshFilter>().mesh.vertices);
-        _obbVertices = testObb.Vertices;
-
+        if(test == null)return;
+        // 一度だけコピー
+        Mesh tempMesh = Instantiate(test.GetComponent<MeshFilter>().mesh);
+        // 頂点データ取得
+        Vector3[] testMeshVertices = tempMesh.vertices;
+        AlignedOBB testObb = new AlignedOBB(test, testMeshVertices);
+        //OBB testObb = new OBB(test, testMeshVertices);
+        Debug.Log(testObb.Center);
+        tests[0].position = testObb.Center;
+        tests[1].position = testObb.Min;
+        tests[2].position = testObb.Max;
+        
+        // _obbVertices = testObb.Vertices;
+        
+        // OBB obbtest = new OBB(test, test.GetComponent<MeshFilter>().mesh.vertices);
+        // _obbVertices = obbtest.Vertices;
+        
+        Destroy(tempMesh);
     }
 
     private void Update()
@@ -89,17 +108,21 @@ public class StageObject : MonoBehaviour
             _cameraCorners.Add(nearCorners[i]);
             _cameraCorners.Add(new Vector3(nearCorners[i].x + t * direction.x, 0, nearCorners[i].z + t * direction.z));
         }
+        
         _cameraBounds = JunGeometry.GetBoundsFromVertices(_cameraCorners);
-        
+        _cameraAABB3D = new AABB3D(_cameraBounds);
+        //_cameraAABB3D = JunGeometry.GetAABB3DFromVertices(_cameraCorners);
+
         //カメラのAABB
-        AABB3D cameraAABB3D = new AABB3D(_cameraBounds);
-        
         //AABBが交差している = オブジェクトとぶつかっている　というわけではない
-        List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(cameraAABB3D);
+        List<TreeNode3D<(Transform, AlignedOBB)>> intersectNodes = _stageObjectTree.GetIntersectNode(_cameraAABB3D);
+        //List<TreeNode3D> intersectNodes = _stageObjectTree.GetIntersectNode(new AABB3D(_cameraBounds));
         
         //動的オブジェクト
         //カメラが交差しているモートン空間を取得
-        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(cameraAABB3D, _baseTrans.position, _dimensionLevel, _cellSize);
+        Debug.Log($"かめら : {_cameraAABB3D.Center}");
+        int[] intersectMortonSpaceNums = JunGeometry.GetMortonCodesFromAABB(_cameraAABB3D, _baseTrans.position, _dimensionLevel, _cellSize);
+        Debug.Log(string.Join(",", intersectMortonSpaceNums));
         HashSet<int> cameraMortonNums = new HashSet<int>(intersectMortonSpaceNums);
 
         //全ての動的オブジェクトに対して、カメラの交差しているモートン空間内にいるかどうかを確認、いたらリストに追加
@@ -117,13 +140,13 @@ public class StageObject : MonoBehaviour
         
         //レイマーチングに引き渡すためにオブジェクトの情報をつくる
         //まずは静的オブジェクト
-        (Transform transform, int objType, OBB obb)[] objectDataArray = 
-            new (Transform transform, int objType, OBB obb)[intersectNodes.Count + dynamicObjectsInCamera.Count];
+        (Transform transform, int objType, AlignedOBB allignedObb)[] objectDataArray = 
+            new (Transform transform, int objType, AlignedOBB allignedObb)[intersectNodes.Count + dynamicObjectsInCamera.Count];
 
         for (int i = 0; i < intersectNodes.Count; i++)
         {
-            TreeNode3D node = intersectNodes[i];
-            objectDataArray[i] = (node.Transform, 1, node.OrientedBounds);
+            TreeNode3D<(Transform, AlignedOBB)> node = intersectNodes[i];
+            objectDataArray[i] = (node.InformationTuple.Item1, 1, node.InformationTuple.Item2);
         }
 
         for (int i = 0; i < dynamicObjectsInCamera.Count; i++)
@@ -131,17 +154,28 @@ public class StageObject : MonoBehaviour
             objectDataArray[intersectNodes.Count + i] = (dynamicObjectsInCamera[i], 0, null);
         }
         
+        // Debug.Log($"静的オブジェクトの数 : {intersectNodes.Count}");
         playerRayMarching.OnRayMarchingUpdate(objectDataArray);
-        // Debug.Log(
-        //     string.Join((","), 
-        //         intersectNodes
-        //             .Where(item => item != null && item.Transform != null)
-        //             .Select(item => item.Transform)));
-        // Debug.Log(
-        //     string.Join((","), 
-        //         intersectNodes
-        //             .Where(item => item != null && item.OrientedBounds != null)
-        //             .Select(item => item.OrientedBounds.Center)));
+
+        int[] hitDynamicObjects = playerRayMarching.OnRayMarchingUpdate(objectDataArray).Where(index => index > 0 && index >= intersectNodes.Count).ToArray();
+        Debug.Log($"このフレームで、({string.Join(", ", hitDynamicObjects)})とぶつかっているよ");
+        //.Where(index => index >= intersectNodes.Count).ToArray();
+        List<string> hitDynamicObjectNames = new List<string>();
+        for (int i = 0; i < hitDynamicObjects.Length; i++)
+        {
+            int index = hitDynamicObjects[i];
+            hitDynamicObjectNames.Add(objectDataArray[index].transform.name);
+        }
+        Debug.Log(string.Join(", ", hitDynamicObjectNames));
+        //
+        // List<string> allObjectNames = new List<string>();
+        // for (int i = 0; i < objectDataArray.Length; i++)
+        // {
+        //     // Debug.Log(i);
+        //     allObjectNames.Add(objectDataArray[i].transform.name);
+        // }
+        //
+        // Debug.Log(string.Join(", ", allObjectNames));
     }
 
     public void OnDrawGizmos()
@@ -214,6 +248,10 @@ public class StageObject : MonoBehaviour
 
         Gizmos.color = Color.green; // 緑色で描画
         Gizmos.DrawWireCube(_cameraBounds.center, _cameraBounds.size);
+        //Gizmos.DrawWireCube(_cameraAABB3D.Center, _cameraAABB3D.Size);
+        
+        //Debug.Log($"bounds {_cameraBounds.center}, {_cameraBounds.size}");
+        
 
         #endregion
         
@@ -225,6 +263,7 @@ public class StageObject : MonoBehaviour
             {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
         };
         
+        if(_obbVertices.Length < 1) return;
         for (int i = 0; i < edges.GetLength(0); i++)
         {
             Gizmos.DrawLine(_obbVertices[edges[i, 0]], _obbVertices[edges[i, 1]]);

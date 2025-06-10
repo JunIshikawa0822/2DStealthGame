@@ -4,11 +4,13 @@ using UnityEngine;
 using System;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using JunUtilities;
 using UniRx;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.ProBuilder;
 
-public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
+public class Enemy_Bandit_Controller : AEnemy, IBandit
 {
     [SerializeField]
     private Transform _gunTrans;
@@ -17,9 +19,11 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private float _enemy_Bandit_RotateSpeed;
 
     [SerializeField]
-    private TextMeshPro _statusText;
+    //private TextMeshPro _statusText;
 
     private bool isFighting;
+
+    [SerializeField] private PlayerController _player;
 
     //AGun _enemyGun;
     FOV _enemyFieldOfView;
@@ -41,22 +45,24 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     private CompositeDisposable _disposablesByBattleAction;
     private CompositeDisposable _disposablesByLifeCycle;
 
+    [SerializeField]private Transform _target;
     //public Action<AGun> onEnemyDeadEvent;
 
     //いずれはEnemyも生成した側で初期化することだけ留意
-    void Start()
-    {
-        OnSetUp(new Entity_HealthPoint(100, 100));
-    }
+    // void Start()
+    // {
+    //     OnSetUp(new Entity_HealthPoint(100, 100));
+    // }
 
-    public override void OnSetUp(Entity_HealthPoint enemy_Bandit_HP)
+    public override async void OnSetUp(Entity_HealthPoint enemy_Bandit_HP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
     {
         //_enemy_Bandit_HP = enemy_Bandit_HP;
         //gun.position = _gunTrans.position;
         //gun.SetParent(_gunTrans);
-        base.OnSetUp(enemy_Bandit_HP);
+        base.OnSetUp(enemy_Bandit_HP, stageObjectTree);
+        Debug.Log((this.transform.forward));
 
-        if(_entityHP == null)
+        if(EntityHP == null)
         {
             this.gameObject.SetActive(false);
             Debug.LogWarning($"{this.gameObject.name}に体力を設定してください、行動を開始できません");
@@ -78,6 +84,27 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         _disposablesByBattleAction = new CompositeDisposable();
 
         SetEvent();
+        
+        //RotateTest();
+    }
+
+    public async void RotateTest()
+    {
+        Vector3 _opponentDirection = _target.position - this.transform.position;
+        while (Vector3.Angle(
+                   new Vector3(this.transform.forward.x, 0, this.transform.forward.z),
+                   new Vector3(_opponentDirection.x, 0, _opponentDirection.z)) > 1)
+        {
+            Quaternion targetRotation =
+                Quaternion.LookRotation(_target.position - _entityTransform.position);
+            _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(
+                _entityTransform.eulerAngles.y, targetRotation.eulerAngles.y,
+                _enemy_Bandit_RotateSpeed * Time.deltaTime);
+                            
+            //更新
+            _opponentDirection = _target.position - this.transform.position;
+            await UniTask.Yield();
+        }
     }
 
     public void SetEvent()
@@ -110,8 +137,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
             {
                 Rotate(); 
 
-                if(_currentTarget.Value == null)return;    
-                _statusText.transform.LookAt(_currentTarget.Value.position);
+                if(_currentTarget.Value == null)return;
+                //_statusText.transform.LookAt(_currentTarget.Value.position);
             }).AddTo(_disposablesByLifeCycle, this);
     }
 
@@ -120,20 +147,20 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         switch(status)
         {
             case IBandit.BanditStatus.Usual : 
-                _statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFFFFFFFF:X}>{_currentStatus.Value.ToString()}</color>";
             
                 StartSearchAround(0.5f); 
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; 
                 _currentAction.Value = IBandit.BanditAction.Standing; 
                 break;
             case IBandit.BanditStatus.Warn : 
-                _statusText.text = $"<color=#{0xFF0000FF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFF0000FF:X}>{_currentStatus.Value.ToString()}</color>";
 
                 StartSearchAround(0.2f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Attacking;
                 break;
             case IBandit.BanditStatus.Caution : 
-                _statusText.text = $"<color=#{0xFFFF00FF:X}>{_currentStatus.Value.ToString()}</color>";
+                //_statusText.text = $"<color=#{0xFFFF00FF:X}>{_currentStatus.Value.ToString()}</color>";
 
                 StartSearchAround(0.35f);
                 _currentBattleAction.Value = IBandit.BanditBattleAction.Idle; break;
@@ -226,15 +253,13 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
     //         default : return 1f;
     //     }
     // }
-
-    public override void Move()
-    {
-        //ランダムな移動
-    }
+    
 
     public override void Rotate()
     {
-        if(_currentTarget.Value == null)return;
+        if(_currentTarget.Value == null && _currentStatus.Value == IBandit.BanditStatus.Usual)return;
+
+        _currentTarget.Value = _player.transform;
         Quaternion targetRotation = Quaternion.LookRotation(_currentTarget.Value.position - _entityTransform.position);
         _entityTransform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(_entityTransform.eulerAngles.y, targetRotation.eulerAngles.y, _enemy_Bandit_RotateSpeed * Time.deltaTime);
     }
@@ -244,42 +269,38 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         _disposablesByBattleAction.Clear();
 
         if(_enemyWeaponStorage == null) return;
-        if(_enemyGun == null)return;
+        if(EnemyGun == null)return;
         //statusに応じたインターバルで周囲を探索する
         Observable.Interval(System.TimeSpan.FromSeconds(interval))
             .TakeWhile(_ => _currentBattleAction.Value == IBandit.BanditBattleAction.Attacking)
             .Subscribe(_ =>
             {
-                if(_enemyGun.Magazine.MagazineRemaining > 0)
+                if(EnemyGun.Magazine.MagazineRemaining > 0)
                 {
                     Attack();
                 }
                 else
                 {
-                    Reload(_enemyGun, new Entity_Magazine(10, 10));
+                    Reload(EnemyGun, new Entity_Magazine(10, 10));
                 }
             })
             .AddTo(_disposablesByBattleAction, this);
     }
 
-    public override void Attack()
+    public void Attack()
     {
-        _enemyGun.TriggerOn();
+        EnemyGun.TriggerOn();
     }
 
-    public override void Hide()
+    public void Reload()
     {
-       //攻撃された状態のとき一定間隔で
-       //HPが一定以下になったら
-       //周りに仲間がいない時
-
-       //隠れる行動
+        
     }
 
-    public override void Reload(AGun gun, Entity_Magazine magazine)
+    public void Reload(AGun gun, Entity_Magazine magazine)
     {
         //リロード
-        if(_isEntityActionInterval)return;
+        if(IsEntityActionInterval)return;
         //CancelAction(actionCancellationTokenSource);
 
         _actionCancellationTokenSource = new CancellationTokenSource();
@@ -288,15 +309,15 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override void Equip(AGun gun)
     {
-        //Debug.Log("こんにちは！！！");
         gun.transform.SetParent(_gunTrans);
         gun.transform.SetPositionAndRotation(_gunTrans.position, this.transform.rotation);
-        _enemyGun = gun;
+        EnemyGun = gun;
     }
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        Debug.LogWarning($"{transform.name}が{damage}ダメージを受けた");
+        EntityHP.EntityDamage(damage);
 
         _currentStatus.Value = IBandit.BanditStatus.Warn;
 
@@ -308,7 +329,7 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
 
     public override bool IsEntityDead()
     {
-        if(_entityHP.CurrentHp <= 0)
+        if(EntityHP.CurrentHp <= 0)
         {
             return true;
         }
@@ -321,10 +342,8 @@ public class Enemy_Bandit_Controller : AEnemy, IEnemy, IBandit
         _disposablesByLifeCycle.Clear();
         _disposablesByStatus.Clear();
 
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
         Debug.Log($"{this.gameObject.name}はやられた！");
-
-        //onEnemyDeadEvent?.Invoke(_enemyGun);
         base.OnEntityDead();
     }   
 }

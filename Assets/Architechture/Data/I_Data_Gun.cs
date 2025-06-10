@@ -4,7 +4,6 @@ using UnityEngine;
 
 public interface I_Data_Gun : I_Data_Item
 {
-
     public IBulletType.CaliberTypes CaliberType{get;}
     public float ShotInterval{get;}
     public float ShotVelocity{get;}

@@ -5,6 +5,7 @@ public class EntitySystem : ASystem, IOnUpdate
     {
         
     }
+
     public void OnUpdate()
     {
         

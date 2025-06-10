@@ -8,7 +8,6 @@ public class Bullet_10mm : ABullet, IObject
     float _lifeDistance;
     [SerializeField]
     float _bulletDamage;
-    private Action<Bullet_10mm> poolAction;
     public string Name{get; set;}
 
     void Awake()
@@ -22,15 +21,13 @@ public class Bullet_10mm : ABullet, IObject
         //Debug.Log($"Distance{_bulletLifeDistance}");
         if(IsBeyondLifeDistance())
         {
-            Debug.Log("距離によって破壊");
+            // Debug.Log("距離によって破壊");
             //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
             Release();
         }
         else if(IsBulletCollide())
         {
-            //Debug.Log("衝突によって破壊");
-
-            Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかった");
+            Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかって破壊");
 
             AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
 

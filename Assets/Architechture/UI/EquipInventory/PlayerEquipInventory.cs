@@ -22,11 +22,11 @@ public class PlayerEquipInventory : A_Inventory
     [SerializeField]
     private float _cellSize;
 
-    private event Action<int, I_Data_Item> _onInsertEvent;
-    private event Action<int, I_Data_Item> _onRemoveEvent;
+    private event Action<int, IInventoryItem> _onInsertEvent;
+    private event Action<int, IInventoryItem> _onRemoveEvent;
 
-    public override Action<int, I_Data_Item> InsertAction{get => _onInsertEvent; set => _onInsertEvent += value;}
-    public override Action<int, I_Data_Item> RemoveAction{get => _onRemoveEvent; set => _onRemoveEvent += value;}
+    public override Action<int, IInventoryItem> InsertAction{get => _onInsertEvent; set => _onInsertEvent += value;}
+    public override Action<int, IInventoryItem> RemoveAction{get => _onRemoveEvent; set => _onRemoveEvent += value;}
     void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
@@ -141,7 +141,7 @@ public class PlayerEquipInventory : A_Inventory
         _openningStorage.Add(insertGUI.Item);
 
         Debug.Log("入れた!!");
-        _onInsertEvent?.Invoke(_accessIndex, insertGUI.Item.Data);
+        _onInsertEvent?.Invoke(_accessIndex, insertGUI.Item);
         return 0;
     }
 
@@ -152,7 +152,7 @@ public class PlayerEquipInventory : A_Inventory
         _openningStorage.Remove(_gui_Item.Item);
 
         Debug.Log("抜いた");
-        _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item.Data);
+        _onRemoveEvent?.Invoke(_accessIndex, _gui_Item.Item);
 
         _gui_Item = null;
     }

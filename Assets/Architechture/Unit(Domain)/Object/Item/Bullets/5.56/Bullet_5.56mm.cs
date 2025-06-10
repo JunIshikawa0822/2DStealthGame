@@ -5,33 +5,42 @@ using System.Threading;
 public class Bullet_5_56mm : ABullet, IObject
 {
     [SerializeField]
-    float _LifeDistance;
-    private CancellationTokenSource bulletLifeCTS;
+    float _lifeDistance;
+    [SerializeField]
+    float _bulletDamage;
     private Action<Bullet_5_56mm> poolAction;
-
     public string Name{get; set;}
 
-    public void Awake()
+    void Awake()
     {
-        OnSetUp(_LifeDistance);
-
-        bulletLifeCTS = new CancellationTokenSource();
-        //BulletLifeTime();
+        OnSetUp(_lifeDistance);
     }
-    public void Start()
-    {
 
-    }
-    public void FixedUpdate()
+    //弾の当たり判定はFixedUpdate内で計算。
+    void FixedUpdate()
     {
-        if(IsBulletCollide())
+        //Debug.Log($"Distance{_bulletLifeDistance}");
+        if(IsBeyondLifeDistance())
         {
-            Debug.Log("衝突");
+            // Debug.Log("距離によって破壊");
+            //Debug.Log($"距離で削除された時のPrePos : {_bulletPrePos}");
+            Release();
+        }
+        else if(IsBulletCollide())
+        {
+            Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかって破壊");
+
+            AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
+
+            Release();
+
+            if(entity == null)return;
+            entity.OnDamage(_bulletDamage);
         }
     }
 
     public override Type GetBulletType()
     {
-        return typeof(Bullet_5_56mm);
+        return typeof(Bullet_10mm);
     }
 }

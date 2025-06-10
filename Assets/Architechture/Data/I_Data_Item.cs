@@ -7,6 +7,7 @@ public interface I_Data_Item : IEquatable<I_Data_Item>
     public string ItemDiscription{get;}
     public uint Width{get;}
     public uint Height{get;}
+    public bool IsStackable { get; }
     public uint StackableNum{get;}
     public bool IsRotate{get;}
     public Sprite ItemImage{get;}

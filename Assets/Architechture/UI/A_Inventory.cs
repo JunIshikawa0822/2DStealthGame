@@ -6,8 +6,8 @@ using UnityEngine;
 
 public abstract class A_Inventory : MonoBehaviour
 {
-    public abstract Action<int, I_Data_Item> InsertAction{get;set;}
-    public abstract Action<int, I_Data_Item> RemoveAction{get;set;}
+    public abstract Action<int, IInventoryItem> InsertAction{get;set;}
+    public abstract Action<int, IInventoryItem> RemoveAction{get;set;}
     public abstract void Init(IObjectPool objectPool);
     public abstract void OpenInventory(IStorage storage);
     public abstract void CloseInventory();

@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using JunUtilities;
 
 [System.Serializable]
 public class GameStatus
@@ -16,14 +17,13 @@ public class GameStatus
 
     [Header("PlayerActions")]
     public Action onPlayerAttackStartEvent;
-    public Action onPlayerAttackingEvent;
     public Action onPlayerAttackEndEvent;
     public Action onPlayerReloadEvent;
     public Action onInventoryActiveEvent;
     public Action onSelectGunChange;
 
-    public Action<int, I_Data_Item> onPlayerEquipEvent;
-    public Action<int, I_Data_Item> onPlayerUnEquipEvent;
+    public Action<int, IInventoryItem> onPlayerEquipEvent;
+    public Action<int, IInventoryItem> onPlayerUnEquipEvent;
 
     [Header("Inputs")]
     [HideInInspector]public Vector2 moveDirection = Vector2.zero;
@@ -49,6 +49,7 @@ public class GameStatus
     
     [Header("Player")]
     public PlayerController player;
+    public List<IStorage> activeStorageList = new List<IStorage>();
 
     [Header("EnemiesInfo")]
     public Enemy_Bandit_Controller bandit;
@@ -92,11 +93,23 @@ public class GameStatus
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
 
-#region  即席
+    [Header("OBBテスト")] 
+    public Transform obbTest;
+    public Transform[] obbTestObjects;
+
+    [Header("静的オブジェクト")] 
+    public Transform staticObjectsParent;
+
+    public AABB3DTree<(Transform, AlignedOBB)> staticObjectTree;
+
+    [Header("動的オブジェクト")] 
+    public List<Transform> dynamicObjectList = new List<Transform>();
+    
+    [Header("宝箱")]
+    public List<Transform> InteractableObjects = new List<Transform>();
+    
     [Header("Enemy")]
-    public Transform enemyParent;
-    public List<AEnemy> enemyObjects;
-#endregion
+    public List<AEnemy> enemyObjects = new List<AEnemy>();
 
     [Header("Facade")]
     public Transform gunInstanceParent;
@@ -106,12 +119,20 @@ public class GameStatus
 
     //public List<IGunFactory> gunFactoriesList;
     [Header("MortonSpace")]
-    [SerializeField] public float cellWidth;
-    [SerializeField] public float cellHeight;
-    [SerializeField] public float cellDepth;
-    [SerializeField] public int dimensionLevel;
-    [SerializeField] public Transform mortonSpaceBaseTrans;
-    [SerializeField] public Transform targetParent;
+    [SerializeField] private float cellWidth;
+    [SerializeField] private float cellHeight;
+    [SerializeField] private float cellDepth;
+    [HideInInspector]public Vector3 CellSize{get => new Vector3(cellWidth, cellHeight, cellDepth);}
+    
+    public int dimensionLevel;
+    public Transform mortonSpaceBaseTrans;
 
-    [SerializeField] public Transform testObject;
+    public PathFinder[] pathFinders;
+    //[SerializeField] public GameObject pathTest;
+
+    [Header("RRTStar")] 
+    public Transform stageCenterTrans;
+
+    [Header("HTN")] 
+    public WorldState worldState;
 }

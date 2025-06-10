@@ -4,10 +4,11 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using JunUtilities;
 
 public abstract class AEntity : MonoBehaviour
 {
-    protected Entity_HealthPoint _entityHP;
+    protected Entity_HealthPoint EntityHP { get; set; }
     //protected List<IItem> _items;
 
     protected Rigidbody _entityRigidbody;
@@ -16,16 +17,18 @@ public abstract class AEntity : MonoBehaviour
     protected MeshRenderer _entityRenderer;
     protected MeshRenderer[] _entityChildrenMeshsArray;
 
-    protected bool _isEntityActionInterval;
+    protected bool IsEntityActionInterval { get; set; }
     protected CancellationTokenSource _actionCancellationTokenSource;
 
     public abstract IStorage Storage{get;}
 
     public event Action onEntityDeadEvent;
+    protected AABB3DTree<(Transform, AlignedOBB)> Obstacles;
 
-    public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint)
+    public virtual void OnSetUp(Entity_HealthPoint entity_HealthPoint, AABB3DTree<(Transform, AlignedOBB)> obstacles)
     {
-        _entityHP = entity_HealthPoint;
+        EntityHP = entity_HealthPoint;
+        Obstacles = obstacles;
 
         _entityRigidbody = GetComponent<Rigidbody>();
         _entityTransform = GetComponent<Transform>();
@@ -47,7 +50,7 @@ public abstract class AEntity : MonoBehaviour
     // }
     public virtual bool IsEntityDead()
     {
-        if(_entityHP.CurrentHp <= 0)return true;
+        if(EntityHP.CurrentHp <= 0)return true;
         return false;
     }
     public virtual void OnEntityDead()
@@ -87,7 +90,7 @@ public abstract class AEntity : MonoBehaviour
 
     public async UniTask EntityActionInterval(Action waitAction, CancellationToken token, float time, string ActionName)
     {
-        _isEntityActionInterval = true;
+        IsEntityActionInterval = true;
 
         try
         {
@@ -103,7 +106,7 @@ public abstract class AEntity : MonoBehaviour
         }
         finally
         {
-            _isEntityActionInterval = false; // クールタイム終了（またはキャンセル)
+            IsEntityActionInterval = false; // クールタイム終了（またはキャンセル)
         }
     }
 }

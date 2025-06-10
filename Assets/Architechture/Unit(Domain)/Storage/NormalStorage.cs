@@ -35,15 +35,16 @@ public class NormalStorage : MonoBehaviour, IStorage
 
     public IInventoryItem FindItem<T>(Func<T, bool> func)
     {
+        Debug.Log(_itemList.Count);
         foreach(IInventoryItem item in _itemList)
         {
+            Debug.Log($"itemType : {item.Data}");
             if(!(item.Data is T itemData))continue;
 
             if(func.Invoke(itemData))
             {
                 return item;
             }
-            return null;
         }
         return null;
     }

@@ -4,6 +4,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
+using JunUtilities;
 using UniRx;
 using UnityEngine.Rendering;
 using Unity.Entities.UniversalDelegates;
@@ -33,15 +34,13 @@ public class PlayerController : AEntity
     [SerializeField] WeaponStorage _weaponStorage1;
     [SerializeField] WeaponStorage _weaponStorage2;
     [SerializeField] NormalStorage _playerStorage;
-    //private AGun[] _playerGunsArray;
-    //private int _selectingGunsArrayIndex;
-    //private CompositeDisposable _disposablesByLifeCycle;
 
-    [HideInInspector]public Action<IStorage> storageFindEvent;
-    [HideInInspector]public Action leaveStorageEvent;
-    public override void OnSetUp(Entity_HealthPoint playerHP)
+    public event Action<IStorage> storageFindAction;
+    public event Action<IStorage> storageLeaveAction;
+    
+    public override void OnSetUp(Entity_HealthPoint playerHP, AABB3DTree<(Transform, AlignedOBB)> stageObjectTree)
     {
-        base.OnSetUp(playerHP);
+        base.OnSetUp(playerHP, stageObjectTree);
 
         //_fieldOfView = GetComponent<FOV>();
         _playerAnimator = GetComponent<Animator>();
@@ -50,11 +49,8 @@ public class PlayerController : AEntity
 
     public void Move(Vector2 inputDirection)
     {
-        //Debug.Log("移動");
-        //移動
-
-        _entityRigidbody.velocity = new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce;
-        //_entityRigidbody.AddForce(new Vector3(inputDirection.x, 0, inputDirection.y) * _playerMoveForce, ForceMode.Force); 
+        Vector3 velocity = new Vector3(inputDirection.x, 0, inputDirection.y); // 上下のキー入力からZ軸方向の移動量を取得
+        transform.localPosition += velocity * _playerMoveForce * Time.fixedDeltaTime;
     }
 
     public void Rotate(Vector3 mouseWorldPosition)
@@ -90,20 +86,23 @@ public class PlayerController : AEntity
     {
         equipPos.SetPositionAndRotation(equipPos.position, this.transform.rotation);
 
-        Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
-        if(collides.Length > 0)
-        {
-            storageFindEvent?.Invoke(collides[0].GetComponent<NormalStorage>());
-        }
-        else
-        {
-            leaveStorageEvent?.Invoke();
-        }
+        // Collider[] collides = Physics.OverlapSphere(this.transform.position, 1, 1 << 11);
+        // if(collides.Length > 0)
+        // {
+        //     storageFindEvent?.Invoke(collides[0].GetComponent<NormalStorage>());
+        // }
+        // else
+        // {
+        //     leaveStorageEvent?.Invoke();
+        // }
     }
 
     public void AttackStart(AGun gun)
     {
         if(gun == null)return;
+        if(IsEntityActionInterval)return;
+
+        IsEntityActionInterval = true;
         gun.TriggerOn();
 
         _playerAnimator.SetTrigger("Shot");
@@ -111,57 +110,38 @@ public class PlayerController : AEntity
         //EntityActionInterval(null, _actionCancellationTokenSource.Token, gun.ShotInterval, "動けない").Forget();
     }
 
-    public void Attaking(AGun gun)
-    {
-        if(gun == null)return;
-        gun.Shooting();
-    }
-
     public void AttackEnd(AGun gun)
     {
         if(gun == null)return;
+        
+        IsEntityActionInterval = false;
         gun.TriggerOff();
     }
 
     public void Reload(AGun gun)
     {
-        Debug.Log("リロード");
-        if(_isEntityActionInterval)return;
+        //Debug.Log("リロード");
+        if(IsEntityActionInterval)return;
 
+        //Debug.Log("デバッグその1");
         if(gun == null)return;
-        if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
-
-        IInventoryItem ammoItem = _playerStorage.FindItem<I_Data_Ammo>((I_Data_Ammo ammo) => ammo.CaliberType == gun.Data.CaliberType);
+        uint bulletRemain = gun.Magazine.MagazineRemaining;
+        uint bulletCapacity = gun.Magazine.MagazineCapacity;
         
-        // Debug.Log("アモ検索 : " + (ammoItem == null));
+        //Debug.Log("デバッグその2");
+        if(bulletRemain >= bulletCapacity) return;
+
+        //Debug.Log(gun.Data.CaliberType);
+        IInventoryItem ammoItem = _playerStorage.FindItem<I_Data_Ammo>((I_Data_Ammo ammo) => ammo.CaliberType == gun.Data.CaliberType);
+        //Debug.Log(ammoItem);
+        //Debug.Log("デバッグその3");
         if(ammoItem == null) return;
 
-        Debug.Log("リロードしている");
-        uint max = gun.MaxAmmoNum;
-        uint current = ammoItem.StackingNum >= gun.MaxAmmoNum ? gun.MaxAmmoNum : ammoItem.StackingNum;
+        //Debug.Log("リロードしている");
+        uint reloadNum = ammoItem.StackingNum >= bulletCapacity ? bulletCapacity - bulletRemain : ammoItem.StackingNum;
 
-        ammoItem.StackingNum -= current;
-        Entity_Magazine magazine = new Entity_Magazine(max, current);
-
-        EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
-    }
-
-    public void Reload(int gunIndex)
-    {
-        if(_isEntityActionInterval)return;
-
-        AGun gun = _playerGunArray[gunIndex];
-
-        if(gun == null) return;
-        if(gun.Magazine.MagazineRemaining >= gun.Magazine.MagazineCapacity) return;
-
-
-        uint max = gun.MaxAmmoNum;
-        uint current = gun.MaxAmmoNum;
-
-        Debug.Log(max + "," + current);
-        Entity_Magazine magazine = new Entity_Magazine(max, current);
-
+        ammoItem.StackingNum -= reloadNum;
+        Entity_Magazine magazine = new Entity_Magazine(bulletCapacity, reloadNum + bulletRemain);
         EntityActionInterval(() => gun.Reload(magazine), _actionCancellationTokenSource.Token, gun.ReloadTime, "リロード").Forget();
     }
 
@@ -204,9 +184,9 @@ public class PlayerController : AEntity
 
     public override void OnDamage(float damage)
     {
-        _entityHP.EntityDamage(damage);
+        EntityHP.EntityDamage(damage);
 
-        Debug.Log(_entityHP.CurrentHp);
+        Debug.Log(EntityHP.CurrentHp);
 
         if(IsEntityDead())
         {
@@ -230,34 +210,28 @@ public class PlayerController : AEntity
             tokenSource.Cancel();
             tokenSource.Dispose();
             tokenSource = null;
-            _isEntityActionInterval = false;
+            IsEntityActionInterval = false;
         }
     }
 
-    private void OnTriggerEnter(Collider collider)
+    public void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Storage見つけた");
-        if(collider.gameObject.tag == "Storage")
+        Debug.Log("OnTriggerEnter");
+        Debug.Log(other.TryGetComponent<IStorage>(out IStorage some));
+        if (other.CompareTag("Storage") && other.TryGetComponent<IStorage>(out IStorage storage))
         {
-            Debug.Log("Storage見つけた");
-            storageFindEvent?.Invoke(collider.GetComponent<NormalStorage>());
-        }
-        else
-        {
-            //storageFindEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
+            Debug.Log("Storageみつけた");
+            storageFindAction?.Invoke(storage);
         }
     }
-
-    private void OnTriggerExit(Collider collider)
+    
+    public void OnTriggerExit(Collider other)
     {
-        if(collider.gameObject.tag == "Storage")
+        Debug.Log("OnTriggerExit");
+        if (other.CompareTag("Storage") && other.TryGetComponent(out IStorage storage))
         {
             Debug.Log("Storage離れた");
-            //leaveStorageEvent?.Invoke(collider.GetComponent<NormalStorage>());
-        }
-        else
-        {
-            //leaveStorageEvent?.Invoke(collider.GetComponent<AEntity>().Storage);
+            storageLeaveAction?.Invoke(storage);
         }
     }
 }

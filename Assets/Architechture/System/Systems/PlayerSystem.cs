@@ -8,6 +8,9 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
     public override void OnSetUp()
     {
         _player = gameStat.player;
+        _player.storageFindAction += StorageFind;
+        _player.storageLeaveAction += StorageLeave;
+        
         gameStat.playerGunsArray = new AGun[2];
         gameStat.selectingGunsArrayIndex = 0;
 
@@ -22,14 +25,10 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Debug.Log(gameStat.weaponStorages[0]);
         Debug.Log(gameStat.weaponStorages[1]);
 
-        _player.OnSetUp(gameStat.playerHP);
+        _player.OnSetUp(gameStat.playerHP, gameStat.staticObjectTree);
         //_player.PlayerSetUp(gameStat.playerGunsArray.Value, gameStat.selectingGunsArrayIndex.Value);
-
-        _player.storageFindEvent += OnFindStorage;
-        _player.leaveStorageEvent += OnExitStorage;
-
+        
         gameStat.onPlayerAttackStartEvent += OnAttackStart;
-        gameStat.onPlayerAttackingEvent += OnAttack;
         gameStat.onPlayerAttackEndEvent += OnAttackEnd;
 
         gameStat.onPlayerReloadEvent += OnReload;
@@ -44,39 +43,33 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
 
     public void OnUpdate()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("は？");
-
-            List<string> normalStorage = new List<string>();
-            List<string> weaponStorage1 = new List<string>();
-            List<string> weaponStorage2 = new List<string>();
-
-            foreach(IInventoryItem item in gameStat.player.Storage.GetItems())
-            {
-                normalStorage.Add(item.Data.GetType().ToString());
-            }
-
-            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage1.GetItems())
-            {
-                if(item == null)break;
-                weaponStorage1.Add(item.Data.GetType().ToString());
-            }
-
-            foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage2.GetItems())
-            {
-                if(item == null)break;
-                weaponStorage2.Add(item.Data.GetType().ToString());
-            }
-
-            Debug.Log("PlayerNormalStorage : " + string.Join(",", normalStorage));
-            Debug.Log("WeaponStorage1 : " + string.Join(",", weaponStorage1));
-            Debug.Log("WeaponStorage2 : " + string.Join(",", weaponStorage2));
-        }
+        // if(Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     List<string> normalStorage = new List<string>();
+        //     List<string> weaponStorage1 = new List<string>();
+        //     List<string> weaponStorage2 = new List<string>();
+        //
+        //     foreach(IInventoryItem item in gameStat.player.Storage.GetItems())
+        //     {
+        //         normalStorage.Add(item.Data.GetType().ToString());
+        //     }
+        //
+        //     foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage1.GetItems())
+        //     {
+        //         if(item == null)break;
+        //         weaponStorage1.Add(item.Data.GetType().ToString());
+        //     }
+        //
+        //     foreach(IInventoryItem item in gameStat.player.PlayerWeaponStorage2.GetItems())
+        //     {
+        //         if(item == null)break;
+        //         weaponStorage2.Add(item.Data.GetType().ToString());
+        //     }
+        // }
 
         if(gameStat.isInventoryPanelActive)
         {
-
+    
         }
         else
         {
@@ -123,16 +116,9 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         Debug.Log("AttackStart");
     }
 
-    public void OnAttack()
-    {
-        _player.Attaking(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
-        Debug.Log("Attacking");
-    }
-
     public void OnAttackEnd()
     {
         _player.AttackEnd(gameStat.playerGunsArray[gameStat.selectingGunsArrayIndex]);
-        Debug.Log("AttackEnd");
     }
 
     public void OnReload()
@@ -152,17 +138,14 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         _player.UnEquipMotion(gameStat.playerGunsArray[1 - gameStat.selectingGunsArrayIndex]);
     }
 
-    public void OnEquipGun(int index, I_Data_Item data)
+    public void OnEquipGun(int index, IInventoryItem inventoryItem)
     {
-        if(data == null) return;
-
-        Debug.Log("Playerでもいれてる");
-
-        AGun gun = gameStat.gunFacade.GetGunInstance(data);
-
-        Debug.Log(index);
-        Debug.Log(gameStat.selectingGunsArrayIndex);
-
+        if(inventoryItem == null) return;
+        if(!(inventoryItem.Data is I_Data_Gun gunData))return;
+        
+        AGun gun = gameStat.gunFacade.GetGunInstance(gunData).Init(gunData);
+        gun.ReferenceSet(inventoryItem);
+        gun.Reload(new Entity_Magazine(gunData.MaxAmmoNum, inventoryItem.StackingNum));
         gameStat.playerGunsArray[index] = gun;
 
         if(index == gameStat.selectingGunsArrayIndex)
@@ -171,7 +154,7 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         }
     }
 
-    public void OnUnEquipGun(int index, I_Data_Item data)
+    public void OnUnEquipGun(int index, IInventoryItem inventoryItem)
     {
         Debug.Log("Playerでもぬいてる");
 
@@ -186,13 +169,13 @@ public class PlayerSystem : ASystem, IOnUpdate, IOnFixedUpdate, IOnLateUpdate
         }
     }
 
-    public void OnFindStorage(IStorage storage)
+    public void StorageFind(IStorage storage)
     {
-        gameStat.otherStorage = storage;
+        gameStat.activeStorageList.Add(storage);
     }
-
-    public void OnExitStorage()
+    
+    public void StorageLeave(IStorage storage)
     {
-        gameStat.otherStorage = null;
+        gameStat.activeStorageList.Remove(storage);
     }
 }

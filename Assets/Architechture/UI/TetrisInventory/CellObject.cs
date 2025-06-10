@@ -28,20 +28,25 @@ public class CellObject
     public uint Stack(A_Item_GUI insertGUI)
     {
         uint overflow = 0;
-        uint add = _item_GUI.Item.StackingNum + insertGUI.Item.StackingNum;
+        IInventoryItem alreadyInsertedItem = _item_GUI.Item;
+        IInventoryItem nowInsertItem = insertGUI.Item;
 
-        if(add > _item_GUI.Item.Data.StackableNum)
+        //そもそもスタックできないならおわり
+        if (alreadyInsertedItem.Data.IsStackable == false) return insertGUI.Item.StackingNum;
+        
+        uint add = alreadyInsertedItem.StackingNum + nowInsertItem.StackingNum;
+        if(add > alreadyInsertedItem.Data.StackableNum)
         {
-            overflow = add - _item_GUI.Item.Data.StackableNum;
+            overflow = add - alreadyInsertedItem.Data.StackableNum;
 
-            _item_GUI.Item.StackingNum = _item_GUI.Item.Data.StackableNum;
+            _item_GUI.Item.StackingNum = alreadyInsertedItem.Data.StackableNum;
             insertGUI.Item.StackingNum = overflow;
 
-            insertGUI.SetStackText(insertGUI.Item.StackingNum);
+            insertGUI.SetStackText(nowInsertItem.StackingNum);
         }
         else
         {
-            _item_GUI.Item.StackingNum += insertGUI.Item.StackingNum;
+            _item_GUI.Item.StackingNum += nowInsertItem.StackingNum;
 
             insertGUI.OnDestroy();
         }
@@ -63,6 +68,7 @@ public class CellObject
     public bool IsStackable()
     {
         if(_item_GUI == null)return true;
+        if (_item_GUI.Item.Data.IsStackable == false) return false;
         return _item_GUI.Item.StackingNum < _item_GUI.Item.Data.StackableNum;
     }
 

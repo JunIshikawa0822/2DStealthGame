@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "2DStealthGame.sln"
+    "dotnet.defaultSolution": "2DStealthGame.sln",
+    "dotnet.preferCSharpExtension": true
 }
