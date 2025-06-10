@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class EnemySystem : ASystem, IOnUpdate
 {
     private float _enemyRadius = 1;
+
     public override void OnSetUp()
     {
         gameStat.worldState = new WorldState();

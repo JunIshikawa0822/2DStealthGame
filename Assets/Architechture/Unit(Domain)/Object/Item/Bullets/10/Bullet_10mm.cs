@@ -8,7 +8,6 @@ public class Bullet_10mm : ABullet, IObject
     float _lifeDistance;
     [SerializeField]
     float _bulletDamage;
-    private Action<Bullet_10mm> poolAction;
     public string Name{get; set;}
 
     void Awake()

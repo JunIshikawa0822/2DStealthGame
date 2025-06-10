@@ -5,10 +5,9 @@ using System;
 
 public class SelfState
 {
-    private Dictionary<string, object> _states = new Dictionary<string, object>();
+    private Dictionary<string, (object Value, Type Type)> _states = new Dictionary<string, (object, Type)>();
     private HashSet<string> _changedStates = new HashSet<string>();
     public event Action<string> OnStateChanged;
-    
     // 変更時刻を保存するdictionary　変更履歴にあたる
     private Dictionary<string, List<float>> _changeTimeHistories = new Dictionary<string, List<float>>();
     public bool EnableChangeTimeHistory { get; set; } = false;
@@ -16,46 +15,78 @@ public class SelfState
     // 型安全にステートを設定
     public void SetState<T>(string key, T value)
     {
-        //いまの状態に値が存在するか
-        bool isExists = _states.ContainsKey(key);
-        
-        //存在していない場合、および、値が同じでない場合に変更可能フラグをオン
-        bool isChange = !isExists || !EqualityComparer<T>.Default.Equals((T)_states[key], value);
-        
-        if (isChange)
+        if (_states.TryGetValue(key, out (object Value, Type Type) state))
         {
-            //存在すれば上書き、存在しなければ追加、の書き方
-            _states[key] = value;
-            // 差分キーに登録
-            _changedStates.Add(key);
-            // 時刻履歴への記録（オプション）
-            if (EnableChangeTimeHistory) 
+            if (state.Type != typeof(T))
             {
-                if (!_changeTimeHistories.ContainsKey(key)) 
-                {
-                    _changeTimeHistories[key] = new List<float>();
-                }
-                _changeTimeHistories[key].Add(Time.time);
+                Debug.LogWarning($"型が違うので上書きしません。key:{key}, value:{value}, type:{typeof(T).Name}");
+                return;
             }
-            // 値変更通知イベントを発行
-            OnStateChanged?.Invoke(key);
         }
+        
+        _states[key] = (value, typeof(T));
+        _changedStates.Add(key);
+        // 時刻履歴への記録（オプション）
+        if (EnableChangeTimeHistory) 
+        {
+            if (!_changeTimeHistories.ContainsKey(key))
+            {
+                _changeTimeHistories[key] = new List<float>();
+            }
+            _changeTimeHistories[key].Add(Time.time);
+        }
+        // 値変更通知イベントを発行
+        OnStateChanged?.Invoke(key);
     }
     
-    public T GetState<T>(string key) 
+    public T GetState<T>(string key, T defaultValue = default)
     {
-        if (_states.TryGetValue(key, out object objectValue)) 
+        if (_states.TryGetValue(key, out var state))
         {
-            if (objectValue is T item) 
+            if (state.Type == typeof(T))
             {
-                return item;
-            } 
-            else 
-            {
-                throw new InvalidCastException($"「{key}」というアイテムは {typeof(T).Name}という型を含んでいません");
+                return (T)state.Value;
             }
+            Debug.LogWarning($"Type mismatch for key '{key}'. Expected {typeof(T).Name}, got {state.Type.Name}");
         }
-        return default;
+        return defaultValue;
+    }
+    
+    public bool TryGetState<T>(string key, out T value)
+    {
+        value = default;
+        if (_states.TryGetValue(key, out var state))
+        {
+            if (state.Type == typeof(T))
+            {
+                value = (T)state.Value;
+                return true;
+            }
+            Debug.LogWarning($"Type mismatch for key '{key}'. Expected {typeof(T).Name}, got {state.Type.Name}");
+        }
+        return false;
+    }
+    
+    // 型安全な存在チェック
+    public bool HasState<T>(string key)
+    {
+        return _states.TryGetValue(key, out var state) && state.Type == typeof(T);
+    }
+    
+    // 型情報の取得
+    public Type GetStateType(string key)
+    {
+        return _states.TryGetValue(key, out var state) ? state.Type : null;
+    }
+    
+    // 型安全な値の取得（存在しない場合は例外を投げる）
+    public T GetStateRequired<T>(string key)
+    {
+        if (!HasState<T>(key))
+        {
+            throw new KeyNotFoundException($"Required state '{key}' of type {typeof(T).Name} not found");
+        }
+        return GetState<T>(key);
     }
 
     // ステートを複製して新しい SelfState を返す
@@ -63,7 +94,7 @@ public class SelfState
     {
         SelfState copy = new SelfState();
         // ステート辞書をコピー（浅いコピー）
-        copy._states = new Dictionary<string, object>(_states);
+        copy._states = new Dictionary<string, (object, Type)>(_states);
         // 差分キューは新規（クローン時点では未変更とする）
         copy._changedStates = new HashSet<string>();
         // 履歴設定をコピー（履歴データは保持しない場合は省略可能）
