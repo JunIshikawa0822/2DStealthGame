@@ -26,10 +26,10 @@ public class GameStatus
     public Action<int, IInventoryItem> onPlayerUnEquipEvent;
 
     [Header("Inputs")]
-    [HideInInspector]public Vector2 moveDirection = Vector2.zero;
-    [HideInInspector]public Vector2 cursorScreenPosition = Vector2.zero;
-    [HideInInspector]public Vector3 cursorWorldPosition = Vector3.zero;
-    [HideInInspector]public Vector2 cursorAlignShotPosition = Vector2.zero;
+    [HideInInspector] public Vector2 moveDirection = Vector2.zero;
+    [HideInInspector] public Vector2 cursorScreenPosition = Vector2.zero;
+    [HideInInspector] public Vector3 cursorWorldPosition = Vector3.zero;
+    [HideInInspector] public Vector2 cursorAlignShotPosition = Vector2.zero;
     //public bool onAttack = false;
     public Transform cursorObject;
     public Image cursorImage;
@@ -37,16 +37,16 @@ public class GameStatus
     [SerializeField] public LayerMask mouseLayHitlayer = 1 << 6;
 
     [Header("PlayerInfo")]
-    [HideInInspector]public Entity_HealthPoint playerHP;
-    [HideInInspector]public AGun[] playerGunsArray  = new AGun[2];
-    [HideInInspector]public int selectingGunsArrayIndex = 0;
+    [HideInInspector] public Entity_HealthPoint playerHP;
+    [HideInInspector] public AGun[] playerGunsArray = new AGun[2];
+    [HideInInspector] public int selectingGunsArrayIndex = 0;
 
     [Header("GunPrefabs")]
     //public Handgun handgunPrefab;
     public Handgun[] handgunPrefabs;
     public Shotgun[] shotgunPrefabs;
     public Rifle[] riflePrefabs;
-    
+    public RocketLauncher[] rocketLauncherPrefabs;
     [Header("Player")]
     public PlayerController player;
     public List<IStorage> activeStorageList = new List<IStorage>();
@@ -61,12 +61,16 @@ public class GameStatus
     public Data_Fixed_Handgun[] data_Fixed_Handgun_Array;
     public Data_Fixed_Rifle[] data_Fixed_Rifle_Array;
     public Data_Fixed_Shotgun[] data_Fixed_Shotgun_Array;
+    public Data_Fixed_RocketLauncher[] data_Fixed_RocketLauncher_Array;
+
 
     [Header("Bullets")]
     public Transform bulletObjectPoolTrans;
     public Bullet_10mm bullet_10mm;
     public Bullet_5_56mm bullet_5_56mm;
     public Bullet_7_62mm bullet_7_62mm;
+
+    public Bullet_Rocket bullet_Rocket;
 
     [Header("UI")]
     public LineRenderer shotLineRenderer;
@@ -86,28 +90,28 @@ public class GameStatus
 
     //[HideInInspector]public Storage playerStorage;
     //[HideInInspector]public Storage otherStorage = null;
-    [HideInInspector]public IStorage playerStorage = null;
-    [HideInInspector]public IStorage otherStorage = null;
-    [HideInInspector]public IStorage[] weaponStorages = new WeaponStorage[2];
+    [HideInInspector] public IStorage playerStorage = null;
+    [HideInInspector] public IStorage otherStorage = null;
+    [HideInInspector] public IStorage[] weaponStorages = new WeaponStorage[2];
 
     public GameObject inventoryPanel;
     public bool isInventoryPanelActive = false;
 
-    [Header("OBBテスト")] 
+    [Header("OBBテスト")]
     public Transform obbTest;
     public Transform[] obbTestObjects;
 
-    [Header("静的オブジェクト")] 
+    [Header("静的オブジェクト")]
     public Transform staticObjectsParent;
 
     public AABB3DTree<(Transform, AlignedOBB)> staticObjectTree;
 
-    [Header("動的オブジェクト")] 
+    [Header("動的オブジェクト")]
     public List<Transform> dynamicObjectList = new List<Transform>();
-    
+
     [Header("宝箱")]
     public List<Transform> InteractableObjects = new List<Transform>();
-    
+
     [Header("Enemy")]
     public List<AEnemy> enemyObjects = new List<AEnemy>();
 
@@ -122,17 +126,18 @@ public class GameStatus
     [SerializeField] private float cellWidth;
     [SerializeField] private float cellHeight;
     [SerializeField] private float cellDepth;
-    [HideInInspector]public Vector3 CellSize{get => new Vector3(cellWidth, cellHeight, cellDepth);}
-    
+    [HideInInspector] public Vector3 CellSize { get => new Vector3(cellWidth, cellHeight, cellDepth); }
+
     public int dimensionLevel;
     public Transform mortonSpaceBaseTrans;
 
     public PathFinder[] pathFinders;
     //[SerializeField] public GameObject pathTest;
 
-    [Header("RRTStar")] 
+    [Header("RRTStar")]
     public Transform stageCenterTrans;
 
-    [Header("HTN")] 
+    [Header("HTN")]
     public WorldState worldState;
+
 }

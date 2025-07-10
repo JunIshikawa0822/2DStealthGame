@@ -13,16 +13,19 @@ public class GunSystem : ASystem, IOnFixedUpdate
         IFactory bullet_10mm_Fac = new Bullet_10mm_CreateConcreteFactory(gameStat.bullet_10mm);
         IFactory bullet_5_56mm_Fac = new Bullet_5_56mm_CreateConcreteFactory(gameStat.bullet_5_56mm);
         IFactory bullet_7_62mm_Fac = new Bullet_7_62mm_CreateConcreteFactory(gameStat.bullet_7_62mm);
+        IFactory bullet_Rocket_Fac = new Bullet_Rocket_CreateConcreteFactory(gameStat.bullet_Rocket);                                  
     
         ObjectPool<Bullet_10mm> bullet_10mm_Objp = new ObjectPool<Bullet_10mm>(gameStat.bulletObjectPoolTrans, bullet_10mm_Fac);
         ObjectPool<Bullet_5_56mm> bullet_5_56mm_Objp = new ObjectPool<Bullet_5_56mm>(gameStat.bulletObjectPoolTrans, bullet_5_56mm_Fac);
         ObjectPool<Bullet_7_62mm> bullet_7_62mm_Objp = new ObjectPool<Bullet_7_62mm>(gameStat.bulletObjectPoolTrans,  bullet_7_62mm_Fac);
+        ObjectPool<Bullet_Rocket> bullet_Rocket_Objp = new ObjectPool<Bullet_Rocket>(gameStat.bulletObjectPoolTrans,  bullet_Rocket_Fac);
 
         _objectPools = new List<IObjectPool>()
         {
             bullet_10mm_Objp,
             bullet_5_56mm_Objp,
-            bullet_7_62mm_Objp
+            bullet_7_62mm_Objp,
+            bullet_Rocket_Objp
         };
 
         //口径ごとのObjectPoolをそれぞれSetup
@@ -35,7 +38,8 @@ public class GunSystem : ASystem, IOnFixedUpdate
         {
             new HandGun_CreateConcreteFactory(gameStat.handgunPrefabs, _objectPools),
             new ShotGun_CreateConcreteFactory(gameStat.shotgunPrefabs, _objectPools),
-            new Rifle_CreateConcreteFactory(gameStat.riflePrefabs, _objectPools)
+            new Rifle_CreateConcreteFactory(gameStat.riflePrefabs, _objectPools),
+            new RocketLauncher_CreateConcreteFactory(gameStat.rocketLauncherPrefabs, _objectPools)
         };
 
         gameStat.gunFacade = new GunFacade(_gunFactoriesList, gameStat.gunInstanceParent);

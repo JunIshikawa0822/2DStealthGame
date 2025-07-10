@@ -39,7 +39,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -30532,6 +30532,8 @@ MonoBehaviour:
     - {fileID: 4637144361313728936, guid: ca71673b6174c4fcfbb77292923163fb, type: 3}
     riflePrefabs:
     - {fileID: 4569925681728989563, guid: ffbe36a6e27b54ed784bfbbeae2fa8a4, type: 3}
+    rocketLauncherPrefabs:
+    - {fileID: 6092649087469766839, guid: f9632117c3307b948ad233c36e77b8ad, type: 3}
     player: {fileID: 38237714}
     bandit: {fileID: 5773702129760587681, guid: c8c454c7eb1544cd7a1579ac81a40a87,
       type: 3}
@@ -30542,12 +30544,15 @@ MonoBehaviour:
     data_Fixed_Handgun_Array: []
     data_Fixed_Rifle_Array: []
     data_Fixed_Shotgun_Array: []
+    data_Fixed_RocketLauncher_Array: []
     bulletObjectPoolTrans: {fileID: 2107302111}
     bullet_10mm: {fileID: -7185819185698553125, guid: e1d489e8d070845cab6b964327f48639,
       type: 3}
     bullet_5_56mm: {fileID: -3427884724406069225, guid: 0930f83bf02ca4802bf978008cc90a3e,
       type: 3}
     bullet_7_62mm: {fileID: -6265555676962210265, guid: ad3ab7d8eb818494eac3f1f084dc4c40,
+      type: 3}
+    bullet_Rocket: {fileID: -5159292158525222126, guid: 7733eba2f61796e468c857a1e09d7bfc,
       type: 3}
     shotLineRenderer: {fileID: 0}
     ammoText: {fileID: 1018401282}
@@ -40655,12 +40660,12 @@ PrefabInstance:
     - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: _testDataList.Array.size
-      value: 8
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: _stackNumberList.Array.size
-      value: 8
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -40679,6 +40684,18 @@ PrefabInstance:
       propertyPath: _testDataList.Array.data[7]
       value: 
       objectReference: {fileID: 11400000, guid: 067a7483542564c689218ce68a0722a3,
+        type: 2}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _testDataList.Array.data[8]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2be91f1abc384ce45a8e47a10d8bca3d,
+        type: 2}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _testDataList.Array.data[9]
+      value: 
+      objectReference: {fileID: 11400000, guid: e5d03114e7542224b800d10fc8796503,
         type: 2}
     - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
@@ -40719,6 +40736,16 @@ PrefabInstance:
         type: 3}
       propertyPath: _stackNumberList.Array.data[7]
       value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[8]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6557725310967243765, guid: 0502a9a29bee74094ace2fbaf087b0ef,
+        type: 3}
+      propertyPath: _stackNumberList.Array.data[9]
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}

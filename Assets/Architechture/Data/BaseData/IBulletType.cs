@@ -8,6 +8,7 @@ public interface IBulletType
     {
         _10mm,
         _5_56mm,
-        _7_62mm
+        _7_62mm,
+        _Rocket
     }
 }
