@@ -23,7 +23,7 @@ public class GameFlowManager :MonoBehaviour
         systems.Add(new GunSystem());
         systems.Add(new ItemSystem());
         systems.Add(new SceneManageSystem());
-        systems.Add(new CollisionRenderSystem());
+        //systems.Add(new CollisionRenderSystem());
 
         
         if(_isInventoryAllow) systems.Add(new TetrisInventorySystem());

@@ -40738,7 +40738,7 @@ PrefabInstance:
     - target: {fileID: 8656905598818628961, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}
       propertyPath: isTargetDisplayChange
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8944434050612652416, guid: 0502a9a29bee74094ace2fbaf087b0ef,
         type: 3}

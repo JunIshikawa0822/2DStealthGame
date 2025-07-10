@@ -35,9 +35,9 @@ public class MeshChangable : MonoBehaviour
     
     public void EntityMeshDisable()
     {
-        //Debug.Log("消えた");
+        if(_entityRenderer == null) _entityRenderer = GetComponent<MeshRenderer>();
+        
         _entityRenderer.enabled = false;
-
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
         {
             mesh.enabled = false;
@@ -48,8 +48,9 @@ public class MeshChangable : MonoBehaviour
     {
         // Debug.Log("ついた");
         //Debug.Log(_entityRenderer == null);
+        if(_entityRenderer == null) _entityRenderer = GetComponent<MeshRenderer>();
+        
         _entityRenderer.enabled = true;
-
         foreach(MeshRenderer mesh in _entityChildrenMeshsArray)
         {
             mesh.enabled = true;
