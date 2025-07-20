@@ -524,7 +524,7 @@ public class Enemy_Bandit_HTN : AEnemy
 
     private void SearchAround()
     {
-        List<Transform> objectList = _enemyFieldOfView.FindTargets();
+        List<Transform> objectList = _enemyFieldOfView.GetVisibleTargetsList();
         _currentTarget = FindNearestObject(objectList, this.transform);
         
         //Debug.Log($"{this.gameObject.name} : {_currentTarget.Value.position}に敵がいるぞ！");

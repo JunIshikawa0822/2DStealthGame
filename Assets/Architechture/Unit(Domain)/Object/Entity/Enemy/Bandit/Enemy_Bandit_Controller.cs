@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using JunUtilities;
@@ -236,7 +237,7 @@ public class Enemy_Bandit_Controller : AEnemy, IBandit
 
     private void SearchAround()
     {
-        List<Transform> objectList = _enemyFieldOfView.FindTargets();
+        List<Transform> objectList = _enemyFieldOfView.GetVisibleTargetsList();
         _currentTarget.Value = FindNearestObject(objectList, this.transform);
 
         if(_currentTarget.Value == null)return;

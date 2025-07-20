@@ -191,8 +191,8 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
         //けす
         foreach (Transform obj in _oldMeshableList)
         {
-            MeshChangable change = obj.GetComponent<MeshChangable>();
-            change.EntityMeshDisable();
+            MeshChangeable change = obj.GetComponent<MeshChangeable>();
+            change.SetVisibility(false);
         }
         _oldMeshableList.Clear();
         
@@ -204,10 +204,10 @@ public class CollisionRenderSystem : ASystem, IOnUpdate
             Transform obj = objectDataArray[index].transform;
             
             hitDynamicObjectNames.Add(obj.name);
-            MeshChangable change = obj.GetComponent<MeshChangable>();
+            MeshChangeable change = obj.GetComponent<MeshChangeable>();
             
             if(change == null)continue;
-            change.EntityMeshAble();
+            change.SetVisibility(true);
             _oldMeshableList.Add(obj);
         }
         // Debug.Log(string.Join(", ", hitDynamicObjectNames));

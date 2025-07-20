@@ -3,180 +3,190 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 using Unity.Entities.UniversalDelegates;
 
 public class FOV : MonoBehaviour
 {
-    [SerializeField]float _viewRadius;
-    [Range(0, 360), SerializeField]float _viewAngle;
-    [SerializeField] LayerMask targetMask;
-    [SerializeField] LayerMask obstacleMask;
+    [SerializeField] private float _viewRadius;
+    [Range(0, 360), SerializeField]private float _viewAngle;
+    [SerializeField] private LayerMask targetMask;
+    [SerializeField] private LayerMask obstacleMask;
 
     //見えているターゲットを保存するリスト
-    private List<Transform> _newVisibleTargets;
-    private List<Transform> _oldVisibleTargets;
+    private HashSet<Transform> _previousVisibleTargets = new HashSet<Transform>();
+    private HashSet<Transform> _currentVisibleTargets = new HashSet<Transform>();
 
     //解像度
-    [SerializeField] float meshResolution;
-    [SerializeField] int edgeResolveIterations;
-    [SerializeField] float edgeDstThreshold;
-    [SerializeField] bool isTargetDisplayChange;
-    [SerializeField] bool isDrawFieldOfView;
+    [SerializeField] private float meshResolution;
+    [SerializeField] private int edgeResolveIterations;
+    [SerializeField] private float edgeDstThreshold;
+    [SerializeField] private bool isTargetDisplayChange;
+    [SerializeField] private bool isDrawFieldOfView;
 
-    [SerializeField] MeshFilter viewMeshFilter;
+    [SerializeField] private MeshFilter viewMeshFilter;
     private Mesh _viewMesh;
-
     private CancellationTokenSource _cts;
 
     public float ViewRadius {get => _viewRadius; set => _viewRadius = value;}
     public float ViewAngle {get => _viewAngle; set => _viewAngle = value;}
+    
+    private Collider[] _targetsBuffer = new Collider[100]; // 事前に配列を確保
+    private List<Vector3> _viewPoints = new List<Vector3>();
+    
+    public IReadOnlyCollection<Transform> CurrentVisibleTargets => _currentVisibleTargets;
+
+    /// <summary>
+    /// 現在見えているターゲットのTransformをリストで取得
+    /// 内部でリアルタイム更新を実行
+    /// </summary>
+    public List<Transform> GetVisibleTargetsList()
+    {
+        FindCurrentVisibleTargets();
+        return _currentVisibleTargets.ToList();
+    }
+
+    /// <summary>
+    /// 現在見えているターゲットのTransformを配列で取得
+    /// 内部でリアルタイム更新を実行
+    /// </summary>
+    public Transform[] GetVisibleTargetsArray()
+    {
+        FindCurrentVisibleTargets();
+        Transform[] targets = new Transform[_currentVisibleTargets.Count];
+        _currentVisibleTargets.CopyTo(targets);
+        return targets;
+    }
 
     void Start()
     {
         //Meshを用意
-        _viewMesh = new Mesh();
-
-        //名前をつけて識別しやすくする
-        //viewMesh.name = "View Mesh";
-        _newVisibleTargets = new List<Transform>();
-        _oldVisibleTargets = new List<Transform>();
-
-        if(viewMeshFilter != null)
-        {
-            //sharedMeshは設定しなくてもよい　設定すると同じMeshを持つもの同士でMeshを共有し、メモリデータを削減できる
-            viewMeshFilter.sharedMesh = _viewMesh;
-        }
-
+        InitializeViewMesh();
         _cts = new CancellationTokenSource();
         FindAndDrawTargetWithDelay(0.2f, _cts.Token).Forget();
     }
+    
+    private void InitializeViewMesh()
+    {
+        _viewMesh = new Mesh();
+        _viewMesh.name = "View Mesh";
+        
+        if (viewMeshFilter != null)
+        {
+            viewMeshFilter.sharedMesh = _viewMesh;
+        }
+    }
 
+    private async UniTask FindAndDrawTargetWithDelay(float delayTime, CancellationToken token)
+    {
+        
+        int delayMs = (int)(delayTime * 1000);
+        
+        while (!token.IsCancellationRequested)
+        {
+            UpdateVisibleTargets();
+            await UniTask.Delay(delayMs, cancellationToken: token);
+        }
+    }
+    
+    private void UpdateVisibleTargets()
+    {
+        // 現在の可視ターゲットを取得
+        FindCurrentVisibleTargets();
+        
+        if (!isTargetDisplayChange) return;
+        
+        // Dirty Flagパターンを使用した効率的な状態管理
+        ProcessVisibilityChanges();
+        
+        // 次のフレームのために前回の状態を保存
+        SwapTargetSets();
+    }
+    
+    private void FindCurrentVisibleTargets()
+    {
+        _currentVisibleTargets.Clear();
+        
+        // OverlapSphereNonAllocを使用してガベージコレクションを削減
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _viewRadius, _targetsBuffer, targetMask);
+        
+        for (int i = 0; i < hitCount; i++)
+        {
+            Transform target = _targetsBuffer[i].transform;
+            
+            if (IsTargetVisible(target))
+            {
+                _currentVisibleTargets.Add(target);
+            }
+        }
+    }
+    
+    private bool IsTargetVisible(Transform target)
+    {
+        Vector3 dirToTarget = (target.position - transform.position).normalized;
+        
+        // 視野角チェック
+        if (Vector3.Angle(transform.forward, dirToTarget) >= _viewAngle / 2) 
+            return false;
+        
+        // 障害物チェック
+        float dstToTarget = Vector3.Distance(transform.position, target.position);
+        return !Physics.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask);
+    }
+    
+    //今のフレームで見えるものとそうでないものを変更
+    private void ProcessVisibilityChanges()
+    {
+        // 新しく見えるようになったターゲット（OFF → ON）
+        foreach (Transform target in _currentVisibleTargets)
+        {
+            if (!_previousVisibleTargets.Contains(target))
+            {
+                SetTargetVisibility(target, true);
+            }
+        }
+        
+        // 見えなくなったターゲット（ON → OFF）
+        foreach (Transform target in _previousVisibleTargets)
+        {
+            if (!_currentVisibleTargets.Contains(target))
+            {
+                SetTargetVisibility(target, false);
+            }
+        }
+        
+        // 継続して見えているターゲット（ON → ON）と
+        // 継続して見えていないターゲット（OFF → OFF）は何もしない
+    }
+    
+    private void SetTargetVisibility(Transform target, bool visible)
+    {
+        MeshChangeable meshChanger = target.GetComponent<MeshChangeable>();
+        if (meshChanger != null)
+        {
+            meshChanger.SetVisibility(visible);
+        }
+    }
+    
+    private void SwapTargetSets()
+    {
+        // 参照を入れ替える（GCを避けるため）
+        HashSet<Transform> temp = _previousVisibleTargets;
+        _previousVisibleTargets = _currentVisibleTargets;
+        _currentVisibleTargets = temp;
+    }
+    
     private void OnDestroy()
     {
         _cts?.Cancel();
         _cts?.Dispose();
     }
 
-    public List<Transform> FindTargets()
-    {
-        return FindVisibleTargets(_viewAngle, _viewRadius);
-    }
-
-    public void DrawTargets()
-    {
-        //if(this == null)return;
-        //_newVisibleTargets = FindVisibleTargets(viewAngle, viewRadius);
-
-        if(isTargetDisplayChange == true)
-        {
-            //newVisibleTargetを描画
-            DisplayVisibleTargets(_newVisibleTargets);
-            //新旧を比較し、描画するリストを更新
-            UnDisplayInvisibleTargets(_newVisibleTargets, _oldVisibleTargets);
-        }
-            
-        //_oldVisibleTargets = _newVisibleTargets;
-    }
-
-    private async UniTask FindAndDrawTargetWithDelay(float delayTime, CancellationToken token)
-    {
-        while(!token.IsCancellationRequested)
-        {
-            _newVisibleTargets = FindVisibleTargets(_viewAngle, _viewRadius);
-            DrawTargets();
-            _oldVisibleTargets = _newVisibleTargets;
-
-            await UniTask.Delay((int)delayTime * 1000, cancellationToken: token);
-        }
-    }
-
     void LateUpdate()
     {
-        if(_viewMesh == null)return;
-        if(isDrawFieldOfView == false)return;
+        if(_viewMesh == null || isDrawFieldOfView)return;
         DrawFieldOfView(_viewAngle, _viewRadius, _viewMesh);
         //DrawFieldOfView(roundViewAngle1, roundViewRadius1, viewRoundMesh);
-    }
-
-    void DisplayVisibleTargets(List<Transform> newVisibleTargets)
-    {
-        foreach(Transform target in newVisibleTargets)
-        {
-            MeshChangable meshChanger = target.GetComponent<MeshChangable>();
-
-            if(meshChanger == null)return;
-            meshChanger.EntityMeshAble();
-        }
-    }
-
-    void UnDisplayInvisibleTargets(List<Transform> newVisibleTargets, List<Transform> oldVisibleTargets)
-    {
-        foreach (Transform oldTarget in oldVisibleTargets)
-        {
-            bool isInclude = false;
-
-            foreach (Transform newTarget in newVisibleTargets)
-            {
-                //newにoldが含まれていればok
-                if (oldTarget == newTarget)
-                {
-                    isInclude = true;
-                    break;
-                }
-            }
-
-            //含まれていないならオフ
-            if (isInclude == false)
-            {
-                MeshChangable meshChanger = oldTarget.GetComponent<MeshChangable>();
-
-                if(meshChanger == null)return;
-                meshChanger.EntityMeshDisable();
-            }
-        }
-    }
-
-    List<Transform> FindVisibleTargets(float viewAngle, float viewRadius)
-    {
-        //newVisibleTargets.Clear();
-        List<Transform> newVisibleTargets = new List<Transform>();
-
-        //第一引数が中心座標、第二引数が球の半径、引数で指定した球が触れた敵を全て配列で返す
-        //でかいほう
-        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
-
-        //でかいほう
-        Calc(targetsInViewRadius, viewAngle);
-
-        return newVisibleTargets;
-        
-        void Calc(Collider[] targetsInRadiusArray, float angle)
-        {
-            for (int i = 0; i < targetsInRadiusArray.Length; i++)
-            {
-                //敵のtransform
-                Transform target = targetsInRadiusArray[i].transform;
-                //MeshRenderer enemyMeshRenderer = target.GetComponent<MeshRenderer>();
-
-                //敵の方向のベクトル（正規化）
-                Vector3 dirToTarget = (target.position - transform.position).normalized;
-
-                //敵の方向がviewAngle内だったら
-                if (Vector3.Angle(transform.forward, dirToTarget) < angle / 2)
-                {
-                    //敵のdistance
-                    float dstToTarget = Vector3.Distance(transform.position, target.position);
-
-                    //敵までのrayを飛ばして間に障害物がなければ
-                    if (!Physics.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
-                    {
-                        //targetはvisible
-                        //enemyMeshRenderer.enabled = true;
-                        newVisibleTargets.Add(target);
-                    }
-                }
-            }
-        }
     }
 
     void DrawFieldOfView(float viewAngle, float viewRadius, Mesh mesh)

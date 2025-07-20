@@ -86,8 +86,6 @@ public class EnemySystem : ASystem, IOnUpdate
         AGun enemyGun = gameStat.gunFacade.GetGunInstance(gunData).Init(gunData);
         enemyGun.ReferenceSet(weaponDataArray[0]);
         enemy.Equip(enemyGun);
-        
-        enemy.GetComponent<MeshChangable>().OnSetUp();
     }
 
     public bool IsLineCollideWithStaticObject(Vector3 startPos, Vector3 endPos)
