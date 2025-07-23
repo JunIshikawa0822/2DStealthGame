@@ -8,6 +8,9 @@ public class Bullet_Rocket : ABullet, IObject
     float _lifeDistance;
     [SerializeField]
     float _bulletDamage;
+
+    [SerializeField]
+    GameObject _explosionPrefab;
     public string Name { get; set; }
 
     void Awake()
@@ -16,6 +19,7 @@ public class Bullet_Rocket : ABullet, IObject
     }
 
     //弾の当たり判定はFixedUpdate内で計算。
+
     void FixedUpdate()
     {
         //Debug.Log($"Distance{_bulletLifeDistance}");
@@ -30,7 +34,9 @@ public class Bullet_Rocket : ABullet, IObject
             Debug.Log($"{GetBulletRaycastHit().collider.name}にぶつかって破壊");
 
             AEntity entity = GetBulletRaycastHit().collider.GetComponent<AEntity>();
-
+            GameObject Explosion_obj = Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            Explosion explosion = Explosion_obj.GetComponent<Explosion>();
+            explosion.Explode();
             Release();
 
             if (entity == null) return;
